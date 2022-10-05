@@ -8,6 +8,10 @@ group = 'org.sopt'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
 
+ext {
+	querydslVersion = '5.0.0'
+}
+
 configurations {
 	compileOnly {
 		extendsFrom annotationProcessor
@@ -27,6 +31,14 @@ dependencies {
 	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.23' // 추가
+
+	// QueryDSL
+	implementation group: 'com.querydsl', name: 'querydsl-jpa', version: querydslVersion
+	implementation group: 'com.querydsl', name: 'querydsl-apt', version: querydslVersion
+	implementation group: 'com.querydsl', name: 'querydsl-core', version: querydslVersion
+
+	annotationProcessor group: 'com.querydsl', name: 'querydsl-apt', version: querydslVersion
+	annotationProcessor group: 'com.querydsl', name: 'querydsl-apt', version: querydslVersion, classifier: 'jpa'
 }
 
 tasks.named('test') {
