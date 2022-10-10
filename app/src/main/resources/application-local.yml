@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/makers
+    username: makers
+    password: 1234
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        #show_sql: true #System.out에 찍음 운영환경에서는 찍으면 안됨. logger를 통해서 찍어야함.
+        database: postgresql
+        format_sql: true
+
+  level:
+    org.hibernate.SQL: debug #hibernate SQL모드를 debug로 사용함 로거를 통해 찍음.
+    org.hibernate.type: trace # SQL의 쿼리 파라미터를 찍어줌.
