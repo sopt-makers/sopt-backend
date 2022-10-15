@@ -1,16 +1,21 @@
+// QueryDSL 추가
+buildscript {
+    ext {
+        queryDslVersion = "5.0.0"
+    }
+}
+
 plugins {
     id 'org.springframework.boot' version '2.7.4'
     id 'io.spring.dependency-management' version '1.0.14.RELEASE'
+    //querydsl 추가
+    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
     id 'java'
 }
 
 group = 'org.sopt'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
-
-ext {
-    querydslVersion = '5.0.0'
-}
 
 configurations {
     compileOnly {
@@ -36,7 +41,9 @@ dependencies {
     runtimeOnly 'org.postgresql:postgresql'
 
     // querydsl
-
+    implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
+    implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
+    implementation "com.querydsl:querydsl-core:${queryDslVersion}" // 한개 더 추가!
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -45,3 +52,25 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+
+//querydsl 추가 시작
+def querydslDir = "$buildDir/generated/querydsl"
+
+querydsl {
+    jpa = true
+    querydslSourcesDir = querydslDir
+}
+sourceSets {
+    main.java.srcDir querydslDir
+}
+compileQuerydsl{
+    options.annotationProcessorPath = configurations.querydsl
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+    querydsl.extendsFrom compileClasspath
+}
+//querydsl 추가 끝
