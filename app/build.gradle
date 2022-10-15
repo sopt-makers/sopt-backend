@@ -1,7 +1,7 @@
 plugins {
-	id 'org.springframework.boot' version '2.7.4'
-	id 'io.spring.dependency-management' version '1.0.14.RELEASE'
-	id 'java'
+    id 'org.springframework.boot' version '2.7.4'
+    id 'io.spring.dependency-management' version '1.0.14.RELEASE'
+    id 'java'
 }
 
 group = 'org.sopt'
@@ -9,38 +9,39 @@ version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '17'
 
 ext {
-	querydslVersion = '5.0.0'
+    querydslVersion = '5.0.0'
 }
 
 configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
 dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'mysql:mysql-connector-java'
-	runtimeOnly 'org.postgresql:postgresql'
-	annotationProcessor 'org.projectlombok:lombok'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.23' // 추가
+    implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	// QueryDSL
-	implementation group: 'com.querydsl', name: 'querydsl-jpa', version: querydslVersion
-	implementation group: 'com.querydsl', name: 'querydsl-apt', version: querydslVersion
-	implementation group: 'com.querydsl', name: 'querydsl-core', version: querydslVersion
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
 
-	annotationProcessor group: 'com.querydsl', name: 'querydsl-apt', version: querydslVersion
-	annotationProcessor group: 'com.querydsl', name: 'querydsl-apt', version: querydslVersion, classifier: 'jpa'
+    // DB
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+
+    implementation group: 'org.postgresql', name: 'postgresql', version: '42.2.23'
+    runtimeOnly 'org.postgresql:postgresql'
+
+    // querydsl
+
+
+    // test
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
