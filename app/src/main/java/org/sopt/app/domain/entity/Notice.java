@@ -37,6 +37,9 @@ public class Notice {
     @Column
     private String creator;
 
+    @Column
+    private String scope;  // ALL, MEMBER (전체공개, 회원공개)
+
     public Notice() {
     }
 }
