@@ -45,6 +45,9 @@ dependencies {
     implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
     implementation "com.querydsl:querydsl-core:${queryDslVersion}" // 한개 더 추가!
 
+    //hibernate-type52 추가 array type을 위해
+    implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.19.0'
+
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }

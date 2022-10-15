@@ -1,11 +1,19 @@
 package org.sopt.app.domain.entity;
 
 
+import com.vladmihalcea.hibernate.type.array.ListArrayType;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "NOTICE")
+@TypeDef(
+        name = "list-array",
+        typeClass = ListArrayType.class
+)
 public class Notice {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,12 +25,18 @@ public class Notice {
     @Column
     private String contents;
 
-    @Column
-    private String images;
+    @Type(type = "list-array")
+    @Column(
+            columnDefinition = "text[]"
+    )
+    private List<String> images;
 
     @Column
     private String part;
 
     @Column
     private String creator;
+
+    public Notice() {
+    }
 }
