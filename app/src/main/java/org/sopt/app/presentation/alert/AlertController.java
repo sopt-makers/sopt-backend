@@ -1,4 +1,4 @@
-package org.sopt.app.interfaces.alert;
+package org.sopt.app.presentation.alert;
 
 import org.springframework.web.bind.annotation.RestController;
 
