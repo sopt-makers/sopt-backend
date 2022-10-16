@@ -2,10 +2,15 @@ package org.sopt.app.domain.entity;
 
 
 import com.vladmihalcea.hibernate.type.array.ListArrayType;
+import lombok.*;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import javax.persistence.*;
+import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -14,7 +19,11 @@ import java.util.List;
         name = "list-array",
         typeClass = ListArrayType.class
 )
-public class Notice {
+@Getter
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class Notice extends BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -40,6 +49,4 @@ public class Notice {
     @Column
     private String scope;  // ALL, MEMBER (전체공개, 회원공개)
 
-    public Notice() {
-    }
 }

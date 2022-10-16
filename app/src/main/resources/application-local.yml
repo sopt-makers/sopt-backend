@@ -7,10 +7,10 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: update #update 더이상 바꾸고 싶지 않을 때, # create: 자동 갱신
     properties:
       hibernate:
-        #show_sql: true #System.out에 찍음 운영환경에서는 찍으면 안됨. logger를 통해서 찍어야함.
+        # show_sql: true #System.out에 찍음 운영환경에서는 찍으면 안됨. logger를 통해서 찍어야함.
         database: postgresql
         format_sql: true
 
