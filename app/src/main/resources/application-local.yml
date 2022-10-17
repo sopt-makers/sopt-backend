@@ -5,6 +5,12 @@ spring:
     password: 1234
     driver-class-name: org.postgresql.Driver
 
+#  config:
+#    activate:
+#      on-profile: local
+#  autoconfigure:
+#    exclude: org.springframework.cloud.aws.autoconfigure.context.ContextStackAutoConfiguration
+
   jpa:
     hibernate:
       ddl-auto: update #update 더이상 바꾸고 싶지 않을 때, # create: 자동 갱신
@@ -17,3 +23,8 @@ spring:
   level:
     org.hibernate.SQL: debug #hibernate SQL모드를 debug로 사용함 로거를 통해 찍음.
     org.hibernate.type: trace # SQL의 쿼리 파라미터를 찍어줌.
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
