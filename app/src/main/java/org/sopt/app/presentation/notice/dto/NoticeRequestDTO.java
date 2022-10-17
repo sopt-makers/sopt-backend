@@ -15,4 +15,5 @@ public class NoticeRequestDTO {
     private String contents; // 공지 내용
     private String part; // 파트
     private String scope; // 범위 (전체 공개 , 회원공개)
+    private String creator; // 작성자
 }
