@@ -2,15 +2,21 @@ package org.sopt.app.presentation.notice;
 
 import lombok.AllArgsConstructor;
 import org.sopt.app.application.notice.NoticeService;
+import org.sopt.app.common.s3.S3Service;
+import org.sopt.app.presentation.notice.dto.NoticeRequestDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
 public class NoticeController extends BaseController {
 
     private final NoticeService noticeService;
+    private final S3Service s3Service;
 
 
     /**
@@ -36,5 +42,18 @@ public class NoticeController extends BaseController {
     public ResponseEntity<?> findNoticeByPartandTitle(@RequestParam(value = "part" , required = false) String part,
                                         @RequestParam(value = "title" , required = false) String title) {
         return new ResponseEntity<>(noticeService.findNoticeByPartandTitle(part, title), getSuccessHeaders(), HttpStatus.OK);
+    }
+
+    /**
+     * 공지사항 업로드 하기
+     */
+    // 게시글 작성
+    @PostMapping("/notice")
+    public List<String> uploadPost(@RequestPart("noticeContent") NoticeRequestDTO noticeRequestDTO,
+                                   @RequestPart("imgUrl") List<MultipartFile> multipartFiles) {
+        List<String> imgPaths = s3Service.upload(multipartFiles);
+        System.out.println("IMG 경로들 : " + imgPaths);
+//        postService.uploadPost(postRequestDto, imgPaths);
+        return imgPaths;
     }
 }
