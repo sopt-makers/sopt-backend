@@ -34,7 +34,7 @@ public class NoticeService {
         return list;
     }
 
-    public List<Notice> findNoticeByPartandTitle(String part, String title) {
+    public List<Notice> findNoticeByPartAndTitle(String part, String title) {
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
         QNotice qNotice = QNotice.notice;
 
@@ -48,24 +48,43 @@ public class NoticeService {
         return list;
     }
 
-    // 게시글 작성
+    // 게시글 작성 -  이미지 포함
     @Transactional
-    public Notice uploadPost(NoticeRequestDTO noticeRequestDTO, List<String> imgPaths) {
+    public Notice uploadPostWithImg(NoticeRequestDTO noticeRequestDTO, List<String> imgPaths) {
 
         List<String> imgList = new ArrayList<>(imgPaths);
-        Notice notice = this.convertNotice(noticeRequestDTO, imgList);
+        Notice notice = this.convertNoticeImg(noticeRequestDTO, imgList);
         return noticeRepository.save(notice);
 
     }
 
+    // 게시글 작성 - 이미지 미포함
+    public Notice uploadPost(NoticeRequestDTO noticeRequestDTO) {
+
+        Notice notice = this.convertNotice(noticeRequestDTO);
+        return noticeRepository.save(notice);
+    }
+
     //Notice Entity 양식에 맞게 데이터 세팅
-    private Notice convertNotice(NoticeRequestDTO noticeRequestDTO, List<String> imgList) {
+    private Notice convertNoticeImg(NoticeRequestDTO noticeRequestDTO, List<String> imgList) {
 
         Notice notice = Notice.builder()
                 .title(noticeRequestDTO.getTitle())
                 .contents(noticeRequestDTO.getContents())
                 .part(noticeRequestDTO.getPart())
                 .images(imgList)
+                .creator(noticeRequestDTO.getCreator())
+                .scope(noticeRequestDTO.getScope())
+                .build();
+        return notice;
+    }
+
+    private Notice convertNotice(NoticeRequestDTO noticeRequestDTO) {
+
+        Notice notice = Notice.builder()
+                .title(noticeRequestDTO.getTitle())
+                .contents(noticeRequestDTO.getContents())
+                .part(noticeRequestDTO.getPart())
                 .creator(noticeRequestDTO.getCreator())
                 .scope(noticeRequestDTO.getScope())
                 .build();
