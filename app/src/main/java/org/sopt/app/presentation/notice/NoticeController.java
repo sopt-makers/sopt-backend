@@ -3,7 +3,6 @@ package org.sopt.app.presentation.notice;
 import lombok.AllArgsConstructor;
 import org.sopt.app.application.notice.NoticeService;
 import org.sopt.app.common.s3.S3Service;
-import org.sopt.app.domain.entity.Notice;
 import org.sopt.app.presentation.notice.dto.NoticeRequestDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+
 
 @RestController
 @AllArgsConstructor
@@ -42,7 +42,7 @@ public class NoticeController extends BaseController {
     @ResponseBody
     public ResponseEntity<?> findNoticeByPartandTitle(@RequestParam(value = "part" , required = false) String part,
                                         @RequestParam(value = "title" , required = false) String title) {
-        return new ResponseEntity<>(noticeService.findNoticeByPartandTitle(part, title), getSuccessHeaders(), HttpStatus.OK);
+        return new ResponseEntity<>(noticeService.findNoticeByPartAndTitle(part, title), getSuccessHeaders(), HttpStatus.OK);
     }
 
     /**
@@ -52,9 +52,19 @@ public class NoticeController extends BaseController {
     @PostMapping("/notice")
     public ResponseEntity<?> uploadPost(@RequestPart("noticeContent") NoticeRequestDTO noticeRequestDTO,
                                    @RequestPart("imgUrl") List<MultipartFile> multipartFiles) {
-        List<String> imgPaths = s3Service.upload(multipartFiles);
-//        System.out.println("IMG 경로들 : " + imgPaths);
-        Notice notice = noticeService.uploadPost(noticeRequestDTO, imgPaths);
-        return new ResponseEntity<>(notice, getSuccessHeaders(), HttpStatus.OK);
+
+        //MultipartFile을 리스트에 넣어줬기 때문에 List 내부의 이미지파일에 isEmpty()를 적용해야 한다.
+        int checkNum = 1;
+        for(MultipartFile image: multipartFiles){
+            if(image.isEmpty()) checkNum = 0;
+        }
+
+        if (checkNum == 0) {
+            noticeService.uploadPost(noticeRequestDTO);
+        } else {
+            List<String> imgPaths = s3Service.upload(multipartFiles);
+            noticeService.uploadPostWithImg(noticeRequestDTO, imgPaths);
+        }
+        return new ResponseEntity<>(getSuccessHeaders(), HttpStatus.OK);
     }
 }
