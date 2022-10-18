@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class NoticeRequestDTO {
+    private Long id; // 공지 ID
     private String title; // 공지제목
     private String contents; // 공지 내용
     private String part; // 파트
