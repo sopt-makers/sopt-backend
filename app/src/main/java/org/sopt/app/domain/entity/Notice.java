@@ -49,4 +49,26 @@ public class Notice extends BaseEntity implements Serializable {
     @Column
     private String scope;  // ALL, MEMBER (전체공개, 회원공개)
 
+
+    // 수정하기 위해 메소드 생성
+    public void changeTitle(String title){
+        this.title = title;
+    }
+
+    public void changeContents(String contents){
+        this.contents = contents;
+    }
+
+    public void changePart(String part){
+        this.part = part;
+    }
+
+    public void changeScope(String scope){
+        this.scope = scope;
+    }
+
+    public void changeCreator(String creator){
+        this.creator = creator;
+    }
+
 }

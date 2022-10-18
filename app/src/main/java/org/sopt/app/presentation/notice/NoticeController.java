@@ -3,6 +3,7 @@ package org.sopt.app.presentation.notice;
 import lombok.AllArgsConstructor;
 import org.sopt.app.application.notice.NoticeService;
 import org.sopt.app.common.s3.S3Service;
+import org.sopt.app.domain.entity.Notice;
 import org.sopt.app.presentation.notice.dto.NoticeRequestDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,4 +68,26 @@ public class NoticeController extends BaseController {
         }
         return new ResponseEntity<>(getSuccessHeaders(), HttpStatus.OK);
     }
+
+    /**
+     * 공지사항 수정 (사진 제외)
+     */
+    @PutMapping("/notice")
+    @ResponseBody
+    public ResponseEntity<Notice> modifyNotice(@RequestBody NoticeRequestDTO noticeRequestDTO){
+        Notice notice = noticeService.modifyNotice(noticeRequestDTO);
+        return new ResponseEntity<>(notice, getSuccessHeaders(), HttpStatus.OK);
+    }
+
+
+    /**
+     * 공지사항 삭제
+     */
+    @DeleteMapping("/notice")
+    @ResponseBody
+    public ResponseEntity<?> deleteNotice(@RequestBody NoticeRequestDTO noticeRequestDTO){
+        noticeService.deleteById(noticeRequestDTO.getId());
+        return new ResponseEntity<>("{}", getSuccessHeaders(), HttpStatus.OK);
+    }
+
 }

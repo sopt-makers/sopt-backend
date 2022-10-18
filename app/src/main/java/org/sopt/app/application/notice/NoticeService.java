@@ -65,6 +65,28 @@ public class NoticeService {
         return noticeRepository.save(notice);
     }
 
+    // 게시글 수정
+    @Transactional
+    public Notice modifyNotice(NoticeRequestDTO noticeRequestDTO) {
+
+        Notice notice = noticeRepository.getReferenceById(noticeRequestDTO.getId());
+
+        if(StringUtils.hasText(noticeRequestDTO.getTitle())) notice.changeTitle(noticeRequestDTO.getTitle());
+        if(StringUtils.hasText(noticeRequestDTO.getContents())) notice.changeContents(noticeRequestDTO.getContents());
+        if(StringUtils.hasText(noticeRequestDTO.getPart())) notice.changePart(noticeRequestDTO.getPart());
+        if(StringUtils.hasText(noticeRequestDTO.getScope())) notice.changeScope(noticeRequestDTO.getScope());
+        if(StringUtils.hasText(noticeRequestDTO.getCreator())) notice.changeCreator(noticeRequestDTO.getCreator());
+
+        return noticeRepository.save(notice);
+    }
+
+    // 게시글 삭제
+    @Transactional
+    public void deleteById(Long id){
+        noticeRepository.deleteById(id);
+    }
+
+
     //Notice Entity 양식에 맞게 데이터 세팅
     private Notice convertNoticeImg(NoticeRequestDTO noticeRequestDTO, List<String> imgList) {
 
