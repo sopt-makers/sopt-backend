@@ -34,16 +34,19 @@ public class NoticeController extends BaseController {
 
     /**
      * part 별 공지조회
-     * title로 공지조회
+     * title로 공지 검색 조회
+     * scope 로 공지글 범위 설정 (ALL / MEMBER)
      * @param part
      * @param title
+     * @param scope
      * @return
      */
     @GetMapping(value = "/notice")
     @ResponseBody
-    public ResponseEntity<?> findNoticeByPartandTitle(@RequestParam(value = "part" , required = false) String part,
-                                        @RequestParam(value = "title" , required = false) String title) {
-        return new ResponseEntity<>(noticeService.findNoticeByPartAndTitle(part, title), getSuccessHeaders(), HttpStatus.OK);
+    public ResponseEntity<?> findNoticeByPartAndTitle(@RequestParam(value = "part" , required = false) String part,
+                                                      @RequestParam(value = "title" , required = false) String title,
+                                                      @RequestParam(value = "scope", required = false) String scope) {
+        return new ResponseEntity<>(noticeService.findNoticeByPartAndTitle(part, title, scope), getSuccessHeaders(), HttpStatus.OK);
     }
 
     /**
