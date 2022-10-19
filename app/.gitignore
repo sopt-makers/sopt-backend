@@ -36,7 +36,7 @@ out/
 ### VS Code ###
 .vscode/
 
-### application.yml 파일 gitignore 처리
-src/main/resources/application.yml
-src/main/resources/application-local.yml
+### application.yml 파일들에 대한 gitignore 처리
+application.yml
+application-local.yml
 

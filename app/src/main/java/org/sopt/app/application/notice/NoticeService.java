@@ -34,15 +34,16 @@ public class NoticeService {
         return list;
     }
 
-    public List<Notice> findNoticeByPartAndTitle(String part, String title) {
+    public List<Notice> findNoticeByPartAndTitle(String part, String title, String scope) {
         JPAQueryFactory queryFactory = new JPAQueryFactory(em);
         QNotice qNotice = QNotice.notice;
 
         List<Notice> list = queryFactory.select(qNotice)
                 .from(qNotice)
                 .where(
-                        StringUtils.hasText(part) ? qNotice.part.eq(part) : null
-                        , StringUtils.hasText(title) ? qNotice.title.contains(title) : null
+                         StringUtils.hasText(part) ? qNotice.part.eq(part) : null
+                        ,StringUtils.hasText(scope) ? qNotice.scope.eq(scope) : null
+                        ,StringUtils.hasText(title) ? qNotice.title.contains(title) : null
                 ).orderBy(qNotice.id.desc())
                 .fetch();
         return list;
