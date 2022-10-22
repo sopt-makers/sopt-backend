@@ -11,6 +11,6 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class PartRspDTO {
+public class PartResponseDTO {
     private List<String> parts;
 }
