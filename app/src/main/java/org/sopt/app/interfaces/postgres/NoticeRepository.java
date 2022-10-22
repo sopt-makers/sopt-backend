@@ -1,4 +1,4 @@
-package org.sopt.app.interfaces.notice;
+package org.sopt.app.interfaces.postgres;
 
 import org.sopt.app.domain.entity.Notice;
 import org.springframework.data.jpa.repository.JpaRepository;

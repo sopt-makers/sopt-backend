@@ -4,7 +4,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.domain.entity.Notice;
 import org.sopt.app.domain.entity.QNotice;
-import org.sopt.app.interfaces.notice.NoticeRepository;
+import org.sopt.app.interfaces.postgres.NoticeRepository;
 import org.sopt.app.presentation.notice.dto.NoticeRequestDTO;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
@@ -41,9 +41,9 @@ public class NoticeService {
         List<Notice> list = queryFactory.select(qNotice)
                 .from(qNotice)
                 .where(
-                         StringUtils.hasText(part) ? qNotice.part.eq(part) : null
-                        ,StringUtils.hasText(scope) ? qNotice.scope.eq(scope) : null
-                        ,StringUtils.hasText(title) ? qNotice.title.contains(title) : null
+                        StringUtils.hasText(part) ? qNotice.part.eq(part) : null
+                        , StringUtils.hasText(scope) ? qNotice.scope.eq(scope) : null
+                        , StringUtils.hasText(title) ? qNotice.title.contains(title) : null
                 ).orderBy(qNotice.id.desc())
                 .fetch();
         return list;
@@ -72,18 +72,18 @@ public class NoticeService {
 
         Notice notice = noticeRepository.getReferenceById(noticeRequestDTO.getId());
 
-        if(StringUtils.hasText(noticeRequestDTO.getTitle())) notice.changeTitle(noticeRequestDTO.getTitle());
-        if(StringUtils.hasText(noticeRequestDTO.getContents())) notice.changeContents(noticeRequestDTO.getContents());
-        if(StringUtils.hasText(noticeRequestDTO.getPart())) notice.changePart(noticeRequestDTO.getPart());
-        if(StringUtils.hasText(noticeRequestDTO.getScope())) notice.changeScope(noticeRequestDTO.getScope());
-        if(StringUtils.hasText(noticeRequestDTO.getCreator())) notice.changeCreator(noticeRequestDTO.getCreator());
+        if (StringUtils.hasText(noticeRequestDTO.getTitle())) notice.changeTitle(noticeRequestDTO.getTitle());
+        if (StringUtils.hasText(noticeRequestDTO.getContents())) notice.changeContents(noticeRequestDTO.getContents());
+        if (StringUtils.hasText(noticeRequestDTO.getPart())) notice.changePart(noticeRequestDTO.getPart());
+        if (StringUtils.hasText(noticeRequestDTO.getScope())) notice.changeScope(noticeRequestDTO.getScope());
+        if (StringUtils.hasText(noticeRequestDTO.getCreator())) notice.changeCreator(noticeRequestDTO.getCreator());
 
         return noticeRepository.save(notice);
     }
 
     // 게시글 삭제
     @Transactional
-    public void deleteById(Long id){
+    public void deleteById(Long id) {
         noticeRepository.deleteById(id);
     }
 
