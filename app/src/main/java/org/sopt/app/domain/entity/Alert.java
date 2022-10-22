@@ -1,13 +1,11 @@
 package org.sopt.app.domain.entity;
 
 import com.vladmihalcea.hibernate.type.array.ListArrayType;
+import lombok.Builder;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -18,6 +16,7 @@ import java.util.List;
 )
 public class Alert {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column
@@ -28,4 +27,18 @@ public class Alert {
             columnDefinition = "text[]"
     )
     private List<String> topic;
+
+    @Column
+    private Boolean active;
+
+    @Builder
+    public Alert(Long tmpUserId, List<String> topic, Boolean active) {
+        this.tmpUserId = tmpUserId;
+        this.topic = topic;
+        this.active = active;
+    }
+
+    public Alert() {
+
+    }
 }

@@ -1,22 +1,30 @@
 package org.sopt.app.domain.entity;
 
+import lombok.Getter;
 import org.sopt.app.domain.enums.Authority;
+import org.sopt.app.domain.enums.OsType;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Table(name = "TMP_USER")
+@Getter
 public class User {
 
     @Id
     private Long id;
 
     @Column
+    private String email;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Authority auth;
+
+    @Column
     private String clientToken;
 
     @Column
-    private Authority auth;
+    @Enumerated(EnumType.STRING)
+    private OsType osType;
 }
