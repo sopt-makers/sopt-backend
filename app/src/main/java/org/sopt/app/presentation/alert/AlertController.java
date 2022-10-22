@@ -3,7 +3,7 @@ package org.sopt.app.presentation.alert;
 import lombok.AllArgsConstructor;
 import org.sopt.app.application.alert.AlertService;
 import org.sopt.app.application.alert.command.SaveAlertCommand;
-import org.sopt.app.presentation.alert.dto.PartsDTO;
+import org.sopt.app.presentation.alert.dto.PartResponseDTO;
 import org.sopt.app.presentation.alert.dto.SavePartsDTO;
 import org.sopt.app.presentation.notice.BaseController;
 import org.springframework.http.HttpStatus;
@@ -21,7 +21,7 @@ public class AlertController extends BaseController {
      */
     @GetMapping(value = "/alert/part")
     @ResponseBody
-    public ResponseEntity<PartsDTO> findPart() {
+    public ResponseEntity<PartResponseDTO> findPart() {
         return new ResponseEntity<>(alertService.findPart(), getSuccessHeaders(), HttpStatus.OK);
     }
 

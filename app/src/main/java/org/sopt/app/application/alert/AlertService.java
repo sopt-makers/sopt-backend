@@ -8,7 +8,7 @@ import org.sopt.app.domain.entity.Alert;
 import org.sopt.app.domain.enums.Parts;
 import org.sopt.app.interfaces.postgres.UserJpaRepository;
 import org.sopt.app.interfaces.postgres.alert.AlertRepository;
-import org.sopt.app.presentation.alert.dto.PartsDTO;
+import org.sopt.app.presentation.alert.dto.PartResponseDTO;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class AlertService implements AlertUseCase {
     private final UserJpaRepository userJpaRepository;
     private final AlertRepository alertRepository;
 
-    public PartsDTO findPart() {
+    public PartResponseDTO findPart() {
 
         //ENUM 값을 통해 part 들을 받아온다.
         List<String> partString = new ArrayList<>();
@@ -29,7 +29,7 @@ public class AlertService implements AlertUseCase {
             partString.add(part.toString());
         }
 
-        return PartsDTO.builder()
+        return PartResponseDTO.builder()
                 .parts(partString)
                 .build();
     }
