@@ -11,7 +11,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SavePartsDTO {
+public class SavePartsRequestDTO {
     private List<String> parts;
     private Boolean active;
 }

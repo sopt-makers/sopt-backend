@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import org.sopt.app.application.alert.AlertService;
 import org.sopt.app.application.alert.command.SaveAlertCommand;
 import org.sopt.app.presentation.alert.dto.PartResponseDTO;
-import org.sopt.app.presentation.alert.dto.SavePartsDTO;
+import org.sopt.app.presentation.alert.dto.SavePartsRequestDTO;
+import org.sopt.app.presentation.alert.dto.FindUserPartResponseDTO;
 import org.sopt.app.presentation.notice.BaseController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,14 +26,17 @@ public class AlertController extends BaseController {
         return new ResponseEntity<>(alertService.findPart(), getSuccessHeaders(), HttpStatus.OK);
     }
 
-    /**
-     * 파트 알림정보 저장
-     */
+    @GetMapping(value = "/alert/{user_id}")
+    public ResponseEntity<FindUserPartResponseDTO> findUserPart(
+            @PathVariable(name = "user_id") Long userId
+    ) {
+        return new ResponseEntity<>(alertService.findPartByUserId(userId), getSuccessHeaders(), HttpStatus.OK);
+    }
 
     @PostMapping(value = "/alert/{user_id}")
     public void saveParts(
             @PathVariable(name = "user_id") Long userId,
-            @RequestBody SavePartsDTO partsDto
+            @RequestBody SavePartsRequestDTO partsDto
     ) {
         alertService.saveParts(SaveAlertCommand.builder()
                 .userId(userId)
