@@ -24,15 +24,8 @@ public class AlertService implements AlertUseCase {
     private final AlertRepository alertRepository;
 
     public PartResponseDTO findPart() {
-
-        //ENUM 값을 통해 part 들을 받아온다.
-        List<String> partString = new ArrayList<>();
-        for (Parts part : Parts.values()) {
-            partString.add(part.toString());
-        }
-
         return PartResponseDTO.builder()
-                .parts(partString)
+                .parts(Parts.getParts())
                 .build();
     }
 
