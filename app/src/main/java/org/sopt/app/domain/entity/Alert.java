@@ -2,6 +2,7 @@ package org.sopt.app.domain.entity;
 
 import com.vladmihalcea.hibernate.type.array.ListArrayType;
 import lombok.Builder;
+import lombok.Getter;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
@@ -14,6 +15,7 @@ import java.util.List;
         name = "list-array",
         typeClass = ListArrayType.class
 )
+@Getter
 public class Alert {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
