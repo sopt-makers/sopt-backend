@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.sopt.app.presentation.alert.dto.SavePartsDTO;
+import org.sopt.app.presentation.alert.dto.SavePartsRequestDTO;
 
 
 @Getter
@@ -13,6 +13,6 @@ import org.sopt.app.presentation.alert.dto.SavePartsDTO;
 @Builder
 public class SaveAlertCommand {
     private Long userId;
-    private SavePartsDTO partsDto;
+    private SavePartsRequestDTO partsDto;
 }
 
