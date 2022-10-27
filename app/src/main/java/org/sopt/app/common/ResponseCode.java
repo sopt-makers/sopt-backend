@@ -12,8 +12,8 @@ import java.util.stream.Stream;
 public enum ResponseCode {
 
     INVALID_RESPONSE("99", "99", "9999", "요청이 처리 되지 않았습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
-    SUCCESS("00","00", "0000", "정상 처리되었습니다.", HttpStatus.OK);
-
+    SUCCESS("00","00", "0000", "정상 처리되었습니다.", HttpStatus.OK),
+    INVALID_REQUEST("00", "01", "0001", "잘못된 요청입니다.", HttpStatus.BAD_REQUEST);
 
     private final String codeGroup;
     private final String code;

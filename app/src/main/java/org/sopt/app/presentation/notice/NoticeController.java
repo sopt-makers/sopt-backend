@@ -2,8 +2,12 @@ package org.sopt.app.presentation.notice;
 
 import lombok.AllArgsConstructor;
 import org.sopt.app.application.notice.NoticeService;
+import org.sopt.app.application.user.UserService;
+import org.sopt.app.common.ResponseCode;
+import org.sopt.app.common.exception.ApiException;
 import org.sopt.app.common.s3.S3Service;
 import org.sopt.app.domain.entity.Notice;
+import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.notice.dto.NoticeRequestDTO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -19,6 +24,7 @@ public class NoticeController extends BaseController {
 
     private final NoticeService noticeService;
     private final S3Service s3Service;
+    private final UserService userService;
 
 
     /**
@@ -41,12 +47,29 @@ public class NoticeController extends BaseController {
      * @param scope
      * @return
      */
-    @GetMapping(value = "/notice")
+    @GetMapping(value = "/notice/user/{user_id}")
     @ResponseBody
-    public ResponseEntity<?> findNoticeByPartAndTitle(@RequestParam(value = "part" , required = false) String part,
-                                                      @RequestParam(value = "title" , required = false) String title,
-                                                      @RequestParam(value = "scope", required = false) String scope) {
-        return new ResponseEntity<>(noticeService.findNoticeByPartAndTitle(part, title, scope), getSuccessHeaders(), HttpStatus.OK);
+    public ResponseEntity<?> findNoticeByPartAndTitle(@PathVariable Long user_id,
+                                                      @RequestParam(value = "part" , required = false) String part,
+                                                      @RequestParam(value = "scope", required = false) String scope,
+                                                      @RequestParam(value = "title" , required = false) String title) {
+        //회원 정보 조회
+        Optional<User> user = userService.findAllById(user_id);
+        if(user.get().getAuth().toString().equals("NON_MEMBER")){ //비회원인 경우
+            String nonMemberPart = "ALL";
+            String nonMemberScope = "ALL";
+            return new ResponseEntity<>(noticeService.findNoticeByPartAndTitle(nonMemberPart, title, nonMemberScope), getSuccessHeaders(), HttpStatus.OK);
+
+        } else if(user.get().getAuth().toString().equals("ACTIVE")){ //활동 회원인 경우
+            return new ResponseEntity<>(noticeService.findNoticeByPartAndTitle(part, title, scope), getSuccessHeaders(), HttpStatus.OK);
+
+        }else if(user.get().getAuth().toString().equals("GRADUATED")){ //수료 회원인 경우
+            String graduatePart = "ALL";
+            return new ResponseEntity<>(noticeService.findNoticeByPartAndTitle(graduatePart, title, scope), getSuccessHeaders(), HttpStatus.OK);
+
+        }else { //Auth 권한이 없는 회원인 경우 --> 인증 제대로 안되어서 안쌓였을 때
+            throw new ApiException(ResponseCode.INVALID_REQUEST);
+        }
     }
 
     /**
@@ -91,6 +114,14 @@ public class NoticeController extends BaseController {
     public ResponseEntity<?> deleteNotice(@RequestBody NoticeRequestDTO noticeRequestDTO){
         noticeService.deleteById(noticeRequestDTO.getId());
         return new ResponseEntity<>("{}", getSuccessHeaders(), HttpStatus.OK);
+    }
+
+    @GetMapping("/test")
+    @ResponseBody
+    public Optional<User> findUser(){
+        Optional<User> user = userService.findAllById(1L);
+        System.out.println(user.get().getAuth().toString());
+        return user;
     }
 
 }
