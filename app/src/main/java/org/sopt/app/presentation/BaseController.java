@@ -1,4 +1,4 @@
-package org.sopt.app.presentation.notice;
+package org.sopt.app.presentation;
 
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
