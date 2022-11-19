@@ -9,7 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Getter
 @Setter
@@ -18,17 +18,12 @@ import java.time.LocalDateTime;
 public abstract class BaseEntity {
 
     @CreatedDate
-    @Column(name = "RGSTT_DTM", updatable = false)
-    private LocalDateTime regDate;
+    @Column(name = "created_at", updatable = false)
+    private LocalDate createdAt;
 
-    @Column(name = "RGSTT_ID", updatable = false, length = 20)
-    private String regId;
 
     @LastModifiedDate
-    @Column(name = "EDIT_DTM")
-    private LocalDateTime editDate;
-
-    @Column(name = "EDIT_ID", length = 20)
-    private String editId;
+    @Column(name = "updated_at")
+    private LocalDate updatedAt;
 
 }

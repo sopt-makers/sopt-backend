@@ -1,43 +1,53 @@
 package org.sopt.app.domain.entity;
 
-import java.util.ArrayList;
-import java.util.List;
+import lombok.Builder;
 import lombok.Getter;
-import org.sopt.app.domain.enums.Authority;
 import org.sopt.app.domain.enums.OsType;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 
 @Entity
-@Table(name = "NEW_USER")
+@Table(name = "app_users")
 @Getter
-public class User {
+public class User extends BaseEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "user_id")
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
+    private Long id;
 
-  @Column
-  private String email;
+    @Column(nullable = false)
+    private String nickname;
 
-  @Column
-  @Enumerated(EnumType.STRING)
-  private Authority auth;
+    @Column(nullable = false)
+    private String email;
+    @Column(nullable = false)
+    private String password;
 
-  @Column
-  private String clientToken;
+    @Column
+    private String clientToken;
 
-  @Column
-  @Enumerated(EnumType.STRING)
-  private OsType osType;
+    @Column
+    @Enumerated(EnumType.STRING)
+    private OsType osType;
 
-  @Column
-  private String password;
+    @Column
+    private LocalDate createdAt;
 
-  @Column
-  private String salt;
+    @Column
+    private LocalDate updatedAt;
 
-  @OneToMany(mappedBy = "user", cascade = CascadeType.REMOVE)
-  private List<Stamp> stamps = new ArrayList<>();
+    @Builder
+    public User(String email, String nickname, String clientToken, OsType osType, String password) {
+        this.nickname = nickname;
+        this.email = email;
+        this.password = password;
+        this.osType = osType;
+        this.clientToken = clientToken;
+    }
+
+    public User() {
+
+    }
 }
