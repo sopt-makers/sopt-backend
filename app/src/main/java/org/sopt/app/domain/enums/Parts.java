@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
+@Deprecated(since = "2022.11")
 public enum Parts {
     ALL("전체"),
     PLAN("기획"),
