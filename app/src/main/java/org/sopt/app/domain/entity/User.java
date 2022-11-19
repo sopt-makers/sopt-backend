@@ -5,10 +5,9 @@ import lombok.Getter;
 import org.sopt.app.domain.enums.OsType;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 
 @Entity
-@Table(name = "app_users")
+@Table(name = "app_users", schema = "app_dev")
 @Getter
 public class User extends BaseEntity {
 
@@ -31,12 +30,6 @@ public class User extends BaseEntity {
     @Column
     @Enumerated(EnumType.STRING)
     private OsType osType;
-
-    @Column
-    private LocalDate createdAt;
-
-    @Column
-    private LocalDate updatedAt;
 
     @Builder
     public User(String email, String nickname, String clientToken, OsType osType, String password) {
