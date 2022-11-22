@@ -1,0 +1,62 @@
+name: 🚀MAKERS-APP-RELEASE!
+
+on:
+  push:
+    branches: [ 'feature/github-actions' ]
+    tags: [ 'makers-app-develop' ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        deployment-group-name: [ makers-app ]
+        codedeploy-application-name: [ app ]
+        s3-bucket: [ sopt-makers ]
+
+
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      - name: set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: '17'
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: 🐈 Gradle Build
+        run: ./gradlew clean build
+
+      - name: Make Directory
+        run: mkdir deploy
+
+      - name: 🔧 Copy Jar
+        run: cp ./build/libs/*.jar ./deploy
+
+      - name: 📂 Make zip file
+        run: zip -r ./$GITHUB_SHA.zip ./deploy
+
+      - name: 🪣 S3 upload
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: 🚀 s3 upload
+        run: aws s3 cp --region ap-northeast-2 --acl private ./$GITHUB_SHA.zip s3://sopt-makers/deploy/$GITHUB_SHA.zip
+
+      - name: CodeDeploy~!
+        run: aws deploy create-deployment 
+          --application-name ${{matrix.codedeploy-application-name}}
+          --deployment-group-name ${{matrix.deployment-group-name}}
+          --file-exists-behavior OVERWRITE
+          --s3-location bucket=sopt-makers,bundleType=zip,key=deploy/$GITHUB_SHA.zip
+          --region ap-northeast-2
+
+
+
