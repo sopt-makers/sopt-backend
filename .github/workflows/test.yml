@@ -1,0 +1,24 @@
+name: 🚀MAKERS-APP-RELEASE!
+
+on:
+  push:
+    tags: [ 'test' ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@v2
+
+      - name: 'Set up JDK 17'
+        uses: actions/setup-java@v1
+        with:
+          java-version: 17
+
+      - name: 'Grant execute permission for gradlew'
+        run: chmod +x gradlew
+
+      - name: 'Build with Gradle'
+        run: ./gradlew build
