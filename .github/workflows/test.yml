@@ -17,9 +17,6 @@ jobs:
         with:
           java-version: 17
 
-      - name: Look for gradlew
-        run: find / -type f -name "gradlew"
-
       - name: chmod gradlew
         run: chmod +x gradlew
 
