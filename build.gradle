@@ -85,3 +85,7 @@ configurations {
     querydsl.extendsFrom compileClasspath
 }
 //querydsl 추가 끝
+
+springBoot {
+    buildInfo()
+}
