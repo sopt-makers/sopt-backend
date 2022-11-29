@@ -12,7 +12,7 @@ jobs:
       matrix:
         deployment-group-name: [ makers-app ]
         codedeploy-application-name: [ app ]
-        s3-bucket: [ sopt-makers ]
+        s3-bucket: [ sopt-makers-app ]
 
 
     steps:
@@ -48,14 +48,14 @@ jobs:
           aws-region: ap-northeast-2
 
       - name: 🚀 s3 upload
-        run: aws s3 cp --region ap-northeast-2 --acl private ./$GITHUB_SHA.zip s3://sopt-makers/deploy/$GITHUB_SHA.zip
+        run: aws s3 cp --region ap-northeast-2 --acl private ./$GITHUB_SHA.zip s3://${{matrix.s3-bucket}}/deploy/$GITHUB_SHA.zip
 
       - name: CodeDeploy~!
         run: aws deploy create-deployment 
           --application-name ${{matrix.codedeploy-application-name}}
           --deployment-group-name ${{matrix.deployment-group-name}}
           --file-exists-behavior OVERWRITE
-          --s3-location bucket=sopt-makers,bundleType=zip,key=deploy/$GITHUB_SHA.zip
+          --s3-location bucket=${{matrix.s3-bucket}},bundleType=zip,key=deploy/$GITHUB_SHA.zip
           --region ap-northeast-2
 
 
