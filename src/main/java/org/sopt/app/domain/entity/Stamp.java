@@ -16,8 +16,8 @@ import java.util.List;
 @Entity
 @Table(name = "stamp")
 @TypeDef(
-        name = "list-array",
-        typeClass = ListArrayType.class
+    name = "list-array",
+    typeClass = ListArrayType.class
 )
 @Getter
 @Builder
@@ -25,22 +25,28 @@ import java.util.List;
 @AllArgsConstructor
 public class Stamp extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column
-    private String contents;
+  @Column
+  private String contents;
 
-    @Type(type = "list-array")
-    @Column(
-            columnDefinition = "text[]"
-    )
-    private List<String> images;
+  @Type(type = "list-array")
+  @Column(
+      columnDefinition = "text[]"
+  )
+  private List<String> images;
 
-    @Column
-    private LocalDate createdAt;
+  @Column
+  private LocalDate createdAt;
 
-    @Column
-    private LocalDate updatedAt;
+  @Column
+  private LocalDate updatedAt;
+
+  @Column
+  private Long userId;
+
+  @Column
+  private Long missionId;
 }
