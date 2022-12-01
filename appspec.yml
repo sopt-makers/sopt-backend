@@ -1,23 +1,17 @@
 version: 0.0
 os: linux
+
 files:
   - source: /
-    destination: /home/ubuntu/deploy
-    overwrite: yes
-
-permission:
-  - object: /
-    pattern: "**"
-    owner: ubuntu
-    group: ubuntu
-
+    destination: /home/ubuntu/app
 hooks:
-  BeforeInstall:
-    - location: scripts/before.sh
-      timeout: 80
+  ApplicationStop:
+    - location: script/stop.sh
+      timeout: 60
+      runas: root
   AfterInstall:
     - location: script/start.sh
-      timeout: 80
+      timeout: 60
       runas: root
   ValidateService:
     - location: script/valid.sh

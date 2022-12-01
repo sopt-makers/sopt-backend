@@ -1,6 +1,3 @@
 #!/bin/bash
-cd /home/ubuntu/deploy
 
-echo "The ValidateService deployment lifecycle event successfully completed." > validate-service.txt
-
-unset FOLDER
+echo `date` > /home/ubuntu/app/out-validate.txt
