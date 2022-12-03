@@ -13,8 +13,9 @@ public class AuthController {
 
     private final AuthUseCaseImpl authUseCase;
 
-    @GetMapping(value = "/auth")
-    public void check(@RequestParam String nickname) {
-        authUseCase.validateNickname(nickname);
+    @GetMapping(value = "/api/v1/auth")
+    public void check(@RequestParam(value = "nickname", required = false) String nickname,
+                      @RequestParam(value = "email", required = false) String email) {
+        authUseCase.validate(nickname, email);
     }
 }

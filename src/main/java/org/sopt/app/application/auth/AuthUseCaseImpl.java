@@ -15,12 +15,17 @@ public class AuthUseCaseImpl {
 
     private final UserRepository userRepository;
 
-    public void validateEmail(String email) throws UserNotFoundException {
+    public void validate(String nickname, String email) {
+        if (nickname != null) validateNickname(nickname);
+        if (email != null) validateEmail(email);
+    }
+
+    private void validateEmail(String email) throws UserNotFoundException {
         Optional<User> user = userRepository.findUserByEmail(email);
         if (user.isPresent()) throw new ExistUserException("이미 등록된 이메일입니다.");
     }
 
-    public void validateNickname(String nickname) {
+    private void validateNickname(String nickname) {
         Optional<User> user = userRepository.findUserByNickname(nickname);
         if (user.isPresent()) throw new ExistUserException("사용 중인 닉네임입니다.");
 
