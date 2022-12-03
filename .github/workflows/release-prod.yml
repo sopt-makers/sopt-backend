@@ -5,6 +5,9 @@ on:
     branches: [ 'main' ]
     tags: [ 'makers-app-develop' ]
 
+env:
+  RESOURCE_PATH: ./src/main/resources/application-prod.yaml
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -25,17 +28,18 @@ jobs:
           distribution: 'corretto'
           java-version: '17'
 
+      - name: mkdir resources folder
+        run: touch ./src/main/resources/application-prod.yml
+        shell: bash
+
+      - name: copy yaml file
+        run: echo "${{ secrets.APPLICATION_YML }}" > ./src/main/resources/application-prod.yml
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
       - name: 🐈 Gradle Build
         run: ./gradlew clean build
-
-#      - name: Make Directory
-#        run: mkdir deploy
-#
-#      - name: 🔧 Copy Jar
-#        run: cp ./build/libs/*.jar ./deploy
 
       - name: 📂 Make zip file
         run: zip -r ./$GITHUB_SHA.zip .
