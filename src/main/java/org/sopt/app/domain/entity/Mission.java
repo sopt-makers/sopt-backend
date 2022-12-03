@@ -13,7 +13,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "mission")
+@Table(name = "mission", schema = "app_dev")
 @TypeDef(
     name = "list-array",
     typeClass = ListArrayType.class
@@ -33,7 +33,7 @@ public class Mission {
   private String title;
 
   @Column(name = "level")
-  private Long level;
+  private Integer level;
 
   @Column
   private boolean display;
