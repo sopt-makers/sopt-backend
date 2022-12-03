@@ -8,4 +8,6 @@ public interface StampRepository extends JpaRepository<Stamp, Long> {
 
   List<Stamp> findAllByUserId(Long userId);
 
+  Stamp findByUserIdAndMissionId(Long userId, Long missionId);
+
 }

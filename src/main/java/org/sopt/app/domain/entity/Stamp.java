@@ -2,6 +2,7 @@ package org.sopt.app.domain.entity;
 
 
 import com.vladmihalcea.hibernate.type.array.ListArrayType;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,7 +11,6 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -39,14 +39,23 @@ public class Stamp extends BaseEntity {
   private List<String> images;
 
   @Column
-  private LocalDate createdAt;
+  private LocalDateTime createdAt;
 
   @Column
-  private LocalDate updatedAt;
+  private LocalDateTime updatedAt;
 
   @Column
   private Long userId;
 
   @Column
   private Long missionId;
+
+  //수정하기 위한 메서드 생성
+  public void changeContents(String contents){
+    this.contents = contents;
+  }
+
+  public void changeImages(List<String> images){
+    this.images = images;
+  }
 }
