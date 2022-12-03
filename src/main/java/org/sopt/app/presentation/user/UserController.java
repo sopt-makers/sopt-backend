@@ -5,6 +5,7 @@ import org.sopt.app.application.user.UserUseCase;
 import org.sopt.app.application.user.dto.LogInUserDto;
 import org.sopt.app.application.user.dto.SignUpUserDto;
 import org.sopt.app.presentation.user.request.LogInUserRequest;
+import org.sopt.app.presentation.user.response.LoginResponse;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -35,10 +36,11 @@ public class UserController {
      * 로그인
      */
     @PostMapping(value = "/api/v1/user/login")
-    public Long signIn(@Validated @RequestBody LogInUserRequest request) {
-        return userUseCase.logIn(LogInUserDto.builder()
+    public LoginResponse signIn(@Validated @RequestBody LogInUserRequest request) {
+        Long userId = userUseCase.logIn(LogInUserDto.builder()
                 .email(request.getEmail())
                 .password(request.getPassword())
                 .build());
+        return LoginResponse.builder().userId(userId).build();
     }
 }
