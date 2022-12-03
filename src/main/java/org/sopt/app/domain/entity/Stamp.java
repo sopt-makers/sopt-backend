@@ -11,7 +11,6 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -50,4 +49,13 @@ public class Stamp extends BaseEntity {
 
   @Column
   private Long missionId;
+
+  //수정하기 위한 메서드 생성
+  public void changeContents(String contents){
+    this.contents = contents;
+  }
+
+  public void changeImages(List<String> images){
+    this.images = images;
+  }
 }
