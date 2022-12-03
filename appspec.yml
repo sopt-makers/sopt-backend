@@ -1,26 +1,19 @@
 version: 0.0
 os: linux
+
 files:
   - source: /
     destination: /home/ubuntu/app
-    overwrite: yes
-
-permission:
-  - object: /
-    pattern: "**"
-    owner: ubuntu
-    group: ubuntu
-
 hooks:
+  ApplicationStop:
+    - location: script/stop.sh
+      timeout: 60
+      runas: root
   AfterInstall:
-    - location: stop.sh
+    - location: script/start.sh
       timeout: 60
-      runas: ubuntu
-  ApplicationStart:
-    - location: start.sh
-      timeout: 60
-      runas: ubuntu
+      runas: root
   ValidateService:
-    - location: health.sh
-      timeout: 60
-      runas: ubuntu
+    - location: script/valid.sh
+      timeout: 100
+      runas: root

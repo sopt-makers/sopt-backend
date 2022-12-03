@@ -14,7 +14,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "stamp")
+@Table(name = "stamp", schema = "app_dev")
 @TypeDef(
     name = "list-array",
     typeClass = ListArrayType.class
