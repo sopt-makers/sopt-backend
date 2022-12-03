@@ -13,6 +13,6 @@ import lombok.NoArgsConstructor;
 public class MissionRequestDto {
 
   private String title; // 미션 제목
-  private Long level; // 미션 레벨
+  private Integer level; // 미션 레벨
 
 }
