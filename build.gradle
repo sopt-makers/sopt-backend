@@ -51,8 +51,7 @@ dependencies {
 
     //hibernate-type52 추가 array type을 위해
     implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.19.0'
-    implementation group: 'org.hibernate.validator', name: 'hibernate-validator', version: '7.0.5.Final'
-
+    implementation group: 'org.springframework.boot', name: 'spring-boot-starter-validation', version: '2.7.5'
 
     //aws-s3
     implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-aws', version: '2.2.5.RELEASE'

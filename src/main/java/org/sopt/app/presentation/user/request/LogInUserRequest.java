@@ -1,21 +1,16 @@
 package org.sopt.app.presentation.user.request;
 
-import com.sun.istack.NotNull;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
+
+import javax.validation.constraints.NotBlank;
 
 @Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class LogInUserRequest {
-
-    @NotNull
+    @NotBlank(message = "아이디나 비밀번호는 필수 입력 값입니다.")
     private String email;
-    @NotNull
+    @NotBlank(message = "아이디나 비밀번호는 필수 입력 값입니다.")
     private String password;
-
-
-    @Builder
-    public LogInUserRequest(String email, String password) {
-        this.email = email;
-        this.password = password;
-    }
 }
