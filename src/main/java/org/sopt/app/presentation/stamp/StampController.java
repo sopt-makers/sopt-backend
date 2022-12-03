@@ -65,7 +65,7 @@ public class StampController extends BaseController {
   public ResponseEntity<?> editStamp(
       @RequestHeader("userId") String userId,
       @PathVariable Long missionId,
-      @RequestPart("stampContent") StampRequestDto stampRequestDto,
+      @RequestPart(value = "stampContent", required = false) StampRequestDto stampRequestDto,
       @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
 
   ){
