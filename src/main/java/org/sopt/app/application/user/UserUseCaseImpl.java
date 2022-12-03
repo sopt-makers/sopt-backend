@@ -5,6 +5,7 @@ import org.sopt.app.application.user.dto.LogInUserDto;
 import org.sopt.app.application.user.dto.SignUpUserDto;
 import org.sopt.app.application.user.service.EncryptService;
 import org.sopt.app.application.user.service.UserService;
+import org.sopt.app.common.exception.UserNotFoundException;
 import org.sopt.app.domain.entity.User;
 import org.springframework.stereotype.Component;
 
@@ -23,10 +24,10 @@ public class UserUseCaseImpl implements UserUseCase {
 
     @Override
     public Long logIn(LogInUserDto userDto) {
-        User user = userService.findUserByEmail(userDto.getEmail());
+        User user = userService.findUserByEmail(userDto.email());
 
-        Boolean matches = encryptService.matches(userDto.getPassword(),user.getPassword());
-        if (!matches) throw new RuntimeException("비밀번호가 틀립니다.");
+        boolean matches = encryptService.matches(userDto.password(), user.getPassword());
+        if (!matches) throw new UserNotFoundException("아이디/비밀번호를 확인해주세요.");
 
         return user.getId();
     }
