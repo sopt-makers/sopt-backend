@@ -17,12 +17,13 @@ public class User extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
-    private String nickname;
+    public String nickname;
 
     @Column(nullable = false)
     private String email;
+
     @Column(nullable = false)
-    private String password;
+    public String password;
 
     @Column
     private String clientToken;

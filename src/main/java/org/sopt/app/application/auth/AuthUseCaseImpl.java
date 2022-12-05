@@ -1,6 +1,7 @@
 package org.sopt.app.application.auth;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.app.application.user.service.EncryptService;
 import org.sopt.app.common.exception.ExistUserException;
 import org.sopt.app.common.exception.UserNotFoundException;
 import org.sopt.app.domain.entity.User;
@@ -14,10 +15,23 @@ import java.util.Optional;
 public class AuthUseCaseImpl {
 
     private final UserRepository userRepository;
+    private final EncryptService encryptService;
 
     public void validate(String nickname, String email) {
         if (nickname != null) validateNickname(nickname);
         if (email != null) validateEmail(email);
+    }
+
+    public void changePassword(String userId, String password) {
+        User user = userRepository.findUserById(Long.parseLong(userId)).orElseThrow();
+        user.password = encryptService.encode(password);
+        userRepository.save(user);
+    }
+
+    public void changeNickname(String userId, String nickname) {
+        User user = userRepository.findUserById(Long.parseLong(userId)).orElseThrow();
+        user.nickname = nickname;
+        userRepository.save(user);
     }
 
     private void validateEmail(String email) throws UserNotFoundException {
