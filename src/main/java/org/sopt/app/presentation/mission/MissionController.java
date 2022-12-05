@@ -1,7 +1,6 @@
 package org.sopt.app.presentation.mission;
 
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.common.s3.S3Service;
@@ -14,9 +13,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @RestController
 @AllArgsConstructor
-@RequestMapping("/mission")
+@RequestMapping("/api/v1/mission")
 public class MissionController extends BaseController {
 
   private final MissionService missionService;
