@@ -31,7 +31,7 @@ CREATE TABLE app_dev.mission (
                                  title character varying(300) NOT NULL,
                                  level integer NOT NULL,
                                  display boolean,
-                                 profile_image text
+                                 profile_image text[]
 );
 
 -- Indices -------------------------------------------------------
