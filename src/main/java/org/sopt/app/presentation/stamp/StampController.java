@@ -25,8 +25,7 @@ public class StampController extends BaseController {
 
 
   /**
-   * stamp 조회
-   * missionId, userId로 stamp 조회하기
+   * stamp 조회 missionId, userId로 stamp 조회하기
    */
   @GetMapping("/{missionId}")
   public Stamp findStampByMissionAndUserId(
@@ -62,7 +61,7 @@ public class StampController extends BaseController {
       @RequestPart(value = "stampContent", required = false) StampRequestDto stampRequestDto,
       @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
 
-  ){
+  ) {
     //MultipartFile을 리스트에 넣어줬기 때문에 List 내부의 이미지파일에 isEmpty()를 적용해야 한다.
     int checkNum = 1;
     for (MultipartFile image : multipartFiles) {
@@ -72,7 +71,7 @@ public class StampController extends BaseController {
     }
 
     StampResponseDto result = StampResponseDto.builder().build();
-    if(checkNum == 0){
+    if (checkNum == 0) {
 
       Stamp stamp = stampService.editStampContents(stampRequestDto, userId, missionId);
       result.setStampId(stamp.getId());
@@ -86,5 +85,23 @@ public class StampController extends BaseController {
       result.setStampId(uploadStamp.getId());
     }
     return new ResponseEntity<>(result, getSuccessHeaders(), HttpStatus.OK);
+  }
+
+  /**
+   * Stamp 개별 삭제
+   */
+  @DeleteMapping("/{stampId}")
+  public ResponseEntity<?> deleteStampById(@PathVariable Long stampId) {
+    stampService.deleteByStampId(stampId);
+    return new ResponseEntity<>("{}", getSuccessHeaders(), HttpStatus.OK);
+  }
+
+  /**
+   * 전체 Stamp삭제
+   */
+  @DeleteMapping("/all")
+  public ResponseEntity<?> deleteStampByUserId(@RequestHeader Long userId){
+    stampService.deleteStampByUserId(userId);
+    return new ResponseEntity<>("{}", getSuccessHeaders(), HttpStatus.OK);
   }
 }
