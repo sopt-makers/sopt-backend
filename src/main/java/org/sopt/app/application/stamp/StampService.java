@@ -31,7 +31,8 @@ public class StampService {
 
   //사진 수정 할 경우
   @Transactional
-  public Stamp editStampWithImg(StampRequestDto stampRequestDto, List<String> imgPaths, String userId,
+  public Stamp editStampWithImg(StampRequestDto stampRequestDto, List<String> imgPaths,
+      String userId,
       Long missionId) {
 
     Stamp stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
@@ -59,6 +60,19 @@ public class StampService {
 
     stamp.setUpdatedAt(LocalDateTime.now());
     return stampRepository.save(stamp);
+  }
+
+
+  //Stamp 삭제 by stampId
+  @Transactional
+  public void deleteByStampId(Long stampId) {
+    stampRepository.deleteById(stampId);
+  }
+
+  //Stamp 삭제 All by UserId
+  @Transactional
+  public void deleteStampByUserId(Long userId){
+    stampRepository.deleteAllByUserId(userId);
   }
 
 

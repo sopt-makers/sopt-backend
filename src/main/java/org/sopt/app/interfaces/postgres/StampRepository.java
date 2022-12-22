@@ -11,4 +11,6 @@ public interface StampRepository extends JpaRepository<Stamp, Long> {
 
   Stamp findByUserIdAndMissionId(Long userId, Long missionId);
 
+  void deleteAllByUserId(Long userId);
+
 }
