@@ -1,11 +1,18 @@
 package org.sopt.app.application.stamp;
 
+import static org.sopt.app.common.ResponseCode.INVALID_RESPONSE;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.sopt.app.common.exception.ApiException;
+import org.sopt.app.domain.entity.Mission;
 import org.sopt.app.domain.entity.Stamp;
+import org.sopt.app.domain.entity.User;
+import org.sopt.app.interfaces.postgres.MissionRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
+import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.stamp.dto.StampRequestDto;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +24,10 @@ public class StampService {
 
   private final StampRepository stampRepository;
 
+  private final UserRepository userRepository;
+
+  private final MissionRepository missionRepository;
+
   public Stamp findStamp(String userId, Long missionId) {
     return stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
   }
@@ -26,6 +37,18 @@ public class StampService {
       Long missionId) {
     List<String> imgList = new ArrayList<>(imgPaths);
     Stamp stamp = this.convertStampImg(stampRequestDto, imgList, userId, missionId);
+
+    //랭크 관련 점수 처리
+    User user = userRepository.findUserById(Long.valueOf(userId))
+        .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
+
+    //미션 랭크점수 알아오기
+    Mission mission = missionRepository.findById(missionId)
+        .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
+
+    user.addPoints(mission.getLevel());
+    userRepository.save(user);
+
     return stampRepository.save(stamp);
   }
 
@@ -66,13 +89,37 @@ public class StampService {
   //Stamp 삭제 by stampId
   @Transactional
   public void deleteByStampId(Long stampId) {
+
+    Stamp stamp = stampRepository.findById(stampId)
+        .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
+
+    //랭크 관련 점수 처리
+    User user = userRepository.findUserById(stamp.getUserId())
+        .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
+
+    //미션 랭크점수 알아오기
+    Mission mission = missionRepository.findById(stamp.getMissionId())
+        .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
+
+    user.minusPoints(mission.getLevel());
+    userRepository.save(user);
+
     stampRepository.deleteById(stampId);
   }
 
   //Stamp 삭제 All by UserId
   @Transactional
   public void deleteStampByUserId(Long userId){
+
+    //스탬프 전부삭제
     stampRepository.deleteAllByUserId(userId);
+
+    //해당 스탬프로 얻었던 점수 모두 초기화
+    User user = userRepository.findUserById(userId)
+        .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
+    user.initializePoints();
+    userRepository.save(user);
+
   }
 
 
