@@ -9,8 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RankResponseDto {
+public class FindAllRanksResponseDto {
     private Integer rank;
+    private Long userId;
     private String nickname;
     private Long point;
 

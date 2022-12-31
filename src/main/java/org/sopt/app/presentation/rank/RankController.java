@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.rank.RankService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.BaseController;
-import org.sopt.app.presentation.rank.dto.RankResponseDto;
+import org.sopt.app.presentation.rank.dto.FindAllRanksResponseDto;
+import org.sopt.app.presentation.rank.dto.FindRankResponseDto;
 import org.sopt.app.presentation.rank.dto.UserProfileRequestDto;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +32,13 @@ public class RankController extends BaseController {
     }
 
     @GetMapping("")
-    public List<RankResponseDto> findRanks() {
+    public List<FindAllRanksResponseDto> findRanks() {
         return rankService.findRanks();
+    }
+
+    @GetMapping("/detail")
+    public FindRankResponseDto findRankById(
+            @RequestHeader Long userId) {
+        return rankService.findRankById(userId);
     }
 }
