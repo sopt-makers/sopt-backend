@@ -19,6 +19,7 @@ public class UserService {
                 .email(userDto.getEmail())
                 .password(password)
                 .osType(userDto.getOsType())
+                .points(0L)
                 .clientToken(userDto.getClientToken())
                 .build());
     }
