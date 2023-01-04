@@ -3,6 +3,7 @@ package org.sopt.app.presentation.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.auth.AuthUseCaseImpl;
+import org.sopt.app.presentation.auth.dto.ChangeNicknameRequestDto;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -38,8 +39,9 @@ public class AuthController {
     @PutMapping(value = "/api/v1/auth/nickname")
     public void changeNickname(
             @RequestHeader(name = "userId") String userId,
-            @RequestBody String nickname
+            @RequestBody ChangeNicknameRequestDto changeNicknameRequestDto
     ) {
+        String nickname = changeNicknameRequestDto.getNickname();
         authUseCase.changeNickname(userId, nickname);
     }
 
