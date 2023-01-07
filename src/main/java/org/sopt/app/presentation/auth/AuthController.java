@@ -4,6 +4,7 @@ package org.sopt.app.presentation.auth;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.auth.AuthUseCaseImpl;
 import org.sopt.app.presentation.auth.dto.ChangeNicknameRequestDto;
+import org.sopt.app.presentation.auth.dto.ChangePasswordRequestDto;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,9 +29,9 @@ public class AuthController {
     @PatchMapping(value = "/api/v1/auth/password")
     public void changePassword(
             @RequestHeader(name = "userId") String userId,
-            @RequestBody String password
+            @RequestBody ChangePasswordRequestDto changePasswordRequestDto
     ) {
-        authUseCase.changePassword(userId, password);
+        authUseCase.changePassword(userId, changePasswordRequestDto.getPassword());
     }
 
     /**

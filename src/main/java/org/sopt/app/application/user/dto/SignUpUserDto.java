@@ -6,11 +6,11 @@ import org.sopt.app.domain.enums.OsType;
 
 @Getter
 public class SignUpUserDto {
-    private String nickname;
-    private String email;
-    private String password;
-    private OsType osType;
-    private String clientToken;
+    private final String nickname;
+    private final String email;
+    private final String password;
+    private final OsType osType;
+    private final String clientToken;
 
     @Builder
     public SignUpUserDto(String nickname, String email, String password, OsType osType, String clientToken) {
