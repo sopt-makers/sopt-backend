@@ -3,7 +3,7 @@ package org.sopt.app.application.user;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.user.dto.LogInUserDto;
 import org.sopt.app.application.user.dto.SignUpUserDto;
-import org.sopt.app.application.user.service.EncryptService;
+import org.sopt.app.application.auth.EncryptService;
 import org.sopt.app.application.user.service.UserService;
 import org.sopt.app.common.exception.UserNotFoundException;
 import org.sopt.app.domain.entity.User;

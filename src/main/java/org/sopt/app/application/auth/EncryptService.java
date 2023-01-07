@@ -1,4 +1,4 @@
-package org.sopt.app.application.user.service;
+package org.sopt.app.application.auth;
 
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.password.PasswordEncoder;
