@@ -25,7 +25,7 @@ public class AuthController {
      * 비밀번호 변경
      */
 
-    @PutMapping(value = "/api/v1/auth/password")
+    @PatchMapping(value = "/api/v1/auth/password")
     public void changePassword(
             @RequestHeader(name = "userId") String userId,
             @RequestBody String password
@@ -36,7 +36,7 @@ public class AuthController {
     /**
      * 닉네임 변경
      */
-    @PutMapping(value = "/api/v1/auth/nickname")
+    @PatchMapping(value = "/api/v1/auth/nickname")
     public void changeNickname(
             @RequestHeader(name = "userId") String userId,
             @RequestBody ChangeNicknameRequestDto changeNicknameRequestDto
@@ -48,4 +48,10 @@ public class AuthController {
     /**
      *  탈퇴하기
      */
+    @DeleteMapping(value = "/api/v1/auth/withdraw")
+    public void withdraw(
+            @RequestHeader(name = "userId") String userId
+    ) {
+        authUseCase.deleteUser(userId);
+    }
 }
