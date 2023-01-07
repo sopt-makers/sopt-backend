@@ -13,7 +13,8 @@ public enum ResponseCode {
 
     INVALID_RESPONSE("99", "99", "9999", "요청이 처리 되지 않았습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     SUCCESS("00","00", "0000", "정상 처리되었습니다.", HttpStatus.OK),
-    INVALID_REQUEST("00", "01", "0001", "잘못된 요청입니다.", HttpStatus.BAD_REQUEST);
+    INVALID_REQUEST("00", "01", "0001", "잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
+    DUPLICATE_STAMP("00", "02", "0002", "중복된 스탬프 등록 요청입니다.", HttpStatus.BAD_REQUEST);
 
     private final String codeGroup;
     private final String code;

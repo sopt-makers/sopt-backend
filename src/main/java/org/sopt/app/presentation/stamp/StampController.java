@@ -46,6 +46,9 @@ public class StampController extends BaseController {
       @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
   ) {
 
+    //스탬프 중복 검사체크
+    stampService.checkDuplicateStamp(userId, missionId);
+
     List<String> imgPaths = s3Service.upload(multipartFiles);
     Stamp uploadStamp = stampService.uploadStamp(stampRequestDto,
         imgPaths, userId, missionId);

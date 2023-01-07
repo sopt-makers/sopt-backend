@@ -1,5 +1,6 @@
 package org.sopt.app.application.stamp;
 
+import static org.sopt.app.common.ResponseCode.DUPLICATE_STAMP;
 import static org.sopt.app.common.ResponseCode.INVALID_RESPONSE;
 
 import java.time.LocalDateTime;
@@ -106,6 +107,19 @@ public class StampService {
 
     stampRepository.deleteById(stampId);
   }
+
+
+  //스탬프 중복 검사체크
+  @Transactional
+  public void checkDuplicateStamp(String userId, Long missionId){
+    Stamp stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
+
+    if(stamp != null){
+      throw new ApiException(DUPLICATE_STAMP);
+    }
+  }
+
+
 
   //Stamp 삭제 All by UserId
   @Transactional
