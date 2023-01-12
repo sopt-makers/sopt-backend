@@ -4,8 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.user.UserUseCase;
 import org.sopt.app.application.user.dto.LogInUserDto;
 import org.sopt.app.application.user.dto.SignUpUserDto;
+import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.user.request.LogInUserRequest;
 import org.sopt.app.presentation.user.response.LoginResponse;
+import org.sopt.app.presentation.user.response.SignUpResponse;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,14 +24,20 @@ public class UserController {
      * 이메일 회원가입
      */
     @PostMapping(value = "/api/v1/user/signup")
-    public void signUp(@RequestBody SignUpUserDto request) {
-        userUseCase.signUp(SignUpUserDto.builder()
-                .nickname(request.getNickname())
-                .email(request.getEmail())
-                .password(request.getPassword())
-                .osType(request.getOsType())
-                .clientToken(request.getClientToken())
-                .build());
+    public SignUpResponse signUp2(@RequestBody SignUpUserDto request) {
+        Long userId = userUseCase.signUp(SignUpUserDto.builder()
+            .nickname(request.getNickname())
+            .email(request.getEmail())
+            .password(request.getPassword())
+            .osType(request.getOsType())
+            .clientToken(request.getClientToken())
+            .build());
+
+
+
+        return SignUpResponse.builder()
+            .userId(userId)
+            .build();
     }
 
 
@@ -37,12 +45,15 @@ public class UserController {
      * 로그인
      */
     @PostMapping(value = "/api/v1/user/login")
-    public LoginResponse signIn(@Valid @RequestBody LogInUserRequest request){
+    public LoginResponse signIn2(@Valid @RequestBody LogInUserRequest request){
 
-        Long userId = userUseCase.logIn(LogInUserDto.builder()
-                .email(request.getEmail())
-                .password(request.getPassword())
-                .build());
-        return LoginResponse.builder().userId(userId).build();
+        User user = userUseCase.logIn(LogInUserDto.builder()
+            .email(request.getEmail())
+            .password(request.getPassword())
+            .build());
+        return LoginResponse.builder()
+            .userId(user.getId())
+            .profileMessage(user.getProfileMessage())
+            .build();
     }
 }

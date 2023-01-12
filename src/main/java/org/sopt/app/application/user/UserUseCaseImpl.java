@@ -17,18 +17,18 @@ public class UserUseCaseImpl implements UserUseCase {
     private final EncryptService encryptService;
 
     @Override
-    public void signUp(SignUpUserDto userDto) {
+    public Long signUp(SignUpUserDto userDto) {
         String encodedPassword = encryptService.encode(userDto.getPassword());
-        userService.create(userDto, encodedPassword);
+        return userService.create(userDto, encodedPassword);
     }
 
     @Override
-    public Long logIn(LogInUserDto userDto) {
+    public User logIn(LogInUserDto userDto) {
         User user = userService.findUserByEmail(userDto.email());
 
         boolean matches = encryptService.matches(userDto.password(), user.getPassword());
         if (!matches) throw new UserNotFoundException("아이디/비밀번호를 확인해주세요.");
 
-        return user.getId();
+        return user;
     }
 }

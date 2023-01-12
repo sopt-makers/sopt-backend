@@ -7,8 +7,11 @@ import lombok.Getter;
 public class LoginResponse {
     private Long userId;
 
+    private String profileMessage;
+
     @Builder
-    public LoginResponse(Long userId) {
+    public LoginResponse(Long userId, String profileMessage) {
         this.userId = userId;
+        this.profileMessage = profileMessage;
     }
 }

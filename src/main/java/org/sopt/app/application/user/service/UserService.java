@@ -13,15 +13,17 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public void create(SignUpUserDto userDto, String password) {
-        userRepository.save(User.builder()
-                .nickname(userDto.getNickname())
-                .email(userDto.getEmail())
-                .password(password)
-                .osType(userDto.getOsType())
-                .points(0L)
-                .clientToken(userDto.getClientToken())
-                .build());
+    public Long create(SignUpUserDto userDto, String password) {
+        User user = userRepository.save(User.builder()
+            .nickname(userDto.getNickname())
+            .email(userDto.getEmail())
+            .password(password)
+            .osType(userDto.getOsType())
+            .points(0L)
+            .clientToken(userDto.getClientToken())
+            .build());
+
+        return user.getId();
     }
 
     public User findUserByEmail(String email) throws UserNotFoundException {
