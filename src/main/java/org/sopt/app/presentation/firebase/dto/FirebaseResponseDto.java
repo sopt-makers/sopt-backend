@@ -13,11 +13,17 @@ import lombok.NoArgsConstructor;
 @Builder
 public class FirebaseResponseDto {
 
-  @JsonProperty("force_update_version")
-  private String forceUpdateVersion;
+  @JsonProperty("iOS_force_update_version")
+  private String iosForceUpdateVersion;
 
-  @JsonProperty( "app_version")
-  private String appVersion;
+  @JsonProperty( "iOS_app_version")
+  private String iosAppVersion;
+
+  @JsonProperty("android_force_update_version")
+  private String androidForceUpdateVersion;
+
+  @JsonProperty( "android_app_version")
+  private String androidAppVersion;
 
   private String notice;
 

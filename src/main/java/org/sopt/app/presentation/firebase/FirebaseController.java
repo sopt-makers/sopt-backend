@@ -19,8 +19,10 @@ public class FirebaseController {
   public FirebaseResponseDto getfirebaseInfo() {
 
     return FirebaseResponseDto.builder()
-        .forceUpdateVersion("1.0.0")
-        .appVersion("1.0.0")
+        .iosForceUpdateVersion("1.0.1")
+        .iosAppVersion("1.0.2")
+        .androidForceUpdateVersion("1.0.0")
+        .androidAppVersion("1.0.0")
         .notice("공지내용")
         .imgUrl(null)
         .build();
