@@ -19,7 +19,7 @@ public class FirebaseController {
   public FirebaseResponseDto getfirebaseInfo() {
 
     return FirebaseResponseDto.builder()
-        .iosForceUpdateVersion("1.0.1")
+        .iosForceUpdateVersion("1.0.3")
         .iosAppVersion("1.0.2")
         .androidForceUpdateVersion("1.0.0")
         .androidAppVersion("1.0.0")
