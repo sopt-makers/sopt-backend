@@ -1,5 +1,6 @@
 package org.sopt.app.application.mission;
 
+import java.util.Comparator;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.domain.entity.Mission;
 import org.sopt.app.domain.entity.Stamp;
@@ -27,15 +28,16 @@ public class MissionService {
         List<Stamp> completedStamps = stampRepository.findAllByUserId(Long.parseLong(userId));
         List<Mission> missions = missionRepository.findAll();
         return missions.stream()
-                .map(mission ->
-                        GetAllMissionResponseDto.builder()
-                                .id(mission.getId())
-                                .title(mission.getTitle())
-                                .level(mission.getLevel())
-                                .profileImage(mission.getProfileImage())
-                                .isCompleted(isCompletedMission(mission.getId(), completedStamps))
-                                .build())
-                .collect(Collectors.toList());
+            .map(mission ->
+                GetAllMissionResponseDto.builder()
+                    .id(mission.getId())
+                    .title(mission.getTitle())
+                    .level(mission.getLevel())
+                    .profileImage(mission.getProfileImage())
+                    .isCompleted(isCompletedMission(mission.getId(), completedStamps))
+                    .build())
+            .sorted(Comparator.comparing(GetAllMissionResponseDto::getLevel))
+            .collect(Collectors.toList());
     }
 
     private Boolean isCompletedMission(Long missionId, List<Stamp> completedStamps) {
