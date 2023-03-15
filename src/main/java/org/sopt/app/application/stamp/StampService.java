@@ -14,10 +14,9 @@ import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.MissionRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.interfaces.postgres.UserRepository;
-import org.sopt.app.presentation.stamp.dto.StampRequestDto;
+import org.sopt.app.presentation.stamp.dto.StampRequest.RegisterStampRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
@@ -35,10 +34,10 @@ public class StampService {
     }
 
     @Transactional
-    public Stamp uploadStamp(StampRequestDto stampRequestDto, List<String> imgPaths, String userId,
+    public Stamp uploadStamp(RegisterStampRequest stampRequest, List<String> imgPaths, String userId,
             Long missionId) {
         List<String> imgList = new ArrayList<>(imgPaths);
-        Stamp stamp = this.convertStampImg(stampRequestDto, imgList, userId, missionId);
+        Stamp stamp = this.convertStampImg(stampRequest, imgList, userId, missionId);
 
         //랭크 관련 점수 처리
         User user = userRepository.findUserById(Long.valueOf(userId))
@@ -55,37 +54,37 @@ public class StampService {
     }
 
     //사진 수정 할 경우
-    @Transactional
-    public Stamp editStampWithImg(StampRequestDto stampRequestDto, List<String> imgPaths,
-            String userId,
-            Long missionId) {
-
-        Stamp stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
-
-        if (StringUtils.hasText(stampRequestDto.getContents())) {
-            stamp.changeContents(stampRequestDto.getContents());
-        }
-        stamp.changeImages(imgPaths);
-        stamp.setUpdatedAt(LocalDateTime.now());
-
-        return stampRepository.save(stamp);
-    }
-
-
-    //사진 수정 안할 경우
-    @Transactional
-    public Stamp editStampContents(StampRequestDto stampRequestDto, String userId,
-            Long missionId) {
-
-        Stamp stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
-
-        if (StringUtils.hasText(stampRequestDto.getContents())) {
-            stamp.changeContents(stampRequestDto.getContents());
-        }
-
-        stamp.setUpdatedAt(LocalDateTime.now());
-        return stampRepository.save(stamp);
-    }
+//    @Transactional
+//    public Stamp editStampWithImg(StampRequest stampRequest, List<String> imgPaths,
+//            String userId,
+//            Long missionId) {
+//
+//        Stamp stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
+//
+//        if (StringUtils.hasText(stampRequest.getContents())) {
+//            stamp.changeContents(stampRequest.getContents());
+//        }
+//        stamp.changeImages(imgPaths);
+//        stamp.setUpdatedAt(LocalDateTime.now());
+//
+//        return stampRepository.save(stamp);
+//    }
+//
+//
+//    //사진 수정 안할 경우
+//    @Transactional
+//    public Stamp editStampContents(StampRequest stampRequest, String userId,
+//            Long missionId) {
+//
+//        Stamp stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
+//
+//        if (StringUtils.hasText(stampRequest.getContents())) {
+//            stamp.changeContents(stampRequest.getContents());
+//        }
+//
+//        stamp.setUpdatedAt(LocalDateTime.now());
+//        return stampRepository.save(stamp);
+//    }
 
 
     //Stamp 삭제 by stampId
@@ -111,7 +110,7 @@ public class StampService {
 
 
     //스탬프 중복 검사체크
-    @Transactional
+    @Transactional(readOnly = true)
     public void checkDuplicateStamp(String userId, Long missionId) {
         Stamp stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
 
@@ -138,10 +137,10 @@ public class StampService {
 
 
     //Stamp Entity 양식에 맞게 데이터 세팅
-    private Stamp convertStampImg(StampRequestDto stampRequestDto, List<String> imgList,
+    private Stamp convertStampImg(RegisterStampRequest stampRequest, List<String> imgList,
             String userId, Long missionId) {
         return Stamp.builder()
-                .contents(stampRequestDto.getContents())
+                .contents(stampRequest.getContents())
                 .createdAt(LocalDateTime.now())
                 .images(imgList)
                 .missionId(missionId)
