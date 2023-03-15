@@ -3,3 +3,7 @@ spring:
     name: app-server
   profiles:
     active: prod
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
