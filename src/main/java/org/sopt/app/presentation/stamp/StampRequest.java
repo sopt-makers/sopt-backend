@@ -1,4 +1,4 @@
-package org.sopt.app.presentation.stamp.dto;
+package org.sopt.app.presentation.stamp;
 
 import lombok.Getter;
 import lombok.Setter;
