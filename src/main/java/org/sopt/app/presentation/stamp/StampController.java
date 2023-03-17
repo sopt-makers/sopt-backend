@@ -6,11 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.common.s3.S3Service;
-import org.sopt.app.domain.entity.Stamp;
 import org.sopt.app.presentation.BaseController;
-import org.sopt.app.presentation.stamp.dto.StampRequest;
-import org.sopt.app.presentation.stamp.dto.StampResponse;
-import org.sopt.app.presentation.stamp.dto.StampResponse.StampId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -33,17 +29,20 @@ public class StampController extends BaseController {
 
     private final S3Service s3Service;
 
+    private final StampResponseMapper stampResponseMapper;
+
     @Operation(summary = "스탬프 조회하기")
     @GetMapping("/{missionId}")
-    public ResponseEntity<Stamp> findStampByMissionAndUserId(
+    public ResponseEntity<StampResponse.Main> findStampByMissionAndUserId(
             @RequestHeader("userId") String userId, @PathVariable Long missionId) {
-        val response = stampService.findStamp(userId, missionId);
+        val result = stampService.findStamp(userId, missionId);
+        val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "스탬프 등록하기")
     @PostMapping("/{missionId}")
-    public ResponseEntity<Stamp> uploadStamp(
+    public ResponseEntity<StampResponse.Main> uploadStamp(
             @RequestHeader("userId") String userId,
             @PathVariable Long missionId,
             @RequestPart("stampContent") StampRequest.RegisterStampRequest registerStampRequest,
@@ -51,30 +50,31 @@ public class StampController extends BaseController {
     ) {
         stampService.checkDuplicateStamp(userId, missionId); // 스탬프 중복 검사체크
         val imgPaths = s3Service.upload(multipartFiles);
-        val response = stampService.uploadStamp(registerStampRequest, imgPaths, userId, missionId);
+        val result = stampService.uploadStamp(registerStampRequest, imgPaths, userId, missionId);
+        val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "스탬프 수정하기")
     @PutMapping("/{missionId}")
-    public ResponseEntity<StampResponse.StampId> editStamp(
+    public ResponseEntity<StampResponse.Id> editStamp(
             @RequestHeader("userId") String userId,
             @PathVariable Long missionId,
             @RequestPart(value = "stampContent", required = false) StampRequest.EditStampRequest editStampRequest,
             @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
 
     ) {
-        StampResponse.StampId response = new StampId();
         if (multipartFiles == null || multipartFiles.get(0).isEmpty()) {
             val result = stampService.editStampContents(editStampRequest, userId, missionId);
-            response.setStampId(result.getId());
+            val response = stampResponseMapper.of(result.getId());
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         } else {
             List<String> imgPaths = s3Service.upload(multipartFiles);
             val result = stampService.editStampWithImg(editStampRequest,
                     imgPaths, userId, missionId);
-            response.setStampId(result.getId());
+            val response = stampResponseMapper.of(result.getId());
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "스탬프 삭제하기(개별)")
