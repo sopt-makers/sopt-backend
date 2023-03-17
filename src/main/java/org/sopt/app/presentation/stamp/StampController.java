@@ -77,21 +77,17 @@ public class StampController extends BaseController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    /**
-     * Stamp 개별 삭제
-     */
+    @Operation(summary = "스탬프 삭제하기(개별)")
     @DeleteMapping("/{stampId}")
-    public ResponseEntity<?> deleteStampById(@PathVariable Long stampId) {
+    public ResponseEntity<String> deleteStampById(@PathVariable Long stampId) {
         stampService.deleteByStampId(stampId);
-        return new ResponseEntity<>("{}", getSuccessHeaders(), HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body("{}");
     }
 
-    /**
-     * 전체 Stamp삭제
-     */
+    @Operation(summary = "스탬프 삭제하기(전체)")
     @DeleteMapping("/all")
-    public ResponseEntity<?> deleteStampByUserId(@RequestHeader Long userId) {
+    public ResponseEntity<String> deleteStampByUserId(@RequestHeader Long userId) {
         stampService.deleteStampByUserId(userId);
-        return new ResponseEntity<>("{}", getSuccessHeaders(), HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).body("{}");
     }
 }
