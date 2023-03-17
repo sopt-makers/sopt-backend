@@ -9,12 +9,15 @@ import org.sopt.app.common.s3.S3Service;
 import org.sopt.app.domain.entity.Stamp;
 import org.sopt.app.presentation.BaseController;
 import org.sopt.app.presentation.stamp.dto.StampRequest;
+import org.sopt.app.presentation.stamp.dto.StampResponse;
+import org.sopt.app.presentation.stamp.dto.StampResponse.StampId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -52,38 +55,27 @@ public class StampController extends BaseController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-//    @PutMapping("/{missionId}")
-//    public ResponseEntity<?> editStamp(
-//            @RequestHeader("userId") String userId,
-//            @PathVariable Long missionId,
-//            @RequestPart(value = "stampContent", required = false) StampRequest stampRequest,
-//            @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
-//
-//    ) {
-//        //MultipartFile을 리스트에 넣어줬기 때문에 List 내부의 이미지파일에 isEmpty()를 적용해야 한다.
-//        int checkNum = 1;
-//        for (MultipartFile image : multipartFiles) {
-//            if (image.isEmpty()) {
-//                checkNum = 0;
-//            }
-//        }
-//
-//        StampResponseDto result = StampResponseDto.builder().build();
-//        if (checkNum == 0) {
-//
-//            Stamp stamp = stampService.editStampContents(stampRequest, userId, missionId);
-//            result.setStampId(stamp.getId());
-//
-//        } else {
-//
-//            List<String> imgPaths = s3Service.upload(multipartFiles);
-//            Stamp uploadStamp = stampService.editStampWithImg(stampRequest,
-//                    imgPaths, userId, missionId);
-//
-//            result.setStampId(uploadStamp.getId());
-//        }
-//        return new ResponseEntity<>(result, getSuccessHeaders(), HttpStatus.OK);
-//    }
+    @Operation(summary = "스탬프 수정하기")
+    @PutMapping("/{missionId}")
+    public ResponseEntity<StampResponse.StampId> editStamp(
+            @RequestHeader("userId") String userId,
+            @PathVariable Long missionId,
+            @RequestPart(value = "stampContent", required = false) StampRequest.EditStampRequest editStampRequest,
+            @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
+
+    ) {
+        StampResponse.StampId response = new StampId();
+        if (multipartFiles == null || multipartFiles.get(0).isEmpty()) {
+            val result = stampService.editStampContents(editStampRequest, userId, missionId);
+            response.setStampId(result.getId());
+        } else {
+            List<String> imgPaths = s3Service.upload(multipartFiles);
+            val result = stampService.editStampWithImg(editStampRequest,
+                    imgPaths, userId, missionId);
+            response.setStampId(result.getId());
+        }
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
     /**
      * Stamp 개별 삭제

@@ -13,4 +13,12 @@ public class StampRequest {
 
         private String contents; // 스탬프 내용
     }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class EditStampRequest {
+
+        private String contents;
+    }
 }
