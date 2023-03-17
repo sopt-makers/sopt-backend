@@ -14,6 +14,6 @@ public interface StampResponseMapper {
 
     StampResponse.Main of(Stamp user);
 
-    StampResponse.Id of(Long id);
+    StampResponse.Id of(Long stampId);
 
 }
