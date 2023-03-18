@@ -15,8 +15,10 @@ import java.util.List;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.sopt.app.common.ResponseCode;
 import org.sopt.app.common.exception.ApiException;
+import org.sopt.app.common.exception.BadRequestException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,6 +26,9 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 @RequiredArgsConstructor
 public class S3Service {
+
+    private final ArrayList<String> imageFileExtension = new ArrayList<>(
+            List.of(".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG"));
 
     private final AmazonS3 s3Client;
 
@@ -42,17 +47,16 @@ public class S3Service {
 
     @PostConstruct
     public AmazonS3Client amazonS3Client() {
-        BasicAWSCredentials awsCreds = new BasicAWSCredentials(accessKey,
-                secretKey); //accessKey 와 secretKey를 이용하여 자격증명 객체를 얻는다.
+        val awsCredentials = new BasicAWSCredentials(accessKey, secretKey); //accessKey 와 secretKey를 이용하여 자격증명 객체를 얻는다.
         return (AmazonS3Client) AmazonS3ClientBuilder.standard()
                 .withRegion(region) // region 설정
-                .withCredentials(new AWSStaticCredentialsProvider(awsCreds)) // 자격증명을 통해 S3 Client를 가져온다.
+                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials)) // 자격증명을 통해 S3 Client를 가져온다.
                 .build();
     }
 
 
     public List<String> upload(List<MultipartFile> multipartFiles) {
-        List<String> imgUrlList = new ArrayList<>();
+        val imgUrlList = new ArrayList<String>();
         if (multipartFiles == null || multipartFiles.get(0).isEmpty()) {
             return imgUrlList;
         }
@@ -84,38 +88,13 @@ public class S3Service {
     // 파일 유효성 검사
     private String getFileExtension(String fileName) {
         if (fileName.length() == 0) {
-            throw new ApiException(ResponseCode.INVALID_RESPONSE);
+            throw new BadRequestException(ResponseCode.INVALID_REQUEST);
         }
-        ArrayList<String> fileValidate = new ArrayList<>();
-        fileValidate.add(".jpg");
-        fileValidate.add(".jpeg");
-        fileValidate.add(".png");
-        fileValidate.add(".JPG");
-        fileValidate.add(".JPEG");
-        fileValidate.add(".PNG");
-        String idxFileName = fileName.substring(fileName.lastIndexOf("."));
-        if (!fileValidate.contains(idxFileName)) {
-            throw new ApiException(ResponseCode.INVALID_RESPONSE);
+
+        val idxFileName = fileName.substring(fileName.lastIndexOf("."));
+        if (!imageFileExtension.contains(idxFileName)) {
+            throw new BadRequestException(ResponseCode.INVALID_REQUEST);
         }
         return fileName.substring(fileName.lastIndexOf("."));
     }
-
-//    @PostConstruct
-//    public void setS3Client() {
-//        AWSCredentials credentials = new BasicAWSCredentials(this.accessKey, this.secretKey); //accessKey 와 secretKey를 이용하여 자격증명 객체를 얻는다.
-//        s3Client = AmazonS3ClientBuilder.standard()
-//                .withCredentials(new AWSStaticCredentialsProvider(credentials))  // 자격증명을 통해 S3 Client를 가져온다.
-//                .withRegion(this.region) // region 설정
-//                .build();
-//    }
-//
-//    public String upload(MultipartFile file) throws IOException {
-//        String fileName = file.getOriginalFilename();
-//
-//        // 업로드 하기 위해 사용되는 함수
-//        s3Client.putObject(new PutObjectRequest(bucket, fileName, file.getInputStream(), null)
-//                .withCannedAcl(CannedAccessControlList.PublicRead)); //외부에 공개해야 하므로 Public read 권한을 준다.
-//        return s3Client.getUrl(bucket, fileName).toString();
-//    }
-
 }

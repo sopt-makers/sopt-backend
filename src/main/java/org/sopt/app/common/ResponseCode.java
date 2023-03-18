@@ -14,7 +14,6 @@ public enum ResponseCode {
     SUCCESS("00", "00", "0000", "정상 처리되었습니다.", HttpStatus.OK),
     INVALID_REQUEST("00", "01", "0001", "잘못된 요청입니다.", HttpStatus.BAD_REQUEST),
     DUPLICATE_STAMP("00", "02", "0002", "중복된 스탬프 등록 요청입니다.", HttpStatus.BAD_REQUEST),
-
     ENTITY_NOT_FOUND("00", "03", "0003", "존재하지 않는 리소스입니다.", HttpStatus.NOT_FOUND);
 
     private final String codeGroup;
