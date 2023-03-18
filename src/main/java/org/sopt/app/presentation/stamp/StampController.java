@@ -64,7 +64,9 @@ public class StampController extends BaseController {
             @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
 
     ) {
-        if (multipartFiles == null || multipartFiles.get(0).isEmpty()) {
+        val isEmptyFileList = (multipartFiles == null || multipartFiles.get(0).isEmpty());
+
+        if (isEmptyFileList) {
             val result = stampService.editStampContents(editStampRequest, userId, missionId);
             val response = stampResponseMapper.of(result.getId());
             return ResponseEntity.status(HttpStatus.OK).body(response);
