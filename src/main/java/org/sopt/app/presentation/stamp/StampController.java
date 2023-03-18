@@ -1,10 +1,13 @@
 package org.sopt.app.presentation.stamp;
 
+import static org.sopt.app.common.ResponseCode.DUPLICATE_STAMP;
+
 import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.stamp.StampService;
+import org.sopt.app.common.exception.ApiException;
 import org.sopt.app.common.s3.S3Service;
 import org.sopt.app.presentation.BaseController;
 import org.springframework.http.HttpStatus;
@@ -48,7 +51,10 @@ public class StampController extends BaseController {
             @RequestPart("stampContent") StampRequest.RegisterStampRequest registerStampRequest,
             @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
     ) {
-        stampService.checkDuplicateStamp(userId, missionId); // 스탬프 중복 검사체크
+        val isDuplicateStamp = stampService.checkDuplicateStamp(userId, missionId);
+        if (isDuplicateStamp) {
+            throw new ApiException(DUPLICATE_STAMP);
+        }
         val imgPaths = s3Service.upload(multipartFiles);
         val result = stampService.uploadStamp(registerStampRequest, imgPaths, userId, missionId);
         val response = stampResponseMapper.of(result);
