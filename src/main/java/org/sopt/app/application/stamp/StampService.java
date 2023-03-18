@@ -1,13 +1,13 @@
 package org.sopt.app.application.stamp;
 
-import static org.sopt.app.common.ResponseCode.INVALID_RESPONSE;
+import static org.sopt.app.common.ResponseCode.ENTITY_NOT_FOUND;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.common.exception.ApiException;
+import org.sopt.app.common.exception.EntityNotFoundException;
 import org.sopt.app.domain.entity.Stamp;
 import org.sopt.app.interfaces.postgres.MissionRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
@@ -44,11 +44,11 @@ public class StampService {
 
         //랭크 관련 점수 처리
         val user = userRepository.findUserById(Long.valueOf(userId))
-                .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
         //미션 랭크점수 알아오기
         val mission = missionRepository.findById(missionId)
-                .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
         user.addPoints(mission.getLevel());
         userRepository.save(user);
@@ -84,15 +84,15 @@ public class StampService {
     public void deleteByStampId(Long stampId) {
 
         val stamp = stampRepository.findById(stampId)
-                .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
         //랭크 관련 점수 처리
         val user = userRepository.findUserById(stamp.getUserId())
-                .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
         //미션 랭크점수 알아오기
         val mission = missionRepository.findById(stamp.getMissionId())
-                .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
 
         user.minusPoints(mission.getLevel());
         userRepository.save(user);
@@ -118,7 +118,7 @@ public class StampService {
 
         //해당 스탬프로 얻었던 점수 모두 초기화
         val user = userRepository.findUserById(userId)
-                .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
         user.initializePoints();
         userRepository.save(user);
 
