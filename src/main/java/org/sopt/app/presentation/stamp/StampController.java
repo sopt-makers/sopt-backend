@@ -45,7 +45,7 @@ public class StampController extends BaseController {
 
     @Operation(summary = "스탬프 등록하기")
     @PostMapping("/{missionId}")
-    public ResponseEntity<StampResponse.Main> uploadStamp(
+    public ResponseEntity<StampResponse.Main> registerStamp(
             @RequestHeader("userId") String userId,
             @PathVariable Long missionId,
             @RequestPart("stampContent") StampRequest.RegisterStampRequest registerStampRequest,
