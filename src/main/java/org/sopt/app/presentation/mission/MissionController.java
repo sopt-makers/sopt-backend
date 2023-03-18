@@ -7,8 +7,6 @@ import lombok.val;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.common.s3.S3Service;
 import org.sopt.app.presentation.BaseController;
-import org.sopt.app.presentation.mission.dto.MissionRequestDto;
-import org.sopt.app.presentation.mission.dto.MissionResponseDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -40,23 +38,21 @@ public class MissionController extends BaseController {
 
     //    @Operation(summary = "미션 생성하기")
     @PostMapping()
-    public ResponseEntity<?> uploadMission(
-            @RequestPart("missionContent") MissionRequestDto missionRequestDto,
+    public ResponseEntity<?> registerMission(
+            @RequestPart("missionContent") MissionRequest.RegisterMissionRequest registerMissionRequest,
             @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles) {
 
+        val mission = missionService.uploadMission(registerMissionRequest);
         val isEmptyFileList = (multipartFiles == null || multipartFiles.get(0).isEmpty());
-
-        MissionResponseDto result = MissionResponseDto.builder().build();
         if (isEmptyFileList) {
-            val mission = missionService.uploadMission(missionRequestDto);
-            result.setMissionId(mission.getId());
+            val response = mission.getId();
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         } else {
             val imgPaths = s3Service.upload(multipartFiles);
-            val uploadMissionWithImg = missionService.uploadMissionWithImg(missionRequestDto,
-                    imgPaths);
-            result.setMissionId(uploadMissionWithImg.getId());
+            val result = missionService.uploadMissionWithImages(mission, imgPaths);
+            val response = result.getId();
+            return ResponseEntity.status(HttpStatus.OK).body(response);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     //    @Operation(summary = "완료 미션만 조회하기")

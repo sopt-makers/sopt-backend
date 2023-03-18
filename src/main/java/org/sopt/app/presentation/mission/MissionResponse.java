@@ -19,4 +19,12 @@ public class MissionResponse {
         private List<String> profileImage;
         private Boolean isCompleted;
     }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class Id {
+
+        private Long missionId;
+    }
 }
