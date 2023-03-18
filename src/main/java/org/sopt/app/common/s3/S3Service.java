@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -56,15 +57,13 @@ public class S3Service {
 
 
     public List<String> upload(List<MultipartFile> multipartFiles) {
-        val imgUrlList = new ArrayList<String>();
         if (multipartFiles == null || multipartFiles.get(0).isEmpty()) {
-            return imgUrlList;
+            return new ArrayList<>();
         }
 
-        // forEach 구문을 통해 multipartFile로 넘어온 파일들 하나씩 fileNameList에 추가
-        for (MultipartFile file : multipartFiles) {
-            String fileName = createFileName(file.getOriginalFilename());
-            ObjectMetadata objectMetadata = new ObjectMetadata();
+        return multipartFiles.stream().map(file -> {
+            val fileName = createFileName(file.getOriginalFilename());
+            val objectMetadata = new ObjectMetadata();
             objectMetadata.setContentLength(file.getSize());
             objectMetadata.setContentType(file.getContentType());
 
@@ -72,12 +71,11 @@ public class S3Service {
                 s3Client.putObject(
                         new PutObjectRequest(bucket + "/mainpage/makers-app", fileName, inputStream, objectMetadata)
                                 .withCannedAcl(CannedAccessControlList.PublicRead));
-                imgUrlList.add(s3Client.getUrl(bucket + "/mainpage/makers-app", fileName).toString());
+                return s3Client.getUrl(bucket + "/mainpage/makers-app", fileName).toString();
             } catch (IOException e) {
                 throw new ApiException(ResponseCode.INVALID_RESPONSE);
             }
-        }
-        return imgUrlList;
+        }).collect(Collectors.toList());
     }
 
     // 이미지파일명 중복 방지
