@@ -70,16 +70,15 @@ public class StampController extends BaseController {
             @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
 
     ) {
-        val isEmptyFileList = (multipartFiles == null || multipartFiles.get(0).isEmpty());
+        val stamp = stampService.editStampContents(editStampRequest, userId, missionId);
 
+        val isEmptyFileList = (multipartFiles == null || multipartFiles.get(0).isEmpty());
         if (isEmptyFileList) {
-            val result = stampService.editStampContents(editStampRequest, userId, missionId);
-            val response = stampResponseMapper.of(result.getId());
+            val response = stampResponseMapper.of(stamp.getId());
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } else {
-            List<String> imgPaths = s3Service.upload(multipartFiles);
-            val result = stampService.editStampWithImg(editStampRequest,
-                    imgPaths, userId, missionId);
+            val imgPaths = s3Service.upload(multipartFiles);
+            val result = stampService.editStampImages(stamp, imgPaths);
             val response = stampResponseMapper.of(result.getId());
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }

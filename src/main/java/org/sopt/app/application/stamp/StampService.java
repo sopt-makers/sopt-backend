@@ -56,27 +56,7 @@ public class StampService {
         return stampRepository.save(stamp);
     }
 
-    //사진 수정 할 경우
-    @Transactional
-    public Stamp editStampWithImg(
-            StampRequest.EditStampRequest editStampRequest,
-            List<String> imgPaths,
-            String userId,
-            Long missionId) {
-
-        val stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
-
-        if (StringUtils.hasText(editStampRequest.getContents())) {
-            stamp.changeContents(editStampRequest.getContents());
-        }
-        stamp.changeImages(imgPaths);
-        stamp.setUpdatedAt(LocalDateTime.now());
-
-        return stampRepository.save(stamp);
-    }
-
-
-    //사진 수정 안할 경우
+    //스탬프 내용 수정
     @Transactional
     public Stamp editStampContents(
             StampRequest.EditStampRequest editStampRequest,
@@ -92,6 +72,12 @@ public class StampService {
         return stampRepository.save(stamp);
     }
 
+    //스탬프 사진 수정
+    @Transactional
+    public Stamp editStampImages(Stamp stamp, List<String> imgPaths) {
+        stamp.changeImages(imgPaths);
+        return stampRepository.save(stamp);
+    }
 
     //Stamp 삭제 by stampId
     @Transactional
