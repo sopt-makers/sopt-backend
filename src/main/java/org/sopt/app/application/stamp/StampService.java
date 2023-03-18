@@ -6,10 +6,9 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.sopt.app.common.exception.ApiException;
-import org.sopt.app.domain.entity.Mission;
 import org.sopt.app.domain.entity.Stamp;
-import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.MissionRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.interfaces.postgres.UserRepository;
@@ -35,17 +34,20 @@ public class StampService {
     }
 
     @Transactional
-    public Stamp uploadStamp(RegisterStampRequest stampRequest, List<String> imgPaths, String userId,
+    public Stamp uploadStamp(
+            RegisterStampRequest stampRequest,
+            List<String> imgPaths,
+            String userId,
             Long missionId) {
-        List<String> imgList = new ArrayList<>(imgPaths);
-        Stamp stamp = this.convertStampImg(stampRequest, imgList, userId, missionId);
+        val imgList = new ArrayList<String>(imgPaths);
+        val stamp = this.convertStampImg(stampRequest, imgList, userId, missionId);
 
         //랭크 관련 점수 처리
-        User user = userRepository.findUserById(Long.valueOf(userId))
+        val user = userRepository.findUserById(Long.valueOf(userId))
                 .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
 
         //미션 랭크점수 알아오기
-        Mission mission = missionRepository.findById(missionId)
+        val mission = missionRepository.findById(missionId)
                 .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
 
         user.addPoints(mission.getLevel());
@@ -56,11 +58,13 @@ public class StampService {
 
     //사진 수정 할 경우
     @Transactional
-    public Stamp editStampWithImg(StampRequest.EditStampRequest editStampRequest, List<String> imgPaths,
+    public Stamp editStampWithImg(
+            StampRequest.EditStampRequest editStampRequest,
+            List<String> imgPaths,
             String userId,
             Long missionId) {
 
-        Stamp stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
+        val stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
 
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());
@@ -74,10 +78,12 @@ public class StampService {
 
     //사진 수정 안할 경우
     @Transactional
-    public Stamp editStampContents(StampRequest.EditStampRequest editStampRequest, String userId,
+    public Stamp editStampContents(
+            StampRequest.EditStampRequest editStampRequest,
+            String userId,
             Long missionId) {
 
-        Stamp stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
+        val stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());
         }
@@ -91,15 +97,15 @@ public class StampService {
     @Transactional
     public void deleteByStampId(Long stampId) {
 
-        Stamp stamp = stampRepository.findById(stampId)
+        val stamp = stampRepository.findById(stampId)
                 .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
 
         //랭크 관련 점수 처리
-        User user = userRepository.findUserById(stamp.getUserId())
+        val user = userRepository.findUserById(stamp.getUserId())
                 .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
 
         //미션 랭크점수 알아오기
-        Mission mission = missionRepository.findById(stamp.getMissionId())
+        val mission = missionRepository.findById(stamp.getMissionId())
                 .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
 
         user.minusPoints(mission.getLevel());
@@ -112,7 +118,7 @@ public class StampService {
     //스탬프 중복 검사체크
     @Transactional(readOnly = true)
     public boolean checkDuplicateStamp(String userId, Long missionId) {
-        Stamp stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
+        val stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
         return stamp != null;
     }
 
@@ -125,7 +131,7 @@ public class StampService {
         stampRepository.deleteAllByUserId(userId);
 
         //해당 스탬프로 얻었던 점수 모두 초기화
-        User user = userRepository.findUserById(userId)
+        val user = userRepository.findUserById(userId)
                 .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
         user.initializePoints();
         userRepository.save(user);
@@ -134,8 +140,11 @@ public class StampService {
 
 
     //Stamp Entity 양식에 맞게 데이터 세팅
-    private Stamp convertStampImg(RegisterStampRequest stampRequest, List<String> imgList,
-            String userId, Long missionId) {
+    private Stamp convertStampImg(
+            RegisterStampRequest stampRequest,
+            List<String> imgList,
+            String userId,
+            Long missionId) {
         return Stamp.builder()
                 .contents(stampRequest.getContents())
                 .createdAt(LocalDateTime.now())
