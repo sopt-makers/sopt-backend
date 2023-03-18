@@ -41,18 +41,13 @@ public class MissionController extends BaseController {
     public ResponseEntity<?> registerMission(
             @RequestPart("missionContent") MissionRequest.RegisterMissionRequest registerMissionRequest,
             @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles) {
-
         val mission = missionService.uploadMission(registerMissionRequest);
-        val isEmptyFileList = (multipartFiles == null || multipartFiles.get(0).isEmpty());
-        if (isEmptyFileList) {
-            val response = mission.getId();
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            val imgPaths = s3Service.upload(multipartFiles);
-            val result = missionService.uploadMissionWithImages(mission, imgPaths);
-            val response = result.getId();
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+        val imgPaths = s3Service.upload(multipartFiles);
+        if (imgPaths.size() > 0) {
+            missionService.editMissionWithImages(mission, imgPaths);
         }
+        val response = mission.getId();
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     //    @Operation(summary = "완료 미션만 조회하기")

@@ -1,6 +1,5 @@
 package org.sopt.app.application.mission;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -47,9 +46,8 @@ public class MissionService {
 
     // 게시글 작성 -  이미지 포함
     @Transactional
-    public Mission uploadMissionWithImages(Mission mission, List<String> imgPaths) {
-        val imgList = new ArrayList<>(imgPaths);
-        mission.setProfileImage(imgList);
+    public Mission editMissionWithImages(Mission mission, List<String> imgPaths) {
+        mission.setProfileImage(imgPaths);
         return missionRepository.save(mission);
     }
 
