@@ -71,17 +71,12 @@ public class StampController extends BaseController {
 
     ) {
         val stamp = stampService.editStampContents(editStampRequest, userId, missionId);
-
-        val isEmptyFileList = (multipartFiles == null || multipartFiles.get(0).isEmpty());
-        if (isEmptyFileList) {
-            val response = stampResponseMapper.of(stamp.getId());
-            return ResponseEntity.status(HttpStatus.OK).body(response);
-        } else {
-            val imgPaths = s3Service.upload(multipartFiles);
-            val result = stampService.editStampImages(stamp, imgPaths);
-            val response = stampResponseMapper.of(result.getId());
-            return ResponseEntity.status(HttpStatus.OK).body(response);
+        val imgPaths = s3Service.upload(multipartFiles);
+        if (imgPaths.size() > 0) {
+            stampService.editStampImages(stamp, imgPaths);
         }
+        val response = stampResponseMapper.of(stamp.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "스탬프 삭제하기(개별)")
