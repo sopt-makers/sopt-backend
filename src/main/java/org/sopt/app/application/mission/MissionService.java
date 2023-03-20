@@ -62,16 +62,14 @@ public class MissionService {
     }
 
     //Mission 완료한 미션만 불러오기
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Mission> getCompleteMission(String userId) {
-        //헤더에서 받은 userId로 Stamp 테이블에서 달성한 미션번호 가져오기
         val stampList = stampRepository.findAllByUserId(Long.valueOf(userId));
-        //달성한 미션번호리스트
         val missionIdList = stampList.stream().map(Stamp::getMissionId).collect(Collectors.toList());
         return missionRepository.findMissionIn(missionIdList);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<Mission> getIncompleteMission(String userId) {
 
         //전체 미션 조회하기
