@@ -1,6 +1,7 @@
 package org.sopt.app.presentation.mission;
 
 
+import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.val;
@@ -25,20 +26,22 @@ public class MissionController extends BaseController {
 
     private final MissionService missionService;
     private final S3Service s3Service;
+    private final MissionResponseMapper missionResponseMapper;
 
 
-    //    @Operation(summary = "미션 전체 조회하기")
+    @Operation(summary = "미션 전체 조회하기")
     @GetMapping(value = "/all")
     @ResponseBody
-    public ResponseEntity<?> findAllMission(@RequestHeader("userId") String userId) {
+    public ResponseEntity<List<MissionResponse.Completeness>> findAllMission(@RequestHeader("userId") String userId) {
         val result = missionService.findAllMission(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        val response = missionResponseMapper.ofCompleteness(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 
-    //    @Operation(summary = "미션 생성하기")
+    @Operation(summary = "미션 생성하기")
     @PostMapping()
-    public ResponseEntity<?> registerMission(
+    public ResponseEntity<MissionResponse.Id> registerMission(
             @RequestPart("missionContent") MissionRequest.RegisterMissionRequest registerMissionRequest,
             @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles) {
         val mission = missionService.uploadMission(registerMissionRequest);
@@ -46,21 +49,23 @@ public class MissionController extends BaseController {
         if (imgPaths.size() > 0) {
             missionService.editMissionWithImages(mission, imgPaths);
         }
-        val response = mission.getId();
+        val response = missionResponseMapper.of(mission.getId());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    //    @Operation(summary = "완료 미션만 조회하기")
+    @Operation(summary = "완료 미션만 조회하기")
     @GetMapping("complete")
-    public ResponseEntity<?> findCompleteMission(@RequestHeader("userId") String userId) {
-        val resultMission = missionService.getCompleteMission(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(resultMission);
+    public ResponseEntity<List<MissionResponse.Main>> findCompleteMission(@RequestHeader("userId") String userId) {
+        val result = missionService.getCompleteMission(userId);
+        val response = missionResponseMapper.of(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    //    @Operation(summary = "미완료 미션만 조회하기")
+    @Operation(summary = "미완료 미션만 조회하기")
     @GetMapping("incomplete")
-    public ResponseEntity<?> findInCompleteMission(@RequestHeader("userId") String userId) {
-        val resultMission = missionService.getIncompleteMission(userId);
-        return ResponseEntity.status(HttpStatus.OK).body(resultMission);
+    public ResponseEntity<List<MissionResponse.Main>> findInCompleteMission(@RequestHeader("userId") String userId) {
+        val result = missionService.getIncompleteMission(userId);
+        val response = missionResponseMapper.of(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

@@ -17,6 +17,17 @@ public class MissionResponse {
         private String title;
         private Integer level;
         private List<String> profileImage;
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class Completeness {
+
+        private Long id;
+        private String title;
+        private Integer level;
+        private List<String> profileImage;
         private Boolean isCompleted;
     }
 

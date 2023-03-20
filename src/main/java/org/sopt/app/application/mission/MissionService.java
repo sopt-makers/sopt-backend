@@ -1,5 +1,6 @@
 package org.sopt.app.application.mission;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -20,18 +21,27 @@ public class MissionService {
     private final MissionRepository missionRepository;
     private final StampRepository stampRepository;
 
-    // TODO: 정렬
     @Transactional(readOnly = true)
-    public List<Mission> findAllMission(String userId) {
+    public List<MissionInfo.Completeness> findAllMission(String userId) {
         val completedStampList = stampRepository.findAllByUserId(Long.parseLong(userId));
         val missionList = missionRepository.findAll();
-        return missionList;
+        return missionList.stream()
+                .map(mission -> MissionInfo.Completeness.builder()
+                        .id(mission.getId())
+                        .title(mission.getTitle())
+                        .level(mission.getLevel())
+                        .profileImage(mission.getProfileImage())
+                        .isCompleted(isCompletedMission(mission.getId(), completedStampList))
+                        .build())
+                .sorted(Comparator.comparing(MissionInfo.Completeness::getLevel)
+                        .thenComparing(MissionInfo.Completeness::getTitle))
+                .collect(Collectors.toList());
     }
 
-//    private Boolean isCompletedMission(Long missionId, List<Stamp> completedStamps) {
-//        return completedStamps.stream().anyMatch(
-//                stamp -> stamp.getMissionId().equals(missionId));
-//    }
+    private Boolean isCompletedMission(Long missionId, List<Stamp> completedStamps) {
+        return completedStamps.stream().anyMatch(
+                stamp -> stamp.getMissionId().equals(missionId));
+    }
 
     // 게시글 작성 - 이미지 미포함
     @Transactional
@@ -44,7 +54,7 @@ public class MissionService {
         return missionRepository.save(mission);
     }
 
-    // 게시글 작성 -  이미지 포함
+    // 게시글 작성 - 이미지 포함
     @Transactional
     public Mission editMissionWithImages(Mission mission, List<String> imgPaths) {
         mission.setProfileImage(imgPaths);
