@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.rank.RankService;
 import org.sopt.app.presentation.BaseController;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ public class RankController extends BaseController {
 
     private final RankService rankService;
     private final RankResponseMapper rankResponseMapper;
+    private final MissionService missionService;
 
     @Operation(summary = "한마디 편집")
     @PostMapping("/profileMessage")
@@ -47,7 +49,8 @@ public class RankController extends BaseController {
     @GetMapping("/detail")
     public ResponseEntity<RankResponse.Detail> findRankById(@RequestHeader Long userId) {
         val result = rankService.findRankById(userId);
-        val response = rankResponseMapper.of(result);
+        val missionList = missionService.getCompleteMission(String.valueOf(userId));
+        val response = rankResponseMapper.of(result, missionList);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

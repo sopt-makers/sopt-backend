@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.common.exception.EntityNotFoundException;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
@@ -19,8 +18,6 @@ import org.springframework.stereotype.Service;
 public class RankService {
 
     private final UserRepository userRepository;
-
-    private final MissionService missionService;
 
     //User 한마디 등록하기
     public User updateProfileMessage(Long userId, String profileMessage) {
@@ -44,13 +41,7 @@ public class RankService {
                 .collect(Collectors.toList());
     }
 
-    public RankInfo.Detail findRankById(Long userId) {
-        val user = userRepository.findUserById(userId).orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-        return RankInfo.Detail.builder()
-                .userId(userId)
-                .nickname(user.getNickname())
-                .profileMessage(user.getProfileMessage())
-                .userMissions(missionService.getCompleteMission(String.valueOf(userId)))
-                .build();
+    public User findRankById(Long userId) {
+        return userRepository.findUserById(userId).orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
     }
 }
