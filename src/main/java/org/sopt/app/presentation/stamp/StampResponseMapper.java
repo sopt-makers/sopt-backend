@@ -12,7 +12,7 @@ import org.sopt.app.domain.entity.Stamp;
 )
 public interface StampResponseMapper {
 
-    StampResponse.Main of(Stamp user);
+    StampResponse.Main of(Stamp stamp);
 
     StampResponse.Id of(Long stampId);
 
