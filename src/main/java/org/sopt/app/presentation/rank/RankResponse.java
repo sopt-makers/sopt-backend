@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.sopt.app.domain.entity.Mission;
+import org.sopt.app.domain.enums.OsType;
 
 public class RankResponse {
 
@@ -36,5 +37,13 @@ public class RankResponse {
     @ToString
     public static class Profile {
 
+        private Long id;
+        private String nickname;
+        private String email;
+        private String password;
+        private String clientToken;
+        private String profileMessage;
+        private Long points;
+        private OsType osType;
     }
 }
