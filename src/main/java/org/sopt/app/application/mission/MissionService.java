@@ -66,7 +66,10 @@ public class MissionService {
     public List<Mission> getCompleteMission(String userId) {
         val stampList = stampRepository.findAllByUserId(Long.valueOf(userId));
         val missionIdList = stampList.stream().map(Stamp::getMissionId).collect(Collectors.toList());
-        return missionRepository.findMissionIn(missionIdList);
+        return missionRepository.findMissionIn(missionIdList).stream()
+                .sorted(Comparator.comparing(Mission::getLevel)
+                        .thenComparing(Mission::getTitle))
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -85,7 +88,10 @@ public class MissionService {
                 .filter(all -> completeMissionIdList.stream().noneMatch(Predicate.isEqual(all)))
                 .toList();
 
-        return missionRepository.findMissionIn(inCompleteIdList);
+        return missionRepository.findMissionIn(inCompleteIdList).stream()
+                .sorted(Comparator.comparing(Mission::getLevel)
+                        .thenComparing(Mission::getTitle))
+                .collect(Collectors.toList());
     }
 }
 
