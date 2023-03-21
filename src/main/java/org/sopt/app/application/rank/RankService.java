@@ -20,10 +20,13 @@ public class RankService {
     private final UserRepository userRepository;
 
     //User 한마디 등록하기
-    public User updateProfileMessage(Long userId, String profileMessage) {
+    public RankInfo.Profile updateProfileMessage(Long userId, String profileMessage) {
         val user = userRepository.findUserById(userId).orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
         user.updateProfileMessage(profileMessage);
-        return userRepository.save(user);
+        userRepository.save(user);
+        return RankInfo.Profile.builder()
+                .profileMessage(user.getProfileMessage())
+                .build();
     }
 
     public List<RankInfo.Main> findRanks() {

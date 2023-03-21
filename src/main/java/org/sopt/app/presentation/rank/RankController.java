@@ -27,13 +27,12 @@ public class RankController extends BaseController {
 
     @Operation(summary = "한마디 편집")
     @PostMapping("/profileMessage")
-    public ResponseEntity<?> updateUserProfileMessage(
+    public ResponseEntity<RankResponse.Profile> updateUserProfileMessage(
             @RequestHeader Long userId,
             @RequestBody RankRequest.EditProfileMessageRequest editProfileMessageRequest
     ) {
         val result = rankService.updateProfileMessage(userId, editProfileMessageRequest.getProfileMessage());
-        // TODO: response 수정
-        val response = result;
+        val response = rankResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
