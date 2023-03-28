@@ -1,6 +1,7 @@
 package org.sopt.app.presentation.auth;
 
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.AuthUseCaseImpl;
@@ -30,7 +31,8 @@ public class AuthController {
     private final JwtTokenService jwtTokenService;
     private final AuthResponseMapper authResponseMapper;
 
-    @PostMapping(value = "/api/v2/auth/login")
+    @Operation(summary = "플그로 로그인/회원가입")
+    @PostMapping(value = "/api/v2/auth/playground")
     public ResponseEntity<AuthResponse.Token> playgroundLogin(@RequestBody AuthRequest.CodeRequest codeRequest) {
         val playgroundToken = playgroundAuthService.getPlaygroundAccessToken(codeRequest);
         val playgroundMember = playgroundAuthService.getPlaygroundMember(playgroundToken.getAccessToken());
