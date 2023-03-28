@@ -1,7 +1,11 @@
 package org.sopt.app.application.user;
 
+import static org.sopt.app.common.ResponseCode.ENTITY_NOT_FOUND;
+
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
+import org.sopt.app.common.exception.EntityNotFoundException;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.auth.AuthRequest;
@@ -49,6 +53,15 @@ public class UserService {
         user.editNickname(nickname);
         userRepository.save(user);
         return UserInfo.Nickname.builder().nickname(nickname).build();
+    }
+
+    public UserInfo.ProfileMessage editProfileMessage(Long userId, String profileMessage) {
+        val user = userRepository.findUserById(userId).orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+        user.updateProfileMessage(profileMessage);
+        userRepository.save(user);
+        return UserInfo.ProfileMessage.builder()
+                .profileMessage(user.getProfileMessage())
+                .build();
     }
 
     public void deleteUser(User user) {

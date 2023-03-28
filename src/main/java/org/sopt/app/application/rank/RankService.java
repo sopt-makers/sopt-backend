@@ -19,16 +19,6 @@ public class RankService {
 
     private final UserRepository userRepository;
 
-    //User 한마디 등록하기
-    public RankInfo.Profile updateProfileMessage(Long userId, String profileMessage) {
-        val user = userRepository.findUserById(userId).orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-        user.updateProfileMessage(profileMessage);
-        userRepository.save(user);
-        return RankInfo.Profile.builder()
-                .profileMessage(user.getProfileMessage())
-                .build();
-    }
-
     public List<RankInfo.Main> findRanks() {
         val userList = userRepository.findAll();
         val rankPoint = new AtomicInteger(1);
@@ -36,7 +26,6 @@ public class RankService {
                         Comparator.comparing(User::getPoints).reversed())
                 .map(user -> RankInfo.Main.builder()
                         .rank(rankPoint.getAndIncrement())
-                        .userId(user.getId())
                         .nickname(user.getNickname())
                         .point(user.getPoints())
                         .profileMessage(user.getProfileMessage())

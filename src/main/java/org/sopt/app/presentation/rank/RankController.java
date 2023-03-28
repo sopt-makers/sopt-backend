@@ -11,8 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,17 +22,6 @@ public class RankController {
     private final RankService rankService;
     private final RankResponseMapper rankResponseMapper;
     private final MissionService missionService;
-
-    @Operation(summary = "한마디 편집")
-    @PostMapping("/profileMessage")
-    public ResponseEntity<RankResponse.Profile> updateUserProfileMessage(
-            @AuthenticationPrincipal User user,
-            @RequestBody RankRequest.EditProfileMessageRequest editProfileMessageRequest
-    ) {
-        val result = rankService.updateProfileMessage(user.getId(), editProfileMessageRequest.getProfileMessage());
-        val response = rankResponseMapper.of(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
 
     @Operation(summary = "랭킹 목록 조회")
     @GetMapping("")

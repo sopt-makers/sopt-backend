@@ -29,4 +29,12 @@ public class UserInfo {
 
         private String nickname;
     }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class ProfileMessage {
+
+        private String profileMessage;
+    }
 }
