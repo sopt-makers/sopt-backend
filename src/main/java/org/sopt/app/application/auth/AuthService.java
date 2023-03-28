@@ -2,6 +2,7 @@ package org.sopt.app.application.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.presentation.auth.AuthRequest;
+import org.sopt.app.presentation.auth.AuthResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -35,8 +36,8 @@ public class AuthService {
         return response.getBody();
     }
 
-    public Object getPlaygroundUser(String accessToken) {
-        String getUserURL = baseURI + "/api/v1/members/me";
+    public Long getPlaygroundMember(String accessToken) {
+        String getUserURL = baseURI + "/internal/api/v1/members/me";
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("content-type", "application/json;charset=UTF-8");
@@ -45,12 +46,12 @@ public class AuthService {
         HttpEntity<AuthRequest.CodeRequest> entity = new HttpEntity(null, headers);
 
         RestTemplate rt = new RestTemplate();
-        ResponseEntity<Object> response = rt.exchange(
+        ResponseEntity<AuthResponse.PlaygroundMemberResponse> response = rt.exchange(
                 getUserURL,
                 HttpMethod.GET,
                 entity,
-                Object.class
+                AuthResponse.PlaygroundMemberResponse.class
         );
-        return response.getBody();
+        return response.getBody().getId();
     }
 }

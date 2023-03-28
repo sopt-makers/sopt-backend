@@ -24,12 +24,14 @@ public class AuthController {
 
     private final AuthUseCaseImpl authUseCase;
     private final AuthService authService;
+    private final AuthResponseMapper authResponseMapper;
 
     @PostMapping(value = "/api/v1/auth/login")
     public ResponseEntity<?> playgroundLogin(@RequestBody AuthRequest.CodeRequest codeRequest) {
         val accessToken = authService.getPlaygroundAccessToken(codeRequest);
-        val result = authService.getPlaygroundUser(accessToken.getAccessToken());
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        val result = authService.getPlaygroundMember(accessToken.getAccessToken());
+        val response = authResponseMapper.of(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     /**
