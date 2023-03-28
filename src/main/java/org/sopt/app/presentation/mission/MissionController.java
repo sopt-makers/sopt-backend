@@ -8,7 +8,6 @@ import lombok.val;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.common.s3.S3Service;
 import org.sopt.app.domain.entity.User;
-import org.sopt.app.presentation.BaseController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v2/mission")
-public class MissionController extends BaseController {
+public class MissionController {
 
     private final MissionService missionService;
     private final S3Service s3Service;

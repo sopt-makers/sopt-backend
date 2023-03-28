@@ -7,7 +7,6 @@ import lombok.val;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.rank.RankService;
 import org.sopt.app.domain.entity.User;
-import org.sopt.app.presentation.BaseController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v2/rank")
-public class RankController extends BaseController {
+public class RankController {
 
     private final RankService rankService;
     private final RankResponseMapper rankResponseMapper;
