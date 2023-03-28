@@ -28,6 +28,9 @@ public class User extends BaseEntity {
     private Long id;
 
     @Column(nullable = false)
+    public String username;
+
+    @Column(nullable = false)
     public String nickname;
 
     @Column(nullable = false)
@@ -52,14 +55,20 @@ public class User extends BaseEntity {
     @Column
     private Long playgroundId;
 
+    @Column
+    private String playgroundToken;
+
     @Builder
-    public User(String email, String nickname, String clientToken, OsType osType, String password, Long playgroundId) {
+    public User(String email, String username, String nickname, String clientToken, OsType osType, String password,
+            Long playgroundId) {
+        this.username = username;
         this.nickname = nickname;
         this.email = email;
         this.password = password;
         this.osType = osType;
         this.clientToken = clientToken;
         this.playgroundId = playgroundId;
+        this.points = 0L;
     }
 
     public void createProfileMessage(User user, String profileMessage) {
@@ -94,5 +103,10 @@ public class User extends BaseEntity {
     //랭크 점수 초기화
     public void initializePoints() {
         this.points = 0L;
+    }
+
+    public void updatePlaygroundUserInfo(String username, String playgroundToken) {
+        this.username = username;
+        this.playgroundToken = playgroundToken;
     }
 }
