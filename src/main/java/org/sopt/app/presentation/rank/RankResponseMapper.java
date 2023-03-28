@@ -18,5 +18,4 @@ public interface RankResponseMapper {
     List<RankResponse.Main> of(List<Main> rank);
 
     RankResponse.Detail of(User user, List<Mission> userMissions);
-
 }

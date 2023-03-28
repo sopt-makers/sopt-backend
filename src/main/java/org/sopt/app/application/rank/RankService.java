@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class RankService {
 
     private final UserRepository userRepository;
-
+    
     public List<RankInfo.Main> findRanks() {
         val userList = userRepository.findAll();
         val rankPoint = new AtomicInteger(1);

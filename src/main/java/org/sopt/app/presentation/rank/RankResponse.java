@@ -23,7 +23,7 @@ public class RankResponse {
     @Setter
     @ToString
     public static class Detail {
-
+    
         private String nickname;
         private String profileMessage;
         private List<Mission> userMissions;
