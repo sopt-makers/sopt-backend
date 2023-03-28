@@ -83,7 +83,7 @@ public class StampController extends BaseController {
 
     @Operation(summary = "스탬프 삭제하기(개별)")
     @DeleteMapping("/{stampId}")
-    public ResponseEntity<String> deleteStampById(@AuthenticationPrincipal User user, @PathVariable Long stampId) {
+    public ResponseEntity<String> deleteStampById(@PathVariable Long stampId) {
         stampService.deleteByStampId(stampId);
         return ResponseEntity.status(HttpStatus.OK).body("{}");
     }

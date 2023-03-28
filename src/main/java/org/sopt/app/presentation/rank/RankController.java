@@ -6,19 +6,20 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.rank.RankService;
+import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.BaseController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/rank")
+@RequestMapping("/api/v2/rank")
 public class RankController extends BaseController {
 
     private final RankService rankService;
@@ -28,10 +29,10 @@ public class RankController extends BaseController {
     @Operation(summary = "한마디 편집")
     @PostMapping("/profileMessage")
     public ResponseEntity<RankResponse.Profile> updateUserProfileMessage(
-            @RequestHeader Long userId,
+            @AuthenticationPrincipal User user,
             @RequestBody RankRequest.EditProfileMessageRequest editProfileMessageRequest
     ) {
-        val result = rankService.updateProfileMessage(userId, editProfileMessageRequest.getProfileMessage());
+        val result = rankService.updateProfileMessage(user.getId(), editProfileMessageRequest.getProfileMessage());
         val response = rankResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -46,9 +47,9 @@ public class RankController extends BaseController {
 
     @Operation(summary = "랭킹 상세 조회")
     @GetMapping("/detail")
-    public ResponseEntity<RankResponse.Detail> findRankById(@RequestHeader Long userId) {
-        val result = rankService.findRankById(userId);
-        val missionList = missionService.getCompleteMission(String.valueOf(userId));
+    public ResponseEntity<RankResponse.Detail> findRankById(@AuthenticationPrincipal User user) {
+        val result = rankService.findRankById(user.getId());
+        val missionList = missionService.getCompleteMission(user.getId());
         val response = rankResponseMapper.of(result, missionList);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

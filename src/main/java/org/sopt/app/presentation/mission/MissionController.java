@@ -7,12 +7,13 @@ import lombok.AllArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.common.s3.S3Service;
+import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.BaseController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -21,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/v1/mission")
+@RequestMapping("/api/v2/mission")
 public class MissionController extends BaseController {
 
     private final MissionService missionService;
@@ -32,8 +33,8 @@ public class MissionController extends BaseController {
     @Operation(summary = "미션 전체 조회하기")
     @GetMapping(value = "/all")
     @ResponseBody
-    public ResponseEntity<List<MissionResponse.Completeness>> findAllMission(@RequestHeader("userId") String userId) {
-        val result = missionService.findAllMission(userId);
+    public ResponseEntity<List<MissionResponse.Completeness>> findAllMission(@AuthenticationPrincipal User user) {
+        val result = missionService.findAllMission(user.getId());
         val response = missionResponseMapper.ofCompleteness(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -55,16 +56,16 @@ public class MissionController extends BaseController {
 
     @Operation(summary = "완료 미션만 조회하기")
     @GetMapping("complete")
-    public ResponseEntity<List<MissionResponse.Main>> findCompleteMission(@RequestHeader("userId") String userId) {
-        val result = missionService.getCompleteMission(userId);
+    public ResponseEntity<List<MissionResponse.Main>> findCompleteMission(@AuthenticationPrincipal User user) {
+        val result = missionService.getCompleteMission(user.getId());
         val response = missionResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "미완료 미션만 조회하기")
     @GetMapping("incomplete")
-    public ResponseEntity<List<MissionResponse.Main>> findInCompleteMission(@RequestHeader("userId") String userId) {
-        val result = missionService.getIncompleteMission(userId);
+    public ResponseEntity<List<MissionResponse.Main>> findInCompleteMission(@AuthenticationPrincipal User user) {
+        val result = missionService.getIncompleteMission(user.getId());
         val response = missionResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
