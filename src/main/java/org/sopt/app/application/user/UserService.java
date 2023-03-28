@@ -44,4 +44,14 @@ public class UserService {
 
         return userId;
     }
+
+    public UserInfo.Nickname editNickname(User user, String nickname) {
+        user.editNickname(nickname);
+        userRepository.save(user);
+        return UserInfo.Nickname.builder().nickname(nickname).build();
+    }
+
+    public void deleteUser(User user) {
+        userRepository.delete(user);
+    }
 }

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-@RequestMapping("/health")
+@RequestMapping("/api/v2/health")
 @RequiredArgsConstructor
 public class HealthCheckController {
 

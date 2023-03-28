@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,7 +30,6 @@ public class MissionController {
 
     @Operation(summary = "미션 전체 조회하기")
     @GetMapping(value = "/all")
-    @ResponseBody
     public ResponseEntity<List<MissionResponse.Completeness>> findAllMission(@AuthenticationPrincipal User user) {
         val result = missionService.findAllMission(user.getId());
         val response = missionResponseMapper.ofCompleteness(result);
@@ -40,7 +38,7 @@ public class MissionController {
 
 
     @Operation(summary = "미션 생성하기")
-    @PostMapping()
+    @PostMapping("")
     public ResponseEntity<MissionResponse.Id> registerMission(
             @RequestPart("missionContent") MissionRequest.RegisterMissionRequest registerMissionRequest,
             @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles) {

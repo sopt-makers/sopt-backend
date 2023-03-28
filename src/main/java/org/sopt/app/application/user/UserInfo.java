@@ -21,4 +21,12 @@ public class UserInfo {
 
         private String accessToken;
     }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class Nickname {
+
+        private String nickname;
+    }
 }

@@ -38,25 +38,4 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-//    /**
-//     * 닉네임 변경
-//     */
-//    @PatchMapping(value = "/api/v1/auth/nickname")
-//    public void changeNickname(
-//            @RequestHeader(name = "userId") String userId,
-//            @RequestBody ChangeNicknameRequestDto changeNicknameRequestDto
-//    ) {
-//        String nickname = changeNicknameRequestDto.getNickname();
-//        authUseCase.changeNickname(userId, nickname);
-//    }
-//
-//    /**
-//     * 탈퇴하기
-//     */
-//    @DeleteMapping(value = "/api/v1/auth/withdraw")
-//    public void withdraw(
-//            @RequestHeader(name = "userId") String userId
-//    ) {
-//        authUseCase.deleteUser(userId);
-//    }
 }
