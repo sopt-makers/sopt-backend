@@ -1,5 +1,6 @@
 package org.sopt.app.domain.entity;
 
+import java.util.Collection;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -13,6 +14,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt.app.domain.enums.OsType;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "app_users", schema = "app_dev")
@@ -20,7 +23,7 @@ import org.sopt.app.domain.enums.OsType;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User extends BaseEntity {
+public class User extends BaseEntity implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -108,5 +111,34 @@ public class User extends BaseEntity {
     public void updatePlaygroundUserInfo(String username, String playgroundToken) {
         this.username = username;
         this.playgroundToken = playgroundToken;
+    }
+
+    public void editNickname(String nickname) {
+        this.nickname = nickname;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return null;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return false;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return false;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return false;
     }
 }
