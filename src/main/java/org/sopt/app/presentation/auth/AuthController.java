@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.JwtTokenService;
 import org.sopt.app.application.auth.PlaygroundAuthService;
-import org.sopt.app.application.auth.UserAuthService;
+import org.sopt.app.application.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final PlaygroundAuthService playgroundAuthService;
-    private final UserAuthService userAuthService;
+    private final UserService userService;
     private final JwtTokenService jwtTokenService;
     private final AuthResponseMapper authResponseMapper;
 
@@ -30,7 +30,7 @@ public class AuthController {
         val playgroundToken = playgroundAuthService.getPlaygroundAccessToken(codeRequest);
         val playgroundMember = playgroundAuthService.getPlaygroundMember(playgroundToken.getAccessToken());
 
-        val userId = userAuthService.loginWithUserPlaygroundId(playgroundMember, playgroundToken);
+        val userId = userService.loginWithUserPlaygroundId(playgroundMember, playgroundToken);
 
         val accessToken = jwtTokenService.encodeJwtToken(userId);
         val refreshToken = jwtTokenService.encodeJwtRefreshToken(userId);

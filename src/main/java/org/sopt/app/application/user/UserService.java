@@ -1,9 +1,7 @@
-package org.sopt.app.application.auth;
+package org.sopt.app.application.user;
 
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.application.user.UserInfo;
-import org.sopt.app.application.user.UserInfoMapper;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.auth.AuthRequest;
@@ -12,10 +10,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class UserAuthService {
+public class UserService {
 
     private final UserRepository userRepository;
-    private final UserInfoMapper userInfoMapper;
 
     public UserInfo.Id loginWithUserPlaygroundId(AuthResponse.PlaygroundMemberResponse playgroundMemberResponse,
             AuthRequest.AccessTokenRequest playgroundToken) {
@@ -27,7 +24,7 @@ public class UserAuthService {
                     .updatePlaygroundUserInfo(playgroundMemberResponse.getName(), playgroundToken.getAccessToken());
             userRepository.save(registeredUser.get());
 
-            userId = userInfoMapper.of(registeredUser.get().getId());
+            userId = UserInfo.Id.builder().id(registeredUser.get().getId()).build();
         } else {
             int randomNumber = (int) (Math.random() * 10000);
             User newUser = User.builder()
@@ -42,7 +39,7 @@ public class UserAuthService {
                     .build();
             userRepository.save(newUser);
 
-            userId = userInfoMapper.of(newUser.getId());
+            userId = UserInfo.Id.builder().id(newUser.getId()).build();
         }
 
         return userId;

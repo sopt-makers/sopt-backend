@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
 
-public class AuthInfo {
+public class PlaygroundAuthInfo {
 
     @Getter
     @Builder
