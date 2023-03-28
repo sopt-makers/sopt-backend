@@ -11,5 +11,4 @@ import org.mapstruct.ReportingPolicy;
 )
 public interface AuthResponseMapper {
 
-    AuthResponse.LoginResponse of(Long id);
 }

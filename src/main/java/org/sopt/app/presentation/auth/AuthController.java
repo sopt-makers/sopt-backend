@@ -30,7 +30,7 @@ public class AuthController {
     public ResponseEntity<?> playgroundLogin(@RequestBody AuthRequest.CodeRequest codeRequest) {
         val accessToken = authService.getPlaygroundAccessToken(codeRequest);
         val result = authService.getPlaygroundMember(accessToken.getAccessToken());
-        val response = authResponseMapper.of(result);
+        val response = result;
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

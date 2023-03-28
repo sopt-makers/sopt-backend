@@ -36,7 +36,7 @@ public class AuthService {
         return response.getBody();
     }
 
-    public Long getPlaygroundMember(String accessToken) {
+    public AuthResponse.PlaygroundMemberResponse getPlaygroundMember(String accessToken) {
         String getUserURL = baseURI + "/internal/api/v1/members/me";
 
         HttpHeaders headers = new HttpHeaders();
@@ -52,6 +52,6 @@ public class AuthService {
                 entity,
                 AuthResponse.PlaygroundMemberResponse.class
         );
-        return response.getBody().getId();
+        return response.getBody();
     }
 }
