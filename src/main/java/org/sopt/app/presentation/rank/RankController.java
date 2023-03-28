@@ -1,6 +1,7 @@
 package org.sopt.app.presentation.rank;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v2/rank")
+@SecurityRequirement(name = "Authorization")
 public class RankController {
 
     private final RankService rankService;

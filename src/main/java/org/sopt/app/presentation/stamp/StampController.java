@@ -3,6 +3,7 @@ package org.sopt.app.presentation.stamp;
 import static org.sopt.app.common.ResponseCode.DUPLICATE_STAMP;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.val;
@@ -26,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v2/stamp")
+@SecurityRequirement(name = "Authorization")
 public class StampController {
 
     private final StampService stampService;

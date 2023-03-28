@@ -2,6 +2,7 @@ package org.sopt.app.presentation.mission;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.val;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/api/v2/mission")
+@SecurityRequirement(name = "Authorization")
 public class MissionController {
 
     private final MissionService missionService;
