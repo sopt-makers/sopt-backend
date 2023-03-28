@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/v1/firebase")
+@RequestMapping("/api/v2/firebase")
 public class FirebaseController {
 
     @Operation(summary = "firebase 연동을 위한 정보 GET")
