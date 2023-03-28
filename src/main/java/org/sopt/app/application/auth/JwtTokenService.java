@@ -11,7 +11,7 @@ import java.util.Base64;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.presentation.auth.AuthResponse;
+import org.sopt.app.application.user.UserInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,16 +26,16 @@ public class JwtTokenService {
     @Value("${jwt.secret}")
     private String JWT_SECRET;
 
-    public String encodeJwtToken(AuthResponse.PlaygroundMemberResponse tokenDTO) {
+    public String encodeJwtToken(UserInfo.Id userId) {
         Date now = new Date();
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuer("sopt-makers")
                 .setIssuedAt(now)
-                .setSubject(tokenDTO.getId().toString())
-                .setExpiration(new Date(now.getTime() + Duration.ofDays(180).toMillis()))
-                .claim("id", tokenDTO.getId())
+                .setSubject(userId.getId().toString())
+                .setExpiration(new Date(now.getTime() + Duration.ofDays(1).toMillis()))
+                .claim("id", userId.getId())
                 .claim("roles", "USER")
                 .signWith(SignatureAlgorithm.HS256,
                         Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
@@ -43,13 +43,13 @@ public class JwtTokenService {
                 .compact();
     }
 
-    public String encodeJwtRefreshToken(Long id) {
+    public String encodeJwtRefreshToken(UserInfo.Id userId) {
         Date now = new Date();
         return Jwts.builder()
                 .setIssuedAt(now)
-                .setSubject(id.toString())
-                .setExpiration(new Date(now.getTime() + Duration.ofMinutes(20160).toMillis()))
-                .claim("id", id)
+                .setSubject(userId.getId().toString())
+                .setExpiration(new Date(now.getTime() + Duration.ofDays(14).toMillis()))
+                .claim("id", userId.getId())
                 .claim("roles", "USER")
                 .signWith(SignatureAlgorithm.HS256,
                         Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(

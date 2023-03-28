@@ -13,7 +13,7 @@ import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService {
+public class PlaygroundAuthService {
 
     @Value("${makers.playground.server.dev}")
     private String baseURI;
@@ -54,4 +54,6 @@ public class AuthService {
         );
         return response.getBody();
     }
+
+
 }

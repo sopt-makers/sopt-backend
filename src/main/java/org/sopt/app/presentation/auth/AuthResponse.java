@@ -27,4 +27,12 @@ public class AuthResponse {
         private String profileMessage;
     }
 
+    @Getter
+    @Setter
+    @ToString
+    public static class Token {
+
+        private String accessToken;
+        private String refreshToken;
+    }
 }

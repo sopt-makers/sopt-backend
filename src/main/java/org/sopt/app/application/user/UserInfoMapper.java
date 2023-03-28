@@ -1,4 +1,4 @@
-package org.sopt.app.presentation.auth;
+package org.sopt.app.application.user;
 
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
@@ -9,7 +9,7 @@ import org.mapstruct.ReportingPolicy;
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
         unmappedTargetPolicy = ReportingPolicy.ERROR
 )
-public interface AuthResponseMapper {
+public interface UserInfoMapper {
 
-    AuthResponse.Token of(String accessToken, String refreshToken);
+    UserInfo.Id of(Long id);
 }
