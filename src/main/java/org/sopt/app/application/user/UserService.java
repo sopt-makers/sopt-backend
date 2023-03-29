@@ -54,6 +54,7 @@ public class UserService {
     public UserInfo.Nickname editNickname(User user, String nickname) {
         Optional<User> nicknameUser = userRepository.findUserByNickname(nickname);
         if (nicknameUser.isPresent()) {
+            System.out.println(nicknameUser.get().getNickname());
             throw new BadRequestException(INVALID_REQUEST);
         }
 

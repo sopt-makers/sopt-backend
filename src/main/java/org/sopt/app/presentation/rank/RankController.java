@@ -7,12 +7,11 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.rank.RankService;
-import org.sopt.app.domain.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -35,9 +34,9 @@ public class RankController {
 
     @Operation(summary = "랭킹 상세 조회")
     @GetMapping("/detail")
-    public ResponseEntity<RankResponse.Detail> findRankById(@AuthenticationPrincipal User user) {
-        val result = rankService.findRankById(user.getId());
-        val missionList = missionService.getCompleteMission(user.getId());
+    public ResponseEntity<RankResponse.Detail> findRankByNickname(@RequestParam(value = "nickname") String nickname) {
+        val result = rankService.findRankByNickname(nickname);
+        val missionList = missionService.getCompleteMission(result.getId());
         val response = rankResponseMapper.of(result, missionList);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

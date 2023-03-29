@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 public class RankService {
 
     private final UserRepository userRepository;
-    
+
     public List<RankInfo.Main> findRanks() {
         val userList = userRepository.findAll();
         val rankPoint = new AtomicInteger(1);
@@ -33,7 +33,8 @@ public class RankService {
                 .collect(Collectors.toList());
     }
 
-    public User findRankById(Long userId) {
-        return userRepository.findUserById(userId).orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+    public User findRankByNickname(String nickname) {
+        return userRepository.findUserByNickname(nickname)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
     }
 }

@@ -33,7 +33,7 @@ public class User extends BaseEntity implements UserDetails {
     @Column(nullable = false)
     public String username;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     public String nickname;
 
     @Column(nullable = false)
