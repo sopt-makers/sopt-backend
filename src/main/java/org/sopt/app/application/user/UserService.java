@@ -42,6 +42,7 @@ public class UserService {
                     .clientToken("")
                     .playgroundId(playgroundMemberResponse.getId())
                     .playgroundToken(playgroundToken.getAccessToken())
+                    .points(0L)
                     .build();
             userRepository.save(newUser);
 
