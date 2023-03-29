@@ -1,10 +1,12 @@
 package org.sopt.app.application.user;
 
 import static org.sopt.app.common.ResponseCode.ENTITY_NOT_FOUND;
+import static org.sopt.app.common.ResponseCode.INVALID_REQUEST;
 
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.EntityNotFoundException;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
@@ -50,6 +52,11 @@ public class UserService {
     }
 
     public UserInfo.Nickname editNickname(User user, String nickname) {
+        Optional<User> nicknameUser = userRepository.findUserByNickname(nickname);
+        if (nicknameUser.isPresent()) {
+            throw new BadRequestException(INVALID_REQUEST);
+        }
+
         user.editNickname(nickname);
         userRepository.save(user);
         return UserInfo.Nickname.builder().nickname(nickname).build();
