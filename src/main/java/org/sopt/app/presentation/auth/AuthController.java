@@ -1,58 +1,39 @@
 package org.sopt.app.presentation.auth;
 
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.application.auth.AuthUseCaseImpl;
-import org.sopt.app.presentation.auth.dto.ChangeNicknameRequestDto;
-import org.sopt.app.presentation.auth.dto.ChangePasswordRequestDto;
-import org.springframework.web.bind.annotation.*;
+import lombok.val;
+import org.sopt.app.application.auth.JwtTokenService;
+import org.sopt.app.application.auth.PlaygroundAuthService;
+import org.sopt.app.application.user.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@RequestMapping("/api/v2/auth")
 public class AuthController {
 
-    private final AuthUseCaseImpl authUseCase;
+    private final PlaygroundAuthService playgroundAuthService;
+    private final UserService userService;
+    private final JwtTokenService jwtTokenService;
+    private final AuthResponseMapper authResponseMapper;
 
-    /**
-     * 닉네임, 이메일 검증 API
-     */
-    @GetMapping(value = "/api/v1/auth")
-    public void check(@RequestParam(value = "nickname", required = false) String nickname,
-                      @RequestParam(value = "email", required = false) String email) {
-        authUseCase.validate(nickname, email);
+    @Operation(summary = "플그로 로그인/회원가입")
+    @PostMapping(value = "/playground")
+    public ResponseEntity<AuthResponse.Token> playgroundLogin(@RequestBody AuthRequest.CodeRequest codeRequest) {
+        val playgroundMember = playgroundAuthService.getPlaygroundInfo(codeRequest);
+        val userId = userService.loginWithUserPlaygroundId(playgroundMember);
+
+        val accessToken = jwtTokenService.encodeJwtToken(userId);
+        val refreshToken = jwtTokenService.encodeJwtRefreshToken(userId);
+        val response = authResponseMapper.of(accessToken, refreshToken);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    /**
-     * 비밀번호 변경
-     */
-
-    @PatchMapping(value = "/api/v1/auth/password")
-    public void changePassword(
-            @RequestHeader(name = "userId") String userId,
-            @RequestBody ChangePasswordRequestDto changePasswordRequestDto
-    ) {
-        authUseCase.changePassword(userId, changePasswordRequestDto.getPassword());
-    }
-
-    /**
-     * 닉네임 변경
-     */
-    @PatchMapping(value = "/api/v1/auth/nickname")
-    public void changeNickname(
-            @RequestHeader(name = "userId") String userId,
-            @RequestBody ChangeNicknameRequestDto changeNicknameRequestDto
-    ) {
-        String nickname = changeNicknameRequestDto.getNickname();
-        authUseCase.changeNickname(userId, nickname);
-    }
-
-    /**
-     *  탈퇴하기
-     */
-    @DeleteMapping(value = "/api/v1/auth/withdraw")
-    public void withdraw(
-            @RequestHeader(name = "userId") String userId
-    ) {
-        authUseCase.deleteUser(userId);
-    }
 }

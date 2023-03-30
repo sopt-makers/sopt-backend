@@ -22,8 +22,8 @@ public class MissionService {
     private final StampRepository stampRepository;
 
     @Transactional(readOnly = true)
-    public List<MissionInfo.Completeness> findAllMission(String userId) {
-        val completedStampList = stampRepository.findAllByUserId(Long.parseLong(userId));
+    public List<MissionInfo.Completeness> findAllMission(Long userId) {
+        val completedStampList = stampRepository.findAllByUserId(userId);
         val missionList = missionRepository.findAll();
         return missionList.stream()
                 .map(mission -> MissionInfo.Completeness.builder()
@@ -63,24 +63,21 @@ public class MissionService {
 
     //Mission 완료한 미션만 불러오기
     @Transactional(readOnly = true)
-    public List<Mission> getCompleteMission(String userId) {
-        val stampList = stampRepository.findAllByUserId(Long.valueOf(userId));
+    public List<Mission> getCompleteMission(Long userId) {
+        val stampList = stampRepository.findAllByUserId(userId);
         val missionIdList = stampList.stream().map(Stamp::getMissionId).collect(Collectors.toList());
-        return missionRepository.findMissionIn(missionIdList).stream()
-                .sorted(Comparator.comparing(Mission::getLevel)
-                        .thenComparing(Mission::getTitle))
-                .collect(Collectors.toList());
+        return missionRepository.findMissionInOrderByLevelAndTitle(missionIdList);
     }
 
     @Transactional(readOnly = true)
-    public List<Mission> getIncompleteMission(String userId) {
+    public List<Mission> getIncompleteMission(Long userId) {
 
         //전체 미션 조회하기
         val missionList = missionRepository.findAll();
         val missionIdList = missionList.stream().map(Mission::getId).collect(Collectors.toList());
 
         //stamp에서 userId로 달성한 mission 조회하기
-        val stampList = stampRepository.findAllByUserId(Long.valueOf(userId));
+        val stampList = stampRepository.findAllByUserId(userId);
         val completeMissionIdList = stampList.stream().map(Stamp::getMissionId).collect(Collectors.toList());
 
         //두 리스트 비교해서 중복값 제거
@@ -88,10 +85,7 @@ public class MissionService {
                 .filter(all -> completeMissionIdList.stream().noneMatch(Predicate.isEqual(all)))
                 .toList();
 
-        return missionRepository.findMissionIn(inCompleteIdList).stream()
-                .sorted(Comparator.comparing(Mission::getLevel)
-                        .thenComparing(Mission::getTitle))
-                .collect(Collectors.toList());
+        return missionRepository.findMissionInOrderByLevelAndTitle(inCompleteIdList);
     }
 }
 

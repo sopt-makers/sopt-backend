@@ -29,15 +29,15 @@ public class StampService {
     private final MissionRepository missionRepository;
 
     @Transactional(readOnly = true)
-    public Stamp findStamp(String userId, Long missionId) {
-        return stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
+    public Stamp findStamp(Long userId, Long missionId) {
+        return stampRepository.findByUserIdAndMissionId(userId, missionId);
     }
 
     @Transactional
     public Stamp uploadStamp(
             RegisterStampRequest stampRequest,
             List<String> imgPaths,
-            String userId,
+            Long userId,
             Long missionId) {
         val imgList = new ArrayList<String>(imgPaths);
         val stamp = this.convertStampImg(stampRequest, imgList, userId, missionId);
@@ -60,10 +60,10 @@ public class StampService {
     @Transactional
     public Stamp editStampContents(
             StampRequest.EditStampRequest editStampRequest,
-            String userId,
+            Long userId,
             Long missionId) {
 
-        val stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
+        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId);
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());
         }
@@ -103,8 +103,8 @@ public class StampService {
 
     //스탬프 중복 검사체크
     @Transactional(readOnly = true)
-    public boolean checkDuplicateStamp(String userId, Long missionId) {
-        val stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
+    public boolean checkDuplicateStamp(Long userId, Long missionId) {
+        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId);
         return stamp != null;
     }
 
@@ -129,14 +129,14 @@ public class StampService {
     private Stamp convertStampImg(
             RegisterStampRequest stampRequest,
             List<String> imgList,
-            String userId,
+            Long userId,
             Long missionId) {
         return Stamp.builder()
                 .contents(stampRequest.getContents())
                 .createdAt(LocalDateTime.now())
                 .images(imgList)
                 .missionId(missionId)
-                .userId(Long.valueOf(userId))
+                .userId(userId)
                 .build();
     }
 

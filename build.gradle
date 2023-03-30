@@ -30,7 +30,10 @@ repositories {
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    // swagger
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.12'
+    implementation 'org.springdoc:springdoc-openapi-security:1.6.12'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -38,6 +41,9 @@ dependencies {
     // mapper
     implementation 'org.mapstruct:mapstruct:1.4.2.Final'
     annotationProcessor "org.mapstruct:mapstruct-processor:1.4.2.Final"
+
+    // jwt
+    implementation 'io.jsonwebtoken:jjwt:0.9.1'
 
     // DB
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'

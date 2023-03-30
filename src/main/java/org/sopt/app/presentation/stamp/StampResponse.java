@@ -18,7 +18,6 @@ public class StampResponse {
         private List<String> images;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
-        private Long userId;
         private Long missionId;
     }
 
