@@ -10,13 +10,14 @@ public class AuthResponse {
     @Getter
     @Setter
     @ToString
-    public static class PlaygroundMemberResponse {
+    public static class PlaygroundResponse {
 
         private Long id;
         private String name;
         private Long generation;
         private String profileImage;
         private Boolean hasProfile;
+        private String accessToken;
     }
 
     @Getter

@@ -27,10 +27,8 @@ public class AuthController {
     @Operation(summary = "플그로 로그인/회원가입")
     @PostMapping(value = "/playground")
     public ResponseEntity<AuthResponse.Token> playgroundLogin(@RequestBody AuthRequest.CodeRequest codeRequest) {
-        val playgroundToken = playgroundAuthService.getPlaygroundAccessToken(codeRequest);
-        val playgroundMember = playgroundAuthService.getPlaygroundMember(playgroundToken.getAccessToken());
-
-        val userId = userService.loginWithUserPlaygroundId(playgroundMember, playgroundToken);
+        val playgroundMember = playgroundAuthService.getPlaygroundInfo(codeRequest);
+        val userId = userService.loginWithUserPlaygroundId(playgroundMember);
 
         val accessToken = jwtTokenService.encodeJwtToken(userId);
         val refreshToken = jwtTokenService.encodeJwtRefreshToken(userId);

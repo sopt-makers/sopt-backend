@@ -18,7 +18,13 @@ public class PlaygroundAuthService {
     @Value("${makers.playground.server.dev}")
     private String baseURI;
 
-    public AuthRequest.AccessTokenRequest getPlaygroundAccessToken(AuthRequest.CodeRequest codeRequest) {
+    public AuthResponse.PlaygroundResponse getPlaygroundInfo(AuthRequest.CodeRequest codeRequest) {
+        val tokenRequest = this.getPlaygroundAccessToken(codeRequest);
+        val member = this.getPlaygroundMember(tokenRequest.getAccessToken());
+        return member;
+    }
+
+    private AuthRequest.AccessTokenRequest getPlaygroundAccessToken(AuthRequest.CodeRequest codeRequest) {
         val getTokenURL = baseURI + "/api/v1/idp/sso/auth";
 
         val headers = new HttpHeaders();
@@ -36,7 +42,7 @@ public class PlaygroundAuthService {
         return response.getBody();
     }
 
-    public AuthResponse.PlaygroundMemberResponse getPlaygroundMember(String accessToken) {
+    private AuthResponse.PlaygroundResponse getPlaygroundMember(String accessToken) {
         val getUserURL = baseURI + "/internal/api/v1/members/me";
 
         val headers = new HttpHeaders();
@@ -50,7 +56,7 @@ public class PlaygroundAuthService {
                 getUserURL,
                 HttpMethod.GET,
                 entity,
-                AuthResponse.PlaygroundMemberResponse.class
+                AuthResponse.PlaygroundResponse.class
         );
         return response.getBody();
     }

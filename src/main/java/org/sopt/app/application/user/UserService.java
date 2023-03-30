@@ -9,7 +9,6 @@ import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.EntityNotFoundException;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
-import org.sopt.app.presentation.auth.AuthRequest;
 import org.sopt.app.presentation.auth.AuthResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,38 +20,42 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public UserInfo.Id loginWithUserPlaygroundId(
-            AuthResponse.PlaygroundMemberResponse playgroundMemberResponse,
-            AuthRequest.AccessTokenRequest playgroundToken
-    ) {
+    public UserInfo.Id loginWithUserPlaygroundId(AuthResponse.PlaygroundResponse playgroundMemberResponse) {
         val registeredUser = userRepository.findUserByPlaygroundId(playgroundMemberResponse.getId());
 
-        UserInfo.Id userId;
         if (registeredUser.isPresent()) {
             registeredUser.get()
-                    .updatePlaygroundUserInfo(playgroundMemberResponse.getName(), playgroundToken.getAccessToken());
+                    .updatePlaygroundUserInfo(playgroundMemberResponse.getName(),
+                            playgroundMemberResponse.getAccessToken());
             userRepository.save(registeredUser.get());
 
-            userId = UserInfo.Id.builder().id(registeredUser.get().getId()).build();
+            return UserInfo.Id.builder().id(registeredUser.get().getId()).build();
         } else {
-            int randomNumber = (int) (Math.random() * 10000);
-            val newUser = User.builder()
-                    .username(playgroundMemberResponse.getName())
-                    .nickname(playgroundMemberResponse.getName() + randomNumber)
-                    .email("")
-                    .password("")
-                    .osType(null)
-                    .clientToken("")
-                    .playgroundId(playgroundMemberResponse.getId())
-                    .playgroundToken(playgroundToken.getAccessToken())
-                    .points(0L)
-                    .build();
+            val newUser = this.registerNewUser(playgroundMemberResponse.getName(), playgroundMemberResponse.getId(),
+                    playgroundMemberResponse.getAccessToken());
             userRepository.save(newUser);
 
-            userId = UserInfo.Id.builder().id(newUser.getId()).build();
+            return UserInfo.Id.builder().id(newUser.getId()).build();
         }
+    }
 
-        return userId;
+    private User registerNewUser(String username, Long playgroundId, String playgroundToken) {
+        val nickname = this.generateNickname(username);
+        return User.builder()
+                .username(username)
+                .nickname(nickname)
+                .email("")
+                .password("")
+                .osType(null)
+                .clientToken("")
+                .playgroundId(playgroundId)
+                .playgroundToken(playgroundToken)
+                .points(0L)
+                .build();
+    }
+
+    private String generateNickname(String username) {
+        return new String(username + (int) (Math.random() * 10000));
     }
 
     @Transactional
