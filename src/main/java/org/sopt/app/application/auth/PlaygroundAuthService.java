@@ -18,6 +18,8 @@ public class PlaygroundAuthService {
     @Value("${makers.playground.server.dev}")
     private String baseURI;
 
+    private RestTemplate restTemplate = new RestTemplate();
+
     public AuthResponse.PlaygroundResponse getPlaygroundInfo(AuthRequest.CodeRequest codeRequest) {
         val tokenRequest = this.getPlaygroundAccessToken(codeRequest);
         val member = this.getPlaygroundMember(tokenRequest.getAccessToken());
@@ -32,8 +34,7 @@ public class PlaygroundAuthService {
 
         val entity = new HttpEntity(codeRequest, headers);
 
-        val rt = new RestTemplate();
-        val response = rt.exchange(
+        val response = restTemplate.exchange(
                 getTokenURL,
                 HttpMethod.POST,
                 entity,
@@ -51,8 +52,7 @@ public class PlaygroundAuthService {
 
         val entity = new HttpEntity(null, headers);
 
-        val rt = new RestTemplate();
-        val response = rt.exchange(
+        val response = restTemplate.exchange(
                 getUserURL,
                 HttpMethod.GET,
                 entity,

@@ -4,12 +4,12 @@ import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.joda.time.LocalDateTime;
 import org.sopt.app.application.user.UserInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -25,14 +25,14 @@ public class JwtTokenService {
     private String JWT_SECRET;
 
     public String encodeJwtToken(UserInfo.Id userId) {
-        val now = new Date();
+        val now = LocalDateTime.now();
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuer("sopt-makers")
-                .setIssuedAt(now)
+                .setIssuedAt(now.toDate())
                 .setSubject(userId.getId().toString())
-                .setExpiration(new Date(now.getTime() + Duration.ofDays(1).toMillis()))
+                .setExpiration(now.plusDays(1).toDate())
                 .claim("id", userId.getId())
                 .claim("roles", "USER")
                 .signWith(SignatureAlgorithm.HS256,
@@ -42,11 +42,11 @@ public class JwtTokenService {
     }
 
     public String encodeJwtRefreshToken(UserInfo.Id userId) {
-        val now = new Date();
+        val now = LocalDateTime.now();
         return Jwts.builder()
-                .setIssuedAt(now)
+                .setIssuedAt(now.toDate())
                 .setSubject(userId.getId().toString())
-                .setExpiration(new Date(now.getTime() + Duration.ofDays(14).toMillis()))
+                .setExpiration(now.plusDays(14).toDate())
                 .claim("id", userId.getId())
                 .claim("roles", "USER")
                 .signWith(SignatureAlgorithm.HS256,
