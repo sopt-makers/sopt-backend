@@ -67,7 +67,7 @@ public class UserController {
 
     @Operation(summary = "탈퇴하기")
     @DeleteMapping(value = "/withdraw")
-    public ResponseEntity<?> withdraw(@AuthenticationPrincipal User user) {
+    public ResponseEntity<UserResponse.Main> withdraw(@AuthenticationPrincipal User user) {
         userService.deleteUser(user);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }

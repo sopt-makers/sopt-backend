@@ -1,8 +1,6 @@
 package org.sopt.app.application.auth;
 
-import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import java.nio.charset.StandardCharsets;
@@ -11,11 +9,11 @@ import java.util.Base64;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.sopt.app.application.user.UserInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -27,7 +25,7 @@ public class JwtTokenService {
     private String JWT_SECRET;
 
     public String encodeJwtToken(UserInfo.Id userId) {
-        Date now = new Date();
+        val now = new Date();
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
@@ -38,13 +36,13 @@ public class JwtTokenService {
                 .claim("id", userId.getId())
                 .claim("roles", "USER")
                 .signWith(SignatureAlgorithm.HS256,
-                        Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
+                        Base64.getEncoder().encodeToString((JWT_SECRET).getBytes(
                                 StandardCharsets.UTF_8)))
                 .compact();
     }
 
     public String encodeJwtRefreshToken(UserInfo.Id userId) {
-        Date now = new Date();
+        val now = new Date();
         return Jwts.builder()
                 .setIssuedAt(now)
                 .setSubject(userId.getId().toString())
@@ -52,14 +50,14 @@ public class JwtTokenService {
                 .claim("id", userId.getId())
                 .claim("roles", "USER")
                 .signWith(SignatureAlgorithm.HS256,
-                        Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
+                        Base64.getEncoder().encodeToString((JWT_SECRET).getBytes(
                                 StandardCharsets.UTF_8)))
                 .compact();
     }
 
     public Long getUserIdFromJwtToken(String token) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
+        val claims = Jwts.parser()
+                .setSigningKey(Base64.getEncoder().encodeToString((JWT_SECRET).getBytes(
                         StandardCharsets.UTF_8)))
                 .parseClaimsJws(token)
                 .getBody();
@@ -67,7 +65,7 @@ public class JwtTokenService {
     }
 
     public Authentication getAuthentication(String token) {
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(
+        val userDetails = customUserDetailsService.loadUserByUsername(
                 this.getUserIdFromJwtToken(token).toString());
         return new UsernamePasswordAuthenticationToken(userDetails, "",
                 userDetails.getAuthorities());
@@ -76,8 +74,8 @@ public class JwtTokenService {
 
     public Boolean validateToken(String token) {
         try {
-            Jws<Claims> claims = Jwts.parser()
-                    .setSigningKey(Base64.getEncoder().encodeToString(("" + JWT_SECRET).getBytes(
+            val claims = Jwts.parser()
+                    .setSigningKey(Base64.getEncoder().encodeToString((JWT_SECRET).getBytes(
                             StandardCharsets.UTF_8))).parseClaimsJws(token);
 
             return !claims.getBody().getExpiration().before(new Date());

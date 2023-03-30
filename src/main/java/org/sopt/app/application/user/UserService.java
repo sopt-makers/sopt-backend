@@ -3,7 +3,6 @@ package org.sopt.app.application.user;
 import static org.sopt.app.common.ResponseCode.ENTITY_NOT_FOUND;
 import static org.sopt.app.common.ResponseCode.INVALID_REQUEST;
 
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.common.exception.BadRequestException;
@@ -13,6 +12,7 @@ import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.auth.AuthRequest;
 import org.sopt.app.presentation.auth.AuthResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,9 +20,12 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    public UserInfo.Id loginWithUserPlaygroundId(AuthResponse.PlaygroundMemberResponse playgroundMemberResponse,
-            AuthRequest.AccessTokenRequest playgroundToken) {
-        Optional<User> registeredUser = userRepository.findUserByPlaygroundId(playgroundMemberResponse.getId());
+    @Transactional
+    public UserInfo.Id loginWithUserPlaygroundId(
+            AuthResponse.PlaygroundMemberResponse playgroundMemberResponse,
+            AuthRequest.AccessTokenRequest playgroundToken
+    ) {
+        val registeredUser = userRepository.findUserByPlaygroundId(playgroundMemberResponse.getId());
 
         UserInfo.Id userId;
         if (registeredUser.isPresent()) {
@@ -33,7 +36,7 @@ public class UserService {
             userId = UserInfo.Id.builder().id(registeredUser.get().getId()).build();
         } else {
             int randomNumber = (int) (Math.random() * 10000);
-            User newUser = User.builder()
+            val newUser = User.builder()
                     .username(playgroundMemberResponse.getName())
                     .nickname(playgroundMemberResponse.getName() + randomNumber)
                     .email("")
@@ -52,10 +55,10 @@ public class UserService {
         return userId;
     }
 
+    @Transactional
     public UserInfo.Nickname editNickname(User user, String nickname) {
-        Optional<User> nicknameUser = userRepository.findUserByNickname(nickname);
+        val nicknameUser = userRepository.findUserByNickname(nickname);
         if (nicknameUser.isPresent()) {
-            System.out.println(nicknameUser.get().getNickname());
             throw new BadRequestException(INVALID_REQUEST);
         }
 
@@ -64,6 +67,7 @@ public class UserService {
         return UserInfo.Nickname.builder().nickname(nickname).build();
     }
 
+    @Transactional
     public UserInfo.ProfileMessage editProfileMessage(Long userId, String profileMessage) {
         val user = userRepository.findUserById(userId).orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
         user.updateProfileMessage(profileMessage);
@@ -73,6 +77,7 @@ public class UserService {
                 .build();
     }
 
+    @Transactional
     public void deleteUser(User user) {
         userRepository.delete(user);
     }
