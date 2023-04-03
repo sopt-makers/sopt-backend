@@ -1,25 +1,58 @@
 package org.sopt.app.presentation.user;
 
+import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 import lombok.ToString;
 import org.sopt.app.domain.enums.OsType;
 
 public class UserResponse {
 
     @Getter
-    @Setter
+    @Builder
     @ToString
     public static class Main {
 
-        public String username;
+        private User user;
+        private Operation operation;
+
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class User {
+
+        private String status;
+        private String name;
+        private String profileImage;
+        private List<Long> generationList;
+
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class Operation {
+
+        private Double attendanceScore;
+        private String announcement;
+
+    }
+
+
+    @Getter
+    @Builder
+    @ToString
+    public static class AppUser {
+
+        private String username;
         private String clientToken;
         private OsType osType;
     }
 
     @Getter
-    @Setter
+    @Builder
     @ToString
     public static class Soptamp {
 
