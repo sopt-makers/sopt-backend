@@ -28,8 +28,12 @@ public class JwtTokenService {
     @Value("${jwt.secret}")
     private String JWT_SECRET;
 
+    private String encodeKey(String secretKey) {
+        return Base64.getEncoder().encodeToString(secretKey.getBytes(StandardCharsets.UTF_8));
+    }
+
     private Key getSigningKey(String keyString) {
-        val secretKey = Base64.getEncoder().encodeToString((keyString).getBytes(StandardCharsets.UTF_8));
+        val secretKey = this.encodeKey(keyString);
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 
@@ -67,8 +71,7 @@ public class JwtTokenService {
 
     public UserInfo.Id getUserIdFromJwtToken(String token) {
         val claims = Jwts.parser()
-                .setSigningKey(Base64.getEncoder().encodeToString((JWT_SECRET).getBytes(
-                        StandardCharsets.UTF_8)))
+                .setSigningKey(this.encodeKey(JWT_SECRET))
                 .parseClaimsJws(token)
                 .getBody();
         return UserInfo.Id.builder().id(Long.parseLong(claims.getSubject())).build();
@@ -85,8 +88,7 @@ public class JwtTokenService {
     public Boolean validateToken(String token) {
         try {
             val claims = Jwts.parser()
-                    .setSigningKey(Base64.getEncoder().encodeToString((JWT_SECRET).getBytes(
-                            StandardCharsets.UTF_8))).parseClaimsJws(token);
+                    .setSigningKey(this.encodeKey(JWT_SECRET)).parseClaimsJws(token);
 
             return !claims.getBody().getExpiration().before(new Date());
         } catch (Exception e) {
