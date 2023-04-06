@@ -23,6 +23,7 @@ public class PlaygroundAuthService {
     public AuthResponse.PlaygroundResponse getPlaygroundInfo(AuthRequest.CodeRequest codeRequest) {
         val tokenRequest = this.getPlaygroundAccessToken(codeRequest);
         val member = this.getPlaygroundMember(tokenRequest.getAccessToken());
+        member.setAccessToken(tokenRequest.getAccessToken());
         return member;
     }
 

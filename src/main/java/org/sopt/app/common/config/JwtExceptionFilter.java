@@ -6,6 +6,7 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.ResponseCode;
 import org.sopt.app.common.exception.UnauthorizedException;
@@ -15,7 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 @Component
-@RequiredArgsConstructor
+@AllArgsConstructor
 public class JwtExceptionFilter extends OncePerRequestFilter {
 
     private ObjectMapper objectMapper;

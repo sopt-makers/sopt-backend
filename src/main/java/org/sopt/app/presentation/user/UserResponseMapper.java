@@ -13,7 +13,9 @@ import org.sopt.app.domain.entity.User;
 )
 public interface UserResponseMapper {
 
-    UserResponse.Main of(User user);
+    UserResponse.AppUser ofAppUser(User user);
+
+    UserResponse.Main ofMainView(UserResponse.User user, UserResponse.Operation operation);
 
     UserResponse.Soptamp ofSoptamp(User user);
 

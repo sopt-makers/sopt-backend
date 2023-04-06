@@ -3,7 +3,10 @@ package org.sopt.app.application.auth;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
@@ -24,9 +27,13 @@ public class JwtTokenService {
     @Value("${jwt.secret}")
     private String JWT_SECRET;
 
+    private Key getSigningKey(String keyString) {
+        val secretKey = Base64.getEncoder().encodeToString((keyString).getBytes(StandardCharsets.UTF_8));
+        return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
+    }
+
     public String encodeJwtToken(UserInfo.Id userId) {
         val now = LocalDateTime.now();
-
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuer("sopt-makers")
@@ -35,9 +42,7 @@ public class JwtTokenService {
                 .setExpiration(now.plusDays(1).toDate())
                 .claim("id", userId.getId())
                 .claim("roles", "USER")
-                .signWith(SignatureAlgorithm.HS256,
-                        Base64.getEncoder().encodeToString((JWT_SECRET).getBytes(
-                                StandardCharsets.UTF_8)))
+                .signWith(getSigningKey(JWT_SECRET), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -49,9 +54,7 @@ public class JwtTokenService {
                 .setExpiration(now.plusDays(14).toDate())
                 .claim("id", userId.getId())
                 .claim("roles", "USER")
-                .signWith(SignatureAlgorithm.HS256,
-                        Base64.getEncoder().encodeToString((JWT_SECRET).getBytes(
-                                StandardCharsets.UTF_8)))
+                .signWith(getSigningKey(JWT_SECRET), SignatureAlgorithm.HS256)
                 .compact();
     }
 

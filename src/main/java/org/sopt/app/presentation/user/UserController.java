@@ -2,6 +2,7 @@ package org.sopt.app.presentation.user;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.user.UserService;
@@ -29,9 +30,19 @@ public class UserController {
 
     @Operation(summary = "유저 정보 조회")
     @GetMapping(value = "")
-    public ResponseEntity<UserResponse.Main> getUserInfo(@AuthenticationPrincipal User user) {
+    public ResponseEntity<UserResponse.AppUser> getUserInfo(@AuthenticationPrincipal User user) {
+        val response = userResponseMapper.ofAppUser(user);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "메인 뷰 조회")
+    @GetMapping(value = "/main")
+    public ResponseEntity<UserResponse.Main> getMainViewInfo(@AuthenticationPrincipal User user) {
         // TODO: 추후 플그쪽 조회해서 제공해야 함
-        val response = userResponseMapper.of(user);
+        val dummyUser = UserResponse.User.builder().status("ACTIVE").name("김솝트").profileImage("")
+                .generationList(List.of(32L, 30L, 29L)).build();
+        val dummyOperation = UserResponse.Operation.builder().announcement("공지다!").attendanceScore(2D).build();
+        val response = userResponseMapper.ofMainView(dummyUser, dummyOperation);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -67,7 +78,7 @@ public class UserController {
 
     @Operation(summary = "탈퇴하기")
     @DeleteMapping(value = "/withdraw")
-    public ResponseEntity<UserResponse.Main> withdraw(@AuthenticationPrincipal User user) {
+    public ResponseEntity<UserResponse.AppUser> withdraw(@AuthenticationPrincipal User user) {
         userService.deleteUser(user);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }

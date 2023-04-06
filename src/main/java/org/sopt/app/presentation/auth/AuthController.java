@@ -32,7 +32,7 @@ public class AuthController {
 
         val accessToken = jwtTokenService.encodeJwtToken(userId);
         val refreshToken = jwtTokenService.encodeJwtRefreshToken(userId);
-        val response = authResponseMapper.of(accessToken, refreshToken);
+        val response = authResponseMapper.of(accessToken, refreshToken, playgroundMember.getAccessToken());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

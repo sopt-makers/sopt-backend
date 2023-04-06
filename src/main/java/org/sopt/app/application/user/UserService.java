@@ -55,7 +55,7 @@ public class UserService {
     }
 
     private String generateNickname(String username) {
-        return new String(username + (int) (Math.random() * 10000));
+        return username + Math.round(Math.random() * 10000);
     }
 
     @Transactional

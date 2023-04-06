@@ -11,5 +11,5 @@ import org.mapstruct.ReportingPolicy;
 )
 public interface AuthResponseMapper {
 
-    AuthResponse.Token of(String accessToken, String refreshToken);
+    AuthResponse.Token of(String accessToken, String refreshToken, String playgroundToken);
 }
