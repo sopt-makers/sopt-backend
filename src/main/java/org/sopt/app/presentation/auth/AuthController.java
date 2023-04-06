@@ -9,6 +9,7 @@ import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.user.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,10 +31,22 @@ public class AuthController {
         val playgroundMember = playgroundAuthService.getPlaygroundInfo(codeRequest);
         val userId = userService.loginWithUserPlaygroundId(playgroundMember);
 
-        val accessToken = jwtTokenService.encodeJwtToken(userId);
-        val refreshToken = jwtTokenService.encodeJwtRefreshToken(userId);
-        val response = authResponseMapper.of(accessToken, refreshToken, playgroundMember.getAccessToken());
+        val appToken = jwtTokenService.issueNewTokens(userId);
+        val response = authResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(),
+                playgroundMember.getAccessToken());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @Operation(summary = "토큰 리프레시")
+    @PatchMapping(value = "/refresh")
+    public ResponseEntity<AuthResponse.Token> refreshToken(@RequestBody AuthRequest.RefreshRequest refreshRequest) {
+        val userId = jwtTokenService.getUserIdFromJwtToken(refreshRequest.getRefreshToken());
+
+        val playgroundToken = userService.getPlaygroundToken(userId);
+        // TODO: 플레이그라운드 토큰 갱신 playgroundAuthService
+
+        val appToken = jwtTokenService.issueNewTokens(userId);
+        val response = authResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(), playgroundToken);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }

@@ -84,4 +84,11 @@ public class UserService {
     public void deleteUser(User user) {
         userRepository.delete(user);
     }
+
+    @Transactional(readOnly = true)
+    public String getPlaygroundToken(UserInfo.Id userId) {
+        val user = userRepository.findUserById(userId.getId())
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+        return user.getPlaygroundToken();
+    }
 }

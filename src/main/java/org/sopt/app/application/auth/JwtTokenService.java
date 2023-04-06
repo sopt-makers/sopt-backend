@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.joda.time.LocalDateTime;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.AppToken;
 import org.sopt.app.application.user.UserInfo;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -32,7 +33,13 @@ public class JwtTokenService {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 
-    public String encodeJwtToken(UserInfo.Id userId) {
+    public PlaygroundAuthInfo.AppToken issueNewTokens(UserInfo.Id userId) {
+        val accessToken = this.encodeJwtToken(userId);
+        val refreshToken = this.encodeJwtRefreshToken(userId);
+        return AppToken.builder().accessToken(accessToken).refreshToken(refreshToken).build();
+    }
+
+    private String encodeJwtToken(UserInfo.Id userId) {
         val now = LocalDateTime.now();
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
@@ -46,7 +53,7 @@ public class JwtTokenService {
                 .compact();
     }
 
-    public String encodeJwtRefreshToken(UserInfo.Id userId) {
+    private String encodeJwtRefreshToken(UserInfo.Id userId) {
         val now = LocalDateTime.now();
         return Jwts.builder()
                 .setIssuedAt(now.toDate())
@@ -58,18 +65,18 @@ public class JwtTokenService {
                 .compact();
     }
 
-    public Long getUserIdFromJwtToken(String token) {
+    public UserInfo.Id getUserIdFromJwtToken(String token) {
         val claims = Jwts.parser()
                 .setSigningKey(Base64.getEncoder().encodeToString((JWT_SECRET).getBytes(
                         StandardCharsets.UTF_8)))
                 .parseClaimsJws(token)
                 .getBody();
-        return Long.parseLong(claims.getSubject());
+        return UserInfo.Id.builder().id(Long.parseLong(claims.getSubject())).build();
     }
 
     public Authentication getAuthentication(String token) {
         val userDetails = customUserDetailsService.loadUserByUsername(
-                this.getUserIdFromJwtToken(token).toString());
+                this.getUserIdFromJwtToken(token).getId().toString());
         return new UsernamePasswordAuthenticationToken(userDetails, "",
                 userDetails.getAuthorities());
     }
