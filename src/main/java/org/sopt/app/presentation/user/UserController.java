@@ -11,7 +11,6 @@ import org.sopt.app.presentation.rank.RankRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -74,13 +73,6 @@ public class UserController {
         val result = userService.editProfileMessage(user.getId(), editProfileMessageRequest.getProfileMessage());
         val response = userResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    @Operation(summary = "탈퇴하기")
-    @DeleteMapping(value = "/withdraw")
-    public ResponseEntity<UserResponse.AppUser> withdraw(@AuthenticationPrincipal User user) {
-        userService.deleteUser(user);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
 }

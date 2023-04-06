@@ -23,4 +23,12 @@ public class AuthRequest {
 
         private String accessToken;
     }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class RefreshRequest {
+
+        private String refreshToken;
+    }
 }

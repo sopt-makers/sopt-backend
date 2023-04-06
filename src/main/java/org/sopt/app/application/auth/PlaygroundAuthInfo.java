@@ -13,4 +13,13 @@ public class PlaygroundAuthInfo {
 
         private String accessToken;
     }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class AppToken {
+
+        private String accessToken;
+        private String refreshToken;
+    }
 }
