@@ -25,23 +25,18 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 public class User extends BaseEntity implements UserDetails {
 
+    @Column(nullable = false)
+    public String username;
+    @Column(nullable = false, unique = true)
+    public String nickname;
+    @Column
+    public String password;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
-
-    @Column(nullable = false)
-    public String username;
-
-    @Column(nullable = false, unique = true)
-    public String nickname;
-
     @Column
     private String email;
-
-    @Column
-    public String password;
-
     @Column
     private String clientToken;
 
@@ -55,7 +50,7 @@ public class User extends BaseEntity implements UserDetails {
     @Enumerated(EnumType.STRING)
     private OsType osType;
 
-    @Column
+    @Column(name = "playground_id")
     private Long playgroundId;
 
     @Column
