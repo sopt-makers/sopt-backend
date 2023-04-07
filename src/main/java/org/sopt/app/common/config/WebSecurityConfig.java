@@ -4,11 +4,8 @@ import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.auth.JwtTokenService;
 import org.springframework.context.annotation.Bean;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
@@ -42,9 +39,10 @@ public class WebSecurityConfig {
                 .csrf().disable()
                 .authorizeRequests()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
-                .antMatchers("/api/v2/health/**").permitAll()
                 .antMatchers(SwaggerPatterns).permitAll()
+                .antMatchers("/api/v2/health/**").permitAll()
                 .antMatchers("/api/v2/auth/**").permitAll()
+                .antMatchers("/api/v2/config/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter,
