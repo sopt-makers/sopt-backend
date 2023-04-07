@@ -65,7 +65,7 @@ public class UserController {
     }
 
     @Operation(summary = "한마디 편집")
-    @PatchMapping("/profileMessage")
+    @PatchMapping("/profile-message")
     public ResponseEntity<UserResponse.ProfileMessage> editProfileMessage(
             @AuthenticationPrincipal User user,
             @RequestBody RankRequest.EditProfileMessageRequest editProfileMessageRequest
