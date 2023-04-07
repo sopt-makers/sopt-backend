@@ -1,7 +1,10 @@
 package org.sopt.app.application.auth;
 
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.auth.AuthRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -16,6 +19,9 @@ public class PlaygroundAuthService {
 
     @Value("${makers.playground.server.dev}")
     private String baseURI;
+
+    @Value("${sopt.current.generation}")
+    private Long currentGeneration;
 
     private RestTemplate restTemplate = new RestTemplate();
 
@@ -59,6 +65,23 @@ public class PlaygroundAuthService {
                 PlaygroundAuthInfo.PlaygroundMain.class
         );
         return response.getBody();
+    }
+
+    public PlaygroundAuthInfo.MainView getPlaygroundUserForMainView(String accessToken) {
+        val playgroundProfile = getPlaygroundMemberProfile(accessToken);
+        val generationList = playgroundProfile.getActivities().stream()
+                .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).collect(Collectors.toList());
+        val mainViewUser = PlaygroundAuthInfo.MainViewUser.builder()
+                .status(this.getStatus(generationList))
+                .name(playgroundProfile.getName())
+                .profileImage(playgroundProfile.getProfileImage())
+                .generationList(generationList)
+                .build();
+        return PlaygroundAuthInfo.MainView.builder().user(mainViewUser).build();
+    }
+
+    private UserStatus getStatus(List<Long> generationList) {
+        return generationList.contains(currentGeneration) ? UserStatus.ACTIVE : UserStatus.INACTIVE;
     }
 
     private PlaygroundAuthInfo.PlaygroundProfile getPlaygroundMemberProfile(String accessToken) {

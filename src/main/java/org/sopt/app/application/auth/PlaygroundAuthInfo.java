@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.sopt.app.domain.enums.UserStatus;
 
 public class PlaygroundAuthInfo {
 
@@ -45,7 +46,7 @@ public class PlaygroundAuthInfo {
 
         private String name;
         private String profileImage;
-        private PlaygroundActivity activities;
+        private List<PlaygroundActivity> activities;
     }
 
     @Getter
@@ -67,5 +68,24 @@ public class PlaygroundAuthInfo {
         private String team;
         private String part;
         private Boolean isProject;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class MainView {
+
+        private MainViewUser user;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class MainViewUser {
+
+        private UserStatus status;
+        private String name;
+        private String profileImage;
+        private List<Long> generationList;
     }
 }
