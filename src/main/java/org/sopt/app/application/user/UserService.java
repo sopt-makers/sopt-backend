@@ -5,11 +5,11 @@ import static org.sopt.app.common.ResponseCode.INVALID_REQUEST;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.EntityNotFoundException;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
-import org.sopt.app.presentation.auth.AuthResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,7 +20,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public UserInfo.Id loginWithUserPlaygroundId(AuthResponse.PlaygroundResponse playgroundMemberResponse) {
+    public UserInfo.Id loginWithUserPlaygroundId(PlaygroundAuthInfo.PlaygroundMain playgroundMemberResponse) {
         val registeredUser = userRepository.findUserByPlaygroundId(playgroundMemberResponse.getId());
 
         if (registeredUser.isPresent()) {
