@@ -35,6 +35,10 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-ui:1.6.12'
     implementation 'org.springdoc:springdoc-openapi-security:1.6.12'
 
+    // sentry
+    implementation 'io.sentry:sentry-spring-boot-starter:6.17.0'
+    implementation 'io.sentry:sentry-logback:6.17.0'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
 
