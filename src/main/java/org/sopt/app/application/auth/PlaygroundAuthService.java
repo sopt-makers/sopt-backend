@@ -17,7 +17,7 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class PlaygroundAuthService {
 
-    @Value("${makers.playground.server.dev}")
+    @Value("${makers.playground.server}")
     private String baseURI;
 
     @Value("${sopt.current.generation}")
