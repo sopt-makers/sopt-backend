@@ -25,7 +25,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 public class User extends BaseEntity implements UserDetails {
 
-    @Column(nullable = false)
+    @Column
     public String username;
     @Column(nullable = false, unique = true)
     public String nickname;

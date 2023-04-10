@@ -40,9 +40,11 @@ public class WebSecurityConfig {
                 .authorizeRequests()
                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                 .antMatchers(SwaggerPatterns).permitAll()
+                .antMatchers("/api/v1/**").permitAll()
                 .antMatchers("/api/v2/health/**").permitAll()
                 .antMatchers("/api/v2/auth/**").permitAll()
                 .antMatchers("/api/v2/config/**").permitAll()
+                .antMatchers("/api/v2/firebase/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter,
