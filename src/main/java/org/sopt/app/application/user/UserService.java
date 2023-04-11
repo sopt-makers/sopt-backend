@@ -1,13 +1,12 @@
 package org.sopt.app.application.user;
 
 import static org.sopt.app.common.ResponseCode.ENTITY_NOT_FOUND;
-import static org.sopt.app.common.ResponseCode.INVALID_REQUEST;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
-import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.EntityNotFoundException;
+import org.sopt.app.common.exception.ExistUserException;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.springframework.stereotype.Service;
@@ -58,13 +57,16 @@ public class UserService {
         return username + Math.round(Math.random() * 10000);
     }
 
-    @Transactional
-    public UserInfo.Nickname editNickname(User user, String nickname) {
+    @Transactional(readOnly = true)
+    public void checkUserNickname(String nickname) {
         val nicknameUser = userRepository.findUserByNickname(nickname);
         if (nicknameUser.isPresent()) {
-            throw new BadRequestException(INVALID_REQUEST);
+            throw new ExistUserException("사용 중인 닉네임입니다.");
         }
+    }
 
+    @Transactional
+    public UserInfo.Nickname editNickname(User user, String nickname) {
         user.editNickname(nickname);
         userRepository.save(user);
         return UserInfo.Nickname.builder().nickname(nickname).build();
