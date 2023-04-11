@@ -64,7 +64,7 @@ public class JwtTokenService {
         return Jwts.builder()
                 .setIssuedAt(now.toDate())
                 .setSubject(userId.getId().toString())
-                .setExpiration(now.plusDays(14).toDate())
+                .setExpiration(now.plusDays(30).toDate())
                 .claim("id", userId.getId())
                 .claim("roles", "USER")
                 .signWith(getSigningKey(JWT_SECRET), SignatureAlgorithm.HS256)
