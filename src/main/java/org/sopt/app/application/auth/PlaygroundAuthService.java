@@ -23,19 +23,25 @@ public class PlaygroundAuthService {
     @Value("${sopt.current.generation}")
     private Long currentGeneration;
 
+    @Value("${makers.playground.x-api-key}")
+    private String apiKey;
+
+    @Value("${makers.playground.x-request-from}")
+    private String requestFrom;
+
     private RestTemplate restTemplate = new RestTemplate();
 
-    public PlaygroundAuthInfo.PlaygroundMain getPlaygroundInfo(AuthRequest.AccessTokenRequest tokenRequest) {
-        val member = this.getPlaygroundMember(tokenRequest.getAccessToken());
-        val playgroundProfile = this.getPlaygroundMemberProfile(tokenRequest.getAccessToken());
+    public PlaygroundAuthInfo.PlaygroundMain getPlaygroundInfo(String token) {
+        val member = this.getPlaygroundMember(token);
+        val playgroundProfile = this.getPlaygroundMemberProfile(token);
         val generationList = playgroundProfile.getActivities().stream()
                 .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).collect(Collectors.toList());
-        member.setAccessToken(tokenRequest.getAccessToken());
+        member.setAccessToken(token);
         member.setStatus(this.getStatus(generationList));
         return member;
     }
 
-    public AuthRequest.AccessTokenRequest getPlaygroundAccessToken(AuthRequest.CodeRequest codeRequest) {
+    public PlaygroundAuthInfo.AccessToken getPlaygroundAccessToken(AuthRequest.CodeRequest codeRequest) {
         val getTokenURL = baseURI + "/api/v1/idp/sso/auth";
 
         val headers = new HttpHeaders();
@@ -47,7 +53,7 @@ public class PlaygroundAuthService {
                 getTokenURL,
                 HttpMethod.POST,
                 entity,
-                AuthRequest.AccessTokenRequest.class
+                PlaygroundAuthInfo.AccessToken.class
         );
         return response.getBody();
     }
@@ -66,6 +72,25 @@ public class PlaygroundAuthService {
                 HttpMethod.GET,
                 entity,
                 PlaygroundAuthInfo.PlaygroundMain.class
+        );
+        return response.getBody();
+    }
+
+    public PlaygroundAuthInfo.RefreshedToken refreshPlaygroundToken(AuthRequest.AccessTokenRequest tokenRequest) {
+        val getTokenURL = baseURI + "/internal/api/v1/idp/auth/token";
+
+        val headers = new HttpHeaders();
+        headers.add("content-type", "application/json;charset=UTF-8");
+        headers.add("x-api-key", apiKey);
+        headers.add("x-request-from", requestFrom);
+
+        val entity = new HttpEntity(tokenRequest, headers);
+
+        val response = restTemplate.exchange(
+                getTokenURL,
+                HttpMethod.POST,
+                entity,
+                PlaygroundAuthInfo.RefreshedToken.class
         );
         return response.getBody();
     }
