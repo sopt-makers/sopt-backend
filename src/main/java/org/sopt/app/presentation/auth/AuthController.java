@@ -31,7 +31,7 @@ public class AuthController {
         val playgroundMember = playgroundAuthService.getPlaygroundInfo(codeRequest);
         val userId = userService.loginWithUserPlaygroundId(playgroundMember);
 
-        val appToken = jwtTokenService.issueNewTokens(userId);
+        val appToken = jwtTokenService.issueNewTokens(userId, playgroundMember);
         val response = authResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(),
                 playgroundMember.getAccessToken());
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -45,7 +45,7 @@ public class AuthController {
         val playgroundToken = userService.getPlaygroundToken(userId);
         // TODO: 플레이그라운드 토큰 갱신 playgroundAuthService
 
-        val appToken = jwtTokenService.issueNewTokens(userId);
+        val appToken = jwtTokenService.issueNewTokens(userId, null);
         val response = authResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(), playgroundToken);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
