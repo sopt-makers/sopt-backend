@@ -37,6 +37,7 @@ public class PlaygroundAuthInfo {
         private String profileImage;
         private Boolean hasProfile;
         private String accessToken;
+        private UserStatus status;
     }
 
     @Getter

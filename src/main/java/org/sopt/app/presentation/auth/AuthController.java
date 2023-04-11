@@ -28,12 +28,13 @@ public class AuthController {
     @Operation(summary = "플그로 로그인/회원가입")
     @PostMapping(value = "/playground")
     public ResponseEntity<AuthResponse.Token> playgroundLogin(@RequestBody AuthRequest.CodeRequest codeRequest) {
-        val playgroundMember = playgroundAuthService.getPlaygroundInfo(codeRequest);
+        val playgroundToken = playgroundAuthService.getPlaygroundAccessToken(codeRequest);
+        val playgroundMember = playgroundAuthService.getPlaygroundInfo(playgroundToken);
         val userId = userService.loginWithUserPlaygroundId(playgroundMember);
 
         val appToken = jwtTokenService.issueNewTokens(userId, playgroundMember);
         val response = authResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(),
-                playgroundMember.getAccessToken());
+                playgroundMember.getAccessToken(), playgroundMember.getStatus());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -41,12 +42,12 @@ public class AuthController {
     @PatchMapping(value = "/refresh")
     public ResponseEntity<AuthResponse.Token> refreshToken(@RequestBody AuthRequest.RefreshRequest refreshRequest) {
         val userId = jwtTokenService.getUserIdFromJwtToken(refreshRequest.getRefreshToken());
-
         val playgroundToken = userService.getPlaygroundToken(userId);
-        // TODO: 플레이그라운드 토큰 갱신 playgroundAuthService
+        val playgroundMember = playgroundAuthService.getPlaygroundInfo(playgroundToken);
 
-        val appToken = jwtTokenService.issueNewTokens(userId, null);
-        val response = authResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(), playgroundToken);
+        val appToken = jwtTokenService.issueNewTokens(userId, playgroundMember);
+        val response = authResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(),
+                playgroundToken.getAccessToken(), playgroundMember.getStatus());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

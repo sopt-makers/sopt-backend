@@ -25,14 +25,17 @@ public class PlaygroundAuthService {
 
     private RestTemplate restTemplate = new RestTemplate();
 
-    public PlaygroundAuthInfo.PlaygroundMain getPlaygroundInfo(AuthRequest.CodeRequest codeRequest) {
-        val tokenRequest = this.getPlaygroundAccessToken(codeRequest);
+    public PlaygroundAuthInfo.PlaygroundMain getPlaygroundInfo(AuthRequest.AccessTokenRequest tokenRequest) {
         val member = this.getPlaygroundMember(tokenRequest.getAccessToken());
+        val playgroundProfile = this.getPlaygroundMemberProfile(tokenRequest.getAccessToken());
+        val generationList = playgroundProfile.getActivities().stream()
+                .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).collect(Collectors.toList());
         member.setAccessToken(tokenRequest.getAccessToken());
+        member.setStatus(this.getStatus(generationList));
         return member;
     }
 
-    private AuthRequest.AccessTokenRequest getPlaygroundAccessToken(AuthRequest.CodeRequest codeRequest) {
+    public AuthRequest.AccessTokenRequest getPlaygroundAccessToken(AuthRequest.CodeRequest codeRequest) {
         val getTokenURL = baseURI + "/api/v1/idp/sso/auth";
 
         val headers = new HttpHeaders();
@@ -68,7 +71,7 @@ public class PlaygroundAuthService {
     }
 
     public PlaygroundAuthInfo.MainView getPlaygroundUserForMainView(String accessToken) {
-        val playgroundProfile = getPlaygroundMemberProfile(accessToken);
+        val playgroundProfile = this.getPlaygroundMemberProfile(accessToken);
         val generationList = playgroundProfile.getActivities().stream()
                 .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).collect(Collectors.toList());
         val mainViewUser = PlaygroundAuthInfo.MainViewUser.builder()

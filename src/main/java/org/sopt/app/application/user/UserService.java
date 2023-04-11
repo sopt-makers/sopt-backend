@@ -9,6 +9,7 @@ import org.sopt.app.common.exception.EntityNotFoundException;
 import org.sopt.app.common.exception.ExistUserException;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
+import org.sopt.app.presentation.auth.AuthRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,9 +89,9 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public String getPlaygroundToken(UserInfo.Id userId) {
+    public AuthRequest.AccessTokenRequest getPlaygroundToken(UserInfo.Id userId) {
         val user = userRepository.findUserById(userId.getId())
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-        return user.getPlaygroundToken();
+        return AuthRequest.AccessTokenRequest.builder().accessToken(user.getPlaygroundToken()).build();
     }
 }
