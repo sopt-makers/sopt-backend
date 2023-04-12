@@ -61,7 +61,7 @@ public class MissionControllerV1 extends BaseController {
             Mission mission = missionServiceV1.uploadMission(missionRequestDto);
             result.setMissionId(mission.getId());
         } else {
-            List<String> imgPaths = s3Service.upload(multipartFiles);
+            List<String> imgPaths = s3Service.uploadDeprecated(multipartFiles);
             Mission uploadMissionWithImg = missionServiceV1.uploadMissionWithImg(missionRequestDto,
                     imgPaths);
             result.setMissionId(uploadMissionWithImg.getId());

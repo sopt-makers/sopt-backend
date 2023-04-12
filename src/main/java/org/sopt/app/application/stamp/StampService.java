@@ -75,10 +75,10 @@ public class StampService {
         userRepository.save(user);
         return stampRepository.save(stamp);
     }
-    
+
     //스탬프 내용 수정
     @Transactional
-    public Stamp editStampContents(
+    public Stamp editStampContentsDeprecated(
             StampRequest.EditStampRequest editStampRequest,
             Long userId,
             Long missionId) {
@@ -92,9 +92,26 @@ public class StampService {
         return stampRepository.save(stamp);
     }
 
+    @Transactional
+    public Stamp editStampContents(
+            StampRequest.EditStampRequest editStampRequest,
+            Long userId,
+            Long missionId) {
+
+        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId);
+        if (StringUtils.hasText(editStampRequest.getContents())) {
+            stamp.changeContents(editStampRequest.getContents());
+        }
+        if (StringUtils.hasText(editStampRequest.getImage())) {
+            stamp.changeImages(List.of(editStampRequest.getImage()));
+        }
+        stamp.setUpdatedAt(LocalDateTime.now());
+        return stampRepository.save(stamp);
+    }
+
     //스탬프 사진 수정
     @Transactional
-    public Stamp editStampImages(Stamp stamp, List<String> imgPaths) {
+    public Stamp editStampImagesDeprecated(Stamp stamp, List<String> imgPaths) {
         stamp.changeImages(imgPaths);
         return stampRepository.save(stamp);
     }

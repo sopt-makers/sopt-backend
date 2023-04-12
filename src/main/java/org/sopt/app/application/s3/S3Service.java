@@ -63,7 +63,7 @@ public class S3Service {
     }
 
 
-    public List<String> upload(List<MultipartFile> multipartFiles) {
+    public List<String> uploadDeprecated(List<MultipartFile> multipartFiles) {
         if (multipartFiles == null || multipartFiles.get(0).isEmpty()) {
             return new ArrayList<>();
         }

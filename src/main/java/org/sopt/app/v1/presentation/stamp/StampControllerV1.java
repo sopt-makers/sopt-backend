@@ -56,7 +56,7 @@ public class StampControllerV1 extends BaseController {
         //스탬프 중복 검사체크
         stampServiceV1.checkDuplicateStamp(userId, missionId);
 
-        List<String> imgPaths = s3Service.upload(multipartFiles);
+        List<String> imgPaths = s3Service.uploadDeprecated(multipartFiles);
         Stamp uploadStamp = stampServiceV1.uploadStamp(stampRequestDto,
                 imgPaths, userId, missionId);
 
@@ -88,7 +88,7 @@ public class StampControllerV1 extends BaseController {
 
         } else {
 
-            List<String> imgPaths = s3Service.upload(multipartFiles);
+            List<String> imgPaths = s3Service.uploadDeprecated(multipartFiles);
             Stamp uploadStamp = stampServiceV1.editStampWithImg(stampRequestDto,
                     imgPaths, userId, missionId);
 
