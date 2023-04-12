@@ -8,8 +8,8 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.auth.JwtTokenService;
-import org.sopt.app.common.ResponseCode;
 import org.sopt.app.common.exception.UnauthorizedException;
+import org.sopt.app.common.response.ErrorCode;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
                 Authentication authentication = jwtTokenService.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } else {
-                throw new UnauthorizedException(ResponseCode.UNAUTHORIZED);
+                throw new UnauthorizedException(ErrorCode.INVALID_APP_TOKEN.getMessage());
             }
         }
         chain.doFilter(request, response);

@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.common.exception.UnauthorizedException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.auth.AuthRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException.BadRequest;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -86,13 +89,17 @@ public class PlaygroundAuthService {
 
         val entity = new HttpEntity(tokenRequest, headers);
 
-        val response = restTemplate.exchange(
-                getTokenURL,
-                HttpMethod.POST,
-                entity,
-                PlaygroundAuthInfo.RefreshedToken.class
-        );
-        return response.getBody();
+        try {
+            val response = restTemplate.exchange(
+                    getTokenURL,
+                    HttpMethod.POST,
+                    entity,
+                    PlaygroundAuthInfo.RefreshedToken.class
+            );
+            return response.getBody();
+        } catch (BadRequest badRequest) {
+            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
+        }
     }
 
     public PlaygroundAuthInfo.MainView getPlaygroundUserForMainView(String accessToken) {
