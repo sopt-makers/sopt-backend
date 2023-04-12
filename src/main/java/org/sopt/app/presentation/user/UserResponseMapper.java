@@ -4,6 +4,7 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
+import org.sopt.app.application.operation.OperationInfo;
 import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.domain.entity.User;
 
@@ -16,7 +17,7 @@ public interface UserResponseMapper {
 
     UserResponse.AppUser ofAppUser(User user);
 
-    UserResponse.Main ofMainView(PlaygroundAuthInfo.MainView user, UserResponse.Operation operation);
+    UserResponse.Main ofMainView(PlaygroundAuthInfo.MainView user, OperationInfo.MainView operation);
 
     UserResponse.Soptamp ofSoptamp(User user);
 
