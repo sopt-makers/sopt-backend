@@ -44,9 +44,7 @@ public class UserController {
     @Operation(summary = "닉네임 중복 검사")
     @GetMapping(value = "/nickname/{nickname}")
     public ResponseEntity<UserResponse.AppUser> validateUserNickname(@PathVariable String nickname) {
-        System.out.println(nickname);
         userService.checkUserNickname(nickname);
-        System.out.println("check");
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
