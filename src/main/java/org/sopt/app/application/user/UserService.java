@@ -92,6 +92,8 @@ public class UserService {
     public AuthRequest.AccessTokenRequest getPlaygroundToken(UserInfo.Id userId) {
         val user = userRepository.findUserById(userId.getId())
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-        return AuthRequest.AccessTokenRequest.builder().accessToken(user.getPlaygroundToken()).build();
+        val token = new AuthRequest.AccessTokenRequest();
+        token.setAccessToken(user.getPlaygroundToken());
+        return token;
     }
 }

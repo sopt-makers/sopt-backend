@@ -41,7 +41,7 @@ public class PlaygroundAuthService {
         return member;
     }
 
-    public PlaygroundAuthInfo.AccessToken getPlaygroundAccessToken(AuthRequest.CodeRequest codeRequest) {
+    public AuthRequest.AccessTokenRequest getPlaygroundAccessToken(AuthRequest.CodeRequest codeRequest) {
         val getTokenURL = baseURI + "/api/v1/idp/sso/auth";
 
         val headers = new HttpHeaders();
@@ -53,7 +53,7 @@ public class PlaygroundAuthService {
                 getTokenURL,
                 HttpMethod.POST,
                 entity,
-                PlaygroundAuthInfo.AccessToken.class
+                AuthRequest.AccessTokenRequest.class
         );
         return response.getBody();
     }
