@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.common.ResponseCode;
+import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.EntityNotFoundException;
 import org.sopt.app.domain.entity.Stamp;
 import org.sopt.app.interfaces.postgres.MissionRepository;
@@ -34,7 +36,7 @@ public class StampService {
     }
 
     @Transactional
-    public Stamp uploadStamp(
+    public Stamp uploadStampDeprecated(
             RegisterStampRequest stampRequest,
             List<String> imgPaths,
             Long userId,
@@ -56,6 +58,24 @@ public class StampService {
         return stampRepository.save(stamp);
     }
 
+    @Transactional
+    public Stamp uploadStamp(
+            RegisterStampRequest stampRequest,
+            Long userId,
+            Long missionId) {
+        val imgList = List.of(stampRequest.getImage());
+        val stamp = this.convertStampImg(stampRequest, imgList, userId, missionId);
+
+        val user = userRepository.findUserById(Long.valueOf(userId))
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+        val mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+
+        user.addPoints(mission.getLevel());
+        userRepository.save(user);
+        return stampRepository.save(stamp);
+    }
+    
     //스탬프 내용 수정
     @Transactional
     public Stamp editStampContents(
@@ -103,9 +123,11 @@ public class StampService {
 
     //스탬프 중복 검사체크
     @Transactional(readOnly = true)
-    public boolean checkDuplicateStamp(Long userId, Long missionId) {
+    public void checkDuplicateStamp(Long userId, Long missionId) {
         val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId);
-        return stamp != null;
+        if (stamp != null) {
+            throw new BadRequestException(ResponseCode.INVALID_REQUEST);
+        }
     }
 
 

@@ -11,6 +11,7 @@ public class StampRequest {
     @ToString
     public static class RegisterStampRequest {
 
+        private String image;
         private String contents; // 스탬프 내용
     }
 
@@ -19,6 +20,7 @@ public class StampRequest {
     @ToString
     public static class EditStampRequest {
 
+        private String image;
         private String contents;
     }
 }
