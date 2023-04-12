@@ -11,6 +11,7 @@ import org.sopt.app.common.ResponseCode;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.EntityNotFoundException;
 import org.sopt.app.domain.entity.Stamp;
+import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.MissionRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.interfaces.postgres.UserRepository;
@@ -41,8 +42,8 @@ public class StampService {
             List<String> imgPaths,
             Long userId,
             Long missionId) {
-        val imgList = new ArrayList<String>(imgPaths);
-        val stamp = this.convertStampImg(stampRequest, imgList, userId, missionId);
+        val imgList = new ArrayList<>(imgPaths);
+        val stamp = this.convertStampImgDeprecated(stampRequest, imgList, userId, missionId);
 
         //랭크 관련 점수 처리
         val user = userRepository.findUserById(Long.valueOf(userId))
@@ -61,18 +62,21 @@ public class StampService {
     @Transactional
     public Stamp uploadStamp(
             RegisterStampRequest stampRequest,
-            Long userId,
+            User user,
             Long missionId) {
-        val imgList = List.of(stampRequest.getImage());
-        val stamp = this.convertStampImg(stampRequest, imgList, userId, missionId);
 
-        val user = userRepository.findUserById(Long.valueOf(userId))
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
         val mission = missionRepository.findById(missionId)
                 .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-
+        val stamp = Stamp.builder()
+                .contents(stampRequest.getContents())
+                .createdAt(LocalDateTime.now())
+                .images(List.of(stampRequest.getImage()))
+                .missionId(missionId)
+                .userId(user.getId())
+                .build();
         user.addPoints(mission.getLevel());
         userRepository.save(user);
+
         return stampRepository.save(stamp);
     }
 
@@ -165,7 +169,7 @@ public class StampService {
 
 
     //Stamp Entity 양식에 맞게 데이터 세팅
-    private Stamp convertStampImg(
+    private Stamp convertStampImgDeprecated(
             RegisterStampRequest stampRequest,
             List<String> imgList,
             Long userId,

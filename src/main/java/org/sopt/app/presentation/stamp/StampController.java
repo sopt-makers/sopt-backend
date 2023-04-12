@@ -86,7 +86,7 @@ public class StampController {
             @RequestBody StampRequest.RegisterStampRequest registerStampRequest
     ) {
         stampService.checkDuplicateStamp(user.getId(), missionId);
-        val result = stampService.uploadStamp(registerStampRequest, user.getId(), missionId);
+        val result = stampService.uploadStamp(registerStampRequest, user, missionId);
         val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
