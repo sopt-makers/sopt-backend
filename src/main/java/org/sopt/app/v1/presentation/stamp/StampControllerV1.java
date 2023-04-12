@@ -2,7 +2,7 @@ package org.sopt.app.v1.presentation.stamp;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.sopt.app.common.s3.S3Service;
+import org.sopt.app.application.s3.S3Service;
 import org.sopt.app.domain.entity.Stamp;
 import org.sopt.app.v1.application.stamp.StampServiceV1;
 import org.sopt.app.v1.presentation.BaseController;

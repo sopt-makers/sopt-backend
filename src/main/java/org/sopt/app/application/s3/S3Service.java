@@ -1,5 +1,6 @@
-package org.sopt.app.common.s3;
+package org.sopt.app.application.s3;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
@@ -10,6 +11,8 @@ import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -17,6 +20,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.joda.time.LocalDateTime;
 import org.sopt.app.common.ResponseCode;
 import org.sopt.app.common.exception.ApiException;
 import org.sopt.app.common.exception.BadRequestException;
@@ -44,6 +48,9 @@ public class S3Service {
 
     @Value("${cloud.aws.region.static}")
     private String region;
+
+    @Value("${cloud.aws.s3.uri}")
+    private String baseURI;
 
 
     @PostConstruct
@@ -94,5 +101,27 @@ public class S3Service {
             throw new BadRequestException(ResponseCode.INVALID_REQUEST);
         }
         return fileName.substring(fileName.lastIndexOf("."));
+    }
+
+    public S3Info.PreSignedUrl getPreSignedUrl(String folderName) {
+        val now = LocalDateTime.now();
+        val folderURI = bucket + "/mainpage/makers-app-img/" + folderName;
+        val randomFileName = UUID.randomUUID();
+
+        URI uri;
+        try {
+            uri = this.s3Client.generatePresignedUrl(folderURI,
+                    randomFileName.toString(), now.plusHours(1).toDate(), HttpMethod.PUT).toURI();
+        } catch (NullPointerException | URISyntaxException e) {
+            throw new BadRequestException(ResponseCode.INVALID_REQUEST);
+        }
+
+        val preSignedURL = uri.toString();
+        val imageURL = baseURI + folderName + "/" + randomFileName;
+
+        return S3Info.PreSignedUrl.builder()
+                .preSignedURL(preSignedURL)
+                .imageURL(imageURL)
+                .build();
     }
 }

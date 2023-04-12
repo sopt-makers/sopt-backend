@@ -7,7 +7,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.mission.MissionService;
-import org.sopt.app.common.s3.S3Service;
+import org.sopt.app.application.s3.S3Service;
 import org.sopt.app.domain.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
