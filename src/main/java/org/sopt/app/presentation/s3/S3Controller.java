@@ -29,4 +29,12 @@ public class S3Controller {
         val response = s3ResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @Operation(summary = "미션 pre-signed url 조회")
+    @GetMapping(value = "/mission")
+    public ResponseEntity<S3Response.PreSignedUrl> getMissionPreSignedUrl() {
+        val result = s3Service.getPreSignedUrl("mission");
+        val response = s3ResponseMapper.of(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }
