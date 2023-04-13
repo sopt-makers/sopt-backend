@@ -35,7 +35,7 @@ public class StampController {
     private final StampResponseMapper stampResponseMapper;
 
     @Operation(summary = "스탬프 조회하기")
-    @GetMapping("/{missionId}")
+    @GetMapping("/mission/{missionId}")
     public ResponseEntity<StampResponse.Main> findStampByMissionAndUserId(
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId

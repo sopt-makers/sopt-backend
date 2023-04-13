@@ -33,7 +33,8 @@ public class StampService {
 
     @Transactional(readOnly = true)
     public Stamp findStamp(Long userId, Long missionId) {
-        return stampRepository.findByUserIdAndMissionId(userId, missionId);
+        return stampRepository.findByUserIdAndMissionId(userId, missionId)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
     }
 
     @Transactional
@@ -87,7 +88,8 @@ public class StampService {
             Long userId,
             Long missionId) {
 
-        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId);
+        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());
         }
@@ -102,7 +104,8 @@ public class StampService {
             Long userId,
             Long missionId) {
 
-        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId);
+        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());
         }
@@ -145,8 +148,7 @@ public class StampService {
     //스탬프 중복 검사체크
     @Transactional(readOnly = true)
     public void checkDuplicateStamp(Long userId, Long missionId) {
-        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId);
-        if (stamp != null) {
+        if (stampRepository.findByUserIdAndMissionId(userId, missionId).isPresent()) {
             throw new BadRequestException(ResponseCode.INVALID_REQUEST);
         }
     }
