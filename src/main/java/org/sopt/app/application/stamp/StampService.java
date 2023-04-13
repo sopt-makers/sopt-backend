@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.common.ResponseCode;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.EntityNotFoundException;
 import org.sopt.app.domain.entity.Stamp;
@@ -149,7 +148,7 @@ public class StampService {
     @Transactional(readOnly = true)
     public void checkDuplicateStamp(Long userId, Long missionId) {
         if (stampRepository.findByUserIdAndMissionId(userId, missionId).isPresent()) {
-            throw new BadRequestException(ResponseCode.INVALID_REQUEST);
+            throw new BadRequestException("이미 해당 미션에 대한 스탬프가 존재합니다.");
         }
     }
 

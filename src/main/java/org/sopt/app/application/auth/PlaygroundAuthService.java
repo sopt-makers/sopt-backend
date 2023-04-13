@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
@@ -21,19 +22,15 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class PlaygroundAuthService {
 
+    private final RestTemplate restTemplate;
     @Value("${makers.playground.server}")
     private String baseURI;
-
     @Value("${sopt.current.generation}")
     private Long currentGeneration;
-
     @Value("${makers.playground.x-api-key}")
     private String apiKey;
-
     @Value("${makers.playground.x-request-from}")
     private String requestFrom;
-
-    private RestTemplate restTemplate = new RestTemplate();
 
     public PlaygroundAuthInfo.PlaygroundMain getPlaygroundInfo(String token) {
         val member = this.getPlaygroundMember(token);
@@ -130,13 +127,17 @@ public class PlaygroundAuthService {
 
         val entity = new HttpEntity(null, headers);
 
-        val response = restTemplate.exchange(
-                getUserURL,
-                HttpMethod.GET,
-                entity,
-                PlaygroundAuthInfo.PlaygroundProfile.class
-        );
-        return response.getBody();
+        try {
+            val response = restTemplate.exchange(
+                    getUserURL,
+                    HttpMethod.GET,
+                    entity,
+                    PlaygroundAuthInfo.PlaygroundProfile.class
+            );
+            return response.getBody();
+        } catch (BadRequest e) {
+            throw new BadRequestException("플레이그라운드 프로필을 등록하지 않은 유저입니다.");
+        }
     }
 
 }

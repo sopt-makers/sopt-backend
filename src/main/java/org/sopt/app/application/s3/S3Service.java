@@ -93,12 +93,12 @@ public class S3Service {
     // 파일 유효성 검사
     private String getFileExtension(String fileName) {
         if (fileName.length() == 0) {
-            throw new BadRequestException(ResponseCode.INVALID_REQUEST);
+            throw new BadRequestException("유효하지 않은 파일명입니다.");
         }
 
         val idxFileName = fileName.substring(fileName.lastIndexOf("."));
         if (!imageFileExtension.contains(idxFileName)) {
-            throw new BadRequestException(ResponseCode.INVALID_REQUEST);
+            throw new BadRequestException("유효하지 않은 확장자입니다.");
         }
         return fileName.substring(fileName.lastIndexOf("."));
     }
@@ -113,7 +113,7 @@ public class S3Service {
             uri = this.s3Client.generatePresignedUrl(folderURI,
                     randomFileName.toString(), now.plusHours(1).toDate(), HttpMethod.PUT).toURI();
         } catch (NullPointerException | URISyntaxException e) {
-            throw new BadRequestException(ResponseCode.INVALID_REQUEST);
+            throw new BadRequestException("URL을 생성할 수 없습니다.");
         }
 
         val preSignedURL = uri.toString();
