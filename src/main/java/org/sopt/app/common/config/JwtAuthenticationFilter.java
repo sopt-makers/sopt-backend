@@ -7,10 +7,11 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.sopt.app.application.auth.JwtTokenService;
+import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.GenericFilterBean;
@@ -24,11 +25,15 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
             throws IOException, ServletException {
-        String token = jwtTokenService.getToken((HttpServletRequest) request);
+        val token = jwtTokenService.getToken((HttpServletRequest) request);
         if (token != null) {
             if (jwtTokenService.validateToken(token)) {
-                Authentication authentication = jwtTokenService.getAuthentication(token);
-                SecurityContextHolder.getContext().setAuthentication(authentication);
+                try {
+                    val authentication = jwtTokenService.getAuthentication(token);
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                } catch (NotFoundException e) {
+                    throw new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN.getMessage());
+                }
             } else {
                 throw new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN.getMessage());
             }
