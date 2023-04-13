@@ -7,17 +7,16 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.mission.MissionService;
-import org.sopt.app.common.s3.S3Service;
+import org.sopt.app.application.s3.S3Service;
 import org.sopt.app.domain.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @AllArgsConstructor
@@ -42,13 +41,8 @@ public class MissionController {
     @Operation(summary = "미션 생성하기")
     @PostMapping("")
     public ResponseEntity<MissionResponse.Id> registerMission(
-            @RequestPart("missionContent") MissionRequest.RegisterMissionRequest registerMissionRequest,
-            @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles) {
+            @RequestBody MissionRequest.RegisterMissionRequest registerMissionRequest) {
         val mission = missionService.uploadMission(registerMissionRequest);
-        val imgPaths = s3Service.upload(multipartFiles);
-        if (imgPaths.size() > 0) {
-            missionService.editMissionWithImages(mission, imgPaths);
-        }
         val response = missionResponseMapper.of(mission.getId());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

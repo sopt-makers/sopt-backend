@@ -7,8 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.common.ResponseCode;
+import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.EntityNotFoundException;
 import org.sopt.app.domain.entity.Stamp;
+import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.MissionRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.interfaces.postgres.UserRepository;
@@ -30,17 +33,18 @@ public class StampService {
 
     @Transactional(readOnly = true)
     public Stamp findStamp(Long userId, Long missionId) {
-        return stampRepository.findByUserIdAndMissionId(userId, missionId);
+        return stampRepository.findByUserIdAndMissionId(userId, missionId)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
     }
 
     @Transactional
-    public Stamp uploadStamp(
+    public Stamp uploadStampDeprecated(
             RegisterStampRequest stampRequest,
             List<String> imgPaths,
             Long userId,
             Long missionId) {
-        val imgList = new ArrayList<String>(imgPaths);
-        val stamp = this.convertStampImg(stampRequest, imgList, userId, missionId);
+        val imgList = new ArrayList<>(imgPaths);
+        val stamp = this.convertStampImgDeprecated(stampRequest, imgList, userId, missionId);
 
         //랭크 관련 점수 처리
         val user = userRepository.findUserById(Long.valueOf(userId))
@@ -56,14 +60,36 @@ public class StampService {
         return stampRepository.save(stamp);
     }
 
+    @Transactional
+    public Stamp uploadStamp(
+            RegisterStampRequest stampRequest,
+            User user,
+            Long missionId) {
+
+        val mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+        val stamp = Stamp.builder()
+                .contents(stampRequest.getContents())
+                .createdAt(LocalDateTime.now())
+                .images(List.of(stampRequest.getImage()))
+                .missionId(missionId)
+                .userId(user.getId())
+                .build();
+        user.addPoints(mission.getLevel());
+        userRepository.save(user);
+
+        return stampRepository.save(stamp);
+    }
+
     //스탬프 내용 수정
     @Transactional
-    public Stamp editStampContents(
+    public Stamp editStampContentsDeprecated(
             StampRequest.EditStampRequest editStampRequest,
             Long userId,
             Long missionId) {
 
-        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId);
+        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());
         }
@@ -72,9 +98,27 @@ public class StampService {
         return stampRepository.save(stamp);
     }
 
+    @Transactional
+    public Stamp editStampContents(
+            StampRequest.EditStampRequest editStampRequest,
+            Long userId,
+            Long missionId) {
+
+        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId)
+                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+        if (StringUtils.hasText(editStampRequest.getContents())) {
+            stamp.changeContents(editStampRequest.getContents());
+        }
+        if (StringUtils.hasText(editStampRequest.getImage())) {
+            stamp.changeImages(List.of(editStampRequest.getImage()));
+        }
+        stamp.setUpdatedAt(LocalDateTime.now());
+        return stampRepository.save(stamp);
+    }
+
     //스탬프 사진 수정
     @Transactional
-    public Stamp editStampImages(Stamp stamp, List<String> imgPaths) {
+    public Stamp editStampImagesDeprecated(Stamp stamp, List<String> imgPaths) {
         stamp.changeImages(imgPaths);
         return stampRepository.save(stamp);
     }
@@ -103,9 +147,10 @@ public class StampService {
 
     //스탬프 중복 검사체크
     @Transactional(readOnly = true)
-    public boolean checkDuplicateStamp(Long userId, Long missionId) {
-        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId);
-        return stamp != null;
+    public void checkDuplicateStamp(Long userId, Long missionId) {
+        if (stampRepository.findByUserIdAndMissionId(userId, missionId).isPresent()) {
+            throw new BadRequestException(ResponseCode.INVALID_REQUEST);
+        }
     }
 
 
@@ -126,7 +171,7 @@ public class StampService {
 
 
     //Stamp Entity 양식에 맞게 데이터 세팅
-    private Stamp convertStampImg(
+    private Stamp convertStampImgDeprecated(
             RegisterStampRequest stampRequest,
             List<String> imgList,
             Long userId,

@@ -11,6 +11,7 @@ public class MissionRequest {
     @ToString
     public static class RegisterMissionRequest {
 
+        private String image;
         private String title; // 미션 제목
         private Integer level; // 미션 레벨
     }

@@ -3,7 +3,7 @@ package org.sopt.app.v1.presentation.mission;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.sopt.app.common.s3.S3Service;
+import org.sopt.app.application.s3.S3Service;
 import org.sopt.app.domain.entity.Mission;
 import org.sopt.app.v1.application.mission.MissionServiceV1;
 import org.sopt.app.v1.presentation.BaseController;
@@ -61,7 +61,7 @@ public class MissionControllerV1 extends BaseController {
             Mission mission = missionServiceV1.uploadMission(missionRequestDto);
             result.setMissionId(mission.getId());
         } else {
-            List<String> imgPaths = s3Service.upload(multipartFiles);
+            List<String> imgPaths = s3Service.uploadDeprecated(multipartFiles);
             Mission uploadMissionWithImg = missionServiceV1.uploadMissionWithImg(missionRequestDto,
                     imgPaths);
             result.setMissionId(uploadMissionWithImg.getId());

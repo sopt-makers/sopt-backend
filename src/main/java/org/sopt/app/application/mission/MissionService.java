@@ -50,14 +50,8 @@ public class MissionService {
                 .title(registerMissionRequest.getTitle())
                 .level(registerMissionRequest.getLevel())
                 .display(true)
+                .profileImage(List.of(registerMissionRequest.getImage()))
                 .build();
-        return missionRepository.save(mission);
-    }
-
-    // 게시글 작성 - 이미지 포함
-    @Transactional
-    public Mission editMissionWithImages(Mission mission, List<String> imgPaths) {
-        mission.setProfileImage(imgPaths);
         return missionRepository.save(mission);
     }
 
