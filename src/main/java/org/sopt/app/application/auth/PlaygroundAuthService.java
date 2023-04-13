@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.common.exception.UnauthorizedException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.auth.AuthRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +13,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException.BadRequest;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -23,16 +26,25 @@ public class PlaygroundAuthService {
     @Value("${sopt.current.generation}")
     private Long currentGeneration;
 
+    @Value("${makers.playground.x-api-key}")
+    private String apiKey;
+
+    @Value("${makers.playground.x-request-from}")
+    private String requestFrom;
+
     private RestTemplate restTemplate = new RestTemplate();
 
-    public PlaygroundAuthInfo.PlaygroundMain getPlaygroundInfo(AuthRequest.CodeRequest codeRequest) {
-        val tokenRequest = this.getPlaygroundAccessToken(codeRequest);
-        val member = this.getPlaygroundMember(tokenRequest.getAccessToken());
-        member.setAccessToken(tokenRequest.getAccessToken());
+    public PlaygroundAuthInfo.PlaygroundMain getPlaygroundInfo(String token) {
+        val member = this.getPlaygroundMember(token);
+        val playgroundProfile = this.getPlaygroundMemberProfile(token);
+        val generationList = playgroundProfile.getActivities().stream()
+                .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).collect(Collectors.toList());
+        member.setAccessToken(token);
+        member.setStatus(this.getStatus(generationList));
         return member;
     }
 
-    private AuthRequest.AccessTokenRequest getPlaygroundAccessToken(AuthRequest.CodeRequest codeRequest) {
+    public AuthRequest.AccessTokenRequest getPlaygroundAccessToken(AuthRequest.CodeRequest codeRequest) {
         val getTokenURL = baseURI + "/api/v1/idp/sso/auth";
 
         val headers = new HttpHeaders();
@@ -67,8 +79,31 @@ public class PlaygroundAuthService {
         return response.getBody();
     }
 
+    public PlaygroundAuthInfo.RefreshedToken refreshPlaygroundToken(AuthRequest.AccessTokenRequest tokenRequest) {
+        val getTokenURL = baseURI + "/internal/api/v1/idp/auth/token";
+
+        val headers = new HttpHeaders();
+        headers.add("content-type", "application/json;charset=UTF-8");
+        headers.add("x-api-key", apiKey);
+        headers.add("x-request-from", requestFrom);
+
+        val entity = new HttpEntity(tokenRequest, headers);
+
+        try {
+            val response = restTemplate.exchange(
+                    getTokenURL,
+                    HttpMethod.POST,
+                    entity,
+                    PlaygroundAuthInfo.RefreshedToken.class
+            );
+            return response.getBody();
+        } catch (BadRequest badRequest) {
+            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
+        }
+    }
+
     public PlaygroundAuthInfo.MainView getPlaygroundUserForMainView(String accessToken) {
-        val playgroundProfile = getPlaygroundMemberProfile(accessToken);
+        val playgroundProfile = this.getPlaygroundMemberProfile(accessToken);
         val generationList = playgroundProfile.getActivities().stream()
                 .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).collect(Collectors.toList());
         val mainViewUser = PlaygroundAuthInfo.MainViewUser.builder()

@@ -37,6 +37,7 @@ public class PlaygroundAuthInfo {
         private String profileImage;
         private Boolean hasProfile;
         private String accessToken;
+        private UserStatus status;
     }
 
     @Getter
@@ -87,5 +88,22 @@ public class PlaygroundAuthInfo {
         private String name;
         private String profileImage;
         private List<Long> generationList;
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class AccessToken {
+
+        private String accessToken;
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class RefreshedToken {
+
+        private String accessToken;
+        private String errorCode;
     }
 }

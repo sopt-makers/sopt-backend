@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,6 +39,13 @@ public class UserController {
     public ResponseEntity<UserResponse.Soptamp> getSoptampInfo(@AuthenticationPrincipal User user) {
         val response = userResponseMapper.ofSoptamp(user);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "닉네임 중복 검사")
+    @GetMapping(value = "/nickname/{nickname}")
+    public ResponseEntity<UserResponse.AppUser> validateUserNickname(@PathVariable String nickname) {
+        userService.checkUserNickname(nickname);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @Operation(summary = "닉네임 변경")

@@ -37,13 +37,14 @@ public class JwtTokenService {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 
-    public PlaygroundAuthInfo.AppToken issueNewTokens(UserInfo.Id userId) {
-        val accessToken = this.encodeJwtToken(userId);
+    public PlaygroundAuthInfo.AppToken issueNewTokens(UserInfo.Id userId,
+            PlaygroundAuthInfo.PlaygroundMain playgroundMember) {
+        val accessToken = this.encodeJwtToken(userId, playgroundMember.getId());
         val refreshToken = this.encodeJwtRefreshToken(userId);
         return AppToken.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }
 
-    private String encodeJwtToken(UserInfo.Id userId) {
+    private String encodeJwtToken(UserInfo.Id userId, Long playgroundId) {
         val now = LocalDateTime.now();
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
@@ -52,6 +53,7 @@ public class JwtTokenService {
                 .setSubject(userId.getId().toString())
                 .setExpiration(now.plusDays(1).toDate())
                 .claim("id", userId.getId())
+                .claim("playgroundId", playgroundId)
                 .claim("roles", "USER")
                 .signWith(getSigningKey(JWT_SECRET), SignatureAlgorithm.HS256)
                 .compact();
@@ -62,7 +64,7 @@ public class JwtTokenService {
         return Jwts.builder()
                 .setIssuedAt(now.toDate())
                 .setSubject(userId.getId().toString())
-                .setExpiration(now.plusDays(14).toDate())
+                .setExpiration(now.plusDays(30).toDate())
                 .claim("id", userId.getId())
                 .claim("roles", "USER")
                 .signWith(getSigningKey(JWT_SECRET), SignatureAlgorithm.HS256)
