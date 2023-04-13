@@ -1,12 +1,11 @@
 package org.sopt.app.application.user;
 
-import static org.sopt.app.common.ResponseCode.ENTITY_NOT_FOUND;
-
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
-import org.sopt.app.common.exception.EntityNotFoundException;
-import org.sopt.app.common.exception.ExistUserException;
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.exception.NotFoundException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.auth.AuthRequest;
@@ -62,7 +61,7 @@ public class UserService {
     public void checkUserNickname(String nickname) {
         val nicknameUser = userRepository.findUserByNickname(nickname);
         if (nicknameUser.isPresent()) {
-            throw new ExistUserException("사용 중인 닉네임입니다.");
+            throw new BadRequestException(ErrorCode.DUPLICATE_NICKNAME.getMessage());
         }
     }
 
@@ -75,7 +74,8 @@ public class UserService {
 
     @Transactional
     public UserInfo.ProfileMessage editProfileMessage(Long userId, String profileMessage) {
-        val user = userRepository.findUserById(userId).orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+        val user = userRepository.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
         user.updateProfileMessage(profileMessage);
         userRepository.save(user);
         return UserInfo.ProfileMessage.builder()
@@ -91,7 +91,7 @@ public class UserService {
     @Transactional(readOnly = true)
     public AuthRequest.AccessTokenRequest getPlaygroundToken(UserInfo.Id userId) {
         val user = userRepository.findUserById(userId.getId())
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
         val token = new AuthRequest.AccessTokenRequest();
         token.setAccessToken(user.getPlaygroundToken());
         return token;

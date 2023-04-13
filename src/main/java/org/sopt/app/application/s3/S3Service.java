@@ -22,8 +22,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.joda.time.LocalDateTime;
 import org.sopt.app.common.ResponseCode;
-import org.sopt.app.common.exception.ApiException;
 import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.exception.v1.ApiException;
+import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -113,7 +114,7 @@ public class S3Service {
             uri = this.s3Client.generatePresignedUrl(folderURI,
                     randomFileName.toString(), now.plusHours(1).toDate(), HttpMethod.PUT).toURI();
         } catch (NullPointerException | URISyntaxException e) {
-            throw new BadRequestException("URL을 생성할 수 없습니다.");
+            throw new BadRequestException(ErrorCode.PRE_SIGNED_URI_ERROR.getMessage());
         }
 
         val preSignedURL = uri.toString();

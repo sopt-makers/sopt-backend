@@ -2,9 +2,9 @@ package org.sopt.app.v1.application.auth;
 
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.common.exception.DbException;
-import org.sopt.app.common.exception.ExistUserException;
-import org.sopt.app.common.exception.UserNotFoundException;
+import org.sopt.app.common.exception.v1.DbException;
+import org.sopt.app.common.exception.v1.ExistUserException;
+import org.sopt.app.common.exception.v1.UserNotFoundException;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.v1.interfaces.postgres.UserRepositoryV1;
 import org.springframework.stereotype.Service;

@@ -1,8 +1,8 @@
 package org.sopt.app.application.auth;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.common.ResponseCode;
-import org.sopt.app.common.exception.EntityNotFoundException;
+import org.sopt.app.common.exception.NotFoundException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -17,6 +17,6 @@ public class CustomUserDetailService implements UserDetailsService {
 
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return (UserDetails) userRepository.findUserById(Long.parseLong(username))
-                .orElseThrow(() -> new EntityNotFoundException(ResponseCode.ENTITY_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
     }
 }

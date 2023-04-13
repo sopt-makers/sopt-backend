@@ -105,15 +105,15 @@ public class StampController {
 
     @Operation(summary = "스탬프 삭제하기(개별)")
     @DeleteMapping("/{stampId}")
-    public ResponseEntity<String> deleteStampById(@PathVariable Long stampId) {
-        stampService.deleteByStampId(stampId);
+    public ResponseEntity<String> deleteStampById(@AuthenticationPrincipal User user, @PathVariable Long stampId) {
+        stampService.deleteStampById(user, stampId);
         return ResponseEntity.status(HttpStatus.OK).body("{}");
     }
 
     @Operation(summary = "스탬프 삭제하기(전체)")
     @DeleteMapping("/all")
     public ResponseEntity<String> deleteStampByUserId(@AuthenticationPrincipal User user) {
-        stampService.deleteStampByUserId(user.getId());
+        stampService.deleteAllStamps(user);
         return ResponseEntity.status(HttpStatus.OK).body("{}");
     }
 }

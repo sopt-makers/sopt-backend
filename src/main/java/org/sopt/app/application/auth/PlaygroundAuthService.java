@@ -136,7 +136,7 @@ public class PlaygroundAuthService {
             );
             return response.getBody();
         } catch (BadRequest e) {
-            throw new BadRequestException("플레이그라운드 프로필을 등록하지 않은 유저입니다.");
+            throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
         }
     }
 

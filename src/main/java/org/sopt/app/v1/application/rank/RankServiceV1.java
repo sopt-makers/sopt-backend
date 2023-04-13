@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.common.exception.ApiException;
+import org.sopt.app.common.exception.v1.ApiException;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.v1.application.mission.MissionServiceV1;
 import org.sopt.app.v1.interfaces.postgres.UserRepositoryV1;
