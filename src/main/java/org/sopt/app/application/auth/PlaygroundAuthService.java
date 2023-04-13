@@ -1,5 +1,6 @@
 package org.sopt.app.application.auth;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -106,6 +107,7 @@ public class PlaygroundAuthService {
         val playgroundProfile = this.getPlaygroundMemberProfile(accessToken);
         val generationList = playgroundProfile.getActivities().stream()
                 .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).collect(Collectors.toList());
+        Collections.sort(generationList, Collections.reverseOrder());
         val mainViewUser = PlaygroundAuthInfo.MainViewUser.builder()
                 .status(this.getStatus(generationList))
                 .name(playgroundProfile.getName())
