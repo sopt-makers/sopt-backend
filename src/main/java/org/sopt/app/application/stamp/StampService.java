@@ -6,7 +6,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.common.exception.BadRequestException;
-import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Stamp;
 import org.sopt.app.domain.entity.User;
@@ -32,7 +31,7 @@ public class StampService {
     @Transactional(readOnly = true)
     public Stamp findStamp(Long userId, Long missionId) {
         return stampRepository.findByUserIdAndMissionId(userId, missionId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
     }
 
     @Transactional
@@ -45,9 +44,9 @@ public class StampService {
         val stamp = this.convertStampImgDeprecated(stampRequest, imgList, userId, missionId);
 
         val user = userRepository.findUserById(Long.valueOf(userId))
-                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
         val mission = missionRepository.findById(missionId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
 
         user.addPoints(mission.getLevel());
         userRepository.save(user);
@@ -62,7 +61,7 @@ public class StampService {
             Long missionId) {
 
         val mission = missionRepository.findById(missionId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
         val stamp = Stamp.builder()
                 .contents(stampRequest.getContents())
                 .createdAt(LocalDateTime.now())
@@ -84,7 +83,7 @@ public class StampService {
             Long missionId) {
 
         val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());
         }
@@ -100,7 +99,7 @@ public class StampService {
             Long missionId) {
 
         val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());
         }
@@ -123,9 +122,9 @@ public class StampService {
     public void deleteStampById(User user, Long stampId) {
 
         val stamp = stampRepository.findById(stampId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
         val mission = missionRepository.findById(stamp.getMissionId())
-                .orElseThrow(() -> new NotFoundException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
 
         user.minusPoints(mission.getLevel());
         userRepository.save(user);

@@ -12,7 +12,8 @@ public enum ErrorCode {
     INVALID_PARAMETER("잘못된 파라미터 입니다."),
 
     // TOKEN
-    INVALID_APP_TOKEN("유효하지 않은 앱 토큰입니다."),
+    INVALID_ACCESS_TOKEN("유효하지 않은 앱 어세스 토큰입니다."),
+    INVALID_REFRESH_TOKEN("유효하지 않은 앱 리프레시 토큰입니다."),
     INVALID_PLAYGROUND_TOKEN("유효하지 않은 플레이그라운드 토큰입니다."),
 
     // PLAYGROUND AUTH

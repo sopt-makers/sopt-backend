@@ -30,7 +30,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
                 Authentication authentication = jwtTokenService.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             } else {
-                throw new UnauthorizedException(ErrorCode.INVALID_APP_TOKEN.getMessage());
+                throw new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN.getMessage());
             }
         }
         chain.doFilter(request, response);
