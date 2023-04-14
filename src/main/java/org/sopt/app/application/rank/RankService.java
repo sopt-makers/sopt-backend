@@ -1,14 +1,13 @@
 package org.sopt.app.application.rank;
 
-import static org.sopt.app.common.ResponseCode.ENTITY_NOT_FOUND;
-
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.common.exception.v1.EntityNotFoundException;
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.springframework.stereotype.Service;
@@ -35,6 +34,6 @@ public class RankService {
 
     public User findRankByNickname(String nickname) {
         return userRepository.findUserByNickname(nickname)
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
     }
 }
