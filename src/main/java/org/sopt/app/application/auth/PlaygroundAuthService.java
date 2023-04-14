@@ -1,9 +1,11 @@
 package org.sopt.app.application.auth;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
@@ -20,19 +22,15 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class PlaygroundAuthService {
 
+    private final RestTemplate restTemplate;
     @Value("${makers.playground.server}")
     private String baseURI;
-
     @Value("${sopt.current.generation}")
     private Long currentGeneration;
-
     @Value("${makers.playground.x-api-key}")
     private String apiKey;
-
     @Value("${makers.playground.x-request-from}")
     private String requestFrom;
-
-    private RestTemplate restTemplate = new RestTemplate();
 
     public PlaygroundAuthInfo.PlaygroundMain getPlaygroundInfo(String token) {
         val member = this.getPlaygroundMember(token);
@@ -106,6 +104,7 @@ public class PlaygroundAuthService {
         val playgroundProfile = this.getPlaygroundMemberProfile(accessToken);
         val generationList = playgroundProfile.getActivities().stream()
                 .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).collect(Collectors.toList());
+        Collections.sort(generationList, Collections.reverseOrder());
         val mainViewUser = PlaygroundAuthInfo.MainViewUser.builder()
                 .status(this.getStatus(generationList))
                 .name(playgroundProfile.getName())
@@ -128,13 +127,17 @@ public class PlaygroundAuthService {
 
         val entity = new HttpEntity(null, headers);
 
-        val response = restTemplate.exchange(
-                getUserURL,
-                HttpMethod.GET,
-                entity,
-                PlaygroundAuthInfo.PlaygroundProfile.class
-        );
-        return response.getBody();
+        try {
+            val response = restTemplate.exchange(
+                    getUserURL,
+                    HttpMethod.GET,
+                    entity,
+                    PlaygroundAuthInfo.PlaygroundProfile.class
+            );
+            return response.getBody();
+        } catch (BadRequest e) {
+            throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
+        }
     }
 
 }

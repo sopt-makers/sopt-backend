@@ -22,8 +22,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.joda.time.LocalDateTime;
 import org.sopt.app.common.ResponseCode;
-import org.sopt.app.common.exception.ApiException;
 import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.exception.v1.ApiException;
+import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -93,12 +94,12 @@ public class S3Service {
     // 파일 유효성 검사
     private String getFileExtension(String fileName) {
         if (fileName.length() == 0) {
-            throw new BadRequestException(ResponseCode.INVALID_REQUEST);
+            throw new BadRequestException("유효하지 않은 파일명입니다.");
         }
 
         val idxFileName = fileName.substring(fileName.lastIndexOf("."));
         if (!imageFileExtension.contains(idxFileName)) {
-            throw new BadRequestException(ResponseCode.INVALID_REQUEST);
+            throw new BadRequestException("유효하지 않은 확장자입니다.");
         }
         return fileName.substring(fileName.lastIndexOf("."));
     }
@@ -113,7 +114,7 @@ public class S3Service {
             uri = this.s3Client.generatePresignedUrl(folderURI,
                     randomFileName.toString(), now.plusHours(1).toDate(), HttpMethod.PUT).toURI();
         } catch (NullPointerException | URISyntaxException e) {
-            throw new BadRequestException(ResponseCode.INVALID_REQUEST);
+            throw new BadRequestException(ErrorCode.PRE_SIGNED_URI_ERROR.getMessage());
         }
 
         val preSignedURL = uri.toString();

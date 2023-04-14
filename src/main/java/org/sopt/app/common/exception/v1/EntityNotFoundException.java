@@ -1,4 +1,4 @@
-package org.sopt.app.common.exception;
+package org.sopt.app.common.exception.v1;
 
 
 import lombok.Getter;

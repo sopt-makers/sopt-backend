@@ -1,7 +1,7 @@
 package org.sopt.app.v1.application.user;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.common.exception.UserNotFoundException;
+import org.sopt.app.common.exception.v1.UserNotFoundException;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.v1.application.auth.EncryptService;
 import org.sopt.app.v1.application.user.dto.LogInUserDto;

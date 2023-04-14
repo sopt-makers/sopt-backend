@@ -1,15 +1,12 @@
 package org.sopt.app.application.stamp;
 
-import static org.sopt.app.common.ResponseCode.ENTITY_NOT_FOUND;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.common.ResponseCode;
 import org.sopt.app.common.exception.BadRequestException;
-import org.sopt.app.common.exception.EntityNotFoundException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Stamp;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.MissionRepository;
@@ -34,7 +31,7 @@ public class StampService {
     @Transactional(readOnly = true)
     public Stamp findStamp(Long userId, Long missionId) {
         return stampRepository.findByUserIdAndMissionId(userId, missionId)
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
     }
 
     @Transactional
@@ -46,13 +43,10 @@ public class StampService {
         val imgList = new ArrayList<>(imgPaths);
         val stamp = this.convertStampImgDeprecated(stampRequest, imgList, userId, missionId);
 
-        //랭크 관련 점수 처리
         val user = userRepository.findUserById(Long.valueOf(userId))
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-
-        //미션 랭크점수 알아오기
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
         val mission = missionRepository.findById(missionId)
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
 
         user.addPoints(mission.getLevel());
         userRepository.save(user);
@@ -67,7 +61,7 @@ public class StampService {
             Long missionId) {
 
         val mission = missionRepository.findById(missionId)
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
         val stamp = Stamp.builder()
                 .contents(stampRequest.getContents())
                 .createdAt(LocalDateTime.now())
@@ -89,7 +83,7 @@ public class StampService {
             Long missionId) {
 
         val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId)
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());
         }
@@ -105,7 +99,7 @@ public class StampService {
             Long missionId) {
 
         val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId)
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());
         }
@@ -125,52 +119,34 @@ public class StampService {
 
     //Stamp 삭제 by stampId
     @Transactional
-    public void deleteByStampId(Long stampId) {
+    public void deleteStampById(User user, Long stampId) {
 
         val stamp = stampRepository.findById(stampId)
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-
-        //랭크 관련 점수 처리
-        val user = userRepository.findUserById(stamp.getUserId())
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
-
-        //미션 랭크점수 알아오기
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
         val mission = missionRepository.findById(stamp.getMissionId())
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
 
         user.minusPoints(mission.getLevel());
         userRepository.save(user);
-
         stampRepository.deleteById(stampId);
     }
 
 
-    //스탬프 중복 검사체크
     @Transactional(readOnly = true)
     public void checkDuplicateStamp(Long userId, Long missionId) {
         if (stampRepository.findByUserIdAndMissionId(userId, missionId).isPresent()) {
-            throw new BadRequestException(ResponseCode.INVALID_REQUEST);
+            throw new BadRequestException(ErrorCode.DUPLICATE_STAMP.getMessage());
         }
     }
 
-
-    //Stamp 삭제 All by UserId
     @Transactional
-    public void deleteStampByUserId(Long userId) {
-
-        //스탬프 전부삭제
-        stampRepository.deleteAllByUserId(userId);
-
-        //해당 스탬프로 얻었던 점수 모두 초기화
-        val user = userRepository.findUserById(userId)
-                .orElseThrow(() -> new EntityNotFoundException(ENTITY_NOT_FOUND));
+    public void deleteAllStamps(User user) {
+        stampRepository.deleteAllByUserId(user.getId());
         user.initializePoints();
         userRepository.save(user);
-
     }
 
 
-    //Stamp Entity 양식에 맞게 데이터 세팅
     private Stamp convertStampImgDeprecated(
             RegisterStampRequest stampRequest,
             List<String> imgList,

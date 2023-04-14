@@ -26,7 +26,7 @@ public class UserWithdrawController {
     @DeleteMapping(value = "")
     public ResponseEntity<UserResponse.AppUser> withdraw(@AuthenticationPrincipal User user) {
         // TODO: S3 이미지 삭제
-        stampService.deleteStampByUserId(user.getId());
+        stampService.deleteAllStamps(user);
         userService.deleteUser(user);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }

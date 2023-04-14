@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.common.exception.EntityNotFoundException;
+import org.sopt.app.common.exception.v1.EntityNotFoundException;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.springframework.stereotype.Service;

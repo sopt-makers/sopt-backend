@@ -1,19 +1,15 @@
 package org.sopt.app.common.exception;
 
-import lombok.Getter;
-import org.sopt.app.common.ResponseCode;
 import org.springframework.http.HttpStatus;
 
-public class BadRequestException extends RuntimeException {
+public class BadRequestException extends BaseException {
 
-    @Getter
-    private final String resultCode;
-    @Getter
-    private final HttpStatus httpStatus;
-
-    public BadRequestException(ResponseCode responseCode) {
-        super("[" + responseCode.getResponseCode() + "] " + responseCode.getMessage());
-        this.resultCode = responseCode.getResponseCode();
-        this.httpStatus = responseCode.getHttpStatus();
+    public BadRequestException() {
+        super(HttpStatus.BAD_REQUEST);
     }
+
+    public BadRequestException(String message) {
+        super(HttpStatus.BAD_REQUEST, message);
+    }
+
 }

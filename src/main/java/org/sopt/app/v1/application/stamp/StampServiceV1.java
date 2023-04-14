@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.common.exception.ApiException;
+import org.sopt.app.common.exception.v1.ApiException;
 import org.sopt.app.domain.entity.Mission;
 import org.sopt.app.domain.entity.Stamp;
 import org.sopt.app.domain.entity.User;

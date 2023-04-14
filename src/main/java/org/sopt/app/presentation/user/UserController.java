@@ -66,7 +66,7 @@ public class UserController {
             @AuthenticationPrincipal User user,
             @RequestBody RankRequest.EditProfileMessageRequest editProfileMessageRequest
     ) {
-        val result = userService.editProfileMessage(user.getId(), editProfileMessageRequest.getProfileMessage());
+        val result = userService.editProfileMessage(user, editProfileMessageRequest.getProfileMessage());
         val response = userResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

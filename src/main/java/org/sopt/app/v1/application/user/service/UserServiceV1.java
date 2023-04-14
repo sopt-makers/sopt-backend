@@ -1,7 +1,7 @@
 package org.sopt.app.v1.application.user.service;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.common.exception.UserNotFoundException;
+import org.sopt.app.common.exception.v1.UserNotFoundException;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.v1.application.user.dto.SignUpUserDto;
 import org.sopt.app.v1.interfaces.postgres.UserRepositoryV1;
