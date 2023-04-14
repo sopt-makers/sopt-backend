@@ -1,6 +1,9 @@
 package org.sopt.app.presentation.config;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.presentation.config.ConfigResponse.Availability;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,6 +22,10 @@ public class ConfigController {
     private Boolean isAvailable;
 
     @Operation(summary = "앱 메인 뷰 분기 처리")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @GetMapping(value = "/availability")
     public ResponseEntity<ConfigResponse.Availability> getUserInfo() {
         return ResponseEntity.status(HttpStatus.OK).body(Availability.builder().isAvailable(isAvailable).build());

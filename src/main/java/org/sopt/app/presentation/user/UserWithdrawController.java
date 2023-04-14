@@ -1,6 +1,9 @@
 package org.sopt.app.presentation.user;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.stamp.StampService;
@@ -23,6 +26,10 @@ public class UserWithdrawController {
     private final StampService stampService;
 
     @Operation(summary = "탈퇴하기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @DeleteMapping(value = "")
     public ResponseEntity<UserResponse.AppUser> withdraw(@AuthenticationPrincipal User user) {
         // TODO: S3 이미지 삭제
