@@ -2,11 +2,14 @@ package org.sopt.app.application.operation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException.BadRequest;
 import org.springframework.web.client.RestTemplate;
 
 @Service
@@ -35,12 +38,16 @@ public class OperationService {
 
         val entity = new HttpEntity(null, headers);
 
-        val response = restTemplate.exchange(
-                getScoreURL,
-                HttpMethod.GET,
-                entity,
-                OperationInfo.ScoreResponse.class
-        );
-        return response.getBody();
+        try {
+            val response = restTemplate.exchange(
+                    getScoreURL,
+                    HttpMethod.GET,
+                    entity,
+                    OperationInfo.ScoreResponse.class
+            );
+            return response.getBody();
+        } catch (BadRequest e) {
+            throw new BadRequestException(ErrorCode.OPERATION_PROFILE_NOT_EXISTS.getMessage());
+        }
     }
 }

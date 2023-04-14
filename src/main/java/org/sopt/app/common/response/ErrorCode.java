@@ -19,6 +19,9 @@ public enum ErrorCode {
     // PLAYGROUND AUTH
     PLAYGROUND_PROFILE_NOT_EXISTS("플레이그라운드 프로필을 등록하지 않은 유저입니다."),
 
+    // OPERATION
+    OPERATION_PROFILE_NOT_EXISTS("운영 서비스에 존재하지 않는 회원입니다."),
+
     // USER
     USER_NOT_FOUND("존재하지 않는 유저입니다."),
     DUPLICATE_NICKNAME("사용 중인 닉네임입니다."),
