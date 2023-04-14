@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.sopt.app.domain.entity.Mission;
 
 public class RankResponse {
 
@@ -33,7 +32,24 @@ public class RankResponse {
         private String nickname;
         @Schema(description = "유저 프로필 메세지", example = "1등이 되고 말거야!")
         private String profileMessage;
-        @Schema(description = "유저 미션 리스트", example = "[]")
-        private List<Mission> userMissions;
+        @Schema(description = "유저 미션 리스트", example = "")
+        private List<RankMission> userMissions;
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class RankMission {
+
+        @Schema(description = "미션 아이디", example = "1")
+        private Long id;
+        @Schema(description = "미션 제목", example = "팀원 칭찬하기")
+        private String title;
+        @Schema(description = "미션 레벨", example = "1")
+        private Integer level;
+        @Schema(description = "미션 노출 여부", example = "true")
+        private Boolean display;
+        @Schema(description = "미션 프로필 이미지", example = "null")
+        private List<String> profileImage;
     }
 }
