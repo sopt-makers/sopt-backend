@@ -28,8 +28,7 @@ public class AuthResponse {
         private String refreshToken;
         @Schema(description = "플레이그라운드 AccessToken", example = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyMiIsImV4cCI6MTY4MDAxNDQzNn0.asdfasdfasdfasdfasdfasdf")
         private String playgroundToken;
-
-        @Schema(description = "활동 기수 여부", example = "ACTIVE")
+        @Schema(description = "활동/비활동/비회원 분기 처리", example = "ACTIVE")
         private UserStatus status;
     }
 }

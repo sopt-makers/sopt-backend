@@ -44,7 +44,7 @@ public class StampController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/mission/{missionId}")
-    public ResponseEntity<StampResponse.Main> findStampByMissionAndUserId(
+    public ResponseEntity<StampResponse.StampMain> findStampByMissionAndUserId(
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId
     ) {
@@ -55,7 +55,7 @@ public class StampController {
 
     @Operation(summary = "스탬프 등록하기 - DEPRECATED")
     @PostMapping("/{missionId}")
-    public ResponseEntity<StampResponse.Main> registerStampDeprecated(
+    public ResponseEntity<StampResponse.StampMain> registerStampDeprecated(
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId,
             @RequestPart("stampContent") StampRequest.RegisterStampRequest registerStampRequest,
@@ -70,7 +70,7 @@ public class StampController {
 
     @Operation(summary = "스탬프 수정하기 - DEPRECATED")
     @PutMapping("/{missionId}")
-    public ResponseEntity<StampResponse.Id> editStampDeprecated(
+    public ResponseEntity<StampResponse.StampId> editStampDeprecated(
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId,
             @RequestPart(value = "stampContent", required = false) StampRequest.EditStampRequest editStampRequest,
@@ -93,7 +93,7 @@ public class StampController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PostMapping("/mission/{missionId}")
-    public ResponseEntity<StampResponse.Main> registerStamp(
+    public ResponseEntity<StampResponse.StampMain> registerStamp(
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId,
             @RequestBody StampRequest.RegisterStampRequest registerStampRequest
@@ -111,7 +111,7 @@ public class StampController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PutMapping("/mission/{missionId}")
-    public ResponseEntity<StampResponse.Id> editStamp(
+    public ResponseEntity<StampResponse.StampId> editStamp(
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId,
             @RequestBody StampRequest.EditStampRequest editStampRequest

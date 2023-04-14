@@ -14,9 +14,9 @@ import org.sopt.app.domain.entity.Mission;
 )
 public interface MissionResponseMapper {
 
-    MissionResponse.Id of(Long missionId);
+    MissionResponse.MissionId of(Long missionId);
 
-    List<MissionResponse.Main> of(List<Mission> missionList);
+    List<MissionResponse.MissionMain> of(List<Mission> missionList);
 
     List<MissionResponse.Completeness> ofCompleteness(List<MissionInfo.Completeness> missionList);
 

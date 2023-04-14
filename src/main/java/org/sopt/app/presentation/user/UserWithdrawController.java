@@ -27,7 +27,7 @@ public class UserWithdrawController {
 
     @Operation(summary = "탈퇴하기")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "200", description = "success", content = @Content),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @DeleteMapping(value = "")

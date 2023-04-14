@@ -35,7 +35,7 @@ public class UserOriginalController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping(value = "/main")
-    public ResponseEntity<UserResponse.Main> getMainViewInfo(
+    public ResponseEntity<UserResponse.MainView> getMainViewInfo(
             @AuthenticationPrincipal User user,
             @RequestHeader("Authorization") String accessToken
     ) {

@@ -28,12 +28,12 @@ public class RankController {
     private final MissionService missionService;
 
     @Operation(summary = "랭킹 목록 조회")
-    @ApiResponses({
+    @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("")
-    public ResponseEntity<List<RankResponse.Main>> findRanks() {
+    public ResponseEntity<List<RankResponse.RankMain>> findRanks() {
         val result = rankService.findRanks();
         val response = rankResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);

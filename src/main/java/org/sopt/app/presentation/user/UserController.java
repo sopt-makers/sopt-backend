@@ -54,12 +54,12 @@ public class UserController {
 
     @Operation(summary = "닉네임 중복 검사")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "200", description = "success", content = @Content),
             @ApiResponse(responseCode = "400", description = "duplicate nickname", content = @Content),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping(value = "/nickname/{nickname}")
-    public ResponseEntity<UserResponse.AppUser> validateUserNickname(@PathVariable String nickname) {
+    public ResponseEntity<UserResponse.Nickname> validateUserNickname(@PathVariable String nickname) {
         userService.checkUserNickname(nickname);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
