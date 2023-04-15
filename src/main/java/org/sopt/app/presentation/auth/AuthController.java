@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.JwtTokenService;
@@ -35,7 +36,7 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PostMapping(value = "/playground")
-    public ResponseEntity<AuthResponse.Token> playgroundLogin(@RequestBody AuthRequest.CodeRequest codeRequest) {
+    public ResponseEntity<AuthResponse.Token> playgroundLogin(@Valid @RequestBody AuthRequest.CodeRequest codeRequest) {
         val temporaryToken = playgroundAuthService.getPlaygroundAccessToken(codeRequest);
         val playgroundToken = playgroundAuthService.refreshPlaygroundToken(temporaryToken);
         val playgroundMember = playgroundAuthService.getPlaygroundInfo(playgroundToken.getAccessToken());
@@ -54,7 +55,9 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PatchMapping(value = "/refresh")
-    public ResponseEntity<AuthResponse.Token> refreshToken(@RequestBody AuthRequest.RefreshRequest refreshRequest) {
+    public ResponseEntity<AuthResponse.Token> refreshToken(
+            @Valid @RequestBody AuthRequest.RefreshRequest refreshRequest
+    ) {
         val userId = jwtTokenService.getUserIdFromJwtToken(refreshRequest.getRefreshToken());
         val existingToken = userService.getPlaygroundToken(userId);
         val playgroundToken = playgroundAuthService.refreshPlaygroundToken(existingToken);

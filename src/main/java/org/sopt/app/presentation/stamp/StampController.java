@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
+import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.s3.S3Service;
@@ -96,7 +97,7 @@ public class StampController {
     public ResponseEntity<StampResponse.StampMain> registerStamp(
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId,
-            @RequestBody StampRequest.RegisterStampRequest registerStampRequest
+            @Valid @RequestBody StampRequest.RegisterStampRequest registerStampRequest
     ) {
         stampService.checkDuplicateStamp(user.getId(), missionId);
         val result = stampService.uploadStamp(registerStampRequest, user, missionId);
@@ -114,7 +115,7 @@ public class StampController {
     public ResponseEntity<StampResponse.StampId> editStamp(
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId,
-            @RequestBody StampRequest.EditStampRequest editStampRequest
+            @Valid @RequestBody StampRequest.EditStampRequest editStampRequest
     ) {
         val stamp = stampService.editStampContents(editStampRequest, user.getId(), missionId);
         val response = stampResponseMapper.of(stamp.getId());

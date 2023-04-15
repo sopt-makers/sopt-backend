@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.user.UserService;
@@ -71,7 +72,7 @@ public class UserController {
     @PatchMapping(value = "/nickname")
     public ResponseEntity<UserResponse.Nickname> editNickname(
             @AuthenticationPrincipal User user,
-            @RequestBody UserRequest.EditNicknameRequest editNicknameRequest
+            @Valid @RequestBody UserRequest.EditNicknameRequest editNicknameRequest
     ) {
         val nickname = editNicknameRequest.getNickname();
         val result = userService.editNickname(user, nickname);
@@ -87,7 +88,7 @@ public class UserController {
     @PatchMapping("/profile-message")
     public ResponseEntity<UserResponse.ProfileMessage> editProfileMessage(
             @AuthenticationPrincipal User user,
-            @RequestBody UserRequest.EditProfileMessageRequest editProfileMessageRequest
+            @Valid @RequestBody UserRequest.EditProfileMessageRequest editProfileMessageRequest
     ) {
         val result = userService.editProfileMessage(user, editProfileMessageRequest.getProfileMessage());
         val response = userResponseMapper.of(result);

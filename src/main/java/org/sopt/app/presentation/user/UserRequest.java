@@ -13,7 +13,7 @@ public class UserRequest {
     @ToString
     public static class EditNicknameRequest {
 
-        @Schema(description = "닉네임", example = "주서버")
+        @Schema(description = "닉네임", example = "김앱짱")
         @NotNull(message = "nickname may not be null")
         private String nickname;
     }

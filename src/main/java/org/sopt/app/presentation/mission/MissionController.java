@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
+import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.mission.MissionService;
@@ -50,7 +51,7 @@ public class MissionController {
     })
     @PostMapping("")
     public ResponseEntity<MissionResponse.MissionId> registerMission(
-            @RequestBody MissionRequest.RegisterMissionRequest registerMissionRequest) {
+            @Valid @RequestBody MissionRequest.RegisterMissionRequest registerMissionRequest) {
         val mission = missionService.uploadMission(registerMissionRequest);
         val response = missionResponseMapper.of(mission.getId());
         return ResponseEntity.status(HttpStatus.OK).body(response);
