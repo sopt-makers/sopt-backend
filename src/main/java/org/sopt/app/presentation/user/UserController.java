@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.User;
-import org.sopt.app.presentation.rank.RankRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -88,7 +87,7 @@ public class UserController {
     @PatchMapping("/profile-message")
     public ResponseEntity<UserResponse.ProfileMessage> editProfileMessage(
             @AuthenticationPrincipal User user,
-            @RequestBody RankRequest.EditProfileMessageRequest editProfileMessageRequest
+            @RequestBody UserRequest.EditProfileMessageRequest editProfileMessageRequest
     ) {
         val result = userService.editProfileMessage(user, editProfileMessageRequest.getProfileMessage());
         val response = userResponseMapper.of(result);
