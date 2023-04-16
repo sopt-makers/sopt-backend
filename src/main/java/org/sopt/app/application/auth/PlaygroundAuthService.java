@@ -50,13 +50,17 @@ public class PlaygroundAuthService {
 
         val entity = new HttpEntity(codeRequest, headers);
 
-        val response = restTemplate.exchange(
-                getTokenURL,
-                HttpMethod.POST,
-                entity,
-                AuthRequest.AccessTokenRequest.class
-        );
-        return response.getBody();
+        try {
+            val response = restTemplate.exchange(
+                    getTokenURL,
+                    HttpMethod.POST,
+                    entity,
+                    AuthRequest.AccessTokenRequest.class
+            );
+            return response.getBody();
+        } catch (Exception e) {
+            throw new BadRequestException(ErrorCode.INVALID_PLAYGROUND_CODE.getMessage());
+        }
     }
 
     private PlaygroundAuthInfo.PlaygroundMain getPlaygroundMember(String accessToken) {
@@ -68,13 +72,17 @@ public class PlaygroundAuthService {
 
         val entity = new HttpEntity(null, headers);
 
-        val response = restTemplate.exchange(
-                getUserURL,
-                HttpMethod.GET,
-                entity,
-                PlaygroundAuthInfo.PlaygroundMain.class
-        );
-        return response.getBody();
+        try {
+            val response = restTemplate.exchange(
+                    getUserURL,
+                    HttpMethod.GET,
+                    entity,
+                    PlaygroundAuthInfo.PlaygroundMain.class
+            );
+            return response.getBody();
+        } catch (Exception e) {
+            throw new BadRequestException(ErrorCode.PLAYGROUND_USER_NOT_EXISTS.getMessage());
+        }
     }
 
     public PlaygroundAuthInfo.RefreshedToken refreshPlaygroundToken(AuthRequest.AccessTokenRequest tokenRequest) {
