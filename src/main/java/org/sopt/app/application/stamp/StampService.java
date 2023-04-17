@@ -3,6 +3,7 @@ package org.sopt.app.application.stamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.common.exception.BadRequestException;
@@ -139,6 +140,13 @@ public class StampService {
             throw new BadRequestException(ErrorCode.DUPLICATE_STAMP.getMessage());
         }
     }
+
+    @Transactional(readOnly = true)
+    public List<String> findAllStamps(User user) {
+        return stampRepository.findAllByUserId(user.getId()).stream().map(Stamp::getImages)
+                .flatMap(images -> images.stream()).collect(Collectors.toList());
+    }
+
 
     @Transactional
     public void deleteAllStamps(User user) {

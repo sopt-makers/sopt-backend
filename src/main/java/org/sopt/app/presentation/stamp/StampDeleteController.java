@@ -50,7 +50,9 @@ public class StampDeleteController {
     })
     @DeleteMapping("/all")
     public ResponseEntity<StampResponse.StampMain> deleteStampByUserId(@AuthenticationPrincipal User user) {
+        val fileUrls = stampService.findAllStamps(user);
         stampService.deleteAllStamps(user);
+        s3Service.deleteFiles(fileUrls, "stamp");
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }

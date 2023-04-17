@@ -16,7 +16,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -136,7 +135,10 @@ public class S3Service {
     }
 
     private List<String> getFileNameList(List<String> fileUrls) {
-        return fileUrls.stream().map(url -> Arrays.stream(url.split("/")).toList().get(6)).collect(Collectors.toList());
+        return fileUrls.stream().map(url -> {
+            val fileNameSplit = url.split("/");
+            return fileNameSplit[fileNameSplit.length - 1];
+        }).collect(Collectors.toList());
     }
 
     private void deleteFile(String folderURI, String fileName) {
