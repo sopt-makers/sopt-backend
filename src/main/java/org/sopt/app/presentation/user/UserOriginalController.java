@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthService;
+import org.sopt.app.application.operation.OperationInfo;
 import org.sopt.app.application.operation.OperationService;
 import org.sopt.app.domain.entity.User;
 import org.springframework.http.HttpStatus;
@@ -40,8 +41,9 @@ public class UserOriginalController {
             @RequestHeader("Authorization") String accessToken
     ) {
         val mainViewUser = playgroundAuthService.getPlaygroundUserForMainView(user.getPlaygroundToken());
-        val mainViewOperation = operationService.getOperationForMainView(accessToken);
-        val response = userResponseMapper.ofMainView(mainViewUser, mainViewOperation);
+//        val mainViewOperation = operationService.getOperationForMainView(accessToken);
+        val dummyOperation = OperationInfo.MainView.builder().announcement("공지다!").attendanceScore(2D).build();
+        val response = userResponseMapper.ofMainView(mainViewUser, dummyOperation);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
