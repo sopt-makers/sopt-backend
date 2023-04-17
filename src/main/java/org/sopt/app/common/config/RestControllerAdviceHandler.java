@@ -1,8 +1,8 @@
 package org.sopt.app.common.config;
 
 import org.sopt.app.common.constants.ErrorMessage;
-import org.sopt.app.common.exception.ExistUserException;
-import org.sopt.app.common.exception.UserNotFoundException;
+import org.sopt.app.common.exception.v1.ExistUserException;
+import org.sopt.app.common.exception.v1.UserNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindException;
 import org.springframework.web.bind.annotation.ExceptionHandler;

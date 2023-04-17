@@ -1,110 +1,148 @@
 package org.sopt.app.presentation.stamp;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.util.List;
+import javax.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.val;
+import org.sopt.app.application.s3.S3Service;
 import org.sopt.app.application.stamp.StampService;
-import org.sopt.app.common.s3.S3Service;
-import org.sopt.app.domain.entity.Stamp;
-import org.sopt.app.presentation.BaseController;
-import org.sopt.app.presentation.stamp.dto.StampRequestDto;
-import org.sopt.app.presentation.stamp.dto.StampResponseDto;
+import org.sopt.app.domain.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/v1/stamp")
-public class StampController extends BaseController {
+@RequestMapping("/api/v2/stamp")
+@SecurityRequirement(name = "Authorization")
+public class StampController {
 
-  private final StampService stampService;
+    private final StampService stampService;
 
-  private final S3Service s3Service;
+    private final S3Service s3Service;
 
+    private final StampResponseMapper stampResponseMapper;
 
-  /**
-   * stamp 조회 missionId, userId로 stamp 조회하기
-   */
-  @GetMapping("/{missionId}")
-  public Stamp findStampByMissionAndUserId(
-      @RequestHeader("userId") String userId,
-      @PathVariable Long missionId) {
-
-    return stampService.findStamp(userId, missionId);
-  }
-
-  /**
-   * 미션 달성을 위해 내용을 Stamp 내용 등록
-   */
-  @PostMapping("/{missionId}")
-  public ResponseEntity<?> uploadStamp(
-      @RequestHeader("userId") String userId,
-      @PathVariable Long missionId,
-      @RequestPart("stampContent") StampRequestDto stampRequestDto,
-      @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
-  ) {
-
-    //스탬프 중복 검사체크
-    stampService.checkDuplicateStamp(userId, missionId);
-
-    List<String> imgPaths = s3Service.upload(multipartFiles);
-    Stamp uploadStamp = stampService.uploadStamp(stampRequestDto,
-        imgPaths, userId, missionId);
-
-    return new ResponseEntity<>(uploadStamp, getSuccessHeaders(), HttpStatus.OK);
-  }
-
-
-  @PutMapping("/{missionId}")
-  public ResponseEntity<?> editStamp(
-      @RequestHeader("userId") String userId,
-      @PathVariable Long missionId,
-      @RequestPart(value = "stampContent", required = false) StampRequestDto stampRequestDto,
-      @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
-
-  ) {
-    //MultipartFile을 리스트에 넣어줬기 때문에 List 내부의 이미지파일에 isEmpty()를 적용해야 한다.
-    int checkNum = 1;
-    for (MultipartFile image : multipartFiles) {
-      if (image.isEmpty()) {
-        checkNum = 0;
-      }
+    @Operation(summary = "스탬프 조회하기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "400", description = "no stamp", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/mission/{missionId}")
+    public ResponseEntity<StampResponse.StampMain> findStampByMissionAndUserId(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long missionId
+    ) {
+        val result = stampService.findStamp(user.getId(), missionId);
+        val response = stampResponseMapper.of(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    StampResponseDto result = StampResponseDto.builder().build();
-    if (checkNum == 0) {
-
-      Stamp stamp = stampService.editStampContents(stampRequestDto, userId, missionId);
-      result.setStampId(stamp.getId());
-
-    } else {
-
-      List<String> imgPaths = s3Service.upload(multipartFiles);
-      Stamp uploadStamp = stampService.editStampWithImg(stampRequestDto,
-          imgPaths, userId, missionId);
-
-      result.setStampId(uploadStamp.getId());
+    @Operation(summary = "스탬프 등록하기 - DEPRECATED")
+    @PostMapping("/{missionId}")
+    public ResponseEntity<StampResponse.StampMain> registerStampDeprecated(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long missionId,
+            @RequestPart("stampContent") StampRequest.RegisterStampRequest registerStampRequest,
+            @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
+    ) {
+        stampService.checkDuplicateStamp(user.getId(), missionId);
+        val imgPaths = s3Service.uploadDeprecated(multipartFiles);
+        val result = stampService.uploadStampDeprecated(registerStampRequest, imgPaths, user.getId(), missionId);
+        val response = stampResponseMapper.of(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
-    return new ResponseEntity<>(result, getSuccessHeaders(), HttpStatus.OK);
-  }
 
-  /**
-   * Stamp 개별 삭제
-   */
-  @DeleteMapping("/{stampId}")
-  public ResponseEntity<?> deleteStampById(@PathVariable Long stampId) {
-    stampService.deleteByStampId(stampId);
-    return new ResponseEntity<>("{}", getSuccessHeaders(), HttpStatus.OK);
-  }
+    @Operation(summary = "스탬프 수정하기 - DEPRECATED")
+    @PutMapping("/{missionId}")
+    public ResponseEntity<StampResponse.StampId> editStampDeprecated(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long missionId,
+            @RequestPart(value = "stampContent", required = false) StampRequest.EditStampRequest editStampRequest,
+            @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
+    ) {
+        val stamp = stampService.editStampContentsDeprecated(editStampRequest, user.getId(), missionId);
+        val imgPaths = s3Service.uploadDeprecated(multipartFiles);
+        if (imgPaths.size() > 0) {
+            stampService.editStampImagesDeprecated(stamp, imgPaths);
+        }
+        val response = stampResponseMapper.of(stamp.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 
-  /**
-   * 전체 Stamp삭제
-   */
-  @DeleteMapping("/all")
-  public ResponseEntity<?> deleteStampByUserId(@RequestHeader Long userId){
-    stampService.deleteStampByUserId(userId);
-    return new ResponseEntity<>("{}", getSuccessHeaders(), HttpStatus.OK);
-  }
+
+    @Operation(summary = "스탬프 등록하기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "400", description = "no mission / duplicate stamp", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @PostMapping("/mission/{missionId}")
+    public ResponseEntity<StampResponse.StampMain> registerStamp(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long missionId,
+            @Valid @RequestBody StampRequest.RegisterStampRequest registerStampRequest
+    ) {
+        stampService.checkDuplicateStamp(user.getId(), missionId);
+        val result = stampService.uploadStamp(registerStampRequest, user, missionId);
+        val response = stampResponseMapper.of(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "스탬프 수정하기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "400", description = "no stamp", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @PutMapping("/mission/{missionId}")
+    public ResponseEntity<StampResponse.StampId> editStamp(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long missionId,
+            @Valid @RequestBody StampRequest.EditStampRequest editStampRequest
+    ) {
+        val stamp = stampService.editStampContents(editStampRequest, user.getId(), missionId);
+        val response = stampResponseMapper.of(stamp.getId());
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "스탬프 삭제하기(개별)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success", content = @Content),
+            @ApiResponse(responseCode = "400", description = "no stamp / no mission", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @DeleteMapping("/{stampId}")
+    public ResponseEntity<StampResponse.StampMain> deleteStampById(@AuthenticationPrincipal User user,
+            @PathVariable Long stampId) {
+        stampService.deleteStampById(user, stampId);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    @Operation(summary = "스탬프 삭제하기(전체)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @DeleteMapping("/all")
+    public ResponseEntity<StampResponse.StampMain> deleteStampByUserId(@AuthenticationPrincipal User user) {
+        stampService.deleteAllStamps(user);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
 }

@@ -8,7 +8,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface MissionRepository extends JpaRepository<Mission, Long> {
 
-  @Query("select m from Mission m where m.id in :missions")
-  List<Mission> findMissionIn(@Param("missions") List<Long> missions);
+    @Query("SELECT m FROM Mission m WHERE m.id IN :missions ORDER BY m.level, m.title")
+    List<Mission> findMissionInOrderByLevelAndTitle(@Param("missions") List<Long> missions);
 
 }

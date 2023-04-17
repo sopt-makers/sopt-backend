@@ -1,0 +1,36 @@
+package org.sopt.app.presentation.stamp;
+
+import io.swagger.v3.oas.annotations.media.Schema;
+import javax.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.ToString;
+
+public class StampRequest {
+
+    @Getter
+    @Setter
+    @ToString
+    public static class RegisterStampRequest {
+
+        @Schema(description = "스탬프 이미지", example = "https://s3.ap-northeast-2.amazonaws.com/example/283aab53-22e3-46da-85ec-146c99f82ed4.jpeg")
+        @NotNull(message = "image may not be null")
+        private String image;
+        @Schema(description = "스탬프 내용", example = "스탬프 찍었다!")
+        @NotNull(message = "contents may not be null")
+        private String contents;
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class EditStampRequest {
+
+        @Schema(description = "스탬프 이미지", example = "https://s3.ap-northeast-2.amazonaws.com/example/283aab53-22e3-46da-85ec-146c99f82ed4")
+        @NotNull(message = "image may not be null")
+        private String image;
+        @Schema(description = "스탬프 내용", example = "스탬프 찍었다!")
+        @NotNull(message = "contents may not be null")
+        private String contents;
+    }
+}

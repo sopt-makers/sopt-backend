@@ -38,4 +38,5 @@ out/
 
 ### application.yml 파일들에 대한 gitignore 처리
 application-local.yml
+application-prod.yml
 

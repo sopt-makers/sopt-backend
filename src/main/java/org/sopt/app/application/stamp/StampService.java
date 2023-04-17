@@ -1,20 +1,19 @@
 package org.sopt.app.application.stamp;
 
-import static org.sopt.app.common.ResponseCode.DUPLICATE_STAMP;
-import static org.sopt.app.common.ResponseCode.INVALID_RESPONSE;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.common.exception.ApiException;
-import org.sopt.app.domain.entity.Mission;
+import lombok.val;
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Stamp;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.MissionRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.interfaces.postgres.UserRepository;
-import org.sopt.app.presentation.stamp.dto.StampRequestDto;
+import org.sopt.app.presentation.stamp.StampRequest;
+import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -23,130 +22,143 @@ import org.springframework.util.StringUtils;
 @RequiredArgsConstructor
 public class StampService {
 
-  private final StampRepository stampRepository;
+    private final StampRepository stampRepository;
 
-  private final UserRepository userRepository;
+    private final UserRepository userRepository;
 
-  private final MissionRepository missionRepository;
+    private final MissionRepository missionRepository;
 
-  public Stamp findStamp(String userId, Long missionId) {
-    return stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
-  }
-
-  @Transactional
-  public Stamp uploadStamp(StampRequestDto stampRequestDto, List<String> imgPaths, String userId,
-      Long missionId) {
-    List<String> imgList = new ArrayList<>(imgPaths);
-    Stamp stamp = this.convertStampImg(stampRequestDto, imgList, userId, missionId);
-
-    //랭크 관련 점수 처리
-    User user = userRepository.findUserById(Long.valueOf(userId))
-        .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
-
-    //미션 랭크점수 알아오기
-    Mission mission = missionRepository.findById(missionId)
-        .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
-
-    user.addPoints(mission.getLevel());
-    userRepository.save(user);
-
-    return stampRepository.save(stamp);
-  }
-
-  //사진 수정 할 경우
-  @Transactional
-  public Stamp editStampWithImg(StampRequestDto stampRequestDto, List<String> imgPaths,
-      String userId,
-      Long missionId) {
-
-    Stamp stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
-
-    if (StringUtils.hasText(stampRequestDto.getContents())) {
-      stamp.changeContents(stampRequestDto.getContents());
-    }
-    stamp.changeImages(imgPaths);
-    stamp.setUpdatedAt(LocalDateTime.now());
-
-    return stampRepository.save(stamp);
-  }
-
-
-  //사진 수정 안할 경우
-  @Transactional
-  public Stamp editStampContents(StampRequestDto stampRequestDto, String userId,
-      Long missionId) {
-
-    Stamp stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
-
-    if (StringUtils.hasText(stampRequestDto.getContents())) {
-      stamp.changeContents(stampRequestDto.getContents());
+    @Transactional(readOnly = true)
+    public Stamp findStamp(Long userId, Long missionId) {
+        return stampRepository.findByUserIdAndMissionId(userId, missionId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
     }
 
-    stamp.setUpdatedAt(LocalDateTime.now());
-    return stampRepository.save(stamp);
-  }
+    @Transactional
+    public Stamp uploadStampDeprecated(
+            RegisterStampRequest stampRequest,
+            List<String> imgPaths,
+            Long userId,
+            Long missionId) {
+        val imgList = new ArrayList<>(imgPaths);
+        val stamp = this.convertStampImgDeprecated(stampRequest, imgList, userId, missionId);
 
+        val user = userRepository.findUserById(Long.valueOf(userId))
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+        val mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
 
-  //Stamp 삭제 by stampId
-  @Transactional
-  public void deleteByStampId(Long stampId) {
+        user.addPoints(mission.getLevel());
+        userRepository.save(user);
 
-    Stamp stamp = stampRepository.findById(stampId)
-        .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
-
-    //랭크 관련 점수 처리
-    User user = userRepository.findUserById(stamp.getUserId())
-        .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
-
-    //미션 랭크점수 알아오기
-    Mission mission = missionRepository.findById(stamp.getMissionId())
-        .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
-
-    user.minusPoints(mission.getLevel());
-    userRepository.save(user);
-
-    stampRepository.deleteById(stampId);
-  }
-
-
-  //스탬프 중복 검사체크
-  @Transactional
-  public void checkDuplicateStamp(String userId, Long missionId){
-    Stamp stamp = stampRepository.findByUserIdAndMissionId(Long.valueOf(userId), missionId);
-
-    if(stamp != null){
-      throw new ApiException(DUPLICATE_STAMP);
+        return stampRepository.save(stamp);
     }
-  }
+
+    @Transactional
+    public Stamp uploadStamp(
+            RegisterStampRequest stampRequest,
+            User user,
+            Long missionId) {
+
+        val mission = missionRepository.findById(missionId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
+        val stamp = Stamp.builder()
+                .contents(stampRequest.getContents())
+                .createdAt(LocalDateTime.now())
+                .images(List.of(stampRequest.getImage()))
+                .missionId(missionId)
+                .userId(user.getId())
+                .build();
+        user.addPoints(mission.getLevel());
+        userRepository.save(user);
+
+        return stampRepository.save(stamp);
+    }
+
+    //스탬프 내용 수정
+    @Transactional
+    public Stamp editStampContentsDeprecated(
+            StampRequest.EditStampRequest editStampRequest,
+            Long userId,
+            Long missionId) {
+
+        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+        if (StringUtils.hasText(editStampRequest.getContents())) {
+            stamp.changeContents(editStampRequest.getContents());
+        }
+
+        stamp.setUpdatedAt(LocalDateTime.now());
+        return stampRepository.save(stamp);
+    }
+
+    @Transactional
+    public Stamp editStampContents(
+            StampRequest.EditStampRequest editStampRequest,
+            Long userId,
+            Long missionId) {
+
+        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+        if (StringUtils.hasText(editStampRequest.getContents())) {
+            stamp.changeContents(editStampRequest.getContents());
+        }
+        if (StringUtils.hasText(editStampRequest.getImage())) {
+            stamp.changeImages(List.of(editStampRequest.getImage()));
+        }
+        stamp.setUpdatedAt(LocalDateTime.now());
+        return stampRepository.save(stamp);
+    }
+
+    //스탬프 사진 수정
+    @Transactional
+    public Stamp editStampImagesDeprecated(Stamp stamp, List<String> imgPaths) {
+        stamp.changeImages(imgPaths);
+        return stampRepository.save(stamp);
+    }
+
+    //Stamp 삭제 by stampId
+    @Transactional
+    public void deleteStampById(User user, Long stampId) {
+
+        val stamp = stampRepository.findById(stampId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+        val mission = missionRepository.findById(stamp.getMissionId())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
+
+        user.minusPoints(mission.getLevel());
+        userRepository.save(user);
+        stampRepository.deleteById(stampId);
+    }
 
 
+    @Transactional(readOnly = true)
+    public void checkDuplicateStamp(Long userId, Long missionId) {
+        if (stampRepository.findByUserIdAndMissionId(userId, missionId).isPresent()) {
+            throw new BadRequestException(ErrorCode.DUPLICATE_STAMP.getMessage());
+        }
+    }
 
-  //Stamp 삭제 All by UserId
-  @Transactional
-  public void deleteStampByUserId(Long userId){
-
-    //스탬프 전부삭제
-    stampRepository.deleteAllByUserId(userId);
-
-    //해당 스탬프로 얻었던 점수 모두 초기화
-    User user = userRepository.findUserById(userId)
-        .orElseThrow(() -> new ApiException(INVALID_RESPONSE));
-    user.initializePoints();
-    userRepository.save(user);
-
-  }
+    @Transactional
+    public void deleteAllStamps(User user) {
+        stampRepository.deleteAllByUserId(user.getId());
+        user.initializePoints();
+        userRepository.save(user);
+    }
 
 
-  //Stamp Entity 양식에 맞게 데이터 세팅
-  private Stamp convertStampImg(StampRequestDto stampRequestDto, List<String> imgList,
-      String userId, Long missionId) {
-    return Stamp.builder()
-        .contents(stampRequestDto.getContents())
-        .createdAt(LocalDateTime.now())
-        .images(imgList)
-        .missionId(missionId)
-        .userId(Long.valueOf(userId))
-        .build();
-  }
+    private Stamp convertStampImgDeprecated(
+            RegisterStampRequest stampRequest,
+            List<String> imgList,
+            Long userId,
+            Long missionId) {
+        return Stamp.builder()
+                .contents(stampRequest.getContents())
+                .createdAt(LocalDateTime.now())
+                .images(imgList)
+                .missionId(missionId)
+                .userId(userId)
+                .build();
+    }
 
 }
