@@ -15,7 +15,6 @@ import org.sopt.app.domain.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -120,29 +119,5 @@ public class StampController {
         val stamp = stampService.editStampContents(editStampRequest, user.getId(), missionId);
         val response = stampResponseMapper.of(stamp.getId());
         return ResponseEntity.status(HttpStatus.OK).body(response);
-    }
-
-    @Operation(summary = "스탬프 삭제하기(개별)")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success", content = @Content),
-            @ApiResponse(responseCode = "400", description = "no stamp / no mission", content = @Content),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @DeleteMapping("/{stampId}")
-    public ResponseEntity<StampResponse.StampMain> deleteStampById(@AuthenticationPrincipal User user,
-            @PathVariable Long stampId) {
-        stampService.deleteStampById(user, stampId);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
-    }
-
-    @Operation(summary = "스탬프 삭제하기(전체)")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success", content = @Content),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @DeleteMapping("/all")
-    public ResponseEntity<StampResponse.StampMain> deleteStampByUserId(@AuthenticationPrincipal User user) {
-        stampService.deleteAllStamps(user);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }
