@@ -1,5 +1,6 @@
 package org.sopt.app.application.s3;
 
+import com.amazonaws.AmazonServiceException;
 import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -9,11 +10,13 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -124,5 +127,23 @@ public class S3Service {
                 .preSignedURL(preSignedURL)
                 .imageURL(imageURL)
                 .build();
+    }
+
+    public void deleteFiles(List<String> fileUrls, String folderName) {
+        val folderURI = bucket + "/mainpage/makers-app-img/" + folderName;
+        val fileNameList = getFileNameList(fileUrls);
+        fileNameList.stream().forEach(file -> deleteFile(folderURI, file));
+    }
+
+    private List<String> getFileNameList(List<String> fileUrls) {
+        return fileUrls.stream().map(url -> Arrays.stream(url.split("/")).toList().get(6)).collect(Collectors.toList());
+    }
+
+    private void deleteFile(String folderURI, String fileName) {
+        try {
+            s3Client.deleteObject(folderURI, fileName.replace(File.separatorChar, '/'));
+        } catch (AmazonServiceException e) {
+            System.err.println(e.getErrorMessage());
+        }
     }
 }

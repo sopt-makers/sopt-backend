@@ -119,7 +119,7 @@ public class StampService {
 
     //Stamp 삭제 by stampId
     @Transactional
-    public void deleteStampById(User user, Long stampId) {
+    public List<String> deleteStampById(User user, Long stampId) {
 
         val stamp = stampRepository.findById(stampId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
@@ -129,6 +129,7 @@ public class StampService {
         user.minusPoints(mission.getLevel());
         userRepository.save(user);
         stampRepository.deleteById(stampId);
+        return stamp.getImages();
     }
 
 

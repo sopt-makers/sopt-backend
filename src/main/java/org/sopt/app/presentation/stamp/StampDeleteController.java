@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.AllArgsConstructor;
+import lombok.val;
 import org.sopt.app.application.s3.S3Service;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.domain.entity.User;
@@ -25,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class StampDeleteController {
 
     private final StampService stampService;
-    
+
     private final S3Service s3Service;
 
 
@@ -36,9 +37,9 @@ public class StampDeleteController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @DeleteMapping("/{stampId}")
-    public ResponseEntity<StampMain> deleteStampById(@AuthenticationPrincipal User user,
-            @PathVariable Long stampId) {
-        stampService.deleteStampById(user, stampId);
+    public ResponseEntity<StampMain> deleteStampById(@AuthenticationPrincipal User user, @PathVariable Long stampId) {
+        val fileUrls = stampService.deleteStampById(user, stampId);
+        s3Service.deleteFiles(fileUrls, "stamp");
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
