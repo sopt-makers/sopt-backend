@@ -1,6 +1,9 @@
 package org.sopt.app.presentation.s3;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -23,6 +26,11 @@ public class S3Controller {
     private RestTemplate restTemplate = new RestTemplate();
 
     @Operation(summary = "스탬프 pre-signed url 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "400", description = "url generator error", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @GetMapping(value = "/stamp")
     public ResponseEntity<S3Response.PreSignedUrl> getStampPreSignedUrl() {
         val result = s3Service.getPreSignedUrl("stamp");
@@ -31,6 +39,11 @@ public class S3Controller {
     }
 
     @Operation(summary = "미션 pre-signed url 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "400", description = "url generator error", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @GetMapping(value = "/mission")
     public ResponseEntity<S3Response.PreSignedUrl> getMissionPreSignedUrl() {
         val result = s3Service.getPreSignedUrl("mission");

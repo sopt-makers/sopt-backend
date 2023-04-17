@@ -15,7 +15,7 @@ import org.sopt.app.domain.entity.User;
 )
 public interface RankResponseMapper {
 
-    List<RankResponse.Main> of(List<Main> rank);
+    List<RankResponse.RankMain> of(List<Main> rank);
 
     RankResponse.Detail of(User user, List<Mission> userMissions);
 }

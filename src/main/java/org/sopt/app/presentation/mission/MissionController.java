@@ -2,12 +2,15 @@ package org.sopt.app.presentation.mission;
 
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
+import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.mission.MissionService;
-import org.sopt.app.application.s3.S3Service;
 import org.sopt.app.domain.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,11 +28,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class MissionController {
 
     private final MissionService missionService;
-    private final S3Service s3Service;
     private final MissionResponseMapper missionResponseMapper;
 
 
     @Operation(summary = "미션 전체 조회하기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @GetMapping(value = "/all")
     public ResponseEntity<List<MissionResponse.Completeness>> findAllMission(@AuthenticationPrincipal User user) {
         val result = missionService.findAllMission(user.getId());
@@ -39,25 +45,37 @@ public class MissionController {
 
 
     @Operation(summary = "미션 생성하기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @PostMapping("")
-    public ResponseEntity<MissionResponse.Id> registerMission(
-            @RequestBody MissionRequest.RegisterMissionRequest registerMissionRequest) {
+    public ResponseEntity<MissionResponse.MissionId> registerMission(
+            @Valid @RequestBody MissionRequest.RegisterMissionRequest registerMissionRequest) {
         val mission = missionService.uploadMission(registerMissionRequest);
         val response = missionResponseMapper.of(mission.getId());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "완료 미션만 조회하기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @GetMapping("complete")
-    public ResponseEntity<List<MissionResponse.Main>> findCompleteMission(@AuthenticationPrincipal User user) {
+    public ResponseEntity<List<MissionResponse.MissionMain>> findCompleteMission(@AuthenticationPrincipal User user) {
         val result = missionService.getCompleteMission(user.getId());
         val response = missionResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "미완료 미션만 조회하기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @GetMapping("incomplete")
-    public ResponseEntity<List<MissionResponse.Main>> findInCompleteMission(@AuthenticationPrincipal User user) {
+    public ResponseEntity<List<MissionResponse.MissionMain>> findInCompleteMission(@AuthenticationPrincipal User user) {
         val result = missionService.getIncompleteMission(user.getId());
         val response = missionResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);

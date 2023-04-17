@@ -1,8 +1,12 @@
 package org.sopt.app.presentation.stamp;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
+import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.s3.S3Service;
@@ -35,8 +39,13 @@ public class StampController {
     private final StampResponseMapper stampResponseMapper;
 
     @Operation(summary = "스탬프 조회하기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "400", description = "no stamp", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @GetMapping("/mission/{missionId}")
-    public ResponseEntity<StampResponse.Main> findStampByMissionAndUserId(
+    public ResponseEntity<StampResponse.StampMain> findStampByMissionAndUserId(
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId
     ) {
@@ -47,7 +56,7 @@ public class StampController {
 
     @Operation(summary = "스탬프 등록하기 - DEPRECATED")
     @PostMapping("/{missionId}")
-    public ResponseEntity<StampResponse.Main> registerStampDeprecated(
+    public ResponseEntity<StampResponse.StampMain> registerStampDeprecated(
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId,
             @RequestPart("stampContent") StampRequest.RegisterStampRequest registerStampRequest,
@@ -62,7 +71,7 @@ public class StampController {
 
     @Operation(summary = "스탬프 수정하기 - DEPRECATED")
     @PutMapping("/{missionId}")
-    public ResponseEntity<StampResponse.Id> editStampDeprecated(
+    public ResponseEntity<StampResponse.StampId> editStampDeprecated(
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId,
             @RequestPart(value = "stampContent", required = false) StampRequest.EditStampRequest editStampRequest,
@@ -79,11 +88,16 @@ public class StampController {
 
 
     @Operation(summary = "스탬프 등록하기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "400", description = "no mission / duplicate stamp", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @PostMapping("/mission/{missionId}")
-    public ResponseEntity<StampResponse.Main> registerStamp(
+    public ResponseEntity<StampResponse.StampMain> registerStamp(
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId,
-            @RequestBody StampRequest.RegisterStampRequest registerStampRequest
+            @Valid @RequestBody StampRequest.RegisterStampRequest registerStampRequest
     ) {
         stampService.checkDuplicateStamp(user.getId(), missionId);
         val result = stampService.uploadStamp(registerStampRequest, user, missionId);
@@ -92,11 +106,16 @@ public class StampController {
     }
 
     @Operation(summary = "스탬프 수정하기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "400", description = "no stamp", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @PutMapping("/mission/{missionId}")
-    public ResponseEntity<StampResponse.Id> editStamp(
+    public ResponseEntity<StampResponse.StampId> editStamp(
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId,
-            @RequestBody StampRequest.EditStampRequest editStampRequest
+            @Valid @RequestBody StampRequest.EditStampRequest editStampRequest
     ) {
         val stamp = stampService.editStampContents(editStampRequest, user.getId(), missionId);
         val response = stampResponseMapper.of(stamp.getId());
@@ -104,16 +123,26 @@ public class StampController {
     }
 
     @Operation(summary = "스탬프 삭제하기(개별)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success", content = @Content),
+            @ApiResponse(responseCode = "400", description = "no stamp / no mission", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @DeleteMapping("/{stampId}")
-    public ResponseEntity<String> deleteStampById(@AuthenticationPrincipal User user, @PathVariable Long stampId) {
+    public ResponseEntity<StampResponse.StampMain> deleteStampById(@AuthenticationPrincipal User user,
+            @PathVariable Long stampId) {
         stampService.deleteStampById(user, stampId);
-        return ResponseEntity.status(HttpStatus.OK).body("{}");
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @Operation(summary = "스탬프 삭제하기(전체)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @DeleteMapping("/all")
-    public ResponseEntity<String> deleteStampByUserId(@AuthenticationPrincipal User user) {
+    public ResponseEntity<StampResponse.StampMain> deleteStampByUserId(@AuthenticationPrincipal User user) {
         stampService.deleteAllStamps(user);
-        return ResponseEntity.status(HttpStatus.OK).body("{}");
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }

@@ -1,12 +1,15 @@
 package org.sopt.app.presentation.user;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.User;
-import org.sopt.app.presentation.rank.RankRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -28,6 +31,10 @@ public class UserController {
 
 
     @Operation(summary = "유저 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @GetMapping(value = "")
     public ResponseEntity<UserResponse.AppUser> getUserInfo(@AuthenticationPrincipal User user) {
         val response = userResponseMapper.ofAppUser(user);
@@ -35,6 +42,10 @@ public class UserController {
     }
 
     @Operation(summary = "솝탬프 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @GetMapping(value = "/soptamp")
     public ResponseEntity<UserResponse.Soptamp> getSoptampInfo(@AuthenticationPrincipal User user) {
         val response = userResponseMapper.ofSoptamp(user);
@@ -42,17 +53,26 @@ public class UserController {
     }
 
     @Operation(summary = "닉네임 중복 검사")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success", content = @Content),
+            @ApiResponse(responseCode = "400", description = "duplicate nickname", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @GetMapping(value = "/nickname/{nickname}")
-    public ResponseEntity<UserResponse.AppUser> validateUserNickname(@PathVariable String nickname) {
+    public ResponseEntity<UserResponse.Nickname> validateUserNickname(@PathVariable String nickname) {
         userService.checkUserNickname(nickname);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @Operation(summary = "닉네임 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @PatchMapping(value = "/nickname")
     public ResponseEntity<UserResponse.Nickname> editNickname(
             @AuthenticationPrincipal User user,
-            @RequestBody UserRequest.EditNicknameRequest editNicknameRequest
+            @Valid @RequestBody UserRequest.EditNicknameRequest editNicknameRequest
     ) {
         val nickname = editNicknameRequest.getNickname();
         val result = userService.editNickname(user, nickname);
@@ -60,11 +80,15 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @Operation(summary = "한마디 편집")
+    @Operation(summary = "한마디 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @PatchMapping("/profile-message")
     public ResponseEntity<UserResponse.ProfileMessage> editProfileMessage(
             @AuthenticationPrincipal User user,
-            @RequestBody RankRequest.EditProfileMessageRequest editProfileMessageRequest
+            @Valid @RequestBody UserRequest.EditProfileMessageRequest editProfileMessageRequest
     ) {
         val result = userService.editProfileMessage(user, editProfileMessageRequest.getProfileMessage());
         val response = userResponseMapper.of(result);

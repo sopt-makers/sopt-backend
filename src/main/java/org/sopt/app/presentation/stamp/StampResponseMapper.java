@@ -12,8 +12,8 @@ import org.sopt.app.domain.entity.Stamp;
 )
 public interface StampResponseMapper {
 
-    StampResponse.Main of(Stamp stamp);
+    StampResponse.StampMain of(Stamp stamp);
 
-    StampResponse.Id of(Long stampId);
+    StampResponse.StampId of(Long stampId);
 
 }

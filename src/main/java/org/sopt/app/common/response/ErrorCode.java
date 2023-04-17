@@ -11,13 +11,18 @@ public enum ErrorCode {
     // COMMON
     INVALID_PARAMETER("잘못된 파라미터 입니다."),
 
-    // TOKEN
+    // AUTH
     INVALID_ACCESS_TOKEN("유효하지 않은 앱 어세스 토큰입니다."),
     INVALID_REFRESH_TOKEN("유효하지 않은 앱 리프레시 토큰입니다."),
     INVALID_PLAYGROUND_TOKEN("유효하지 않은 플레이그라운드 토큰입니다."),
+    INVALID_PLAYGROUND_CODE("유효하지 않은 플레이그라운드 OAuth 코드입니다."),
 
-    // PLAYGROUND AUTH
+    // PLAYGROUND
+    PLAYGROUND_USER_NOT_EXISTS("플레이그라운드 유저 정보를 가져올 수 없습니다."),
     PLAYGROUND_PROFILE_NOT_EXISTS("플레이그라운드 프로필을 등록하지 않은 유저입니다."),
+
+    // OPERATION
+    OPERATION_PROFILE_NOT_EXISTS("운영 서비스에 존재하지 않는 회원입니다."),
 
     // USER
     USER_NOT_FOUND("존재하지 않는 유저입니다."),

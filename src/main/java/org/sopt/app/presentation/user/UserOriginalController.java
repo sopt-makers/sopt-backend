@@ -1,6 +1,9 @@
 package org.sopt.app.presentation.user;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -26,8 +29,13 @@ public class UserOriginalController {
     private final UserResponseMapper userResponseMapper;
 
     @Operation(summary = "메인 뷰 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "400", description = "no playground, operation profile", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @GetMapping(value = "/main")
-    public ResponseEntity<UserResponse.Main> getMainViewInfo(
+    public ResponseEntity<UserResponse.MainView> getMainViewInfo(
             @AuthenticationPrincipal User user,
             @RequestHeader("Authorization") String accessToken
     ) {

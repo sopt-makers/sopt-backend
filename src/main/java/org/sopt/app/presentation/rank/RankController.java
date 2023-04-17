@@ -1,6 +1,9 @@
 package org.sopt.app.presentation.rank;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -25,14 +28,23 @@ public class RankController {
     private final MissionService missionService;
 
     @Operation(summary = "랭킹 목록 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @GetMapping("")
-    public ResponseEntity<List<RankResponse.Main>> findRanks() {
+    public ResponseEntity<List<RankResponse.RankMain>> findRanks() {
         val result = rankService.findRanks();
         val response = rankResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "랭킹 상세 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "400", description = "no user with the nickname", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
     @GetMapping("/detail")
     public ResponseEntity<RankResponse.Detail> findRankByNickname(@RequestParam(value = "nickname") String nickname) {
         val result = rankService.findRankByNickname(nickname);
