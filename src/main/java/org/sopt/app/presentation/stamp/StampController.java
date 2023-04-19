@@ -12,7 +12,6 @@ import lombok.val;
 import org.sopt.app.application.s3.S3Service;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.domain.entity.User;
-import org.sopt.app.presentation.stamp.StampResponse.StampMain;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -130,7 +129,10 @@ public class StampController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @DeleteMapping("/{stampId}")
-    public ResponseEntity<StampMain> deleteStampById(@AuthenticationPrincipal User user, @PathVariable Long stampId) {
+    public ResponseEntity<StampResponse.StampMain> deleteStampById(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long stampId
+    ) {
         stampService.deleteStampById(user, stampId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
