@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.common.event.Events;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Stamp;
@@ -134,6 +135,8 @@ public class StampService {
         user.minusPoints(mission.getLevel());
         userRepository.save(user);
         stampRepository.deleteById(stampId);
+
+        Events.raise(new StampDeletedEvent(stamp.getImages()));
     }
 
     @Transactional
@@ -144,6 +147,7 @@ public class StampService {
 
         val imageUrls = stampRepository.findAllByUserId(user.getId()).stream().map(Stamp::getImages)
                 .flatMap(images -> images.stream()).collect(Collectors.toList());
+        Events.raise(new StampDeletedEvent(imageUrls));
     }
 
 

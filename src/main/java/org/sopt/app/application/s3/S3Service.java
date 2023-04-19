@@ -28,6 +28,7 @@ import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.v1.ApiException;
 import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -128,6 +129,7 @@ public class S3Service {
                 .build();
     }
 
+    @Async
     public void deleteFiles(List<String> fileUrls, String folderName) {
         val folderURI = bucket + "/mainpage/makers-app-img/" + folderName;
         val fileNameList = getFileNameList(fileUrls);
