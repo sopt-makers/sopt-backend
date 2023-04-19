@@ -76,7 +76,6 @@ public class StampService {
         return stampRepository.save(stamp);
     }
 
-    //스탬프 내용 수정
     @Transactional
     public Stamp editStampContentsDeprecated(
             StampRequest.EditStampRequest editStampRequest,
@@ -111,16 +110,21 @@ public class StampService {
         return stampRepository.save(stamp);
     }
 
-    //스탬프 사진 수정
     @Transactional
     public Stamp editStampImagesDeprecated(Stamp stamp, List<String> imgPaths) {
         stamp.changeImages(imgPaths);
         return stampRepository.save(stamp);
     }
 
-    //Stamp 삭제 by stampId
+    @Transactional(readOnly = true)
+    public void checkDuplicateStamp(Long userId, Long missionId) {
+        if (stampRepository.findByUserIdAndMissionId(userId, missionId).isPresent()) {
+            throw new BadRequestException(ErrorCode.DUPLICATE_STAMP.getMessage());
+        }
+    }
+
     @Transactional
-    public List<String> deleteStampById(User user, Long stampId) {
+    public void deleteStampById(User user, Long stampId) {
 
         val stamp = stampRepository.findById(stampId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
@@ -130,29 +134,16 @@ public class StampService {
         user.minusPoints(mission.getLevel());
         userRepository.save(user);
         stampRepository.deleteById(stampId);
-        return stamp.getImages();
     }
-
-
-    @Transactional(readOnly = true)
-    public void checkDuplicateStamp(Long userId, Long missionId) {
-        if (stampRepository.findByUserIdAndMissionId(userId, missionId).isPresent()) {
-            throw new BadRequestException(ErrorCode.DUPLICATE_STAMP.getMessage());
-        }
-    }
-
-    @Transactional(readOnly = true)
-    public List<String> findAllStamps(User user) {
-        return stampRepository.findAllByUserId(user.getId()).stream().map(Stamp::getImages)
-                .flatMap(images -> images.stream()).collect(Collectors.toList());
-    }
-
 
     @Transactional
     public void deleteAllStamps(User user) {
         stampRepository.deleteAllByUserId(user.getId());
         user.initializePoints();
         userRepository.save(user);
+
+        val imageUrls = stampRepository.findAllByUserId(user.getId()).stream().map(Stamp::getImages)
+                .flatMap(images -> images.stream()).collect(Collectors.toList());
     }
 
 
