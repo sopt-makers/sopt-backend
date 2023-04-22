@@ -129,8 +129,10 @@ public class StampController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @DeleteMapping("/{stampId}")
-    public ResponseEntity<StampResponse.StampMain> deleteStampById(@AuthenticationPrincipal User user,
-            @PathVariable Long stampId) {
+    public ResponseEntity<StampResponse.StampMain> deleteStampById(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long stampId
+    ) {
         stampService.deleteStampById(user, stampId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
