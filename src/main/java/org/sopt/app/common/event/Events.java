@@ -1,5 +1,7 @@
 package org.sopt.app.common.event;
 
+import static java.util.Objects.nonNull;
+
 import org.springframework.context.ApplicationEventPublisher;
 
 public class Events {
@@ -11,7 +13,7 @@ public class Events {
     }
 
     public static void raise(Object event) {
-        if (publisher != null) {
+        if (nonNull(publisher)) {
             publisher.publishEvent(event);
         }
     }
