@@ -31,8 +31,10 @@ public class StampService {
     private final MissionRepository missionRepository;
 
     @Transactional(readOnly = true)
-    public Stamp findStamp(Long userId, Long missionId) {
-        return stampRepository.findByUserIdAndMissionId(userId, missionId)
+    public Stamp findStamp(StampRequest.FindStampRequest findStampRequest) {
+        val user = userRepository.findUserByNickname(findStampRequest.getNickname())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+        return stampRepository.findByUserIdAndMissionId(user.getId(), findStampRequest.getMissionId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
     }
 

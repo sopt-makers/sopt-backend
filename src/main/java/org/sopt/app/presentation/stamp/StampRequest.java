@@ -11,6 +11,19 @@ public class StampRequest {
     @Getter
     @Setter
     @ToString
+    public static class FindStampRequest {
+
+        @Schema(description = "미션 아이디", example = "1")
+        @NotNull(message = "missionId may not be null")
+        private Long missionId;
+        @Schema(description = "닉네임", example = "스탬프왕")
+        @NotNull(message = "nickname may not be null")
+        private String nickname;
+    }
+
+    @Getter
+    @Setter
+    @ToString
     public static class RegisterStampRequest {
 
         @Schema(description = "미션 아이디", example = "1")
