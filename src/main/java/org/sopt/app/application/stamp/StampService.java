@@ -59,16 +59,15 @@ public class StampService {
     @Transactional
     public Stamp uploadStamp(
             RegisterStampRequest stampRequest,
-            User user,
-            Long missionId) {
+            User user) {
 
-        val mission = missionRepository.findById(missionId)
+        val mission = missionRepository.findById(stampRequest.getMissionId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
         val stamp = Stamp.builder()
                 .contents(stampRequest.getContents())
                 .createdAt(LocalDateTime.now())
                 .images(List.of(stampRequest.getImage()))
-                .missionId(missionId)
+                .missionId(stampRequest.getMissionId())
                 .userId(user.getId())
                 .build();
         user.addPoints(mission.getLevel());
@@ -96,10 +95,9 @@ public class StampService {
     @Transactional
     public Stamp editStampContents(
             StampRequest.EditStampRequest editStampRequest,
-            Long userId,
-            Long missionId) {
+            Long userId) {
 
-        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId)
+        val stamp = stampRepository.findByUserIdAndMissionId(userId, editStampRequest.getMissionId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());

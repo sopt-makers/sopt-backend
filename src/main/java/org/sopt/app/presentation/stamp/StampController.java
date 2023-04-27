@@ -93,14 +93,13 @@ public class StampController {
             @ApiResponse(responseCode = "400", description = "no mission / duplicate stamp", content = @Content),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @PostMapping("/mission/{missionId}")
+    @PostMapping("")
     public ResponseEntity<StampResponse.StampMain> registerStamp(
             @AuthenticationPrincipal User user,
-            @PathVariable Long missionId,
             @Valid @RequestBody StampRequest.RegisterStampRequest registerStampRequest
     ) {
-        stampService.checkDuplicateStamp(user.getId(), missionId);
-        val result = stampService.uploadStamp(registerStampRequest, user, missionId);
+        stampService.checkDuplicateStamp(user.getId(), registerStampRequest.getMissionId());
+        val result = stampService.uploadStamp(registerStampRequest, user);
         val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -111,13 +110,12 @@ public class StampController {
             @ApiResponse(responseCode = "400", description = "no stamp", content = @Content),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @PutMapping("/mission/{missionId}")
+    @PutMapping("")
     public ResponseEntity<StampResponse.StampId> editStamp(
             @AuthenticationPrincipal User user,
-            @PathVariable Long missionId,
             @Valid @RequestBody StampRequest.EditStampRequest editStampRequest
     ) {
-        val stamp = stampService.editStampContents(editStampRequest, user.getId(), missionId);
+        val stamp = stampService.editStampContents(editStampRequest, user.getId());
         val response = stampResponseMapper.of(stamp.getId());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
