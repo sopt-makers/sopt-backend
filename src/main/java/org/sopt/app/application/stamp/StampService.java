@@ -38,6 +38,12 @@ public class StampService {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
     }
 
+    @Transactional(readOnly = true)
+    public Stamp findStampDeprecated(Long userId, Long missionId) {
+        return stampRepository.findByUserIdAndMissionId(userId, missionId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+    }
+
     @Transactional
     public Stamp uploadStampDeprecated(
             RegisterStampRequest stampRequest,
