@@ -17,6 +17,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -44,12 +45,27 @@ public class StampController {
             @ApiResponse(responseCode = "400", description = "no stamp", content = @Content),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @GetMapping("/mission/{missionId}")
+    @GetMapping("")
     public ResponseEntity<StampResponse.StampMain> findStampByMissionAndUserId(
+            @Valid @ModelAttribute StampRequest.FindStampRequest findStampRequest
+    ) {
+        val result = stampService.findStamp(findStampRequest);
+        val response = stampResponseMapper.of(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "스탬프 조회하기 - DEPRECATED")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "400", description = "no stamp", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/mission/{missionId}")
+    public ResponseEntity<StampResponse.StampMain> findStampByMissionAndUserIdDeprecated(
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId
     ) {
-        val result = stampService.findStamp(user.getId(), missionId);
+        val result = stampService.findStampDeprecated(user.getId(), missionId);
         val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -93,14 +109,13 @@ public class StampController {
             @ApiResponse(responseCode = "400", description = "no mission / duplicate stamp", content = @Content),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @PostMapping("/mission/{missionId}")
+    @PostMapping("")
     public ResponseEntity<StampResponse.StampMain> registerStamp(
             @AuthenticationPrincipal User user,
-            @PathVariable Long missionId,
             @Valid @RequestBody StampRequest.RegisterStampRequest registerStampRequest
     ) {
-        stampService.checkDuplicateStamp(user.getId(), missionId);
-        val result = stampService.uploadStamp(registerStampRequest, user, missionId);
+        stampService.checkDuplicateStamp(user.getId(), registerStampRequest.getMissionId());
+        val result = stampService.uploadStamp(registerStampRequest, user);
         val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -111,13 +126,12 @@ public class StampController {
             @ApiResponse(responseCode = "400", description = "no stamp", content = @Content),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @PutMapping("/mission/{missionId}")
+    @PutMapping("")
     public ResponseEntity<StampResponse.StampId> editStamp(
             @AuthenticationPrincipal User user,
-            @PathVariable Long missionId,
             @Valid @RequestBody StampRequest.EditStampRequest editStampRequest
     ) {
-        val stamp = stampService.editStampContents(editStampRequest, user.getId(), missionId);
+        val stamp = stampService.editStampContents(editStampRequest, user.getId());
         val response = stampResponseMapper.of(stamp.getId());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -129,8 +143,10 @@ public class StampController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @DeleteMapping("/{stampId}")
-    public ResponseEntity<StampResponse.StampMain> deleteStampById(@AuthenticationPrincipal User user,
-            @PathVariable Long stampId) {
+    public ResponseEntity<StampResponse.StampMain> deleteStampById(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long stampId
+    ) {
         stampService.deleteStampById(user, stampId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }

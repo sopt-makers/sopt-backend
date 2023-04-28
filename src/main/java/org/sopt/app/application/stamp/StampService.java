@@ -3,8 +3,10 @@ package org.sopt.app.application.stamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.common.event.Events;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Stamp;
@@ -29,7 +31,15 @@ public class StampService {
     private final MissionRepository missionRepository;
 
     @Transactional(readOnly = true)
-    public Stamp findStamp(Long userId, Long missionId) {
+    public Stamp findStamp(StampRequest.FindStampRequest findStampRequest) {
+        val user = userRepository.findUserByNickname(findStampRequest.getNickname())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+        return stampRepository.findByUserIdAndMissionId(user.getId(), findStampRequest.getMissionId())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+    }
+
+    @Transactional(readOnly = true)
+    public Stamp findStampDeprecated(Long userId, Long missionId) {
         return stampRepository.findByUserIdAndMissionId(userId, missionId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
     }
@@ -57,16 +67,15 @@ public class StampService {
     @Transactional
     public Stamp uploadStamp(
             RegisterStampRequest stampRequest,
-            User user,
-            Long missionId) {
+            User user) {
 
-        val mission = missionRepository.findById(missionId)
+        val mission = missionRepository.findById(stampRequest.getMissionId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
         val stamp = Stamp.builder()
                 .contents(stampRequest.getContents())
                 .createdAt(LocalDateTime.now())
                 .images(List.of(stampRequest.getImage()))
-                .missionId(missionId)
+                .missionId(stampRequest.getMissionId())
                 .userId(user.getId())
                 .build();
         user.addPoints(mission.getLevel());
@@ -75,7 +84,6 @@ public class StampService {
         return stampRepository.save(stamp);
     }
 
-    //스탬프 내용 수정
     @Transactional
     public Stamp editStampContentsDeprecated(
             StampRequest.EditStampRequest editStampRequest,
@@ -95,10 +103,9 @@ public class StampService {
     @Transactional
     public Stamp editStampContents(
             StampRequest.EditStampRequest editStampRequest,
-            Long userId,
-            Long missionId) {
+            Long userId) {
 
-        val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId)
+        val stamp = stampRepository.findByUserIdAndMissionId(userId, editStampRequest.getMissionId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());
@@ -110,14 +117,19 @@ public class StampService {
         return stampRepository.save(stamp);
     }
 
-    //스탬프 사진 수정
     @Transactional
     public Stamp editStampImagesDeprecated(Stamp stamp, List<String> imgPaths) {
         stamp.changeImages(imgPaths);
         return stampRepository.save(stamp);
     }
 
-    //Stamp 삭제 by stampId
+    @Transactional(readOnly = true)
+    public void checkDuplicateStamp(Long userId, Long missionId) {
+        if (stampRepository.findByUserIdAndMissionId(userId, missionId).isPresent()) {
+            throw new BadRequestException(ErrorCode.DUPLICATE_STAMP.getMessage());
+        }
+    }
+
     @Transactional
     public void deleteStampById(User user, Long stampId) {
 
@@ -129,14 +141,8 @@ public class StampService {
         user.minusPoints(mission.getLevel());
         userRepository.save(user);
         stampRepository.deleteById(stampId);
-    }
 
-
-    @Transactional(readOnly = true)
-    public void checkDuplicateStamp(Long userId, Long missionId) {
-        if (stampRepository.findByUserIdAndMissionId(userId, missionId).isPresent()) {
-            throw new BadRequestException(ErrorCode.DUPLICATE_STAMP.getMessage());
-        }
+        Events.raise(new StampDeletedEvent(stamp.getImages()));
     }
 
     @Transactional
@@ -144,6 +150,10 @@ public class StampService {
         stampRepository.deleteAllByUserId(user.getId());
         user.initializePoints();
         userRepository.save(user);
+
+        val imageUrls = stampRepository.findAllByUserId(user.getId()).stream().map(Stamp::getImages)
+                .flatMap(images -> images.stream()).collect(Collectors.toList());
+        Events.raise(new StampDeletedEvent(imageUrls));
     }
 
 

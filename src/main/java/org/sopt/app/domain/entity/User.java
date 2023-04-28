@@ -39,21 +39,18 @@ public class User extends BaseEntity implements UserDetails {
     private String email;
     @Column
     private String clientToken;
-
     @Column
     private String profileMessage;
-
     @Column
     private Long points;
-
     @Column
     @Enumerated(EnumType.STRING)
     private OsType osType;
 
-    @Column(name = "playground_id")
+    @Column(name = "playground_id", unique = true)
     private Long playgroundId;
 
-    @Column
+    @Column(name = "playground_token")
     private String playgroundToken;
 
     @Builder
