@@ -51,7 +51,7 @@ public class JwtTokenService {
                 .setIssuer("sopt-makers")
                 .setIssuedAt(now.toDate())
                 .setSubject(userId.getId().toString())
-                .setExpiration(now.plusMinutes(1).toDate())
+                .setExpiration(now.plusDays(1).toDate())
                 .claim("id", userId.getId())
                 .claim("playgroundId", playgroundId)
                 .claim("roles", "USER")
