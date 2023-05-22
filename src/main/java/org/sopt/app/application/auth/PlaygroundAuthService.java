@@ -110,13 +110,14 @@ public class PlaygroundAuthService {
 
     public PlaygroundAuthInfo.MainView getPlaygroundUserForMainView(String accessToken) {
         val playgroundProfile = this.getPlaygroundMemberProfile(accessToken);
+        val profileImage = playgroundProfile.getProfileImage() == null ? "" : playgroundProfile.getProfileImage();
         val generationList = playgroundProfile.getActivities().stream()
                 .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).collect(Collectors.toList());
         Collections.sort(generationList, Collections.reverseOrder());
         val mainViewUser = PlaygroundAuthInfo.MainViewUser.builder()
                 .status(this.getStatus(generationList))
                 .name(playgroundProfile.getName())
-                .profileImage(playgroundProfile.getProfileImage())
+                .profileImage(profileImage)
                 .generationList(generationList)
                 .build();
         return PlaygroundAuthInfo.MainView.builder().user(mainViewUser).build();
