@@ -72,9 +72,10 @@ app-server
 - 인수인계 담당자에게 아래 항목들을 요청해주세요! (2기 [ozzing](https://github.com/ozzing))
   - application-prod.yml
   - application-local.yml
-  - main database info
+  - prod database info
   - dev database info
-  - makers.app.pem key
+  - prod pem key
+  - dev pem key
 - AWS 관련 권한은 현 기수 AWS 담당자에게 적절한 권한을 요청해주세요!
   - ex) s3 access key, secret key
 - 이 외에도 필요한 항목이 있으면 요청해주세요!
