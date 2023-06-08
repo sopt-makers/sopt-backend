@@ -9,6 +9,7 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.auth.AuthRequest;
+import org.sopt.app.presentation.user.UserRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,10 +44,7 @@ public class UserService {
         return User.builder()
                 .username(username)
                 .nickname(nickname)
-                .email("")
-                .password("")
-                .osType(null)
-                .clientToken("")
+                .pushToken("")
                 .playgroundId(playgroundId)
                 .playgroundToken(playgroundToken)
                 .points(0L)
@@ -93,5 +91,25 @@ public class UserService {
         val token = new AuthRequest.AccessTokenRequest();
         token.setAccessToken(user.getPlaygroundToken());
         return token;
+    }
+
+    @Transactional
+    public void updatePushToken(User user, UserRequest.EditPushTokenRequest editPushTokenRequest) {
+        user.updatePushToken(editPushTokenRequest.getPushToken());
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public User updateOptIn(User user, UserRequest.EditOptInRequest editOptInRequest) {
+        if (editOptInRequest.getAllOptIn() != null) {
+            user.updateAllOptIn(editOptInRequest.getAllOptIn());
+        }
+        if (editOptInRequest.getPartOptIn() != null) {
+            user.updatePartOptIn(editOptInRequest.getPartOptIn());
+        }
+        if (editOptInRequest.getNewsOptIn() != null) {
+            user.updateNewsOptIn(editOptInRequest.getNewsOptIn());
+        }
+        return userRepository.save(user);
     }
 }

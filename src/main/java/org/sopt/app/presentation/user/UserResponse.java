@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
-import org.sopt.app.domain.enums.OsType;
 
 public class UserResponse {
 
@@ -57,10 +56,8 @@ public class UserResponse {
 
         @Schema(description = "유저 닉네임", example = "김앱짱")
         private String username;
-        @Schema(description = "유저 클라이언트 토큰", example = "null")
-        private String clientToken;
-        @Schema(description = "유저 OS 타입", example = "null")
-        private OsType osType;
+        @Schema(description = "유저 푸시 토큰", example = "null")
+        private String pushToken;
     }
 
     @Getter
@@ -93,4 +90,29 @@ public class UserResponse {
         @Schema(description = "유저 프로필 메세지", example = "1등이 되고 말거야!")
         private String profileMessage;
     }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class PushToken {
+
+        @Schema(description = "푸시 토큰", example = "asdfasdf")
+        private String pushToken;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class OptIn {
+
+        @Schema(description = "전체 알림 수신 동의", example = "false")
+        private Boolean allOptIn;
+
+        @Schema(description = "파트별 알림 수신 동의", example = "true")
+        private Boolean partOptIn;
+
+        @Schema(description = "소식 알림 수신 동의", example = "false")
+        private Boolean newsOptIn;
+    }
+
 }
