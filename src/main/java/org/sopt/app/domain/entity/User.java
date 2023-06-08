@@ -3,8 +3,6 @@ package org.sopt.app.domain.entity;
 import java.util.Collection;
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -13,7 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.sopt.app.domain.enums.OsType;
+import org.hibernate.annotations.ColumnDefault;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -29,23 +27,29 @@ public class User extends BaseEntity implements UserDetails {
     public String username;
     @Column(nullable = false, unique = true)
     public String nickname;
-    @Column
-    public String password;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
-    @Column
-    private String email;
-    @Column
-    private String clientToken;
-    @Column
+    @Column(name = "profile_message")
     private String profileMessage;
     @Column
     private Long points;
-    @Column
-    @Enumerated(EnumType.STRING)
-    private OsType osType;
+    @Column(columnDefinition = "TEXT", name = "push_token")
+    @ColumnDefault("")
+    private String pushToken;
+
+    @Column(nullable = false, name = "all_opt_in")
+    @ColumnDefault("false")
+    private Boolean allOptIn;
+
+    @Column(nullable = false, name = "part_opt_in")
+    @ColumnDefault("false")
+    private Boolean partOptIn;
+
+    @Column(nullable = false, name = "news_opt_in")
+    @ColumnDefault("false")
+    private Boolean newsOptIn;
 
     @Column(name = "playground_id", unique = true)
     private Long playgroundId;
@@ -54,29 +58,15 @@ public class User extends BaseEntity implements UserDetails {
     private String playgroundToken;
 
     @Builder
-    public User(String email, String username, String nickname, String clientToken, OsType osType, String password,
-            Long playgroundId) {
+    public User(String username, String nickname, String pushToken, Long playgroundId) {
         this.username = username;
         this.nickname = nickname;
-        this.email = email;
-        this.password = password;
-        this.osType = osType;
-        this.clientToken = clientToken;
-        this.playgroundId = playgroundId;
         this.points = 0L;
-    }
-
-    public void createProfileMessage(User user, String profileMessage) {
-        User.builder()
-                .id(user.getId())
-                .nickname(user.getNickname())
-                .email(user.getEmail())
-                .password(user.getPassword())
-                .clientToken(user.getClientToken())
-                .profileMessage(profileMessage)
-                .points(user.getPoints())
-                .osType(user.getOsType())
-                .build();
+        this.pushToken = pushToken;
+        this.allOptIn = false;
+        this.partOptIn = false;
+        this.newsOptIn = false;
+        this.playgroundId = playgroundId;
     }
 
     //한 마디 등록
@@ -88,7 +78,6 @@ public class User extends BaseEntity implements UserDetails {
     public void addPoints(Integer level) {
         this.points = points + level;
     }
-
 
     //랭크 점수 마이너스
     public void minusPoints(Integer level) {
@@ -132,5 +121,10 @@ public class User extends BaseEntity implements UserDetails {
     @Override
     public boolean isEnabled() {
         return false;
+    }
+
+    @Override
+    public String getPassword() {
+        return null;
     }
 }
