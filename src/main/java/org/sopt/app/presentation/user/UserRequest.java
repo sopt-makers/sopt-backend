@@ -33,11 +33,26 @@ public class UserRequest {
     @Setter
     @AllArgsConstructor
     @ToString
-    public static class UpdatePushTokenRequest {
+    public static class EditPushTokenRequest {
 
         @Schema(description = "푸시 토큰", example = "asdfasdf")
         @NotNull(message = "push token may not be null")
         private String pushToken;
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class EditOptInRequest {
+
+        @Schema(description = "전체 알림 수신 동의", example = "false")
+        private Boolean allOptIn;
+
+        @Schema(description = "파트별 알림 수신 동의", example = "true")
+        private Boolean partOptIn;
+
+        @Schema(description = "소식 알림 수신 동의", example = "false")
+        private Boolean newsOptIn;
     }
 
 }

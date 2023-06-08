@@ -94,8 +94,22 @@ public class UserService {
     }
 
     @Transactional
-    public void updatePushToken(User user, UserRequest.UpdatePushTokenRequest updatePushTokenRequest) {
-        user.updatePushToken(updatePushTokenRequest.getPushToken());
+    public void updatePushToken(User user, UserRequest.EditPushTokenRequest editPushTokenRequest) {
+        user.updatePushToken(editPushTokenRequest.getPushToken());
         userRepository.save(user);
+    }
+
+    @Transactional
+    public User updateOptIn(User user, UserRequest.EditOptInRequest editOptInRequest) {
+        if (editOptInRequest.getAllOptIn() != null) {
+            user.updateAllOptIn(editOptInRequest.getAllOptIn());
+        }
+        if (editOptInRequest.getPartOptIn() != null) {
+            user.updatePartOptIn(editOptInRequest.getPartOptIn());
+        }
+        if (editOptInRequest.getNewsOptIn() != null) {
+            user.updateNewsOptIn(editOptInRequest.getNewsOptIn());
+        }
+        return userRepository.save(user);
     }
 }

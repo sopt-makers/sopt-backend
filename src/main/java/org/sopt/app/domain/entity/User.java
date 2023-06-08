@@ -98,6 +98,18 @@ public class User extends BaseEntity implements UserDetails {
         this.pushToken = pushToken;
     }
 
+    public void updateAllOptIn(Boolean allOptIn) {
+        this.allOptIn = allOptIn;
+    }
+
+    public void updatePartOptIn(Boolean partOptIn) {
+        this.partOptIn = partOptIn;
+    }
+
+    public void updateNewsOptIn(Boolean newsOptIn) {
+        this.newsOptIn = newsOptIn;
+    }
+
     public void editNickname(String nickname) {
         this.nickname = nickname;
     }
