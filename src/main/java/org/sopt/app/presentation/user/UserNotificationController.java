@@ -9,10 +9,12 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.presentation.user.UserRequest.UpdatePushTokenRequest;
 import org.sopt.app.presentation.user.UserResponse.UpdatePushToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -41,5 +43,19 @@ public class UserNotificationController {
         userService.updatePushToken(user, updatePushTokenRequest);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
+
+    @Operation(summary = "푸시 토큰 해제")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @DeleteMapping(value = "/push-token")
+    public ResponseEntity<UpdatePushToken> deletePushToken(
+            @AuthenticationPrincipal User user
+    ) {
+        userService.updatePushToken(user, new UpdatePushTokenRequest(""));
+        return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
 
 }
