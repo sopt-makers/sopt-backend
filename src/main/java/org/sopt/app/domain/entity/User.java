@@ -94,6 +94,10 @@ public class User extends BaseEntity implements UserDetails {
         this.playgroundToken = playgroundToken;
     }
 
+    public void updatePushToken(String pushToken) {
+        this.pushToken = pushToken;
+    }
+
     public void editNickname(String nickname) {
         this.nickname = nickname;
     }

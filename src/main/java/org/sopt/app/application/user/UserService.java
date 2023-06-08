@@ -9,6 +9,7 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.auth.AuthRequest;
+import org.sopt.app.presentation.user.UserRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -90,5 +91,11 @@ public class UserService {
         val token = new AuthRequest.AccessTokenRequest();
         token.setAccessToken(user.getPlaygroundToken());
         return token;
+    }
+
+    @Transactional
+    public void updatePushToken(User user, UserRequest.UpdatePushTokenRequest updatePushTokenRequest) {
+        user.updatePushToken(updatePushTokenRequest.getPushToken());
+        userRepository.save(user);
     }
 }

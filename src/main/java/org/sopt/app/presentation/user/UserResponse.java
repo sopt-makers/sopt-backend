@@ -90,4 +90,14 @@ public class UserResponse {
         @Schema(description = "유저 프로필 메세지", example = "1등이 되고 말거야!")
         private String profileMessage;
     }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class UpdatePushToken {
+
+        @Schema(description = "푸시 토큰", example = "asdfasdf")
+        private String pushToken;
+    }
+
 }

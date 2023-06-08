@@ -27,4 +27,15 @@ public class UserRequest {
         @NotNull(message = "profileMessage may not be null")
         private String profileMessage;
     }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class UpdatePushTokenRequest {
+
+        @Schema(description = "푸시 토큰", example = "asdfasdf")
+        @NotNull(message = "push token may not be null")
+        private String pushToken;
+    }
+
 }
