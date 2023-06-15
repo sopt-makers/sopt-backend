@@ -89,9 +89,10 @@ public class User extends BaseEntity implements UserDetails {
         this.points = 0L;
     }
 
-    public void updatePlaygroundUserInfo(String username, String playgroundToken) {
+    public void updatePlaygroundUserInfo(String username, String playgroundToken, String pushToken) {
         this.username = username;
         this.playgroundToken = playgroundToken;
+        this.pushToken = pushToken;
     }
 
     public void updatePushToken(String pushToken) {
