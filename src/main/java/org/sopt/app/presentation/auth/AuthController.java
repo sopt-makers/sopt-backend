@@ -40,7 +40,7 @@ public class AuthController {
         val temporaryToken = playgroundAuthService.getPlaygroundAccessToken(codeRequest);
         val playgroundToken = playgroundAuthService.refreshPlaygroundToken(temporaryToken);
         val playgroundMember = playgroundAuthService.getPlaygroundInfo(playgroundToken.getAccessToken());
-        val userId = userService.loginWithUserPlaygroundId(playgroundMember);
+        val userId = userService.loginWithUserPlaygroundId(playgroundMember, codeRequest);
 
         val appToken = jwtTokenService.issueNewTokens(userId, playgroundMember);
         val response = authResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(),

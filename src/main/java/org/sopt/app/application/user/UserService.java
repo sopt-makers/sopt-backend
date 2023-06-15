@@ -20,31 +20,40 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public UserInfo.Id loginWithUserPlaygroundId(PlaygroundAuthInfo.PlaygroundMain playgroundMemberResponse) {
+    public UserInfo.Id loginWithUserPlaygroundId(
+            PlaygroundAuthInfo.PlaygroundMain playgroundMemberResponse,
+            AuthRequest.CodeRequest codeRequest
+    ) {
         val registeredUser = userRepository.findUserByPlaygroundId(playgroundMemberResponse.getId());
 
         if (registeredUser.isPresent()) {
-            registeredUser.get()
-                    .updatePlaygroundUserInfo(playgroundMemberResponse.getName(),
-                            playgroundMemberResponse.getAccessToken());
+            registeredUser.get().updatePlaygroundUserInfo(
+                    playgroundMemberResponse.getName(),
+                    playgroundMemberResponse.getAccessToken(),
+                    codeRequest.getPushToken()
+            );
             userRepository.save(registeredUser.get());
 
             return UserInfo.Id.builder().id(registeredUser.get().getId()).build();
         } else {
-            val newUser = this.registerNewUser(playgroundMemberResponse.getName(), playgroundMemberResponse.getId(),
-                    playgroundMemberResponse.getAccessToken());
+            val newUser = this.registerNewUser(
+                    playgroundMemberResponse.getName(),
+                    playgroundMemberResponse.getId(),
+                    playgroundMemberResponse.getAccessToken(),
+                    codeRequest.getPushToken()
+            );
             userRepository.save(newUser);
 
             return UserInfo.Id.builder().id(newUser.getId()).build();
         }
     }
 
-    private User registerNewUser(String username, Long playgroundId, String playgroundToken) {
+    private User registerNewUser(String username, Long playgroundId, String playgroundToken, String pushToken) {
         val nickname = this.generateNickname(username);
         return User.builder()
                 .username(username)
                 .nickname(nickname)
-                .pushToken("")
+                .pushToken(pushToken)
                 .playgroundId(playgroundId)
                 .playgroundToken(playgroundToken)
                 .points(0L)
