@@ -11,7 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.TypeDef;
 
 @Entity
@@ -34,11 +33,9 @@ public class Notification extends BaseEntity {
     private Long userId;
 
     @Column(columnDefinition = "TEXT")
-    @ColumnDefault("")
     private String title;
 
     @Column(columnDefinition = "TEXT")
-    @ColumnDefault("")
     private String content;
 
 }

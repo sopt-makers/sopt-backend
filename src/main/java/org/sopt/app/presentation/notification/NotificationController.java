@@ -5,13 +5,17 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import javax.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.val;
 import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.domain.entity.User;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class NotificationController {
 
     private final NotificationService notificationService;
+    private final NotificationResponseMapper notificationResponseMapper;
 
     @Operation(summary = "알림 목록 조회")
     @ApiResponses({
@@ -40,9 +45,12 @@ public class NotificationController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PostMapping("")
-    public ResponseEntity<?> registerNotification(
-            @AuthenticationPrincipal User user
+    public ResponseEntity<NotificationResponse.Main> registerNotification(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody NotificationRequest.RegisterNotificationRequest registerNotificationRequest
     ) {
-        return null;
+        val result = notificationService.registerNotification(user.getId(), registerNotificationRequest);
+        val response = notificationResponseMapper.of(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
