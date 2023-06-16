@@ -1,6 +1,8 @@
 package org.sopt.app.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.vladmihalcea.hibernate.type.array.ListArrayType;
+import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -12,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.TypeDef;
+import org.springframework.data.annotation.CreatedDate;
 
 @Entity
 @Table(name = "notification", schema = "app_dev")
@@ -23,7 +26,7 @@ import org.hibernate.annotations.TypeDef;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Notification extends BaseEntity {
+public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,5 +40,10 @@ public class Notification extends BaseEntity {
 
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    @CreatedDate
+    @Column(name = "created_at", updatable = false)
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
 
 }

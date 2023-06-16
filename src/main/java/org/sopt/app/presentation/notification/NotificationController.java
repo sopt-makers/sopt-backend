@@ -10,6 +10,9 @@ import lombok.AllArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.domain.entity.User;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,8 +37,12 @@ public class NotificationController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping(value = "")
-    public ResponseEntity<?> findNotificationList(@AuthenticationPrincipal User user) {
-        return null;
+    public ResponseEntity<?> findNotificationList(
+            @AuthenticationPrincipal User user,
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+    ) {
+        val result = notificationService.findNotificationList(user, pageable);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
 
