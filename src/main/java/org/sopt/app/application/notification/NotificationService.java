@@ -1,6 +1,5 @@
 package org.sopt.app.application.notification;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -32,7 +31,7 @@ public class NotificationService {
                 .userId(userId)
                 .title(registerNotificationRequest.getTitle())
                 .content(registerNotificationRequest.getContent())
-                .createdAt(LocalDateTime.from(Instant.now()))
+                .createdAt(LocalDateTime.now())
                 .build();
         return notificationRepository.save(notification);
     }
