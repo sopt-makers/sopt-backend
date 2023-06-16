@@ -11,7 +11,7 @@ public class NotificationResponse {
     @Getter
     @Setter
     @ToString
-    public static class Main {
+    public static class NotificationMain {
 
         @Schema(description = "알림 아이디", example = "1")
         private Long id;

@@ -5,11 +5,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.util.List;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.presentation.notification.NotificationResponse.NotificationMain;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -37,12 +39,13 @@ public class NotificationController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping(value = "")
-    public ResponseEntity<?> findNotificationList(
+    public ResponseEntity<List<NotificationMain>> findNotificationList(
             @AuthenticationPrincipal User user,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         val result = notificationService.findNotificationList(user, pageable);
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+        val response = notificationResponseMapper.ofList(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 
@@ -52,7 +55,7 @@ public class NotificationController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PostMapping("")
-    public ResponseEntity<NotificationResponse.Main> registerNotification(
+    public ResponseEntity<NotificationMain> registerNotification(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody NotificationRequest.RegisterNotificationRequest registerNotificationRequest
     ) {
