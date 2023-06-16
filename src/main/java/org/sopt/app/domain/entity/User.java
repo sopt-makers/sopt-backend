@@ -36,7 +36,6 @@ public class User extends BaseEntity implements UserDetails {
     @Column
     private Long points;
     @Column(columnDefinition = "TEXT", name = "push_token")
-    @ColumnDefault("")
     private String pushToken;
 
     @Column(nullable = false, name = "all_opt_in")
