@@ -1,0 +1,48 @@
+package org.sopt.app.presentation.notification;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import lombok.AllArgsConstructor;
+import org.sopt.app.application.notification.NotificationService;
+import org.sopt.app.domain.entity.User;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/api/v2/notification")
+@SecurityRequirement(name = "Authorization")
+public class NotificationController {
+
+    private final NotificationService notificationService;
+
+    @Operation(summary = "알림 목록 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping(value = "")
+    public ResponseEntity<?> findNotificationList(@AuthenticationPrincipal User user) {
+        return null;
+    }
+
+
+    @Operation(summary = "알림 단건 등록")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @PostMapping("")
+    public ResponseEntity<?> registerNotification(
+            @AuthenticationPrincipal User user
+    ) {
+        return null;
+    }
+}
