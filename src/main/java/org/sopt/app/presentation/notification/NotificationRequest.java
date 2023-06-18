@@ -19,5 +19,8 @@ public class NotificationRequest {
         @Schema(description = "알림 내용", example = "알림 내용은 이러쿵저러쿵 어쩌구저쩌구입니다.")
         @NotNull(message = "content may not be null")
         private String content;
+//        @Schema(description = "알림 타입", example = "NEWS")
+//        @NotNull(message = "type may not be null")
+//        private NotificationType type;
     }
 }

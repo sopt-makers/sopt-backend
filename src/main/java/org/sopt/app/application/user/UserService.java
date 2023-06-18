@@ -57,6 +57,10 @@ public class UserService {
                 .playgroundId(playgroundId)
                 .playgroundToken(playgroundToken)
                 .points(0L)
+                .allOptIn(false)
+                .newsOptIn(false)
+                .partOptIn(false)
+                .pushToken("")
                 .build();
     }
 

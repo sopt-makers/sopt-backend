@@ -1,9 +1,11 @@
 package org.sopt.app.application.notification;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Notification;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.NotificationRepository;
@@ -25,14 +27,51 @@ public class NotificationService {
     }
 
     @Transactional
-    public Notification registerNotification(Long userId,
-            NotificationRequest.RegisterNotificationRequest registerNotificationRequest) {
+    public Notification registerNotification(
+            Long userId,
+            NotificationRequest.RegisterNotificationRequest registerNotificationRequest
+    ) {
         val notification = Notification.builder()
                 .userId(userId)
                 .title(registerNotificationRequest.getTitle())
                 .content(registerNotificationRequest.getContent())
-                .createdAt(LocalDateTime.now())
+//                .type(registerNotificationRequest.getType())
+                .isRead(false)
                 .build();
         return notificationRepository.save(notification);
+    }
+
+    @Transactional
+    public void updateNotificationIsRead(User user, Long notificationId) {
+        if (notificationId == 0) {
+            updateAllNotificationIsRead(user);
+        } else {
+            updateSingleNotificationIsRead(user, notificationId);
+        }
+    }
+
+    private void updateAllNotificationIsRead(User user) {
+        val notificationList = notificationRepository.findAllByUserId(user.getId());
+        val readNotificationList = notificationList.stream().map(notification -> {
+            notification.updateIsRead();
+            return notification;
+        }).collect(Collectors.toList());
+        notificationRepository.saveAll(readNotificationList);
+    }
+
+    private void updateSingleNotificationIsRead(User user, Long notificationId) {
+        val notification = notificationRepository.findByIdAndUserId(notificationId, user.getId())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
+        notification.updateIsRead();
+        notificationRepository.save(notification);
+    }
+
+    @Transactional(readOnly = true)
+    public Boolean getNotificationMainViewStatus(User user) {
+        val notificationList = notificationRepository.findAllByUserId(user.getId());
+        val unreadNotificationList = notificationList.stream()
+                .filter(notification -> !notification.getIsRead())
+                .collect(Collectors.toList());
+        return unreadNotificationList.size() > 0;
     }
 }
