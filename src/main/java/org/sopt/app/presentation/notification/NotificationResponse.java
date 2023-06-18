@@ -47,4 +47,14 @@ public class NotificationResponse {
         private LocalDateTime updatedAt;
 
     }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class NotificationMainView {
+
+        @Schema(description = "알림 전체 읽음 여부", example = "false")
+        private Boolean exists;
+
+    }
 }

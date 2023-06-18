@@ -19,4 +19,6 @@ public interface NotificationResponseMapper {
     List<NotificationMain> ofList(List<Notification> notificationList);
 
     NotificationResponse.NotificationIsRead ofIsRead(Notification notification);
+
+    NotificationResponse.NotificationMainView ofMainView(Boolean exists);
 }

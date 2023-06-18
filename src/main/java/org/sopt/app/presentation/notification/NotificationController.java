@@ -80,4 +80,19 @@ public class NotificationController {
         val response = notificationResponseMapper.ofIsRead(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @Operation(summary = "알림 메인 뷰 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping(value = "/main")
+    public ResponseEntity<NotificationResponse.NotificationMainView> updateNotificationIsRead(
+            @AuthenticationPrincipal User user
+    ) {
+        val result = notificationService.getNotificationMainViewStatus(user);
+        val response = notificationResponseMapper.ofMainView(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
 }

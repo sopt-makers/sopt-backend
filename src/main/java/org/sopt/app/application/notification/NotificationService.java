@@ -1,6 +1,7 @@
 package org.sopt.app.application.notification;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.common.exception.BadRequestException;
@@ -44,5 +45,14 @@ public class NotificationService {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
         notification.updateIsRead();
         return notificationRepository.save(notification);
+    }
+
+    @Transactional(readOnly = true)
+    public Boolean getNotificationMainViewStatus(User user) {
+        val notificationList = notificationRepository.findAllByUserId(user.getId());
+        val unreadNotificationList = notificationList.stream()
+                .filter(notification -> !notification.getIsRead())
+                .collect(Collectors.toList());
+        return unreadNotificationList.size() > 0;
     }
 }
