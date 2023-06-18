@@ -19,6 +19,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,6 +63,21 @@ public class NotificationController {
     ) {
         val result = notificationService.registerNotification(user.getId(), registerNotificationRequest);
         val response = notificationResponseMapper.of(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "알림 읽음 여부 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @PatchMapping(value = "/{notificationId}")
+    public ResponseEntity<NotificationResponse.NotificationIsRead> updateNotificationIsRead(
+            @AuthenticationPrincipal User user,
+            @PathVariable Long notificationId
+    ) {
+        val result = notificationService.updateNotificationIsRead(user, notificationId);
+        val response = notificationResponseMapper.ofIsRead(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

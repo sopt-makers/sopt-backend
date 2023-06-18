@@ -1,9 +1,10 @@
 package org.sopt.app.application.notification;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Notification;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.NotificationRepository;
@@ -25,14 +26,23 @@ public class NotificationService {
     }
 
     @Transactional
-    public Notification registerNotification(Long userId,
-            NotificationRequest.RegisterNotificationRequest registerNotificationRequest) {
+    public Notification registerNotification(
+            Long userId,
+            NotificationRequest.RegisterNotificationRequest registerNotificationRequest
+    ) {
         val notification = Notification.builder()
                 .userId(userId)
                 .title(registerNotificationRequest.getTitle())
                 .content(registerNotificationRequest.getContent())
-                .createdAt(LocalDateTime.now())
                 .build();
+        return notificationRepository.save(notification);
+    }
+
+    @Transactional
+    public Notification updateNotificationIsRead(User user, Long notificationId) {
+        val notification = notificationRepository.findByIdAndUserId(notificationId, user.getId())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
+        notification.updateIsRead();
         return notificationRepository.save(notification);
     }
 }
