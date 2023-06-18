@@ -82,7 +82,7 @@ public class S3Service {
                                 .withCannedAcl(CannedAccessControlList.PublicRead));
                 return s3Client.getUrl(bucket + "/mainpage/makers-app", fileName).toString();
             } catch (IOException e) {
-                throw new InternalError("요청이 처리 되지 않았습니다.");
+                throw new BadRequestException("요청이 처리 되지 않았습니다.");
             }
         }).collect(Collectors.toList());
     }
