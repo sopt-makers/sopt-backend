@@ -42,11 +42,28 @@ public class NotificationService {
     }
 
     @Transactional
-    public Notification updateNotificationIsRead(User user, Long notificationId) {
+    public void updateNotificationIsRead(User user, Long notificationId) {
+        if (notificationId == 0) {
+            updateAllNotificationIsRead(user);
+        } else {
+            updateSingleNotificationIsRead(user, notificationId);
+        }
+    }
+
+    private void updateAllNotificationIsRead(User user) {
+        val notificationList = notificationRepository.findAllByUserId(user.getId());
+        val readNotificationList = notificationList.stream().map(notification -> {
+            notification.updateIsRead();
+            return notification;
+        }).collect(Collectors.toList());
+        notificationRepository.saveAll(readNotificationList);
+    }
+
+    private void updateSingleNotificationIsRead(User user, Long notificationId) {
         val notification = notificationRepository.findByIdAndUserId(notificationId, user.getId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
         notification.updateIsRead();
-        return notificationRepository.save(notification);
+        notificationRepository.save(notification);
     }
 
     @Transactional(readOnly = true)

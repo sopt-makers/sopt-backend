@@ -72,13 +72,12 @@ public class NotificationController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PatchMapping(value = "/{notificationId}")
-    public ResponseEntity<NotificationResponse.NotificationIsRead> updateNotificationIsRead(
+    public ResponseEntity<NotificationResponse.NotificationMain> updateNotificationIsRead(
             @AuthenticationPrincipal User user,
             @PathVariable Long notificationId
     ) {
-        val result = notificationService.updateNotificationIsRead(user, notificationId);
-        val response = notificationResponseMapper.ofIsRead(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        notificationService.updateNotificationIsRead(user, notificationId);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @Operation(summary = "알림 메인 뷰 조회")

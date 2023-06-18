@@ -35,22 +35,6 @@ public class NotificationResponse {
     @Getter
     @Setter
     @ToString
-    public static class NotificationIsRead {
-
-        @Schema(description = "알림 아이디", example = "1")
-        private Long id;
-        @Schema(description = "알림 읽음 여부", example = "true")
-        private Boolean isRead;
-        @Schema(description = "알림 생성 일시", example = "2023-03-29T18:39:42.106369")
-        private LocalDateTime createdAt;
-        @Schema(description = "알림 수정 일시", example = "2023-03-29T18:39:42.106369")
-        private LocalDateTime updatedAt;
-
-    }
-
-    @Getter
-    @Setter
-    @ToString
     public static class NotificationMainView {
 
         @Schema(description = "알림 전체 읽음 여부", example = "false")
