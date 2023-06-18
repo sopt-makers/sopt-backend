@@ -5,6 +5,8 @@ import com.vladmihalcea.hibernate.type.array.ListArrayType;
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -13,7 +15,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.TypeDef;
+import org.sopt.app.domain.enums.NotificationType;
 import org.springframework.data.annotation.CreatedDate;
 
 @Entity
@@ -40,6 +44,14 @@ public class Notification {
 
     @Column(columnDefinition = "TEXT")
     private String content;
+
+    @Column()
+    @Enumerated(EnumType.STRING)
+    private NotificationType type;
+
+    @Column(nullable = false, name = "is_read")
+    @ColumnDefault("false")
+    private Boolean isRead;
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
