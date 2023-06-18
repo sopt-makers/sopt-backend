@@ -35,7 +35,7 @@ public class NotificationService {
                 .userId(userId)
                 .title(registerNotificationRequest.getTitle())
                 .content(registerNotificationRequest.getContent())
-                .type(registerNotificationRequest.getType())
+//                .type(registerNotificationRequest.getType())
                 .isRead(false)
                 .build();
         return notificationRepository.save(notification);
