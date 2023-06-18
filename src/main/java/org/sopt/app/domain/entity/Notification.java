@@ -18,6 +18,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.TypeDef;
 import org.sopt.app.domain.enums.NotificationType;
+import org.sopt.app.domain.enums.Part;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
@@ -49,6 +50,10 @@ public class Notification {
     @Column()
     @Enumerated(EnumType.STRING)
     private NotificationType type;
+
+    @Column()
+    @Enumerated(EnumType.STRING)
+    private Part part;
 
     @Column(nullable = false, name = "is_read")
     @ColumnDefault("false")
