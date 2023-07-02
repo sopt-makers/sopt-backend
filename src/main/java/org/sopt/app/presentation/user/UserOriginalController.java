@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthService;
+import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.application.operation.OperationInfo;
 import org.sopt.app.application.operation.OperationService;
 import org.sopt.app.domain.entity.User;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserOriginalController {
 
     private final PlaygroundAuthService playgroundAuthService;
+    private final NotificationService notificationService;
     private final OperationService operationService;
     private final UserResponseMapper userResponseMapper;
 
@@ -43,7 +45,8 @@ public class UserOriginalController {
         val mainViewUser = playgroundAuthService.getPlaygroundUserForMainView(user.getPlaygroundToken());
 //        val mainViewOperation = operationService.getOperationForMainView(accessToken);
         val dummyOperation = OperationInfo.MainView.builder().announcement("공지다!").attendanceScore(2D).build();
-        val response = userResponseMapper.ofMainView(mainViewUser, dummyOperation);
+        val mainViewNotification = notificationService.getNotificationMainViewStatus(user);
+        val response = userResponseMapper.ofMainView(mainViewUser, dummyOperation, mainViewNotification);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

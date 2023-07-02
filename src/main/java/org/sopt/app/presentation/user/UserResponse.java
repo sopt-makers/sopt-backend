@@ -17,6 +17,8 @@ public class UserResponse {
         private Playground user;
         @Schema(description = "유저 운영 서비스 정보", example = "")
         private Operation operation;
+        @Schema(description = "알림 전체 읽음 여부", example = "false")
+        private Boolean exists;
 
     }
 

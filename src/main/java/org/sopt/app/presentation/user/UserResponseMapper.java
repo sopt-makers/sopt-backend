@@ -17,7 +17,8 @@ public interface UserResponseMapper {
 
     UserResponse.AppUser ofAppUser(User user);
 
-    UserResponse.MainView ofMainView(PlaygroundAuthInfo.MainView user, OperationInfo.MainView operation);
+    UserResponse.MainView ofMainView(PlaygroundAuthInfo.MainView user, OperationInfo.MainView operation,
+            Boolean exists);
 
     UserResponse.Soptamp ofSoptamp(User user);
 
