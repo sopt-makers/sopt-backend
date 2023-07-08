@@ -107,8 +107,8 @@ public class UserService {
     }
 
     @Transactional
-    public void updatePushToken(User user, UserRequest.EditPushTokenRequest editPushTokenRequest) {
-        user.updatePushToken(editPushTokenRequest.getPushToken());
+    public void updatePushToken(User user, String pushToken) {
+        user.updatePushToken(pushToken);
         userRepository.save(user);
     }
 

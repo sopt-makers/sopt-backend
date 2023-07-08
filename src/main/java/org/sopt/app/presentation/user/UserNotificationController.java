@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.User;
-import org.sopt.app.presentation.user.UserRequest.EditPushTokenRequest;
 import org.sopt.app.presentation.user.UserResponse.OptIn;
 import org.sopt.app.presentation.user.UserResponse.PushToken;
 import org.springframework.http.HttpStatus;
@@ -44,7 +43,7 @@ public class UserNotificationController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody UserRequest.EditPushTokenRequest updatePushTokenRequest
     ) {
-        userService.updatePushToken(user, updatePushTokenRequest);
+        userService.updatePushToken(user, updatePushTokenRequest.getPushToken());
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
@@ -57,7 +56,7 @@ public class UserNotificationController {
     public ResponseEntity<PushToken> deletePushToken(
             @AuthenticationPrincipal User user
     ) {
-        userService.updatePushToken(user, new EditPushTokenRequest(""));
+        userService.updatePushToken(user, "");
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 

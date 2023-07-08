@@ -2,7 +2,6 @@ package org.sopt.app.presentation.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -31,7 +30,6 @@ public class UserRequest {
 
     @Getter
     @Setter
-    @AllArgsConstructor
     @ToString
     public static class EditPushTokenRequest {
 
