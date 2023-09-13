@@ -40,3 +40,8 @@ out/
 application-local.yml
 application-prod.yml
 
+### HTTP 관련
+http-client.private.env.json
+http-client.env.json
+**/resources/http/env/
+**/resources/http/request/data/
