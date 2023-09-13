@@ -106,4 +106,11 @@ public class PlaygroundAuthInfo {
         private String accessToken;
         private String errorCode;
     }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class ActiveUserIds {
+        private List<Long> memberIds;
+    }
 }
