@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.User;
@@ -36,4 +37,19 @@ public class RankService {
         return userRepository.findUserByNickname(nickname)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
     }
+
+    public List<RankInfo.Main> findCurrentRanks(ActiveUserIds activeUserIds) {
+        val userList = userRepository.findAllById(activeUserIds.getMemberIds());
+        val rankPoint = new AtomicInteger(1);
+        return userList.stream().sorted(
+                        Comparator.comparing(User::getPoints).reversed())
+                .map(user -> RankInfo.Main.builder()
+                        .rank(rankPoint.getAndIncrement())
+                        .nickname(user.getNickname())
+                        .point(user.getPoints())
+                        .profileMessage(user.getProfileMessage())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
 }
