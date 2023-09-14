@@ -49,4 +49,20 @@ public class UserOriginalController {
         val response = userResponseMapper.ofMainView(mainViewUser, dummyOperation, mainViewNotification);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
+
+    @Operation(summary = "유저 기수 정보 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "400", description = "no playground, operation profile", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping(value = "/generation")
+    public ResponseEntity<UserResponse.Generation> getGenerationInfo(
+            @AuthenticationPrincipal User user
+    ) {
+        val generationUser = playgroundAuthService.getPlaygroundUserActiveInfo(
+            user.getPlaygroundToken());
+        val response = userResponseMapper.ofGeneration(generationUser);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
 }

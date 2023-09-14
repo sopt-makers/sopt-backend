@@ -113,4 +113,13 @@ public class PlaygroundAuthInfo {
     public static class ActiveUserIds {
         private List<Long> memberIds;
     }
+
+    @Getter
+    @Setter
+    @Builder
+    @ToString
+    public static class UserActiveInfo {
+        private Long currentGeneration;
+        private UserStatus status;
+    }
 }
