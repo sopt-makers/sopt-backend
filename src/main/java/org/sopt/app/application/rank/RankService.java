@@ -31,7 +31,7 @@ public class RankService {
     }
 
     public List<RankInfo.Main> findCurrentRanks(ActiveUserIds activeUserIds) {
-        val userList = userRepository.findAllById(activeUserIds.getMemberIds());
+        val userList = userRepository.findAllByPlaygroundIdIn(activeUserIds.getMemberIds());
         return this.getRanking(userList);
     }
 
