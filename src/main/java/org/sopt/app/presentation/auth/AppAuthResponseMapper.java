@@ -10,7 +10,7 @@ import org.sopt.app.domain.enums.UserStatus;
         injectionStrategy = InjectionStrategy.CONSTRUCTOR,
         unmappedTargetPolicy = ReportingPolicy.ERROR
 )
-public interface AuthResponseMapper {
+public interface AppAuthResponseMapper {
 
-    AuthResponse.Token of(String accessToken, String refreshToken, String playgroundToken, UserStatus status);
+    AppAuthResponse.Token of(String accessToken, String refreshToken, String playgroundToken, UserStatus status);
 }

@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-public class AuthRequest {
+public class AppAuthRequest {
 
     @Getter
     @Setter
@@ -26,8 +26,8 @@ public class AuthRequest {
     @Setter
     @ToString
     public static class AccessTokenRequest {
-
         private String accessToken;
+
     }
 
     @Getter

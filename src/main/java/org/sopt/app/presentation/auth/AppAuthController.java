@@ -22,12 +22,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v2/auth")
-public class AuthController {
+public class AppAuthController {
 
     private final PlaygroundAuthService playgroundAuthService;
     private final UserService userService;
     private final JwtTokenService jwtTokenService;
-    private final AuthResponseMapper authResponseMapper;
+    private final AppAuthResponseMapper authResponseMapper;
 
     @Operation(summary = "플그로 로그인/회원가입")
     @ApiResponses({
@@ -36,11 +36,15 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PostMapping(value = "/playground")
-    public ResponseEntity<AuthResponse.Token> playgroundLogin(@Valid @RequestBody AuthRequest.CodeRequest codeRequest) {
+    public ResponseEntity<AppAuthResponse.Token> playgroundLogin(@Valid @RequestBody AppAuthRequest.CodeRequest codeRequest) {
+        // PlayGround SSO Auth 를 통해 accessToken 받아옴
         val temporaryToken = playgroundAuthService.getPlaygroundAccessToken(codeRequest);
         val playgroundToken = playgroundAuthService.refreshPlaygroundToken(temporaryToken);
         val playgroundMember = playgroundAuthService.getPlaygroundInfo(playgroundToken.getAccessToken());
+
         val userId = userService.loginWithUserPlaygroundId(playgroundMember, codeRequest);
+        // TODO: Register Push Token to Push Server(== Device Token == FCM Token)
+
 
         val appToken = jwtTokenService.issueNewTokens(userId, playgroundMember);
         val response = authResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(),
@@ -55,8 +59,8 @@ public class AuthController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PatchMapping(value = "/refresh")
-    public ResponseEntity<AuthResponse.Token> refreshToken(
-            @Valid @RequestBody AuthRequest.RefreshRequest refreshRequest
+    public ResponseEntity<AppAuthResponse.Token> refreshToken(
+            @Valid @RequestBody AppAuthRequest.RefreshRequest refreshRequest
     ) {
         val userId = jwtTokenService.getUserIdFromJwtToken(refreshRequest.getRefreshToken());
         val existingToken = userService.getPlaygroundToken(userId);

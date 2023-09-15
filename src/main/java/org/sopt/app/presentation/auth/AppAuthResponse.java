@@ -6,7 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.sopt.app.domain.enums.UserStatus;
 
-public class AuthResponse {
+public class AppAuthResponse {
 
     @Getter
     @Setter
