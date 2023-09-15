@@ -149,4 +149,37 @@ public class PlaygroundAuthService {
         }
     }
 
+
+    public PlaygroundAuthInfo.ActiveUserIds getActiveUsers(String accessToken) {
+        val getActiveUserIdsURL = baseURI + "/internal/api/v1/members/latest" + "?generation=" + currentGeneration;
+
+        val headers = new HttpHeaders();
+        headers.add("content-type", "application/json;charset=UTF-8");
+        headers.add("Authorization", accessToken);
+
+        val entity = new HttpEntity(null, headers);
+
+        try{
+            val response = restTemplate.exchange(
+                getActiveUserIdsURL,
+                HttpMethod.GET,
+                entity,
+                PlaygroundAuthInfo.ActiveUserIds.class
+            );
+            return response.getBody();
+        } catch (BadRequest e) {
+            throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
+        }
+    }
+
+    public PlaygroundAuthInfo.UserActiveInfo getPlaygroundUserActiveInfo(String accessToken) {
+        val playgroundProfile = this.getPlaygroundMemberProfile(accessToken);
+        val generationList = playgroundProfile.getActivities().stream()
+            .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).toList();
+        val userStatus = this.getStatus(generationList);
+        return PlaygroundAuthInfo.UserActiveInfo.builder()
+                .status(userStatus)
+                .currentGeneration(currentGeneration)
+                .build();
+    }
 }

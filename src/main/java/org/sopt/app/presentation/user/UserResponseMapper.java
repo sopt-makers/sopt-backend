@@ -27,4 +27,6 @@ public interface UserResponseMapper {
     UserResponse.ProfileMessage of(UserInfo.ProfileMessage profileMessage);
 
     UserResponse.OptIn ofOptIn(User user);
+
+    UserResponse.Generation ofGeneration(PlaygroundAuthInfo.UserActiveInfo userActiveInfo);
 }

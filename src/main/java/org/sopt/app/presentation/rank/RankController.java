@@ -8,10 +8,13 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.rank.RankService;
+import org.sopt.app.domain.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class RankController {
 
     private final RankService rankService;
+    private final PlaygroundAuthService playgroundAuthService;
     private final RankResponseMapper rankResponseMapper;
     private final MissionService missionService;
 
@@ -35,6 +39,22 @@ public class RankController {
     @GetMapping("")
     public ResponseEntity<List<RankResponse.RankMain>> findRanks() {
         val result = rankService.findRanks();
+        val response = rankResponseMapper.of(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    //현재 기수 랭킹 목록 조회
+    @Operation(summary = "현재 기수 랭킹 목록 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/current")
+    public ResponseEntity<List<RankResponse.RankMain>> findCurrentRanks(
+        @AuthenticationPrincipal User user
+    ) {
+        val activeUserIds = playgroundAuthService.getActiveUsers(user.getPlaygroundToken());
+        val result = rankService.findCurrentRanks(activeUserIds);
         val response = rankResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
