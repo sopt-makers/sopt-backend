@@ -2,9 +2,13 @@ package org.sopt.app.presentation.notification;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotNull;
+
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import java.util.List;
 
 public class NotificationRequest {
 
@@ -23,4 +27,45 @@ public class NotificationRequest {
 //        @NotNull(message = "type may not be null")
 //        private NotificationType type;
     }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class SendRequestNoLink {
+        private List<String> userIds;
+        private String title;
+        private String content;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class SendRequestWithDeepLink {
+        private List<String> userIds;
+        private String title;
+        private String content;
+        private String deepLink;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class SendRequestWithWebLink {
+        private List<String> userIds;
+        private String title;
+        private String content;
+        private String webLink;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class SendRequestWithAllLink {
+        private List<String> userIds;
+        private String title;
+        private String content;
+        private String deepLink;
+        private String webLink;
+    }
+
 }
