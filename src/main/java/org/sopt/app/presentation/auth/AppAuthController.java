@@ -10,14 +10,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.JwtTokenService;
 import org.sopt.app.application.auth.PlaygroundAuthService;
+import org.sopt.app.application.notification.NotificationOptionService;
+import org.sopt.app.application.notification.PushTokenService;
 import org.sopt.app.application.user.UserService;
+import org.sopt.app.domain.entity.PushToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -26,7 +25,11 @@ public class AppAuthController {
 
     private final PlaygroundAuthService playgroundAuthService;
     private final UserService userService;
+    private final NotificationOptionService optionService;
+    private final PushTokenService pushTokenService;
+
     private final JwtTokenService jwtTokenService;
+
     private final AppAuthResponseMapper authResponseMapper;
 
     @Operation(summary = "플그로 로그인/회원가입")
@@ -36,19 +39,37 @@ public class AppAuthController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PostMapping(value = "/playground")
-    public ResponseEntity<AppAuthResponse.Token> playgroundLogin(@Valid @RequestBody AppAuthRequest.CodeRequest codeRequest) {
-        // PlayGround SSO Auth 를 통해 accessToken 받아옴
+    public ResponseEntity<AppAuthResponse.Token> playgroundLogin(
+            @RequestHeader(value = "platform") String platform
+            , @Valid @RequestBody AppAuthRequest.CodeRequest codeRequest
+    ) {
+        // 1. PlayGround SSO Auth 를 통해 accessToken 받아옴
         val temporaryToken = playgroundAuthService.getPlaygroundAccessToken(codeRequest);
+        // 2. PlayGround Auth Access Token 받옴
         val playgroundToken = playgroundAuthService.refreshPlaygroundToken(temporaryToken);
+        // 3. PlayGround User Info 받아옴
         val playgroundMember = playgroundAuthService.getPlaygroundInfo(playgroundToken.getAccessToken());
 
         val userId = userService.loginWithUserPlaygroundId(playgroundMember, codeRequest);
-        // TODO: Register Push Token to Push Server(== Device Token == FCM Token)
 
+        // 4. 기본 알림 설정 저지
+        optionService.registerOptIn(userId.getId());
 
+        // 5. Push Token 등록
+        val pushToken = PushToken.builder()
+                .userId(userId.getId())
+                .token(codeRequest.getPushToken())
+                .build();
+        pushTokenService.registerDeviceToken(pushToken, platform);
+
+        // 5. Response 할 Body 생성
         val appToken = jwtTokenService.issueNewTokens(userId, playgroundMember);
-        val response = authResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(),
-                playgroundMember.getAccessToken(), playgroundMember.getStatus());
+        val response = authResponseMapper.of(
+                appToken.getAccessToken()
+                , appToken.getRefreshToken()
+                , playgroundMember.getAccessToken()
+                , playgroundMember.getStatus()
+        );
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
