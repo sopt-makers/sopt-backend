@@ -58,8 +58,8 @@ public class UserResponse {
 
         @Schema(description = "유저 닉네임", example = "김앱짱")
         private String username;
-        @Schema(description = "유저 푸시 토큰", example = "null")
-        private String pushToken;
+//        @Schema(description = "유저 푸시 토큰", example = "null")
+//        private String pushToken;
     }
 
     @Getter
@@ -96,25 +96,12 @@ public class UserResponse {
     @Getter
     @Builder
     @ToString
-    public static class PushToken {
+    public static class IsOptIn {
 
-        @Schema(description = "푸시 토큰", example = "asdfasdf")
-        private String pushToken;
+        @Schema(description = "유저 알림 수신 동의 여부", example = "false")
+        private Boolean isOptIn;
     }
 
-    @Getter
-    @Builder
-    @ToString
-    public static class OptIn {
 
-        @Schema(description = "전체 알림 수신 동의", example = "false")
-        private Boolean allOptIn;
-
-        @Schema(description = "파트별 알림 수신 동의", example = "true")
-        private Boolean partOptIn;
-
-        @Schema(description = "소식 알림 수신 동의", example = "false")
-        private Boolean newsOptIn;
-    }
 
 }
