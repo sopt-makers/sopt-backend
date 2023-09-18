@@ -15,15 +15,9 @@ public class DescriptionService {
     public DescriptionInfo.MainDescription getMainDescription(UserStatus userStatus) {
         val mainDescription = mainDescriptionRepository.findAll().get(0);
 
-        return userStatus == UserStatus.ACTIVE ?
-                DescriptionInfo.ActiveMainDescription.builder()
-                        .activeTopDescription(mainDescription.getActiveTopDescription())
-                        .activeBottomDescription(mainDescription.getActiveBottomDescription())
-                        .build()
-                :
-                DescriptionInfo.InactiveMainDescription.builder()
-                        .inactiveTopDescription(mainDescription.getInactiveTopDescription())
-                        .inactiveBottomDescription(mainDescription.getInactiveBottomDescription())
-                        .build();
+        return DescriptionInfo.MainDescription.builder()
+                .topDescription(userStatus == UserStatus.ACTIVE ? mainDescription.getActiveTopDescription() : mainDescription.getInactiveTopDescription())
+                .bottomDescription(userStatus == UserStatus.ACTIVE ? mainDescription.getActiveBottomDescription() : mainDescription.getInactiveBottomDescription())
+                .build();
     }
 }
