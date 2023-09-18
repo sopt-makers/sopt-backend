@@ -9,10 +9,10 @@ import java.io.Serializable;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @EqualsAndHashCode
 public class PushTokenPK implements Serializable {
-    private Long userId;
+    private Long playgroundId;
     private String token;
 
-    public static PushTokenPK of(Long userId, String token) {
-        return new PushTokenPK(userId, token);
+    public static PushTokenPK of(Long playgroundId, String token) {
+        return new PushTokenPK(playgroundId, token);
     }
 }

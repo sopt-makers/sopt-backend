@@ -19,8 +19,8 @@ public class PushToken extends BaseEntity{
 //    private Long id;
 
     @Id
-    @Column(name = "user_id")
-    private Long userId;
+    @Column(name = "playground_id")
+    private Long playgroundId;
 
     @Id
     @Column(columnDefinition = "TEXT", name = "token", nullable = false)

@@ -5,7 +5,7 @@ import org.sopt.app.domain.entity.PushTokenPK;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PushTokenRepository extends JpaRepository<PushToken, PushTokenPK> {
-    void deleteAllByUserId(Long userId);
+    void deleteAllByPlaygroundId(Long playgroundId);
 
     boolean existsById(PushTokenPK pushTokenPK);
 }
