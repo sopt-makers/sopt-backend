@@ -56,3 +56,22 @@ CREATE TABLE app_dev.stamp (
 -- Indices -------------------------------------------------------
 
 CREATE UNIQUE INDEX "MISSION_pkey" ON app_dev.stamp(id int8_ops);
+
+create table app_dev.main_description
+(
+    id                          serial
+        constraint main_description_pk
+            primary key,
+    active_top_description      varchar(100),
+    active_bottom_description   varchar(100),
+    inactive_top_description    varchar(100),
+    inactive_bottom_description varchar(100),
+    created_at                  timestamp default now() not null,
+    updated_at                  timestamp default now() not null
+);
+
+alter table app_dev.main_description
+    owner to makers;
+
+create unique index main_description_id_uindex
+    on app_dev.main_description (id);
