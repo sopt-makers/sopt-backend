@@ -57,7 +57,7 @@ public class AppAuthController {
          * UserId -> Playground Member Id 로 변경되었습니다.
          */
         // 4. 기본 알림 설정 저지
-        optionService.registerOptIn(playgroundMember.getId());
+        optionService.registerOptIn(userId.getId());
 
         // 5. Push Token 등록
         val pushToken = PushToken.builder()

@@ -45,14 +45,21 @@ public class UserNotificationController {
             @RequestHeader(name = "platform") String platform,
             @Valid @RequestBody PushTokenRequest.EditRequest updatePushTokenRequest
     ) {
-        PushToken targetPushToken = pushTokenService.getDeviceTokenFromLocal(
-                PushTokenPK.of(user.getPlaygroundId(), updatePushTokenRequest.getPushToken())
-        );
-        val result = pushTokenService.updateDeviceToken(
-                targetPushToken,
-                updatePushTokenRequest.getPushToken(),
+        // 복합키이기 때문에 playground ID 만으로 조회 불가능 => 단순 저장밖에 방법이 없음.
+        val newGeneratedToken = PushToken.builder()
+                .playgroundId(user.getPlaygroundId())
+                .token(updatePushTokenRequest.getPushToken())
+                .build();
+        System.out.println(newGeneratedToken.toString());
+        val result = pushTokenService.registerDeviceToken(
+                newGeneratedToken,
                 platform
         );
+//        val result = pushTokenService.updateDeviceToken(
+//                newGeneratedToken,
+//                updatePushTokenRequest.getPushToken(),
+//                platform
+//        );
         val response = pushTokenResponseMapper.ofStatus(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

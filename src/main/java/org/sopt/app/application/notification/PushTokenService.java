@@ -64,6 +64,7 @@ public class PushTokenService {
                     .message("already Registered")
                     .build();
         }
+        /*
         val entity = new HttpEntity(
                 createBodyFor(pushToken),
                 createHeadersFor(ACTION_REGISTER, platform)
@@ -72,45 +73,70 @@ public class PushTokenService {
         val response = sendRequestToPushServer(entity);
         // Push Server 등록이 성공했을 때만 저장하기
         if(isSuccess(response)) {
+
+         */
             pushTokenRepository.save(pushToken);
+            /*
         }
         return response.getBody();
+
+             */
+        return PushTokenResponse.StatusResponse.builder()
+                .status(200)
+                .success(true)
+                .message(" Registered")
+                .build();
     }
 
     @Transactional
     public PushTokenResponse.StatusResponse updateDeviceToken(PushToken targetPushToken, String newPushToken, String platform) {
         // 무조건 덮어쓰기
-
+/*
         val entity = new HttpEntity(
                 createBodyFor(targetPushToken),
                 createHeadersFor(ACTION_REGISTER, platform)
         );
         val response = sendRequestToPushServer(entity);
         if(isSuccess(response)) {
+
+ */
             targetPushToken.updatePushToken(newPushToken);
-        }
-        return response.getBody();
+//        }
+//        return response.getBody();
+        return PushTokenResponse.StatusResponse.builder()
+                .status(200)
+                .success(true)
+                .message("already Registered")
+                .build();
     }
 
     @Transactional
     public PushTokenResponse.StatusResponse deleteDeviceToken(PushToken pushToken, String platform) {
         if (!pushTokenRepository.existsById(PushTokenPK.of(pushToken.getPlaygroundId(), pushToken.getToken()))){
-            // 아직 유효한 푸시 토큰을 그대로 쓰는 상황이라면 굳이 외부 서버 통신할 필요 없음
+            // 내부 로컬 DB에서 이미 없다면 외부 서버 통신할 필요 없음
             return PushTokenResponse.StatusResponse.builder()
                     .status(200)
                     .success(true)
                     .message("already Deleted")
                     .build();
         }
+        /*
         val entity = new HttpEntity(
                 createBodyFor(pushToken),
                 createHeadersFor(ACTION_DELETE, platform)
         );
         val response = sendRequestToPushServer(entity);
         if (isSuccess(response)) {
+
+         */
             pushTokenRepository.delete(pushToken);
-        }
-        return response.getBody();
+//        }
+//        return response.getBody();
+            return PushTokenResponse.StatusResponse.builder()
+                    .status(200)
+                    .success(true)
+                    .message("already Registered")
+                    .build();
     }
 
     @Transactional
