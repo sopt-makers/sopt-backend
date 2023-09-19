@@ -29,7 +29,6 @@ public interface UserResponseMapper {
 
     UserResponse.IsOptIn ofIsOptIn(User user);
 
-    UserResponse.OptIn ofOptIn(User user);
 
     UserResponse.Generation ofGeneration(PlaygroundAuthInfo.UserActiveInfo userActiveInfo);
 
