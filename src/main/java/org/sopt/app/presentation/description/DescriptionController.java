@@ -1,6 +1,7 @@
 package org.sopt.app.presentation.description;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
@@ -28,8 +29,8 @@ public class DescriptionController {
     @Operation(summary = "메인 문구 조회")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "success"),
-        @ApiResponse(responseCode = "401", description = "token error"),
-        @ApiResponse(responseCode = "500", description = "server error")
+        @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/main")
     public ResponseEntity<DescriptionResponse.MainDescription> getMainDescription(
