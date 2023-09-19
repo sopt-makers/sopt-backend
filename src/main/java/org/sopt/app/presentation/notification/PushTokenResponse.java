@@ -1,15 +1,15 @@
 package org.sopt.app.presentation.notification;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 public class PushTokenResponse {
 
     @Getter
     @Builder
     @ToString
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class StatusResponse {
 
         @Schema(description = "알림 서버 Response Status", example = "200")

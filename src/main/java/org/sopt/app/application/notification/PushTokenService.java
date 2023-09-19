@@ -144,7 +144,7 @@ public class PushTokenService {
 
     private HttpHeaders createHeadersFor(String action, String platform) {
         val headers = new HttpHeaders();
-        headers.add("content-type", "application/json");
+        headers.add("Content-Type", "application/json");
         headers.add("action", action);
         headers.add("x-api-key", apiKey);
         headers.add("service", "app");
@@ -158,7 +158,7 @@ public class PushTokenService {
     private PushTokenRequest.ExternalRequest createBodyFor(PushToken pushToken) {
         return PushTokenRequest.ExternalMemberRequest.builder()
                 .userIds(List.of(String.valueOf(pushToken.getPlaygroundId())))
-                .pushToken(pushToken.getToken())
+                .deviceToken(pushToken.getToken())
                 .build();
     }
     private ResponseEntity<PushTokenResponse.StatusResponse> sendRequestToPushServer(HttpEntity requestEntity) {
