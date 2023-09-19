@@ -52,13 +52,13 @@ public class AppAuthController {
 
         val userId = userService.loginWithUserPlaygroundId(playgroundMember, codeRequest);
 
+        // 4. 기본 알림 설정 저지
+        optionService.registerOptIn(userId.getId());
+
         /**
          * 알림 기능 자체가 타 서비스들과 종속성이 있는 관계로
          * UserId -> Playground Member Id 로 변경되었습니다.
          */
-        // 4. 기본 알림 설정 저지
-        optionService.registerOptIn(userId.getId());
-
         // 5. Push Token 등록
         val pushToken = PushToken.builder()
                 .playgroundId(playgroundMember.getId())
