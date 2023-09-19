@@ -12,6 +12,7 @@ import org.sopt.app.application.notification.NotificationOptionService;
 import org.sopt.app.application.notification.PushTokenService;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.PushToken;
+import org.sopt.app.domain.entity.PushTokenPK;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.notification.*;
 import org.springframework.http.HttpStatus;
@@ -44,11 +45,13 @@ public class UserNotificationController {
             @RequestHeader(name = "platform") String platform,
             @Valid @RequestBody PushTokenRequest.EditRequest updatePushTokenRequest
     ) {
-        PushToken updateToken = new PushToken(user.getId(), updatePushTokenRequest.getPushToken());
-
-        val result = pushTokenService.registerDeviceToken(
-                updateToken
-                , platform
+        PushToken targetPushToken = pushTokenService.getDeviceTokenFromLocal(
+                PushTokenPK.of(user.getPlaygroundId(), updatePushTokenRequest.getPushToken())
+        );
+        val result = pushTokenService.updateDeviceToken(
+                targetPushToken,
+                updatePushTokenRequest.getPushToken(),
+                platform
         );
         val response = pushTokenResponseMapper.ofStatus(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -65,11 +68,10 @@ public class UserNotificationController {
             @RequestHeader(name = "platform") String platform,
             @Valid @RequestBody PushTokenRequest.DeleteRequest deletePushTokenRequest
     ) {
-        PushToken deleteToken = new PushToken(user.getId(), deletePushTokenRequest.getPushToken());
-        val result = pushTokenService.deleteDeviceToken(
-                deleteToken
-                , platform
+        PushToken targetPushToken = pushTokenService.getDeviceTokenFromLocal(
+                PushTokenPK.of(user.getPlaygroundId(), deletePushTokenRequest.getPushToken())
         );
+        val result = pushTokenService.deleteDeviceToken(targetPushToken, platform);
         val response = pushTokenResponseMapper.ofStatus(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
