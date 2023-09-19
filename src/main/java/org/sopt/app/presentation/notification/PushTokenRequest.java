@@ -46,6 +46,6 @@ public class PushTokenRequest {
 
         @Schema(description = "푸시 토큰", example = "asdfasdf")
         @NotNull(message = "push token may not be null")
-        private String pushToken;
+        private String deviceToken;
     }
 }
