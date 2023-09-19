@@ -53,7 +53,7 @@ public class PushTokenService {
     }
      */
 
-    @Transactional
+    @Transactional(rollbackFor = BadRequestException.class)
     // 추후 비회원일 경우, Controller 단에서 고정 값으로 0과 같은 비회원 식별 번호 넣어줘야 함.
     public PushTokenResponse.StatusResponse registerDeviceToken(PushToken pushToken, String platform) {
         if (pushTokenRepository.existsById(PushTokenPK.of(pushToken.getPlaygroundId(), pushToken.getToken()))){
@@ -107,7 +107,7 @@ public class PushTokenService {
         }
     }
     */
-    @Transactional
+    @Transactional(rollbackFor = BadRequestException.class)
     public PushTokenResponse.StatusResponse deleteDeviceToken(PushToken pushToken, String platform) {
         if (!pushTokenRepository.existsById(PushTokenPK.of(pushToken.getPlaygroundId(), pushToken.getToken()))){
             // 내부 로컬 DB에서 이미 없다면 외부 서버 통신할 필요 없음
