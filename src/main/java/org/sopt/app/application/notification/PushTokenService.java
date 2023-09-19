@@ -35,7 +35,7 @@ public class PushTokenService {
     @Value("${makers.push.server}")
     private String baseURI;
 
-    @Value("${makers.playground.x-api-key}")
+    @Value("${makers.push.x-api-key}")
     private String apiKey;
 
 
