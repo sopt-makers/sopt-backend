@@ -3,6 +3,7 @@ package org.sopt.app.presentation.notification;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.validation.constraints.NotNull;
@@ -11,7 +12,8 @@ import java.util.List;
 public class PushTokenRequest {
 
     @Getter
-    @Builder
+    // Builder 로 하면 Jackson 라이브러리에서 자동 RequestBody Mapping을 못해줍니다.
+    @Setter
     @ToString
     public static class EditRequest {
 
@@ -21,7 +23,7 @@ public class PushTokenRequest {
     }
 
     @Getter
-    @Builder
+    @Setter
     @ToString
     public static class DeleteRequest {
 
