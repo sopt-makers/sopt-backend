@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface UserNotificationOptionRepository extends JpaRepository<UserNotificationOption, Long> {
     Optional<UserNotificationOption> findByUser(User user);
+
+    boolean existsByUser(User user);
 }

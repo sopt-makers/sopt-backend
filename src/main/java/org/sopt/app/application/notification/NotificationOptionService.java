@@ -1,6 +1,7 @@
 package org.sopt.app.application.notification;
 
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.User;
@@ -22,14 +23,12 @@ public class NotificationOptionService {
     public void registerOptIn(Long userId) {
         User registerUser = userRepository.findUserById(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
-
-        notificationOptionRepository.save(UserNotificationOption.builder()
-                        .user(registerUser)
-//                        .allOptIn(false)
-//                        .partOptIn(false)
-//                        .newsOptIn(false)
-                .build()
-        );
+        if (!notificationOptionRepository.existsByUser(registerUser)) {
+            notificationOptionRepository.save(UserNotificationOption.builder()
+                    .user(registerUser)
+                    .build()
+            );
+        }
 //        UserNotificationOption registerOption = notificationOptionRepository.findByUser(registerUser).get();
 //        registerUser.updateNotificationOption(save);
 //        userRepository.save(registerUser);
