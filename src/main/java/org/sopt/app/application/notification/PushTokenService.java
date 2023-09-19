@@ -64,50 +64,42 @@ public class PushTokenService {
                     .message("already Registered")
                     .build();
         }
-        /*
-        val entity = new HttpEntity(
-                createBodyFor(pushToken),
-                createHeadersFor(ACTION_REGISTER, platform)
-        );
-
-        val response = sendRequestToPushServer(entity);
-        // Push Server 등록이 성공했을 때만 저장하기
-        if(isSuccess(response)) {
-
-         */
+        try {
+            val entity = new HttpEntity(
+                    createBodyFor(pushToken),
+                    createHeadersFor(ACTION_REGISTER, platform)
+            );
+            val response = sendRequestToPushServer(entity);
             pushTokenRepository.save(pushToken);
-            /*
+            return response.getBody();
+        } catch (BadRequestException e) {
+            return PushTokenResponse.StatusResponse.builder()
+                    .status(e.getStatusCode().value())
+                    .success(false)
+                    .message(e.getResponseMessage())
+                    .build();
         }
-        return response.getBody();
-
-             */
-        return PushTokenResponse.StatusResponse.builder()
-                .status(200)
-                .success(true)
-                .message(" Registered")
-                .build();
     }
 
     @Transactional
     public PushTokenResponse.StatusResponse updateDeviceToken(PushToken targetPushToken, String newPushToken, String platform) {
         // 무조건 덮어쓰기
-/*
-        val entity = new HttpEntity(
-                createBodyFor(targetPushToken),
-                createHeadersFor(ACTION_REGISTER, platform)
-        );
-        val response = sendRequestToPushServer(entity);
-        if(isSuccess(response)) {
-
- */
+        try {
             targetPushToken.updatePushToken(newPushToken);
-//        }
-//        return response.getBody();
-        return PushTokenResponse.StatusResponse.builder()
-                .status(200)
-                .success(true)
-                .message("already Registered")
-                .build();
+            val entity = new HttpEntity(
+                    createBodyFor(targetPushToken),
+                    createHeadersFor(ACTION_REGISTER, platform)
+            );
+
+            val response = sendRequestToPushServer(entity);
+            return response.getBody();
+        } catch (BadRequestException e) {
+            return PushTokenResponse.StatusResponse.builder()
+                    .status(e.getStatusCode().value())
+                    .success(false)
+                    .message(e.getResponseMessage())
+                    .build();
+        }
     }
 
     @Transactional
@@ -120,23 +112,21 @@ public class PushTokenService {
                     .message("already Deleted")
                     .build();
         }
-        /*
-        val entity = new HttpEntity(
-                createBodyFor(pushToken),
-                createHeadersFor(ACTION_DELETE, platform)
-        );
-        val response = sendRequestToPushServer(entity);
-        if (isSuccess(response)) {
-
-         */
+        try {
+            val entity = new HttpEntity(
+                    createBodyFor(pushToken),
+                    createHeadersFor(ACTION_DELETE, platform)
+            );
+            val response = sendRequestToPushServer(entity);
             pushTokenRepository.delete(pushToken);
-//        }
-//        return response.getBody();
+            return response.getBody();
+        } catch (BadRequestException e) {
             return PushTokenResponse.StatusResponse.builder()
-                    .status(200)
-                    .success(true)
-                    .message("already Registered")
+                    .status(e.getStatusCode().value())
+                    .success(false)
+                    .message(e.getResponseMessage())
                     .build();
+        }
     }
 
     @Transactional
@@ -175,7 +165,7 @@ public class PushTokenService {
         );
     }
 
-    private boolean isSuccess(ResponseEntity<PushTokenResponse.StatusResponse> response) throws BadRequestException {
+    private void checkIsSuccess(ResponseEntity<PushTokenResponse.StatusResponse> response) throws BadRequestException {
         // Push Server 로부터 400 Response 받았을 때
         if (Objects.requireNonNull(response.getBody()).getStatus() == HttpStatus.BAD_REQUEST.value()) {
             throw new BadRequestException(ErrorCode.INVALID_REQUEST_BODY_FOR_PUSH_TOKEN.getMessage());
@@ -184,6 +174,5 @@ public class PushTokenService {
         else if (Objects.requireNonNull(response.getBody()).getStatus() == HttpStatus.INTERNAL_SERVER_ERROR.value()) {
             throw new BadRequestException(ErrorCode.INTERNAL_SERVER_ERROR_IN_PUSH_SERVER.getMessage());
         }
-        return true;
     }
 }
