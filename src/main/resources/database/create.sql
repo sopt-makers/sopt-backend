@@ -60,6 +60,7 @@ CREATE TABLE app_dev.stamp (
 
 CREATE UNIQUE INDEX "MISSION_pkey" ON app_dev.stamp(id int8_ops);
 
+
 -- Table Definition ----------------------------------------------
 
 CREATE TABLE app_dev.push_token
@@ -95,3 +96,23 @@ alter table app_dev.notification_option
 -- Indices -------------------------------------------------------
 
 CREATE UNIQUE INDEX "PUSH_OPTION_pkey" ON app_dev.app_users(user_id int8_ops);
+
+create table app_dev.main_description
+(
+    id                          serial
+        constraint main_description_pk
+            primary key,
+    active_top_description      varchar(100),
+    active_bottom_description   varchar(100),
+    inactive_top_description    varchar(100),
+    inactive_bottom_description varchar(100),
+    created_at                  timestamp default now() not null,
+    updated_at                  timestamp default now() not null
+);
+
+alter table app_dev.main_description
+    owner to makers;
+
+create unique index main_description_id_uindex
+    on app_dev.main_description (id);
+

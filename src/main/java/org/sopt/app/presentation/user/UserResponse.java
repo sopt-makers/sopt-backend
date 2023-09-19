@@ -104,4 +104,13 @@ public class UserResponse {
 
 
 
+    @Getter
+    @Builder
+    @ToString
+    public static class Generation {
+        @Schema(description = "현재 솝트 기수", example = "33")
+        private Long currentGeneration;
+        @Schema(description = "활동/비활동/비회원 분기 처리", example = "ACTIVE")
+        private String status;
+    }
 }
