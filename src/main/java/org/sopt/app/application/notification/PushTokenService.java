@@ -81,6 +81,11 @@ public class PushTokenService {
         }
     }
 
+    /**
+     * 보류 메시지
+     * => 이름은 업데이트지만 결국 새로 저장하는 것이기 때문에
+     */
+    /*
     @Transactional
     public PushTokenResponse.StatusResponse updateDeviceToken(PushToken targetPushToken, String newPushToken, String platform) {
         // 무조건 덮어쓰기
@@ -101,7 +106,7 @@ public class PushTokenService {
                     .build();
         }
     }
-
+    */
     @Transactional
     public PushTokenResponse.StatusResponse deleteDeviceToken(PushToken pushToken, String platform) {
         if (!pushTokenRepository.existsById(PushTokenPK.of(pushToken.getPlaygroundId(), pushToken.getToken()))){
