@@ -4,11 +4,9 @@
 # (아래에 있는 `code`는 새로 발급 받아서 사용하세요)
 POST {{server}}/api/v2/auth/playground
 Content-Type: application/json
-platform: {{push_platform}}
 
 {
-  "code" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTUiLCJleHAiOjE2OTUxMDgyNzB9.LM_3POU4pKkpoMkYngfedIy5H31LRaOasP4D70W85_A",
-  "pushToken" : "{{my_origin_push_token}}"
+  "code" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTUiLCJleHAiOjE2OTUyMzg3NjN9._-GLVwWykD457IfhbPzi3emDUbvzuqI1ne1pt698gFE"
 }
 
 > {%
