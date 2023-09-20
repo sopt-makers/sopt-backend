@@ -17,6 +17,10 @@ public class PushTokenRequest {
     @ToString
     public static class EditRequest {
 
+        @Schema(description = "접속 기기 플랫폼", example = "Android")
+        @NotNull(message = "platform value may not be null")
+        private String platform;
+
         @Schema(description = "푸시 토큰", example = "asdfasdf")
         @NotNull(message = "push token may not be null")
         private String pushToken;
@@ -26,6 +30,10 @@ public class PushTokenRequest {
     @Setter
     @ToString
     public static class DeleteRequest {
+
+        @Schema(description = "접속 기기 플랫폼", example = "Android")
+        @NotNull(message = "platform value may not be null")
+        private String platform;
 
         @Schema(description = "푸시 토큰", example = "asdfasdf")
         @NotNull(message = "push token may not be null")
