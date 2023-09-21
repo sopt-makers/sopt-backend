@@ -8,20 +8,17 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.notification.NotificationOptionService;
+import org.sopt.app.application.notification.PushTokenService;
 import org.sopt.app.application.user.UserService;
+import org.sopt.app.domain.entity.PushToken;
+import org.sopt.app.domain.entity.PushTokenPK;
 import org.sopt.app.domain.entity.User;
-import org.sopt.app.presentation.user.UserResponse.OptIn;
-import org.sopt.app.presentation.user.UserResponse.PushToken;
+import org.sopt.app.presentation.notification.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,21 +27,33 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserNotificationController {
 
     private final UserService userService;
+    private final PushTokenService pushTokenService;
+    private final NotificationOptionService notificationOptionService;
     private final UserResponseMapper userResponseMapper;
+    private final PushTokenResponseMapper pushTokenResponseMapper;
+    private final OptionResponseMapper optionResponseMapper;
 
 
-    @Operation(summary = "푸시 토큰 등록")
+    @Operation(summary = "푸시 토큰 등록/재등록")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PostMapping(value = "/push-token")
-    public ResponseEntity<PushToken> updatePushToken(
+    public ResponseEntity<PushTokenResponse.StatusResponse> updatePushToken(
             @AuthenticationPrincipal User user,
-            @Valid @RequestBody UserRequest.EditPushTokenRequest updatePushTokenRequest
+            @Valid @RequestBody PushTokenRequest.EditRequest updatePushTokenRequest
     ) {
-        userService.updatePushToken(user, updatePushTokenRequest.getPushToken());
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        val pushToken = PushToken.builder()
+                .playgroundId(user.getPlaygroundId())
+                .token(updatePushTokenRequest.getPushToken())
+                .build();
+        val result = pushTokenService.registerDeviceToken(
+                pushToken,
+                updatePushTokenRequest.getPlatform()
+        );
+        val response = pushTokenResponseMapper.ofStatus(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "푸시 토큰 해제")
@@ -53,38 +62,76 @@ public class UserNotificationController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @DeleteMapping(value = "/push-token")
-    public ResponseEntity<PushToken> deletePushToken(
-            @AuthenticationPrincipal User user
+    public ResponseEntity<PushTokenResponse.StatusResponse> deletePushToken(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody PushTokenRequest.DeleteRequest deletePushTokenRequest
     ) {
-        userService.updatePushToken(user, "");
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        PushToken targetPushToken = pushTokenService.getDeviceTokenFromLocal(
+                PushTokenPK.of(user.getPlaygroundId(), deletePushTokenRequest.getPushToken())
+        );
+        val result = pushTokenService.deleteDeviceToken(
+                targetPushToken,
+                deletePushTokenRequest.getPlatform()
+        );
+        val response = pushTokenResponseMapper.ofStatus(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @Operation(summary = "푸시 수신 동의 조회")
+    @Operation(summary = "푸시 수신 여부 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping(value = "/opt-in")
-    public ResponseEntity<OptIn> findUserOptIn(
+    public ResponseEntity<UserResponse.IsOptIn> findUserOptIn(
             @AuthenticationPrincipal User user
     ) {
-        val response = userResponseMapper.ofOptIn(user);
+        val response = userResponseMapper.ofIsOptIn(user);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    @Operation(summary = "푸시 수신 동의 변경")
+    @Operation(summary = "푸시 수신 여부 변경")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PatchMapping(value = "/opt-in")
-    public ResponseEntity<OptIn> updateUserOptIn(
+    public ResponseEntity<UserResponse.IsOptIn> updateUserOptIn(
             @AuthenticationPrincipal User user,
-            @Valid @RequestBody UserRequest.EditOptInRequest editOptInRequest
+            @Valid @RequestBody UserRequest.EditIsOptInRequest editOptInRequest
     ) {
-        val result = userService.updateOptIn(user, editOptInRequest);
-        val response = userResponseMapper.ofOptIn(result);
+        val result = userService.updateIsOptIn(user, editOptInRequest);
+        val response = userResponseMapper.ofIsOptIn(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "푸시 수신 동의 상세 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping(value = "/opt-in/detail")
+    public ResponseEntity<OptionResponse.OptIn> findUserOptInDetail(
+            @AuthenticationPrincipal User user
+    ) {
+        val targetOption = notificationOptionService.getOption(user);
+        val response = optionResponseMapper.ofOptIn(targetOption);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "푸시 수신 동의 상세 변경")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @PatchMapping(value = "/opt-in/detail")
+    public ResponseEntity<OptionResponse.OptIn> updateUserOptInDetail(
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody OptionRequest.EditOptInRequest editOptInRequest
+    ) {
+        val targetOption = notificationOptionService.getOption(user);
+        val result = notificationOptionService.updateOptIn(targetOption, editOptInRequest);
+        val response = optionResponseMapper.ofOptIn(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }

@@ -1,12 +1,8 @@
 package org.sopt.app.domain.entity;
 
 import java.util.Collection;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,30 +21,28 @@ public class User extends BaseEntity implements UserDetails {
 
     @Column
     public String username;
+
     @Column(nullable = false, unique = true)
     public String nickname;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
+
     @Column(name = "profile_message")
     private String profileMessage;
+
     @Column
     private Long points;
-    @Column(columnDefinition = "TEXT", name = "push_token")
-    private String pushToken;
 
-    @Column(nullable = false, name = "all_opt_in")
+    @Column(nullable = false, name = "is_opt_in")
     @ColumnDefault("false")
-    private Boolean allOptIn;
+    private Boolean isOptIn;
 
-    @Column(nullable = false, name = "part_opt_in")
-    @ColumnDefault("false")
-    private Boolean partOptIn;
 
-    @Column(nullable = false, name = "news_opt_in")
-    @ColumnDefault("false")
-    private Boolean newsOptIn;
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserNotificationOption option;
 
     @Column(name = "playground_id", unique = true)
     private Long playgroundId;
@@ -57,15 +51,18 @@ public class User extends BaseEntity implements UserDetails {
     private String playgroundToken;
 
     @Builder
-    public User(String username, String nickname, String pushToken, Long playgroundId) {
+    public User(String username, String nickname, Long playgroundId) {
         this.username = username;
         this.nickname = nickname;
         this.points = 0L;
-        this.pushToken = pushToken;
-        this.allOptIn = false;
-        this.partOptIn = false;
-        this.newsOptIn = false;
+        // Default : 모든 알림 설정 OFF
+        this.isOptIn = false;
         this.playgroundId = playgroundId;
+    }
+
+    // option 등록
+    public void updateNotificationOption(UserNotificationOption option) {
+        this.option = option;
     }
 
     //한 마디 등록
@@ -88,32 +85,22 @@ public class User extends BaseEntity implements UserDetails {
         this.points = 0L;
     }
 
-    public void updatePlaygroundUserInfo(String username, String playgroundToken, String pushToken) {
+    public void updatePlaygroundUserInfo(String username, String playgroundToken) {
         this.username = username;
         this.playgroundToken = playgroundToken;
-        this.pushToken = pushToken;
     }
 
-    public void updatePushToken(String pushToken) {
-        this.pushToken = pushToken;
+    public void updateOptIn(Boolean isOptIn) {
+        this.isOptIn = isOptIn;
     }
 
-    public void updateAllOptIn(Boolean allOptIn) {
-        this.allOptIn = allOptIn;
-    }
-
-    public void updatePartOptIn(Boolean partOptIn) {
-        this.partOptIn = partOptIn;
-    }
-
-    public void updateNewsOptIn(Boolean newsOptIn) {
-        this.newsOptIn = newsOptIn;
-    }
 
     public void editNickname(String nickname) {
         this.nickname = nickname;
     }
 
+
+    // UserDetails Override Methods
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return null;

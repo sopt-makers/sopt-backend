@@ -1,0 +1,18 @@
+### 토큰 재등록
+POST {{server}}/api/v2/user/push-token
+Authorization: {{accessToken}}
+Content-Type: application/json
+
+< ./data/post-token.json
+
+
+> {%
+    client.log(request.body());
+ %}
+
+### 토큰 해제
+DELETE {{server}}/api/v2/user/push-token
+Authorization: {{accessToken}}
+Content-Type: application/json
+
+< ./data/post-token.json

@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-public class AuthRequest {
+public class AppAuthRequest {
 
     @Getter
     @Setter
@@ -16,18 +16,14 @@ public class AuthRequest {
         @Schema(description = "플레이그라운드 OAuth Token", example = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyMiIsImV4cCI6MTY4MDAxNDQzNn0.asdfasdfasdfasdfasdfasdf")
         @NotNull(message = "code may not be null")
         private String code;
-
-        @Schema(description = "앱 Push Token", example = "asdfasdfasdfasdfasdfasdf")
-        @NotNull(message = "push token may not be null")
-        private String pushToken;
     }
 
     @Getter
     @Setter
     @ToString
     public static class AccessTokenRequest {
-
         private String accessToken;
+
     }
 
     @Getter
