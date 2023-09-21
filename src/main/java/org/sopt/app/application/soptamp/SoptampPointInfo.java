@@ -1,4 +1,4 @@
-package org.sopt.app.application.rank;
+package org.sopt.app.application.soptamp;
 
 import java.util.List;
 import lombok.Builder;
@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.ToString;
 import org.sopt.app.domain.entity.Mission;
 
-public class RankInfo {
+public class SoptampPointInfo {
 
     @Getter
     @Builder
@@ -27,5 +27,19 @@ public class RankInfo {
         private String nickname;
         private String profileMessage;
         private List<Mission> userMissions;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class Point {
+        private Long id;
+        private Long generation;
+        private Long soptampUserId;
+        private Long points;
+
+        public static Point of(Long id, Long generation, Long soptampUserId, Long points) {
+            return new Point(id, generation, soptampUserId, points);
+        }
     }
 }
