@@ -22,8 +22,7 @@ public class UserService {
 
     @Transactional
     public UserInfo.Id loginWithUserPlaygroundId(
-            PlaygroundAuthInfo.PlaygroundMain playgroundMemberResponse,
-            AppAuthRequest.CodeRequest codeRequest
+            PlaygroundAuthInfo.PlaygroundMain playgroundMemberResponse
     ) {
         val registeredUser = userRepository.findUserByPlaygroundId(playgroundMemberResponse.getId());
 
@@ -41,8 +40,7 @@ public class UserService {
             val newUser = this.registerNewUser(
                     playgroundMemberResponse.getName(),
                     playgroundMemberResponse.getId(),
-                    playgroundMemberResponse.getAccessToken(),
-                    codeRequest.getPushToken()
+                    playgroundMemberResponse.getAccessToken()
             );
             userRepository.save(newUser);
 
@@ -51,7 +49,7 @@ public class UserService {
         }
     }
 
-    private User registerNewUser(String username, Long playgroundId, String playgroundToken, String pushToken) {
+    private User registerNewUser(String username, Long playgroundId, String playgroundToken) {
         val nickname = this.generateNickname(username);
         return User.builder()
                 .username(username)

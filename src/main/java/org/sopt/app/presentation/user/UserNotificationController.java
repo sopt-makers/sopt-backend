@@ -34,7 +34,7 @@ public class UserNotificationController {
     private final OptionResponseMapper optionResponseMapper;
 
 
-    @Operation(summary = "푸시 토큰 재등록")
+    @Operation(summary = "푸시 토큰 등록/재등록")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
@@ -42,24 +42,16 @@ public class UserNotificationController {
     @PostMapping(value = "/push-token")
     public ResponseEntity<PushTokenResponse.StatusResponse> updatePushToken(
             @AuthenticationPrincipal User user,
-            @RequestHeader(name = "platform") String platform,
             @Valid @RequestBody PushTokenRequest.EditRequest updatePushTokenRequest
     ) {
-        // 복합키이기 때문에 playground ID 만으로 조회 불가능 => 단순 저장밖에 방법이 없음.
-        val newGeneratedToken = PushToken.builder()
+        val pushToken = PushToken.builder()
                 .playgroundId(user.getPlaygroundId())
                 .token(updatePushTokenRequest.getPushToken())
                 .build();
-        System.out.println(newGeneratedToken.toString());
         val result = pushTokenService.registerDeviceToken(
-                newGeneratedToken,
-                platform
+                pushToken,
+                updatePushTokenRequest.getPlatform()
         );
-//        val result = pushTokenService.updateDeviceToken(
-//                newGeneratedToken,
-//                updatePushTokenRequest.getPushToken(),
-//                platform
-//        );
         val response = pushTokenResponseMapper.ofStatus(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -72,13 +64,15 @@ public class UserNotificationController {
     @DeleteMapping(value = "/push-token")
     public ResponseEntity<PushTokenResponse.StatusResponse> deletePushToken(
             @AuthenticationPrincipal User user,
-            @RequestHeader(name = "platform") String platform,
             @Valid @RequestBody PushTokenRequest.DeleteRequest deletePushTokenRequest
     ) {
         PushToken targetPushToken = pushTokenService.getDeviceTokenFromLocal(
                 PushTokenPK.of(user.getPlaygroundId(), deletePushTokenRequest.getPushToken())
         );
-        val result = pushTokenService.deleteDeviceToken(targetPushToken, platform);
+        val result = pushTokenService.deleteDeviceToken(
+                targetPushToken,
+                deletePushTokenRequest.getPlatform()
+        );
         val response = pushTokenResponseMapper.ofStatus(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

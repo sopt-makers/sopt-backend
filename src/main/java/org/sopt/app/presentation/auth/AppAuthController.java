@@ -11,9 +11,7 @@ import lombok.val;
 import org.sopt.app.application.auth.JwtTokenService;
 import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.notification.NotificationOptionService;
-import org.sopt.app.application.notification.PushTokenService;
 import org.sopt.app.application.user.UserService;
-import org.sopt.app.domain.entity.PushToken;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,7 +24,6 @@ public class AppAuthController {
     private final PlaygroundAuthService playgroundAuthService;
     private final UserService userService;
     private final NotificationOptionService optionService;
-    private final PushTokenService pushTokenService;
 
     private final JwtTokenService jwtTokenService;
 
@@ -40,8 +37,7 @@ public class AppAuthController {
     })
     @PostMapping(value = "/playground")
     public ResponseEntity<AppAuthResponse.Token> playgroundLogin(
-            @RequestHeader(value = "platform") String platform
-            , @Valid @RequestBody AppAuthRequest.CodeRequest codeRequest
+            @Valid @RequestBody AppAuthRequest.CodeRequest codeRequest
     ) {
         // 1. PlayGround SSO Auth 를 통해 accessToken 받아옴
         val temporaryToken = playgroundAuthService.getPlaygroundAccessToken(codeRequest);
@@ -50,21 +46,10 @@ public class AppAuthController {
         // 3. PlayGround User Info 받아옴
         val playgroundMember = playgroundAuthService.getPlaygroundInfo(playgroundToken.getAccessToken());
 
-        val userId = userService.loginWithUserPlaygroundId(playgroundMember, codeRequest);
+        val userId = userService.loginWithUserPlaygroundId(playgroundMember);
 
         // 4. 기본 알림 설정 저지
         optionService.registerOptIn(userId.getId());
-
-        /**
-         * 알림 기능 자체가 타 서비스들과 종속성이 있는 관계로
-         * UserId -> Playground Member Id 로 변경되었습니다.
-         */
-        // 5. Push Token 등록
-        val pushToken = PushToken.builder()
-                .playgroundId(playgroundMember.getId())
-                .token(codeRequest.getPushToken())
-                .build();
-        pushTokenService.registerDeviceToken(pushToken, platform);
 
         // 5. Response 할 Body 생성
         val appToken = jwtTokenService.issueNewTokens(userId, playgroundMember);
