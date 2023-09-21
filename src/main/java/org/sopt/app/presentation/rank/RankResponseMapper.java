@@ -4,9 +4,9 @@ import java.util.List;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
-import org.sopt.app.application.rank.RankInfo.Main;
+import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
 import org.sopt.app.domain.entity.Mission;
-import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.entity.SoptampUser;
 
 @Mapper(
         componentModel = "spring",
@@ -17,5 +17,5 @@ public interface RankResponseMapper {
 
     List<RankResponse.RankMain> of(List<Main> rank);
 
-    RankResponse.Detail of(User user, List<Mission> userMissions);
+    RankResponse.Detail of(SoptampUser user, List<Mission> userMissions);
 }
