@@ -18,4 +18,15 @@ public class MissionInfo {
         private List<String> profileImage;
         private Boolean isCompleted;
     }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class Level {
+        private Integer level;
+
+        public static Level of(Integer level) {
+            return new Level(level);
+        }
+    }
 }

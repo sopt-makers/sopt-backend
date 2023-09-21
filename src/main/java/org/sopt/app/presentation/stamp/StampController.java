@@ -9,7 +9,10 @@ import java.util.List;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.s3.S3Service;
+import org.sopt.app.application.soptamp.SoptampPointService;
+import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.domain.entity.User;
 import org.springframework.http.HttpStatus;
@@ -34,7 +37,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class StampController {
 
     private final StampService stampService;
-
+    private final MissionService missionService;
+    private final SoptampUserService soptampUserService;
+    private final SoptampPointService soptampPointService;
     private final S3Service s3Service;
 
     private final StampResponseMapper stampResponseMapper;
@@ -49,7 +54,8 @@ public class StampController {
     public ResponseEntity<StampResponse.StampMain> findStampByMissionAndUserId(
             @Valid @ModelAttribute StampRequest.FindStampRequest findStampRequest
     ) {
-        val result = stampService.findStamp(findStampRequest);
+        val userId = soptampUserService.findByNickname(findStampRequest.getNickname()).getId();
+        val result = stampService.findStamp(findStampRequest, userId);
         val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -116,6 +122,9 @@ public class StampController {
     ) {
         stampService.checkDuplicateStamp(user.getId(), registerStampRequest.getMissionId());
         val result = stampService.uploadStamp(registerStampRequest, user);
+        val mission = missionService.getMissionById(registerStampRequest.getMissionId());
+        val soptampUser = soptampUserService.addPoint(user.getId(), mission.getLevel());
+        soptampPointService.addPoint(soptampUser.getId(), mission.getLevel());
         val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -148,6 +157,10 @@ public class StampController {
             @PathVariable Long stampId
     ) {
         stampService.deleteStampById(user, stampId);
+        val missionId = stampService.getMissionIdByStampId(stampId);
+        val mission = missionService.getMissionById(missionId);
+        val soptampUser = soptampUserService.subtractPoint(user.getId(), mission.getLevel());
+        soptampPointService.subtractPoint(soptampUser.getId(), mission.getLevel());
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
@@ -159,6 +172,7 @@ public class StampController {
     @DeleteMapping("/all")
     public ResponseEntity<StampResponse.StampMain> deleteStampByUserId(@AuthenticationPrincipal User user) {
         stampService.deleteAllStamps(user);
+        soptampUserService.initPoint(user.getId());
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }
