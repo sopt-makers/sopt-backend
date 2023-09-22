@@ -57,13 +57,13 @@ public class StampService {
     @Transactional
     public Stamp uploadStamp(
             RegisterStampRequest stampRequest,
-            User user) {
+            Long userId) {
         val stamp = Stamp.builder()
                 .contents(stampRequest.getContents())
                 .createdAt(LocalDateTime.now())
                 .images(List.of(stampRequest.getImage()))
                 .missionId(stampRequest.getMissionId())
-                .userId(user.getId())
+                .userId(userId)
                 .build();
 
         return stampRepository.save(stamp);
@@ -116,7 +116,7 @@ public class StampService {
     }
 
     @Transactional
-    public void deleteStampById(User user, Long stampId) {
+    public void deleteStampById(Long stampId) {
 
         val stamp = stampRepository.findById(stampId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
@@ -126,10 +126,10 @@ public class StampService {
     }
 
     @Transactional
-    public void deleteAllStamps(User user) {
-        stampRepository.deleteAllByUserId(user.getId());
+    public void deleteAllStamps(Long userId) {
+        stampRepository.deleteAllByUserId(userId);
 
-        val imageUrls = stampRepository.findAllByUserId(user.getId()).stream().map(Stamp::getImages)
+        val imageUrls = stampRepository.findAllByUserId(userId).stream().map(Stamp::getImages)
                 .flatMap(images -> images.stream()).collect(Collectors.toList());
         Events.raise(new StampDeletedEvent(imageUrls));
     }
