@@ -8,9 +8,9 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.mission.MissionService;
-import org.sopt.app.application.rank.RankService;
+import org.sopt.app.application.soptamp.SoptampPointService;
+import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.domain.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,8 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 @SecurityRequirement(name = "Authorization")
 public class RankController {
 
-    private final RankService rankService;
-    private final PlaygroundAuthService playgroundAuthService;
+    private final SoptampPointService soptampPointService;
+    private final SoptampUserService soptampUserService;
     private final RankResponseMapper rankResponseMapper;
     private final MissionService missionService;
 
@@ -38,7 +38,7 @@ public class RankController {
     })
     @GetMapping("")
     public ResponseEntity<List<RankResponse.RankMain>> findRanks() {
-        val result = rankService.findRanks();
+        val result = soptampUserService.findRanks();
         val response = rankResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -53,8 +53,8 @@ public class RankController {
     public ResponseEntity<List<RankResponse.RankMain>> findCurrentRanks(
         @AuthenticationPrincipal User user
     ) {
-        val activeUserIds = playgroundAuthService.getActiveUsers(user.getPlaygroundToken());
-        val result = rankService.findCurrentRanks(activeUserIds);
+        val soptamPointList = soptampPointService.findCurrentPointList();
+        val result = soptampUserService.findCurrentRanks(soptamPointList);
         val response = rankResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -67,7 +67,7 @@ public class RankController {
     })
     @GetMapping("/detail")
     public ResponseEntity<RankResponse.Detail> findRankByNickname(@RequestParam(value = "nickname") String nickname) {
-        val result = rankService.findRankByNickname(nickname);
+        val result = soptampUserService.findRankByNickname(nickname);
         val missionList = missionService.getCompleteMission(result.getId());
         val response = rankResponseMapper.of(result, missionList);
         return ResponseEntity.status(HttpStatus.OK).body(response);

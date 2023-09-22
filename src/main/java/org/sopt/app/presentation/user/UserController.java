@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.user.UserService;
+import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.domain.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,9 +26,8 @@ import org.springframework.web.bind.annotation.RestController;
 @SecurityRequirement(name = "Authorization")
 public class UserController {
 
-    private final UserService userService;
+    private final SoptampUserService soptampUserService;
     private final UserResponseMapper userResponseMapper;
-
 
     @Operation(summary = "유저 정보 조회")
     @ApiResponses({
@@ -48,7 +47,12 @@ public class UserController {
     })
     @GetMapping(value = "/soptamp")
     public ResponseEntity<UserResponse.Soptamp> getSoptampInfo(@AuthenticationPrincipal User user) {
-        val response = userResponseMapper.ofSoptamp(user);
+        val SoptampUser = soptampUserService.getSotampUserInfo(user.getId());
+        val response = UserResponse.Soptamp.builder()
+            .nickname(SoptampUser.getNickname())
+            .profileMessage(SoptampUser.getProfileMessage())
+            .points(SoptampUser.getTotalPoints())
+            .build();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -60,7 +64,7 @@ public class UserController {
     })
     @GetMapping(value = "/nickname/{nickname}")
     public ResponseEntity<UserResponse.Nickname> validateUserNickname(@PathVariable String nickname) {
-        userService.checkUserNickname(nickname);
+        soptampUserService.checkUserNickname(nickname);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
@@ -75,8 +79,11 @@ public class UserController {
             @Valid @RequestBody UserRequest.EditNicknameRequest editNicknameRequest
     ) {
         val nickname = editNicknameRequest.getNickname();
-        val result = userService.editNickname(user, nickname);
-        val response = userResponseMapper.of(result);
+        val soptampUser = soptampUserService.getSotampUserInfo(user.getId());
+        val result = soptampUserService.editNickname(soptampUser, nickname);
+        val response = UserResponse.Nickname.builder()
+            .nickname(result.getNickname())
+            .build();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -90,8 +97,11 @@ public class UserController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody UserRequest.EditProfileMessageRequest editProfileMessageRequest
     ) {
-        val result = userService.editProfileMessage(user, editProfileMessageRequest.getProfileMessage());
-        val response = userResponseMapper.of(result);
+        val soptampUser = soptampUserService.getSotampUserInfo(user.getId());
+        val result = soptampUserService.editProfileMessage(soptampUser, editProfileMessageRequest.getProfileMessage());
+        val response = UserResponse.ProfileMessage.builder()
+            .profileMessage(result.getProfileMessage())
+            .build();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 

@@ -20,8 +20,6 @@ public interface UserResponseMapper {
     UserResponse.MainView ofMainView(PlaygroundAuthInfo.MainView user, OperationInfo.MainView operation,
             Boolean exists);
 
-    UserResponse.Soptamp ofSoptamp(User user);
-
     UserResponse.Nickname of(UserInfo.Nickname nickname);
 
     UserResponse.ProfileMessage of(UserInfo.ProfileMessage profileMessage);

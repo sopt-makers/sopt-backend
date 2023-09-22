@@ -1,5 +1,6 @@
 package org.sopt.app.application.user;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
@@ -50,42 +51,11 @@ public class UserService {
     }
 
     private User registerNewUser(String username, Long playgroundId, String playgroundToken) {
-        val nickname = this.generateNickname(username);
         return User.builder()
                 .username(username)
-                .nickname(nickname)
                 .playgroundId(playgroundId)
                 .playgroundToken(playgroundToken)
-                .points(0L)
                 .isOptIn(false)
-                .build();
-    }
-
-    private String generateNickname(String username) {
-        return username + Math.round(Math.random() * 10000);
-    }
-
-    @Transactional(readOnly = true)
-    public void checkUserNickname(String nickname) {
-        val nicknameUser = userRepository.findUserByNickname(nickname);
-        if (nicknameUser.isPresent()) {
-            throw new BadRequestException(ErrorCode.DUPLICATE_NICKNAME.getMessage());
-        }
-    }
-
-    @Transactional
-    public UserInfo.Nickname editNickname(User user, String nickname) {
-        user.editNickname(nickname);
-        userRepository.save(user);
-        return UserInfo.Nickname.builder().nickname(nickname).build();
-    }
-
-    @Transactional
-    public UserInfo.ProfileMessage editProfileMessage(User user, String profileMessage) {
-        user.updateProfileMessage(profileMessage);
-        userRepository.save(user);
-        return UserInfo.ProfileMessage.builder()
-                .profileMessage(user.getProfileMessage())
                 .build();
     }
 

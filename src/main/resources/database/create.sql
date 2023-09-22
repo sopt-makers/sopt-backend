@@ -8,8 +8,6 @@ set search_path to app_dev;
 CREATE TABLE app_dev.app_users (
                                    user_id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                                    username character varying(30) NOT NULL,
-                                   nickname character varying(255) UNIQUE NOT NULL,
-                                   points bigint DEFAULT 0,
                                    is_opt_in boolean DEFAULT false,
                                    playground_id bigint UNIQUE ,
                                    playground_token character varying(500),
@@ -115,4 +113,46 @@ alter table app_dev.main_description
 
 create unique index main_description_id_uindex
     on app_dev.main_description (id);
+
+create table app_dev.soptamp_point
+(
+    id              serial
+        constraint soptamp_point_pk
+            primary key,
+    generation      integer,
+    soptamp_user_id integer,
+    points          integer   default 0,
+    created_at      timestamp default now(),
+    updated_at      timestamp default now()
+);
+
+alter table app_dev.soptamp_point
+    owner to makers;
+
+create unique index soptamp_point_id_uindex
+    on app_dev.soptamp_point (id);
+
+create index soptamp_point_soptamp_user_id_index
+    on app_dev.soptamp_point (soptamp_user_id);
+
+create table app_dev.soptamp_user
+(
+    id serial
+        constraint soptamp_user_pk
+            primary key,
+    user_id integer not null,
+    profile_message varchar(255),
+    total_points bigint,
+    nickname varchar(255),
+    created_at timestamp default now(),
+    updated_at timestamp default now()
+);
+
+alter table app_dev.soptamp_user owner to makers;
+
+create unique index soptamp_user_id_uindex
+    on app_dev.soptamp_user (id);
+
+create unique index soptamp_user_user_id_uindex
+    on app_dev.soptamp_user (user_id);
 

@@ -82,5 +82,12 @@ public class MissionService {
 
         return missionRepository.findMissionInOrderByLevelAndTitleAndDisplayTrue(inCompleteIdList);
     }
+
+    public MissionInfo.Level getMissionById(Long missionId) {
+        val mission = missionRepository.findById(missionId).orElseThrow(
+                () -> new IllegalArgumentException("해당 미션을 찾을 수 없습니다.")
+        );
+        return MissionInfo.Level.of(mission.getLevel());
+    }
 }
 

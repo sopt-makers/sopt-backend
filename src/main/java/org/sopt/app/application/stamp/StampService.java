@@ -31,10 +31,8 @@ public class StampService {
     private final MissionRepository missionRepository;
 
     @Transactional(readOnly = true)
-    public Stamp findStamp(StampRequest.FindStampRequest findStampRequest) {
-        val user = userRepository.findUserByNickname(findStampRequest.getNickname())
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
-        return stampRepository.findByUserIdAndMissionId(user.getId(), findStampRequest.getMissionId())
+    public Stamp findStamp(StampRequest.FindStampRequest findStampRequest, Long userId) {
+        return stampRepository.findByUserIdAndMissionId(userId, findStampRequest.getMissionId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
     }
 
@@ -53,14 +51,6 @@ public class StampService {
         val imgList = new ArrayList<>(imgPaths);
         val stamp = this.convertStampImgDeprecated(stampRequest, imgList, userId, missionId);
 
-        val user = userRepository.findUserById(Long.valueOf(userId))
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
-        val mission = missionRepository.findById(missionId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
-
-        user.addPoints(mission.getLevel());
-        userRepository.save(user);
-
         return stampRepository.save(stamp);
     }
 
@@ -68,9 +58,6 @@ public class StampService {
     public Stamp uploadStamp(
             RegisterStampRequest stampRequest,
             User user) {
-
-        val mission = missionRepository.findById(stampRequest.getMissionId())
-                .orElseThrow(() -> new BadRequestException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
         val stamp = Stamp.builder()
                 .contents(stampRequest.getContents())
                 .createdAt(LocalDateTime.now())
@@ -78,8 +65,6 @@ public class StampService {
                 .missionId(stampRequest.getMissionId())
                 .userId(user.getId())
                 .build();
-        user.addPoints(mission.getLevel());
-        userRepository.save(user);
 
         return stampRepository.save(stamp);
     }
@@ -135,11 +120,6 @@ public class StampService {
 
         val stamp = stampRepository.findById(stampId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
-        val mission = missionRepository.findById(stamp.getMissionId())
-                .orElseThrow(() -> new BadRequestException(ErrorCode.MISSION_NOT_FOUND.getMessage()));
-
-        user.minusPoints(mission.getLevel());
-        userRepository.save(user);
         stampRepository.deleteById(stampId);
 
         Events.raise(new StampDeletedEvent(stamp.getImages()));
@@ -148,8 +128,6 @@ public class StampService {
     @Transactional
     public void deleteAllStamps(User user) {
         stampRepository.deleteAllByUserId(user.getId());
-        user.initializePoints();
-        userRepository.save(user);
 
         val imageUrls = stampRepository.findAllByUserId(user.getId()).stream().map(Stamp::getImages)
                 .flatMap(images -> images.stream()).collect(Collectors.toList());
@@ -171,4 +149,9 @@ public class StampService {
                 .build();
     }
 
+    public Long getMissionIdByStampId(Long stampId) {
+        return stampRepository.findById(stampId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()))
+                .getMissionId();
+    }
 }
