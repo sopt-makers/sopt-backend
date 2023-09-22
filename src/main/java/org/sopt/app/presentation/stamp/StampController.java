@@ -87,6 +87,9 @@ public class StampController {
         stampService.checkDuplicateStamp(user.getId(), missionId);
         val imgPaths = s3Service.uploadDeprecated(multipartFiles);
         val result = stampService.uploadStampDeprecated(registerStampRequest, imgPaths, user.getId(), missionId);
+        val mission = missionService.getMissionById(registerStampRequest.getMissionId());
+        val soptampUser = soptampUserService.addPoint(user.getId(), mission.getLevel());
+        soptampPointService.addPoint(soptampUser.getId(), mission.getLevel());
         val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
