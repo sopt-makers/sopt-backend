@@ -68,7 +68,7 @@ public class UserWithdrawController {
         // TODO: S3 이미지 삭제
         // TODO: 알림 서버 FCM Token 삭제 요청 => pushTokenService#deleteAllDeviceTokenOf 구현이 완료되어야함.
         // 스탬프 정보 삭제
-        stampService.deleteAllStamps(user);
+        stampService.deleteAllStamps(user.getId());
         // 푸시 토큰 일괄 삭제
         pushTokenService.deleteAllDeviceTokenOf(user);
         // 유저 정보 삭제

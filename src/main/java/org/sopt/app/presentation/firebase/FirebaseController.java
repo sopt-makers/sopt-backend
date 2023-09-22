@@ -25,7 +25,7 @@ public class FirebaseController {
 
         return FirebaseResponse.Main.builder()
                 .iosForceUpdateVersion("2.1.0")
-                .iosAppVersion("2.2.0")
+                .iosAppVersion("2.1.0")
                 .androidForceUpdateVersion("1.0.0")
                 .androidAppVersion("2.0.0")
                 .notice("안녕하세요 32기 여러분들! 드디어 솝트 공식앱 안드로이드/iOS 공식 출시를 했습니다!\n"
