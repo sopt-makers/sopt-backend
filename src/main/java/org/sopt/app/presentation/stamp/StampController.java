@@ -18,6 +18,7 @@ import org.sopt.app.domain.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -78,6 +79,7 @@ public class StampController {
 
     @Operation(summary = "스탬프 등록하기 - DEPRECATED")
     @PostMapping("/{missionId}")
+    @Transactional
     public ResponseEntity<StampResponse.StampMain> registerStampDeprecated(
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId,
@@ -87,7 +89,7 @@ public class StampController {
         stampService.checkDuplicateStamp(user.getId(), missionId);
         val imgPaths = s3Service.uploadDeprecated(multipartFiles);
         val result = stampService.uploadStampDeprecated(registerStampRequest, imgPaths, user.getId(), missionId);
-        val mission = missionService.getMissionById(registerStampRequest.getMissionId());
+        val mission = missionService.getMissionById(missionId);
         val soptampUser = soptampUserService.addPoint(user.getId(), mission.getLevel());
         soptampPointService.addPoint(soptampUser.getId(), mission.getLevel());
         val response = stampResponseMapper.of(result);
@@ -119,6 +121,7 @@ public class StampController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PostMapping("")
+    @Transactional
     public ResponseEntity<StampResponse.StampMain> registerStamp(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody StampRequest.RegisterStampRequest registerStampRequest
