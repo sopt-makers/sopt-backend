@@ -35,6 +35,19 @@ public enum ErrorCode {
     STAMP_NOT_FOUND("존재하지 않는 스탬프입니다."),
     DUPLICATE_STAMP("이미 해당 미션에 대한 스탬프가 존재합니다."),
 
+    // NOTIFICATION
+    NOTIFICATION_NOT_FOUND("존재하지 않는 알림입니다."),
+
+    // NOTIFICATION_OPTION
+    TARGET_OPTION_NOT_FOUND("해당 알림 동의 여부 값이 존재하지 않습니다."),
+
+    // PUSH_TOKEN
+    PUSH_TOKEN_NOT_FOUND_FROM_LOCAL("서비스 내에 존재하지 않는 푸시 토큰입니다."),
+    PUSH_TOKEN_NOT_FOUND_FROM_EXTERNAL("외부 푸시 서버 내에 존재하지 않는 푸시 토큰입니다."),
+
+    INVALID_REQUEST_BODY_FOR_PUSH_TOKEN("잘못된 푸시 토큰 관련 요청입니다."),
+    INTERNAL_SERVER_ERROR_IN_PUSH_SERVER("푸시 서버 내부 오류입니다."),
+
     // S3
     PRE_SIGNED_URI_ERROR("URL을 생성할 수 없습니다.");
 

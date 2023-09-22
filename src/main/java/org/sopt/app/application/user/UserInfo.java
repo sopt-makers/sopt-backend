@@ -10,7 +10,6 @@ public class UserInfo {
     @Builder
     @ToString
     public static class Id {
-
         private Long id;
     }
 
@@ -18,7 +17,6 @@ public class UserInfo {
     @Builder
     @ToString
     public static class Token {
-
         private String accessToken;
     }
 
@@ -36,5 +34,12 @@ public class UserInfo {
     public static class ProfileMessage {
 
         private String profileMessage;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class IsOptIn {
+        private Boolean isOptIn;
     }
 }

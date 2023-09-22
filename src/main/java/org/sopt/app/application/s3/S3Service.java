@@ -23,9 +23,7 @@ import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.joda.time.LocalDateTime;
-import org.sopt.app.common.ResponseCode;
 import org.sopt.app.common.exception.BadRequestException;
-import org.sopt.app.common.exception.v1.ApiException;
 import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
@@ -84,7 +82,7 @@ public class S3Service {
                                 .withCannedAcl(CannedAccessControlList.PublicRead));
                 return s3Client.getUrl(bucket + "/mainpage/makers-app", fileName).toString();
             } catch (IOException e) {
-                throw new ApiException(ResponseCode.INVALID_RESPONSE);
+                throw new BadRequestException("요청이 처리 되지 않았습니다.");
             }
         }).collect(Collectors.toList());
     }

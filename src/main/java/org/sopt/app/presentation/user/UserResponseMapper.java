@@ -17,11 +17,17 @@ public interface UserResponseMapper {
 
     UserResponse.AppUser ofAppUser(User user);
 
-    UserResponse.MainView ofMainView(PlaygroundAuthInfo.MainView user, OperationInfo.MainView operation);
-
-    UserResponse.Soptamp ofSoptamp(User user);
+    UserResponse.MainView ofMainView(PlaygroundAuthInfo.MainView user, OperationInfo.MainView operation,
+            Boolean exists);
 
     UserResponse.Nickname of(UserInfo.Nickname nickname);
 
     UserResponse.ProfileMessage of(UserInfo.ProfileMessage profileMessage);
+
+
+    UserResponse.IsOptIn ofIsOptIn(User user);
+
+
+    UserResponse.Generation ofGeneration(PlaygroundAuthInfo.UserActiveInfo userActiveInfo);
+
 }

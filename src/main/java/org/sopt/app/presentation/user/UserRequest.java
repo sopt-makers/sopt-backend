@@ -27,4 +27,18 @@ public class UserRequest {
         @NotNull(message = "profileMessage may not be null")
         private String profileMessage;
     }
+
+
+    @Getter
+    @Setter
+    @ToString
+    public static class EditIsOptInRequest {
+
+        @Schema(description = "푸시 알림 수신 동의", example = "false")
+        @NotNull(message = "opt-in value may not be null")
+        private Boolean isOptIn;
+    }
+
+
+
 }

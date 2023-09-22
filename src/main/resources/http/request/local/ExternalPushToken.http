@@ -1,0 +1,35 @@
+### 푸시 서버 Health Check
+GET  {{push_server}}
+
+
+### PushToken 등록
+POST {{push_server}}
+Content-Type: application/json
+x-api-key: {{push_x-api-key_dev}}
+action: register
+service: {{push_service}}
+platform: {{push_platform}}
+transactionId: {{push_transaction-id}}
+
+
+< ./data/post-external.json
+
+> {%
+    client.log(JSON.stringify(response.body))
+%}
+
+### PushToken 삭제
+POST {{push_server}}
+Content-Type: application/json
+x-api-key: {{push_x-api-key_dev}}
+action: cancel
+service: {{push_service}}
+platform: {{push_platform}}
+transactionId: {{push_transaction-id}}
+
+
+< ./data/post-external.json
+
+> {%
+    client.log(JSON.stringify(response.body))
+%}

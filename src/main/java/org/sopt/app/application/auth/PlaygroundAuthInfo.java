@@ -1,5 +1,6 @@
 package org.sopt.app.application.auth;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
@@ -105,5 +106,22 @@ public class PlaygroundAuthInfo {
 
         private String accessToken;
         private String errorCode;
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class ActiveUserIds {
+        @JsonProperty("memberIds")
+        private List<Long> userIds;
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @ToString
+    public static class UserActiveInfo {
+        private Long currentGeneration;
+        private UserStatus status;
     }
 }

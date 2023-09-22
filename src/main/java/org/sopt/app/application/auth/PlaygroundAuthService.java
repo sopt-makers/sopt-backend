@@ -9,7 +9,7 @@ import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
-import org.sopt.app.presentation.auth.AuthRequest;
+import org.sopt.app.presentation.auth.AppAuthRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -42,7 +42,7 @@ public class PlaygroundAuthService {
         return member;
     }
 
-    public AuthRequest.AccessTokenRequest getPlaygroundAccessToken(AuthRequest.CodeRequest codeRequest) {
+    public AppAuthRequest.AccessTokenRequest getPlaygroundAccessToken(AppAuthRequest.CodeRequest codeRequest) {
         val getTokenURL = baseURI + "/api/v1/idp/sso/auth";
 
         val headers = new HttpHeaders();
@@ -55,7 +55,7 @@ public class PlaygroundAuthService {
                     getTokenURL,
                     HttpMethod.POST,
                     entity,
-                    AuthRequest.AccessTokenRequest.class
+                    AppAuthRequest.AccessTokenRequest.class
             );
             return response.getBody();
         } catch (Exception e) {
@@ -85,7 +85,7 @@ public class PlaygroundAuthService {
         }
     }
 
-    public PlaygroundAuthInfo.RefreshedToken refreshPlaygroundToken(AuthRequest.AccessTokenRequest tokenRequest) {
+    public PlaygroundAuthInfo.RefreshedToken refreshPlaygroundToken(AppAuthRequest.AccessTokenRequest tokenRequest) {
         val getTokenURL = baseURI + "/internal/api/v1/idp/auth/token";
 
         val headers = new HttpHeaders();
@@ -149,4 +149,14 @@ public class PlaygroundAuthService {
         }
     }
 
+    public PlaygroundAuthInfo.UserActiveInfo getPlaygroundUserActiveInfo(String accessToken) {
+        val playgroundProfile = this.getPlaygroundMemberProfile(accessToken);
+        val generationList = playgroundProfile.getActivities().stream()
+            .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).toList();
+        val userStatus = this.getStatus(generationList);
+        return PlaygroundAuthInfo.UserActiveInfo.builder()
+                .status(userStatus)
+                .currentGeneration(currentGeneration)
+                .build();
+    }
 }

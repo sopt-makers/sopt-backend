@@ -24,7 +24,8 @@ public class MissionService {
     @Transactional(readOnly = true)
     public List<MissionInfo.Completeness> findAllMission(Long userId) {
         val completedStampList = stampRepository.findAllByUserId(userId);
-        val missionList = missionRepository.findAll();
+        val missionList = missionRepository.findAllByDisplay(true);
+
         return missionList.stream()
                 .map(mission -> MissionInfo.Completeness.builder()
                         .id(mission.getId())
@@ -60,14 +61,14 @@ public class MissionService {
     public List<Mission> getCompleteMission(Long userId) {
         val stampList = stampRepository.findAllByUserId(userId);
         val missionIdList = stampList.stream().map(Stamp::getMissionId).collect(Collectors.toList());
-        return missionRepository.findMissionInOrderByLevelAndTitle(missionIdList);
+        return missionRepository.findMissionInOrderByLevelAndTitleAndDisplayTrue(missionIdList);
     }
 
     @Transactional(readOnly = true)
     public List<Mission> getIncompleteMission(Long userId) {
 
         //전체 미션 조회하기
-        val missionList = missionRepository.findAll();
+        val missionList = missionRepository.findAllByDisplay(true);
         val missionIdList = missionList.stream().map(Mission::getId).collect(Collectors.toList());
 
         //stamp에서 userId로 달성한 mission 조회하기
@@ -79,7 +80,14 @@ public class MissionService {
                 .filter(all -> completeMissionIdList.stream().noneMatch(Predicate.isEqual(all)))
                 .toList();
 
-        return missionRepository.findMissionInOrderByLevelAndTitle(inCompleteIdList);
+        return missionRepository.findMissionInOrderByLevelAndTitleAndDisplayTrue(inCompleteIdList);
+    }
+
+    public MissionInfo.Level getMissionById(Long missionId) {
+        val mission = missionRepository.findById(missionId).orElseThrow(
+                () -> new IllegalArgumentException("해당 미션을 찾을 수 없습니다.")
+        );
+        return MissionInfo.Level.of(mission.getLevel());
     }
 }
 
