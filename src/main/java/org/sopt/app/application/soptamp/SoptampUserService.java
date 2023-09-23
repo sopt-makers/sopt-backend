@@ -110,7 +110,7 @@ public class SoptampUserService {
     public List<SoptampPointInfo.Main> findCurrentRanks(List<Point> soptampPointList) {
         val soptampUserIdList = soptampPointList.stream()
             .map(Point::getSoptampUserId).toList();
-        val userList = soptampUserRepository.findAllByUserIdIn(soptampUserIdList);
+        val userList = soptampUserRepository.findAllById(soptampUserIdList);
         return this.getCurrentRanking(userList, soptampPointList);
     }
 
@@ -129,10 +129,10 @@ public class SoptampUserService {
 
     private List<Main> getCurrentRanking(List<SoptampUser> userList, List<Point> soptampPointList) {
         val rankPoint = new AtomicInteger(1);
-        return soptampPointList.stream().sorted(Comparator.comparing(Point::getPoints).reversed())
+        val result =  soptampPointList.stream().sorted(Comparator.comparing(Point::getPoints).reversed())
             .map(point -> {
                 val user = userList.stream()
-                    .filter(u -> u.getUserId().equals(point.getSoptampUserId()))
+                    .filter(u -> u.getId().equals(point.getSoptampUserId()))
                     .findFirst()
                     .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
                 return Main.builder()
@@ -142,6 +142,7 @@ public class SoptampUserService {
                     .profileMessage(user.getProfileMessage())
                     .build();
             }).collect(Collectors.toList());
+        return result;
     }
 
     public SoptampUser findRankByNickname(String nickname) {
