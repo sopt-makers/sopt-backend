@@ -61,7 +61,7 @@ public class MissionService {
     public List<Mission> getCompleteMission(Long userId) {
         val stampList = stampRepository.findAllByUserId(userId);
         val missionIdList = stampList.stream().map(Stamp::getMissionId).collect(Collectors.toList());
-        return missionRepository.findMissionInOrderByLevelAndTitleAndDisplayTrue(missionIdList);
+        return missionRepository.findMissionInOrderByLevelAndTitle(missionIdList);
     }
 
     @Transactional(readOnly = true)
