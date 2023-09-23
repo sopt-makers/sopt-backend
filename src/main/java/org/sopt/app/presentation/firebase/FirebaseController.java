@@ -25,7 +25,7 @@ public class FirebaseController {
 
         return FirebaseResponse.Main.builder()
                 .iosForceUpdateVersion("2.1.0")
-                .iosAppVersion("2.1.0")
+                .iosAppVersion("2.2.0")
                 .androidForceUpdateVersion("1.0.0")
                 .androidAppVersion("2.0.0")
                 .notice("안녕하세요, Makers 입니다. SOPT APP이 더 편리한 서비스 경험을 위해 개선 되었어요 ‘◡’\n"

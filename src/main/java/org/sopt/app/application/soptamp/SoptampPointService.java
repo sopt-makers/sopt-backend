@@ -35,16 +35,17 @@ public class SoptampPointService {
 
     @Transactional
     public void addPoint(Long soptampUserId, Integer level) {
-        val soptampPoint = soptampPointRepository.findAllBySoptampUserIdAndGeneration(soptampUserId, currentGeneration).orElseThrow(
-            () -> new BadRequestException("해당 유저의 포인트가 존재하지 않습니다.")
-        );
-        val newSoptampPoint = SoptampPoint.builder()
-            .id(soptampPoint.getId())
-            .generation(soptampPoint.getGeneration())
-            .soptampUserId(soptampPoint.getSoptampUserId())
-            .points(soptampPoint.getPoints() + level)
-            .build();
-        soptampPointRepository.save(newSoptampPoint);
+        val soptampPoint = soptampPointRepository.findAllBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
+        if(soptampPoint.isPresent()){
+            val soptampPointEntity = soptampPoint.get();
+            val newSoptampPoint = SoptampPoint.builder()
+                .id(soptampPointEntity.getId())
+                .generation(soptampPointEntity.getGeneration())
+                .soptampUserId(soptampPointEntity.getSoptampUserId())
+                .points(soptampPointEntity.getPoints() + level)
+                .build();
+            soptampPointRepository.save(newSoptampPoint);
+        }
     }
 
     @Transactional
