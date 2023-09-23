@@ -6,6 +6,7 @@ import lombok.val;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.domain.entity.SoptampPoint;
+import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.interfaces.postgres.SoptampPointRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -61,9 +62,9 @@ public class SoptampPointService {
     }
 
     @Transactional
-    public void upsertSoptampPoint(Long soptampUserId) {
+    public void upsertSoptampPoint(UserStatus status, Long soptampUserId) {
         val soptampPoint = soptampPointRepository.findAllBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
-        if (soptampPoint.isPresent()) {
+        if (status.equals(UserStatus.INACTIVE) || soptampPoint.isPresent()) {
             return;
         }
         val newSoptampPoint = SoptampPoint.builder()

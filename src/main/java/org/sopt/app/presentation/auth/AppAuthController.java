@@ -52,7 +52,7 @@ public class AppAuthController {
 
         val userId = userService.loginWithUserPlaygroundId(playgroundMember);
         val soptampUserId = soptampUserService.updateSoptampUser(playgroundMember.getName(), userId.getId());
-        soptampPointService.upsertSoptampPoint(soptampUserId);
+        soptampPointService.upsertSoptampPoint(playgroundMember.getStatus(), soptampUserId);
 
         // 4. 기본 알림 설정 저지
         optionService.registerOptIn(userId.getId());
