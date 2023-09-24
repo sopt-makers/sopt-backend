@@ -68,7 +68,7 @@ public class RankController {
     @GetMapping("/detail")
     public ResponseEntity<RankResponse.Detail> findRankByNickname(@RequestParam(value = "nickname") String nickname) {
         val result = soptampUserService.findRankByNickname(nickname);
-        val missionList = missionService.getCompleteMission(result.getId());
+        val missionList = missionService.getCompleteMission(result.getUserId());
         val response = rankResponseMapper.of(result, missionList);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
