@@ -66,7 +66,7 @@ public class SoptampPointService {
 
     @Transactional
     public void upsertSoptampPoint(UserStatus status, Long soptampUserId) {
-        if (status.equals(UserStatus.INACTIVE) {
+        if (status.equals(UserStatus.INACTIVE)) {
             return;
         }
         val soptampPoint = soptampPointRepository.findAllBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
