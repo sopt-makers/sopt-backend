@@ -88,7 +88,7 @@ public class SoptampUserService {
         if (registerUser.isEmpty()) {
             val newSoptampUser = SoptampUser.builder()
                     .userId(userId)
-                    .profileMessage("")
+                    .profileMessage(null)
                     .totalPoints(0L)
                     .nickname(generateNickname(name))
                     .build();

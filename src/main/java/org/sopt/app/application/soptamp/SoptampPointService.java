@@ -50,22 +50,27 @@ public class SoptampPointService {
 
     @Transactional
     public void subtractPoint(Long soptampUserId, Integer level) {
-        val soptampPoint = soptampPointRepository.findAllBySoptampUserIdAndGeneration(soptampUserId, currentGeneration).orElseThrow(
-            () -> new BadRequestException("해당 유저의 포인트가 존재하지 않습니다.")
-        );
+        val soptampPoint = soptampPointRepository.findAllBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
+        if(soptampPoint.isEmpty()){
+            return;
+        }
+        val soptampPointEntity = soptampPoint.get();
         val newSoptampPoint = SoptampPoint.builder()
-            .id(soptampPoint.getId())
-            .generation(soptampPoint.getGeneration())
-            .soptampUserId(soptampPoint.getSoptampUserId())
-            .points(soptampPoint.getPoints() - level)
+            .id(soptampPointEntity.getId())
+            .generation(soptampPointEntity.getGeneration())
+            .soptampUserId(soptampPointEntity.getSoptampUserId())
+            .points(soptampPointEntity.getPoints() - level)
             .build();
         soptampPointRepository.save(newSoptampPoint);
     }
 
     @Transactional
     public void upsertSoptampPoint(UserStatus status, Long soptampUserId) {
+        if (status.equals(UserStatus.INACTIVE) {
+            return;
+        }
         val soptampPoint = soptampPointRepository.findAllBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
-        if (status.equals(UserStatus.INACTIVE) || soptampPoint.isPresent()) {
+        if (soptampPoint.isPresent()) {
             return;
         }
         val newSoptampPoint = SoptampPoint.builder()
