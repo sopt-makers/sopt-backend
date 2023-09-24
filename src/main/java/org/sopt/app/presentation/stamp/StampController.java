@@ -57,7 +57,7 @@ public class StampController {
     public ResponseEntity<StampResponse.StampMain> findStampByMissionAndUserId(
             @Valid @ModelAttribute StampRequest.FindStampRequest findStampRequest
     ) {
-        val userId = soptampUserService.findByNickname(findStampRequest.getNickname()).getId();
+        val userId = soptampUserService.findByNickname(findStampRequest.getNickname()).getUserId();
         val result = stampService.findStamp(findStampRequest, userId);
         val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
