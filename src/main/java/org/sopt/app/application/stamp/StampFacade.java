@@ -46,11 +46,11 @@ public class StampFacade {
 
     @Transactional
     public void deleteStamp(Long userId, Long stampId){
-        stampService.deleteStampById(stampId);
         val missionId = stampService.getMissionIdByStampId(stampId);
         val mission = missionService.getMissionById(missionId);
         val soptampUser = soptampUserService.subtractPoint(userId, mission.getLevel());
         soptampPointService.subtractPoint(soptampUser.getId(), mission.getLevel());
+        stampService.deleteStampById(stampId);
     }
 
     @Transactional
