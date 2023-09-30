@@ -73,7 +73,7 @@ public class NotificationService {
     }
 
     private void updateAllNotificationIsRead(User user) {
-        val notificationList = notificationRepository.findAllByPlaygroundId(user.getId());
+        val notificationList = notificationRepository.findAllByPlaygroundId(user.getPlaygroundId());
         val readNotificationList = notificationList.stream()
                 .map(notification -> {
                         notification.updateIsRead();
