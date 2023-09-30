@@ -1,7 +1,7 @@
 package org.sopt.app.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.vladmihalcea.hibernate.type.array.ListArrayType;
+
 import java.time.LocalDateTime;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,17 +16,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.annotations.TypeDef;
+import org.sopt.app.domain.enums.NotificationCategory;
 import org.sopt.app.domain.enums.NotificationType;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 
 @Entity
-@Table(name = "notification", schema = "app_dev")
-@TypeDef(
-        name = "list-array",
-        typeClass = ListArrayType.class
-)
+@Table(name = "notifications", schema = "app_dev")
 @Getter
 @Builder
 @NoArgsConstructor
@@ -37,22 +33,32 @@ public class Notification {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "message_id", nullable = false)
+    private Long messageId;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "playground_id", nullable = false)
+    private Long playgroundId;
+
+    @Column(name = "notification_title", columnDefinition = "TEXT", nullable = false)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
+
+    @Column(name = "notification_content", columnDefinition = "TEXT")
     private String content;
 
-    @Column()
+    @Column(name = "notification_type")
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
-//    @Column()
-//    @Enumerated(EnumType.STRING)
-//    private Part part;
+    @Column(name = "notification_category", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private NotificationCategory category;
+
+    @Column(name = "deep_link")
+    private String deepLink;
+
+    @Column(name = "web_link")
+    private String webLink;
 
     @Column(nullable = false, name = "is_read")
     @ColumnDefault("false")
