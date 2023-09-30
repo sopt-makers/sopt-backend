@@ -1,0 +1,46 @@
+### 1. APP 로그인 Token 발급
+# 선행 작업 : Playground OAuth Code Redirect (Code 유효기간이 짧으니 빠르게 사용해야 합니다.)
+# => https://sopt-internal-dev.pages.dev/auth/oauth?redirect_uri=http://localhost:3000&state=asdf
+# (아래에 있는 `code`는 새로 발급 받아서 사용하세요)
+POST {{server}}/api/v2/auth/playground
+Content-Type: application/json
+platform: {{push_platform_ios}}
+
+{
+  "code" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTUiLCJleHAiOjE2OTUxNTQ5ODJ9.1QML912zFbbpOSjY4VhuWYq0dPaDLY1k5LFlmizmuqY",
+  "pushToken" : "{{my_origin_push_token}}"
+}
+
+> {%
+    client.test("Validate" , function () {
+        client.assert(response.status === 200, "Code는 새로 발급 받아서 사용하세요");
+        client.assert(response.contentType.mimeType === "application/json", "JSON 형식 반환값이 아닙니다.");
+    })
+    client.log(response.body.accessToken.toString());
+    client.log(response.body.refreshToken.toString());
+    client.log(response.body.playgroundToken.toString());
+    client.log(response.body.status.toString());
+
+    // 현재 HTTP Client Global 변수로 로그인 정보 저장하고 사용
+    client.global.set("accessToken", response.body.accessToken);
+    client.global.set("refreshToken", response.body.refreshToken);
+    client.global.set("playgroundToken", response.body.playgroundToken);
+    client.global.set("status", response.body.status);
+%}
+
+### 2. APP 로그인 Token 재발급
+PATCH {{server}}/api/v2/auth/refresh
+Accept: */*
+Content-Type: application/json
+
+{
+  "refreshToken" : "{{refreshToken}}"
+}
+
+> {%
+// Refresh 된 내용들을 다시 저장합니다.
+    client.global.set("accessToken", response.body.accessToken);
+    client.global.set("refreshToken", response.body.refreshToken);
+    client.global.set("playgroundToken", response.body.playgroundToken);
+    client.global.set("status", response.body.status);
+ %}

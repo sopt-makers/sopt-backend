@@ -2,6 +2,7 @@
 POST {{server}}/api/v2/user/push-token
 Authorization: {{accessToken}}
 Content-Type: application/json
+platform: {{push_platform_ios}}
 
 < ./data/post-token.json
 
@@ -14,5 +15,6 @@ Content-Type: application/json
 DELETE {{server}}/api/v2/user/push-token
 Authorization: {{accessToken}}
 Content-Type: application/json
+platform: {{push_platform_ios}}
 
 < ./data/post-token.json
