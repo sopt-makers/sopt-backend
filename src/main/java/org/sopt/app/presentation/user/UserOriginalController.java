@@ -45,7 +45,7 @@ public class UserOriginalController {
         val mainViewUser = playgroundAuthService.getPlaygroundUserForMainView(user.getPlaygroundToken());
 //        val mainViewOperation = operationService.getOperationForMainView(accessToken);
         val dummyOperation = OperationInfo.MainView.builder().announcement("공지다!").attendanceScore(2D).build();
-        val mainViewNotification = notificationService.getNotificationMainViewStatus(user);
+        val mainViewNotification = notificationService.getNotificationConfirmStatus(user);
         val response = userResponseMapper.ofMainView(mainViewUser, dummyOperation, mainViewNotification);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

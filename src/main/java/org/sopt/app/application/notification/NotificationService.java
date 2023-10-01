@@ -91,11 +91,11 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
-    public Boolean getNotificationMainViewStatus(User user) {
+    public Boolean getNotificationConfirmStatus(User user) {
         val notificationList = notificationRepository.findAllByPlaygroundId(user.getPlaygroundId());
         val unreadNotificationList = notificationList.stream()
                 .filter(notification -> !notification.getIsRead())
                 .toList();
-        return unreadNotificationList.size() > 0;
+        return unreadNotificationList.size() == 0;
     }
 }

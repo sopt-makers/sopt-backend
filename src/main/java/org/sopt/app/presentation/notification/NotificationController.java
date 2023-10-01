@@ -98,7 +98,7 @@ public class NotificationController {
     public ResponseEntity<NotificationResponse.NotificationConfirmStatus> updateNotificationIsRead(
             @AuthenticationPrincipal User user
     ) {
-        val result = notificationService.getNotificationMainViewStatus(user);
+        val result = notificationService.getNotificationConfirmStatus(user);
         return ResponseEntity.status(HttpStatus.OK).body(
                 NotificationResponse.NotificationConfirmStatus.of(
                         result
