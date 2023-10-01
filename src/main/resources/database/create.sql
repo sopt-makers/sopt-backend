@@ -156,3 +156,27 @@ create unique index soptamp_user_id_uindex
 create unique index soptamp_user_user_id_uindex
     on app_dev.soptamp_user (user_id);
 
+---
+create table app_dev.notifications
+(
+    id                          serial
+        constraint notifications_pk
+            primary key,
+    message_id                  bigint not null ,
+    playground_id               bigint not null ,
+    notification_title          text not null ,
+    notification_content        text,
+    notification_type           varchar(50) not null ,
+    notification_category       varchar(50) not null ,
+    deep_link                   varchar(255) ,
+    web_link                    varchar(255) ,
+    is_read                     boolean default false,
+    created_at                  timestamp default now(),
+    updated_at                  timestamp default now()
+);
+
+alter table app_dev.notifications
+    owner to makers;
+
+create unique index notifications_id_uindex
+    on app_dev.notifications (id);

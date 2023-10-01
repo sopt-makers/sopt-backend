@@ -6,7 +6,7 @@ POST {{server}}/api/v2/auth/playground
 Content-Type: application/json
 
 {
-  "code" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTUiLCJleHAiOjE2OTUyMzg3NjN9._-GLVwWykD457IfhbPzi3emDUbvzuqI1ne1pt698gFE"
+  "code" : "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTUiLCJleHAiOjE2OTUyNzYyNzB9.xujco6PzhpX0yO92QeIKcMMMhv4lhlAYZmS77ZWXBqY"
 }
 
 > {%

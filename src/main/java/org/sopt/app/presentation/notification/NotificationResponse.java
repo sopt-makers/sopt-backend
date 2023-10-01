@@ -2,43 +2,106 @@ package org.sopt.app.presentation.notification;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+
+import lombok.*;
 
 public class NotificationResponse {
 
     @Getter
-    @Setter
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
-    public static class NotificationMain {
+    public static class NotificationSimple {
 
         @Schema(description = "알림 아이디", example = "1")
-        private Long id;
-        @Schema(description = "유저 아이디", example = "1")
-        private Long userId;
+        private Long notificationId;
+
+        @Schema(description = "유저 플레이그라운드 아이디", example = "1")
+        private Long playgroundId;
+
+        @Schema(description = "알림 제목", example = "공지다!")
+        private String title;
+
+        @Schema(description = "알림 내용", example = "공지 내용은 앱팀 최고입니다.")
+        private String content;
+
+        @Schema(description = "알림 카테고리", example = "공지 내용은 앱팀 최고입니다.")
+        private String category;
+
+        @Schema(description = "알림 읽음 여부", example = "true")
+        private Boolean isRead;
+
+        @Schema(description = "알림 생성 일시", example = "2023-03-29T18:39:42.106369")
+        private LocalDateTime createdAt;
+
+        public static NotificationSimple of(
+                Long notificationId
+                , Long playgroundId
+                , String title
+                , String content
+                , String category
+                , Boolean isRead
+                , LocalDateTime createdAt
+        ) {
+            return new NotificationSimple(
+                    notificationId, playgroundId, title, content, category, isRead, createdAt
+            );
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @ToString
+    public static class NotificationDetail {
+
+        @Schema(description = "알림 아이디", example = "1")
+        private Long notificationId;
+        @Schema(description = "유저 플레이그라운드 아이디", example = "1")
+        private Long playgroundId;
         @Schema(description = "알림 제목", example = "공지다!")
         private String title;
         @Schema(description = "알림 내용", example = "공지 내용은 앱팀 최고입니다.")
         private String content;
-        @Schema(description = "알림 타입", example = "NEWS")
-        private String type;
-        @Schema(description = "알림 읽음 여부", example = "true")
-        private Boolean isRead;
+        @Schema(description = "알림 첨부 딥링크")
+        private String deepLink;
+        @Schema(description = "알림 첨부 웹링크")
+        private String webLink;
         @Schema(description = "알림 생성 일시", example = "2023-03-29T18:39:42.106369")
         private LocalDateTime createdAt;
         @Schema(description = "알림 수정 일시", example = "2023-03-29T18:39:42.106369")
         private LocalDateTime updatedAt;
 
+        public static NotificationDetail of(
+                Long notificationId
+                , Long playgroundId
+                , String title
+                , String content
+                , String deepLink
+                , String webLink
+                , LocalDateTime createdAt
+                , LocalDateTime updatedAt
+        ) {
+            return new NotificationDetail(
+                    notificationId, playgroundId, title, content, deepLink, webLink, createdAt, updatedAt
+            );
+        }
     }
 
     @Getter
-    @Setter
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
-    public static class NotificationMainView {
-
+    public static class NotificationConfirmStatus {
         @Schema(description = "알림 전체 읽음 여부", example = "false")
-        private Boolean exists;
+        private Boolean isAllConfirm;
 
+        public static NotificationConfirmStatus of(
+                Boolean isAllConfirm
+        ) {
+            return new NotificationConfirmStatus(
+                    isAllConfirm
+            );
+        }
     }
 }

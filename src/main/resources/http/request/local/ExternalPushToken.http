@@ -8,7 +8,7 @@ Content-Type: application/json
 x-api-key: {{push_x-api-key_dev}}
 action: register
 service: {{push_service}}
-platform: {{push_platform}}
+platform: {{push_platform_ios}}
 transactionId: {{push_transaction-id}}
 
 
@@ -24,7 +24,7 @@ Content-Type: application/json
 x-api-key: {{push_x-api-key_dev}}
 action: cancel
 service: {{push_service}}
-platform: {{push_platform}}
+platform: {{push_platform_ios}}
 transactionId: {{push_transaction-id}}
 
 
