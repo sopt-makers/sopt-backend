@@ -20,6 +20,7 @@ public class NotificationRequest {
     public static class RegisterNotificationRequest {
         @Schema(description = "알림 서버로부터 수신한 알림의 고유 ID", example = "1")
         @NotNull(message = "message id may not be null")
+        @JsonProperty(value = "messageId")
         private Long messageId;
 
         @Schema(description = "알림 대상 유저 플레이그라운드 ID 리스트", example = "['1', '2']")
@@ -28,17 +29,21 @@ public class NotificationRequest {
 
         @Schema(description = "알림 제목", example = "앱팀 최고")
         @NotNull(message = "title may not be null")
+        @JsonProperty(value = "title")
         private String title;
 
         @Schema(description = "알림 제목", example = "앱팀 최고")
+        @JsonProperty(value = "content")
         private String content;
 
         @Schema(description = "알림 범위 타입", example = "INDIVIDUAL")
         @NotNull(message = "type may not be null")
+        @JsonProperty(value = "type")
         private NotificationType type;
 
         @Schema(description = "알림 카테고리", example = "NOTICE")
         @NotNull(message = "category may not be null")
+        @JsonProperty(value = "category")
         private NotificationCategory category;
 
         @Schema(description = "알림 첨부 딥링크")
