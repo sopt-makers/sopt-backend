@@ -36,7 +36,6 @@ public class NotificationService {
             NotificationRequest.RegisterNotificationRequest registerNotificationRequest
     ) {
         List<Long> playgroundIds = new ArrayList<>();
-        System.out.println(registerNotificationRequest.toString());
         if (registerNotificationRequest.getType().equals(NotificationType.ALL)) {
             playgroundIds = userRepository.findAllPlaygroundId();
         } else if (registerNotificationRequest.getType().equals(NotificationType.INDIVIDUAL)) {
@@ -47,6 +46,20 @@ public class NotificationService {
         registerTo(playgroundIds, registerNotificationRequest);
     }
     private void registerTo(List<Long> playgroundIds, NotificationRequest.RegisterNotificationRequest registerNotificationRequest) {
+        val notifications = playgroundIds.stream()
+                .map(playgroundId -> Notification.builder()
+                        .playgroundId(playgroundId)
+                        .messageId(registerNotificationRequest.getMessageId())
+                        .title(registerNotificationRequest.getTitle())
+                        .content(registerNotificationRequest.getContent())
+                        .type(registerNotificationRequest.getType())
+                        .category(registerNotificationRequest.getCategory())
+                        .deepLink(registerNotificationRequest.getDeepLink())
+                        .webLink(registerNotificationRequest.getWebLink())
+                        .isRead(false)
+                        .build()
+                ).toList();
+        /*
         for (Long playgroundId : playgroundIds) {
             val notification = Notification.builder()
                     .playgroundId(playgroundId)
@@ -60,7 +73,8 @@ public class NotificationService {
                     .isRead(false)
                     .build();
             notificationRepository.save(notification);
-        }
+         */
+        notificationRepository.saveAll(notifications);
     }
 
     @Transactional
