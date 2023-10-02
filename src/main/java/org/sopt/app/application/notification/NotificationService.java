@@ -39,7 +39,7 @@ public class NotificationService {
         if (registerNotificationRequest.getType().equals(NotificationType.ALL)) {
             playgroundIds = userRepository.findAllPlaygroundId();
         } else if (registerNotificationRequest.getType().equals(NotificationType.INDIVIDUAL)) {
-            playgroundIds = registerNotificationRequest.getUserIds().stream()
+            playgroundIds = registerNotificationRequest.getPlaygroundIds().stream()
                     .map(Long::parseLong)
                     .toList();
         }
