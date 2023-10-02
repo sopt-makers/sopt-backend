@@ -57,6 +57,30 @@ public class NotificationController {
                                 , notification.getCreatedAt()
                         )).toList());
     }
+    @Operation(summary = "알림 상세 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping(value = "/{notificationId}")
+    public ResponseEntity<NotificationResponse.NotificationDetail> findNotificationDetail(
+            @AuthenticationPrincipal User user,
+            @PathVariable("notificationId") Long notificationId
+    ) {
+        val result = notificationService.findNotification(user, notificationId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                NotificationResponse.NotificationDetail.of(
+                        notificationId,
+                        user.getId(),
+                        result.getTitle(),
+                        result.getContent(),
+                        result.getDeepLink(),
+                        result.getWebLink(),
+                        result.getCreatedAt(),
+                        result.getUpdatedAt()
+                )
+        );
+    }
 
 
     @Operation(summary = "[External] 알림 서버로부터 알림 등록")

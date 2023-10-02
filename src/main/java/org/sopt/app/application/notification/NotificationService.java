@@ -27,6 +27,12 @@ public class NotificationService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
+    public Notification findNotification(User user, Long notificationId) {
+        return notificationRepository.findByIdAndUserId(notificationId, user.getId())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
+    }
+
+    @Transactional(readOnly = true)
     public List<Notification> findNotificationList(User user, Pageable pageable) {
         return notificationRepository.findAllByUserId(user.getId(), pageable);
     }
