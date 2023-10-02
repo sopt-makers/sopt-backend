@@ -57,7 +57,7 @@ public class NotificationResponse {
 
         @Schema(description = "알림 아이디", example = "1")
         private Long notificationId;
-        @Schema(description = "유저 플레이그라운드 아이디", example = "1")
+        @Schema(description = "유저 유저 아이디", example = "1")
         private Long userId;
         @Schema(description = "알림 제목", example = "공지다!")
         private String title;
