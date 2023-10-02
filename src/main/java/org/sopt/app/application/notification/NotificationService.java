@@ -28,7 +28,7 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public List<Notification> findNotificationList(User user, Pageable pageable) {
-        return notificationRepository.findAllByPlaygroundId(user.getPlaygroundId(), pageable);
+        return notificationRepository.findAllByUserId(user.getId(), pageable);
     }
 
     @Transactional
@@ -39,16 +39,17 @@ public class NotificationService {
         if (registerNotificationRequest.getType().equals(NotificationType.ALL)) {
             playgroundIds = userRepository.findAllPlaygroundId();
         } else if (registerNotificationRequest.getType().equals(NotificationType.INDIVIDUAL)) {
-            playgroundIds = registerNotificationRequest.getUserIds().stream()
+            playgroundIds = registerNotificationRequest.getPlaygroundIds().stream()
                     .map(Long::parseLong)
                     .toList();
         }
         registerTo(playgroundIds, registerNotificationRequest);
     }
     private void registerTo(List<Long> playgroundIds, NotificationRequest.RegisterNotificationRequest registerNotificationRequest) {
-        val notifications = playgroundIds.stream()
-                .map(playgroundId -> Notification.builder()
-                        .playgroundId(playgroundId)
+        val targetUserIds = userRepository.findAllIdByPlaygroundIdIn(playgroundIds);
+        val notifications = targetUserIds.stream()
+                .map(userId -> Notification.builder()
+                        .userId(userId)
                         .messageId(registerNotificationRequest.getMessageId())
                         .title(registerNotificationRequest.getTitle())
                         .content(registerNotificationRequest.getContent())
@@ -59,23 +60,9 @@ public class NotificationService {
                         .isRead(false)
                         .build()
                 ).toList();
-        /*
-        for (Long playgroundId : playgroundIds) {
-            val notification = Notification.builder()
-                    .playgroundId(playgroundId)
-                    .messageId(registerNotificationRequest.getMessageId())
-                    .title(registerNotificationRequest.getTitle())
-                    .content(registerNotificationRequest.getContent())
-                    .type(registerNotificationRequest.getType())
-                    .category(registerNotificationRequest.getCategory())
-                    .deepLink(registerNotificationRequest.getDeepLink())
-                    .webLink(registerNotificationRequest.getWebLink())
-                    .isRead(false)
-                    .build();
-            notificationRepository.save(notification);
-         */
         notificationRepository.saveAll(notifications);
     }
+
 
     @Transactional
     public void updateNotificationIsRead(User user, Long notificationId) {
@@ -87,7 +74,7 @@ public class NotificationService {
     }
 
     private void updateAllNotificationIsRead(User user) {
-        val notificationList = notificationRepository.findAllByPlaygroundId(user.getPlaygroundId());
+        val notificationList = notificationRepository.findAllByUserId(user.getId());
         val readNotificationList = notificationList.stream()
                 .map(notification -> {
                         notification.updateIsRead();
@@ -98,7 +85,7 @@ public class NotificationService {
     }
 
     private void updateSingleNotificationIsRead(User user, Long notificationId) {
-        val notification = notificationRepository.findByIdAndPlaygroundId(notificationId, user.getPlaygroundId())
+        val notification = notificationRepository.findByIdAndUserId(notificationId, user.getId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
         notification.updateIsRead();
         notificationRepository.save(notification);
@@ -106,7 +93,7 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public Boolean getNotificationConfirmStatus(User user) {
-        val notificationList = notificationRepository.findAllByPlaygroundId(user.getPlaygroundId());
+        val notificationList = notificationRepository.findAllByUserId(user.getId());
         val unreadNotificationList = notificationList.stream()
                 .filter(notification -> !notification.getIsRead())
                 .toList();

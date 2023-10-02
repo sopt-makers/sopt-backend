@@ -32,8 +32,8 @@ public class Notification{
     @Column(name = "message_id", nullable = false)
     private Long messageId;
 
-    @Column(name = "playground_id", nullable = false)
-    private Long playgroundId;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
     @Column(name = "notification_title", columnDefinition = "TEXT", nullable = false)
     private String title;

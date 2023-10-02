@@ -8,9 +8,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
-    List<Notification> findAllByPlaygroundId(Long userId);
+    List<Notification> findAllByUserId(Long userId);
 
-    List<Notification> findAllByPlaygroundId(Long userId, Pageable pageable);
+    List<Notification> findAllByUserId(Long userId, Pageable pageable);
 
-    Optional<Notification> findByIdAndPlaygroundId(Long id, Long playgroundId);
+    Optional<Notification> findByIdAndUserId(Long id, Long userId);
 }

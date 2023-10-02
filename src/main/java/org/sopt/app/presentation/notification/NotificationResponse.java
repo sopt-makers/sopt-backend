@@ -16,8 +16,8 @@ public class NotificationResponse {
         @Schema(description = "알림 아이디", example = "1")
         private Long notificationId;
 
-        @Schema(description = "유저 플레이그라운드 아이디", example = "1")
-        private Long playgroundId;
+        @Schema(description = "앱 유저 아이디", example = "1")
+        private Long userId;
 
         @Schema(description = "알림 제목", example = "공지다!")
         private String title;
@@ -36,7 +36,7 @@ public class NotificationResponse {
 
         public static NotificationSimple of(
                 Long notificationId
-                , Long playgroundId
+                , Long userId
                 , String title
                 , String content
                 , String category
@@ -44,7 +44,7 @@ public class NotificationResponse {
                 , LocalDateTime createdAt
         ) {
             return new NotificationSimple(
-                    notificationId, playgroundId, title, content, category, isRead, createdAt
+                    notificationId, userId, title, content, category, isRead, createdAt
             );
         }
     }
@@ -57,8 +57,8 @@ public class NotificationResponse {
 
         @Schema(description = "알림 아이디", example = "1")
         private Long notificationId;
-        @Schema(description = "유저 플레이그라운드 아이디", example = "1")
-        private Long playgroundId;
+        @Schema(description = "유저 유저 아이디", example = "1")
+        private Long userId;
         @Schema(description = "알림 제목", example = "공지다!")
         private String title;
         @Schema(description = "알림 내용", example = "공지 내용은 앱팀 최고입니다.")
@@ -74,7 +74,7 @@ public class NotificationResponse {
 
         public static NotificationDetail of(
                 Long notificationId
-                , Long playgroundId
+                , Long userId
                 , String title
                 , String content
                 , String deepLink
@@ -83,7 +83,7 @@ public class NotificationResponse {
                 , LocalDateTime updatedAt
         ) {
             return new NotificationDetail(
-                    notificationId, playgroundId, title, content, deepLink, webLink, createdAt, updatedAt
+                    notificationId, userId, title, content, deepLink, webLink, createdAt, updatedAt
             );
         }
     }
