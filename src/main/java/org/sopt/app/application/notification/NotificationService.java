@@ -48,7 +48,7 @@ public class NotificationService {
     private void registerTo(List<Long> playgroundIds, NotificationRequest.RegisterNotificationRequest registerNotificationRequest) {
         val notifications = playgroundIds.stream()
                 .map(playgroundId -> Notification.builder()
-                        .playgroundId(playgroundId)
+                        .userId(changeToAppUserId(playgroundId))
                         .messageId(registerNotificationRequest.getMessageId())
                         .title(registerNotificationRequest.getTitle())
                         .content(registerNotificationRequest.getContent())
@@ -59,22 +59,11 @@ public class NotificationService {
                         .isRead(false)
                         .build()
                 ).toList();
-        /*
-        for (Long playgroundId : playgroundIds) {
-            val notification = Notification.builder()
-                    .playgroundId(playgroundId)
-                    .messageId(registerNotificationRequest.getMessageId())
-                    .title(registerNotificationRequest.getTitle())
-                    .content(registerNotificationRequest.getContent())
-                    .type(registerNotificationRequest.getType())
-                    .category(registerNotificationRequest.getCategory())
-                    .deepLink(registerNotificationRequest.getDeepLink())
-                    .webLink(registerNotificationRequest.getWebLink())
-                    .isRead(false)
-                    .build();
-            notificationRepository.save(notification);
-         */
         notificationRepository.saveAll(notifications);
+    }
+
+    private Long changeToAppUserId(Long playgroundId) {
+        return userRepository.findIdByPlaygroundId(playgroundId);
     }
 
     @Transactional
