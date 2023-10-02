@@ -28,7 +28,7 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public List<Notification> findNotificationList(User user, Pageable pageable) {
-        return notificationRepository.findAllByPlaygroundId(user.getPlaygroundId(), pageable);
+        return notificationRepository.findAllByUserId(user.getId(), pageable);
     }
 
     @Transactional
@@ -74,7 +74,7 @@ public class NotificationService {
     }
 
     private void updateAllNotificationIsRead(User user) {
-        val notificationList = notificationRepository.findAllByPlaygroundId(user.getPlaygroundId());
+        val notificationList = notificationRepository.findAllByUserId(user.getId());
         val readNotificationList = notificationList.stream()
                 .map(notification -> {
                         notification.updateIsRead();
@@ -85,7 +85,7 @@ public class NotificationService {
     }
 
     private void updateSingleNotificationIsRead(User user, Long notificationId) {
-        val notification = notificationRepository.findByIdAndPlaygroundId(notificationId, user.getPlaygroundId())
+        val notification = notificationRepository.findByIdAndUserId(notificationId, user.getId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
         notification.updateIsRead();
         notificationRepository.save(notification);
@@ -93,7 +93,7 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public Boolean getNotificationConfirmStatus(User user) {
-        val notificationList = notificationRepository.findAllByPlaygroundId(user.getPlaygroundId());
+        val notificationList = notificationRepository.findAllByUserId(user.getId());
         val unreadNotificationList = notificationList.stream()
                 .filter(notification -> !notification.getIsRead())
                 .toList();

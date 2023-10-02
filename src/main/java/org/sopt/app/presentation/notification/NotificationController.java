@@ -49,7 +49,7 @@ public class NotificationController {
                 result.stream()
                         .map((notification) -> NotificationResponse.NotificationSimple.of(
                                 notification.getId()
-                                , notification.getPlaygroundId()
+                                , notification.getUserId()
                                 , notification.getTitle()
                                 , notification.getContent()
                                 , notification.getCategory().name()
