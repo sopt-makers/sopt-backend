@@ -46,9 +46,10 @@ public class NotificationService {
         registerTo(playgroundIds, registerNotificationRequest);
     }
     private void registerTo(List<Long> playgroundIds, NotificationRequest.RegisterNotificationRequest registerNotificationRequest) {
-        val notifications = playgroundIds.stream()
-                .map(playgroundId -> Notification.builder()
-                        .userId(changeToAppUserId(playgroundId))
+        val targetUserIds = userRepository.findAllIdByPlaygroundIdIn(playgroundIds);
+        val notifications = targetUserIds.stream()
+                .map(userId -> Notification.builder()
+                        .userId(userId)
                         .messageId(registerNotificationRequest.getMessageId())
                         .title(registerNotificationRequest.getTitle())
                         .content(registerNotificationRequest.getContent())
@@ -62,9 +63,6 @@ public class NotificationService {
         notificationRepository.saveAll(notifications);
     }
 
-    private Long changeToAppUserId(Long playgroundId) {
-        return userRepository.findIdByPlaygroundId(playgroundId);
-    }
 
     @Transactional
     public void updateNotificationIsRead(User user, Long notificationId) {
