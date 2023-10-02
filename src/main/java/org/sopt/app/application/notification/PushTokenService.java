@@ -26,7 +26,6 @@ public class PushTokenService {
 
     private static final String ACTION_REGISTER = "register";
     private static final String ACTION_DELETE = "cancel";
-    private static final String ACTION_SEND = "send";
 
     private final PushTokenRepository pushTokenRepository;
 
@@ -56,14 +55,6 @@ public class PushTokenService {
     @Transactional(rollbackFor = BadRequestException.class)
     // 추후 비회원일 경우, Controller 단에서 고정 값으로 0과 같은 비회원 식별 번호 넣어줘야 함.
     public PushTokenResponse.StatusResponse registerDeviceToken(PushToken pushToken, String platform) {
-        if (pushTokenRepository.existsById(PushTokenPK.of(pushToken.getPlaygroundId(), pushToken.getToken()))){
-            // 아직 유효한 푸시 토큰을 그대로 쓰는 상황이라면 굳이 외부 서버 통신할 필요 없음
-            return PushTokenResponse.StatusResponse.builder()
-                    .status(200)
-                    .success(true)
-                    .message("already Registered")
-                    .build();
-        }
         try {
             val entity = new HttpEntity(
                     createBodyFor(pushToken),
