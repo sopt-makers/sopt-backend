@@ -113,21 +113,4 @@ public class NotificationController {
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
-    @Operation(summary = "알림 메인 뷰 조회")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping(value = "/main")
-    public ResponseEntity<NotificationResponse.NotificationConfirmStatus> updateNotificationIsRead(
-            @AuthenticationPrincipal User user
-    ) {
-        val result = notificationService.getNotificationConfirmStatus(user);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                NotificationResponse.NotificationConfirmStatus.of(
-                        result
-                )
-        );
-    }
-
 }
