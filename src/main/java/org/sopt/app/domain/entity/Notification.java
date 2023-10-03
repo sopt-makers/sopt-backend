@@ -15,6 +15,7 @@ import org.sopt.app.domain.enums.NotificationType;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Table(name = "notifications", schema = "app_dev")
@@ -62,12 +63,13 @@ public class Notification{
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+9")
     private LocalDateTime createdAt;
 
     @LastModifiedDate
     @Column(name = "updated_at")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat()
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+9")
     private LocalDateTime updatedAt;
 
 
