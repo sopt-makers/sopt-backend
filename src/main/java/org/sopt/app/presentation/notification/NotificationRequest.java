@@ -18,10 +18,6 @@ public class NotificationRequest {
     @NoArgsConstructor
     @ToString
     public static class RegisterNotificationRequest {
-        @Schema(description = "알림 서버로부터 수신한 알림의 고유 ID", example = "1")
-        @NotNull(message = "message id may not be null")
-        @JsonProperty(value = "messageId")
-        private Long messageId;
 
         @Schema(description = "알림 대상 유저 플레이그라운드 ID 리스트", example = "['1', '2']")
         @JsonProperty(value = "userIds")
