@@ -42,9 +42,9 @@ public class NotificationService {
             NotificationRequest.RegisterNotificationRequest registerNotificationRequest
     ) {
         List<Long> playgroundIds = new ArrayList<>();
-        if (registerNotificationRequest.getType().equals(NotificationType.ALL)) {
+        if (registerNotificationRequest.getType().equals(NotificationType.SEND_ALL)) {
             playgroundIds = userRepository.findAllPlaygroundId();
-        } else if (registerNotificationRequest.getType().equals(NotificationType.INDIVIDUAL)) {
+        } else if (registerNotificationRequest.getType().equals(NotificationType.SEND)) {
             playgroundIds = registerNotificationRequest.getPlaygroundIds().stream()
                     .map(Long::parseLong)
                     .toList();
@@ -56,7 +56,6 @@ public class NotificationService {
         val notifications = targetUserIds.stream()
                 .map(userId -> Notification.builder()
                         .userId(userId)
-                        .messageId(registerNotificationRequest.getMessageId())
                         .title(registerNotificationRequest.getTitle())
                         .content(registerNotificationRequest.getContent())
                         .type(registerNotificationRequest.getType())
