@@ -29,9 +29,6 @@ public class Notification{
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "message_id", nullable = false)
-    private Long messageId;
-
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
