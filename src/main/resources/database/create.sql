@@ -162,7 +162,6 @@ create table app_dev.notifications
     id                          serial
         constraint notifications_pk
             primary key,
-    message_id                  bigint not null ,
     user_id                     bigint not null ,
     notification_title          text not null ,
     notification_content        text,
