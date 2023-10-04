@@ -43,7 +43,6 @@ public class UserWithdrawController {
     @DeleteMapping(value = "/logout")
     public ResponseEntity<PushTokenResponse.StatusResponse> logout(
             @AuthenticationPrincipal User user,
-            @RequestHeader(name = "platform") String platform,
             @Valid @RequestBody PushTokenRequest.DeleteRequest deleteRequest
     ) {
         // 정책 : 로그아웃은 로그아웃한 기기에서만 알림을 못 받도록 설정 => User 필드의 수신 동의 항목은 건드리지 말기(다른 기기에서는 그대로 알림을 받아야함.)
@@ -52,7 +51,7 @@ public class UserWithdrawController {
         PushToken targetPushToken = pushTokenService.getDeviceTokenFromLocal(
                 PushTokenPK.of(user.getPlaygroundId(), deleteRequest.getPushToken())
         );
-        val result = pushTokenService.deleteDeviceToken(targetPushToken, platform);
+        val result = pushTokenService.deleteDeviceToken(targetPushToken, deleteRequest.getPlatform());
 
         val response = pushTokenResponseMapper.ofStatus(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
