@@ -8,7 +8,7 @@ set search_path to app_dev;
 CREATE TABLE app_dev.app_users (
                                    user_id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                                    username character varying(30) NOT NULL,
-                                   is_opt_in boolean DEFAULT false,
+--                                    is_opt_in boolean DEFAULT false,
                                    playground_id bigint UNIQUE ,
                                    playground_token character varying(500),
 --                                    os_type character varying(20),
@@ -78,22 +78,6 @@ alter table app_dev.push_token
 CREATE UNIQUE INDEX "PUSH_TOKEN_pkey" ON app_dev.app_users(playground_id int8_ops);
 
 -- Table Definition ----------------------------------------------
-
-CREATE TABLE app_dev.notification_option
-(
-    opt_id bigint  GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id bigint REFERENCES app_dev.app_users(user_id) UNIQUE ,
-    all_opt_in boolean DEFAULT false,
-    part_opt_in boolean DEFAULT false,
-    news_opt_in boolean DEFAULT false
-);
-
-alter table app_dev.notification_option
-    owner to makers;
-
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX "PUSH_OPTION_pkey" ON app_dev.app_users(user_id int8_ops);
 
 create table app_dev.main_description
 (
