@@ -111,7 +111,7 @@ public class PushTokenService {
             }
         }
         // 우선 서비스 DB에 있는 모든 토큰 지워버리기
-        pushTokenRepository.deleteAllByUserId(user.getId());
+        pushTokenRepository.deleteAll(userTokens);
         return failedCount;
     }
 
