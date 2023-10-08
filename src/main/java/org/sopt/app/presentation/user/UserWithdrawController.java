@@ -11,7 +11,6 @@ import org.sopt.app.application.notification.PushTokenService;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.PushToken;
-import org.sopt.app.domain.entity.PushTokenPK;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.notification.PushTokenRequest;
 import org.sopt.app.presentation.notification.PushTokenResponse;
@@ -34,6 +33,7 @@ public class UserWithdrawController {
     private final PushTokenService pushTokenService;
 
     private final PushTokenResponseMapper pushTokenResponseMapper;
+    private final UserResponseMapper userResponseMapper;
 
     @Operation(summary = "로그아웃하기")
     @ApiResponses({
@@ -45,13 +45,11 @@ public class UserWithdrawController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody PushTokenRequest.DeleteRequest deleteRequest
     ) {
-        // 정책 : 로그아웃은 로그아웃한 기기에서만 알림을 못 받도록 설정 => User 필드의 수신 동의 항목은 건드리지 말기(다른 기기에서는 그대로 알림을 받아야함.)
-
-        // 현재 로그인한 기기와 유저에 대한 PushToken 조회
-        PushToken targetPushToken = pushTokenService.getDeviceTokenFromLocal(
-                PushTokenPK.of(user.getPlaygroundId(), deleteRequest.getPushToken())
+        PushToken targetPushToken = pushTokenService.getDeviceToken(
+                user.getId(), deleteRequest.getPushToken()
         );
-        val result = pushTokenService.deleteDeviceToken(targetPushToken, deleteRequest.getPlatform());
+        System.out.println(targetPushToken.toString());
+        val result = pushTokenService.deleteDeviceToken(targetPushToken);
 
         val response = pushTokenResponseMapper.ofStatus(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -72,6 +70,6 @@ public class UserWithdrawController {
         pushTokenService.deleteAllDeviceTokenOf(user);
         // 유저 정보 삭제
         userService.deleteUser(user);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.status(HttpStatus.OK).body(userResponseMapper.ofAppUser(user));
     }
 }
