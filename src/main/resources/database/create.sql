@@ -8,7 +8,7 @@ set search_path to app_dev;
 CREATE TABLE app_dev.app_users (
                                    user_id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                                    username character varying(30) NOT NULL,
-                                   is_opt_in boolean DEFAULT false,
+--                                    is_opt_in boolean DEFAULT false,
                                    playground_id bigint UNIQUE ,
                                    playground_token character varying(500),
 --                                    os_type character varying(20),
