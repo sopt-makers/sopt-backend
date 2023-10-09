@@ -12,6 +12,7 @@ import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.application.operation.OperationInfo;
 import org.sopt.app.application.operation.OperationService;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.facade.UserFacade;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,9 +28,9 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserOriginalController {
 
     private final PlaygroundAuthService playgroundAuthService;
-    private final NotificationService notificationService;
-    private final OperationService operationService;
     private final UserResponseMapper userResponseMapper;
+
+    private final UserFacade userFacade;
 
     @Operation(summary = "메인 뷰 조회")
     @ApiResponses({
@@ -42,11 +43,7 @@ public class UserOriginalController {
             @AuthenticationPrincipal User user,
             @RequestHeader("Authorization") String accessToken
     ) {
-        val mainViewUser = playgroundAuthService.getPlaygroundUserForMainView(user.getPlaygroundToken());
-//        val mainViewOperation = operationService.getOperationForMainView(accessToken);
-        val dummyOperation = OperationInfo.MainView.builder().announcement("공지다!").attendanceScore(2D).build();
-        val mainViewNotification = notificationService.getNotificationConfirmStatus(user);
-        val response = userResponseMapper.ofMainView(mainViewUser, dummyOperation, mainViewNotification);
+        val response = userFacade.getMainViewInfo(user, accessToken);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
