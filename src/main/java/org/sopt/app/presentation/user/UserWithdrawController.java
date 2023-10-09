@@ -48,7 +48,6 @@ public class UserWithdrawController {
         PushToken targetPushToken = pushTokenService.getDeviceToken(
                 user.getId(), deleteRequest.getPushToken()
         );
-        System.out.println(targetPushToken.toString());
         val result = pushTokenService.deleteDeviceToken(targetPushToken);
 
         val response = pushTokenResponseMapper.ofStatus(result);
