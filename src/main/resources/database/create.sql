@@ -63,22 +63,23 @@ CREATE UNIQUE INDEX "MISSION_pkey" ON app_dev.stamp(id int8_ops);
 
 CREATE TABLE app_dev.push_token
 (
-    playground_id bigint REFERENCES app_dev.app_users(playground_id),
-    token         text[],
-    created_at    timestamp without time zone,
-    updated_at    timestamp without time zone,
-    PRIMARY KEY (playground_id, token)
+    id              bigint  GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id         bigint  not null ,
+    playground_id   bigint  not null ,
+    token           text not null ,
+    platform        character varying(10) not null ,
+    created_at      timestamp without time zone,
+    updated_at      timestamp without time zone
 );
 
-alter table app_dev.push_token
-    owner to makers;
+ALTER TABLE app_dev.push_token
+    OWNER TO makers;
 
--- Indices -------------------------------------------------------
+CREATE UNIQUE INDEX push_token_id_uindex ON app_dev.push_token(id int8_ops);
 
-CREATE UNIQUE INDEX "PUSH_TOKEN_pkey" ON app_dev.app_users(playground_id int8_ops);
+CREATE INDEX push_token_user_id_index ON app_dev.push_token (user_id);
 
--- Table Definition ----------------------------------------------
-
+---
 create table app_dev.main_description
 (
     id                          serial
@@ -98,6 +99,7 @@ alter table app_dev.main_description
 create unique index main_description_id_uindex
     on app_dev.main_description (id);
 
+---
 create table app_dev.soptamp_point
 (
     id              serial
@@ -119,6 +121,7 @@ create unique index soptamp_point_id_uindex
 create index soptamp_point_soptamp_user_id_index
     on app_dev.soptamp_point (soptamp_user_id);
 
+---
 create table app_dev.soptamp_user
 (
     id serial

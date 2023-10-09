@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.notification.PushTokenService;
 import org.sopt.app.domain.entity.PushToken;
-import org.sopt.app.domain.entity.PushTokenPK;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.notification.*;
 import org.springframework.http.HttpStatus;
@@ -36,15 +35,12 @@ public class UserPushTokenController {
     @PostMapping(value = "/push-token")
     public ResponseEntity<PushTokenResponse.StatusResponse> updatePushToken(
             @AuthenticationPrincipal User user,
-            @Valid @RequestBody PushTokenRequest.EditRequest updatePushTokenRequest
+            @Valid @RequestBody PushTokenRequest.EditRequest pushTokenRequest
     ) {
-        val pushToken = PushToken.builder()
-                .playgroundId(user.getPlaygroundId())
-                .token(updatePushTokenRequest.getPushToken())
-                .build();
         val result = pushTokenService.registerDeviceToken(
-                pushToken,
-                updatePushTokenRequest.getPlatform()
+                user,
+                pushTokenRequest.getPushToken(),
+                pushTokenRequest.getPlatform()
         );
         val response = pushTokenResponseMapper.ofStatus(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
@@ -60,13 +56,10 @@ public class UserPushTokenController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody PushTokenRequest.DeleteRequest deletePushTokenRequest
     ) {
-        PushToken targetPushToken = pushTokenService.getDeviceTokenFromLocal(
-                PushTokenPK.of(user.getPlaygroundId(), deletePushTokenRequest.getPushToken())
+        PushToken targetPushToken = pushTokenService.getDeviceToken(
+                user.getId(), deletePushTokenRequest.getPushToken()
         );
-        val result = pushTokenService.deleteDeviceToken(
-                targetPushToken,
-                deletePushTokenRequest.getPlatform()
-        );
+        val result = pushTokenService.deleteDeviceToken(targetPushToken);
         val response = pushTokenResponseMapper.ofStatus(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
