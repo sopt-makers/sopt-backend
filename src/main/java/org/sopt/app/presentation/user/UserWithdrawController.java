@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import org.sopt.app.application.notification.PushTokenService;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.application.user.UserService;
@@ -14,7 +13,6 @@ import org.sopt.app.domain.entity.PushToken;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.notification.PushTokenRequest;
 import org.sopt.app.presentation.notification.PushTokenResponse;
-import org.sopt.app.presentation.notification.PushTokenResponseMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -32,8 +30,6 @@ public class UserWithdrawController {
     private final StampService stampService;
     private final PushTokenService pushTokenService;
 
-    private final PushTokenResponseMapper pushTokenResponseMapper;
-    private final UserResponseMapper userResponseMapper;
 
     @Operation(summary = "로그아웃하기")
     @ApiResponses({
@@ -48,10 +44,10 @@ public class UserWithdrawController {
         PushToken targetPushToken = pushTokenService.getDeviceToken(
                 user.getId(), deleteRequest.getPushToken()
         );
-        val result = pushTokenService.deleteDeviceToken(targetPushToken);
-
-        val response = pushTokenResponseMapper.ofStatus(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+//        val result =
+        pushTokenService.deleteDeviceToken(targetPushToken);
+//        val response = pushTokenResponseMapper.ofStatus(result);
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
     @Operation(summary = "탈퇴하기")
@@ -69,6 +65,6 @@ public class UserWithdrawController {
         pushTokenService.deleteAllDeviceTokenOf(user);
         // 유저 정보 삭제
         userService.deleteUser(user);
-        return ResponseEntity.status(HttpStatus.OK).body(userResponseMapper.ofAppUser(user));
+        return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }
