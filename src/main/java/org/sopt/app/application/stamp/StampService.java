@@ -10,10 +10,7 @@ import org.sopt.app.common.event.Events;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Stamp;
-import org.sopt.app.domain.entity.User;
-import org.sopt.app.interfaces.postgres.MissionRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
-import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
 import org.springframework.stereotype.Service;
@@ -26,36 +23,39 @@ public class StampService {
 
     private final StampRepository stampRepository;
 
-    private final UserRepository userRepository;
-
-    private final MissionRepository missionRepository;
-
     @Transactional(readOnly = true)
-    public Stamp findStamp(StampRequest.FindStampRequest findStampRequest, Long userId) {
-        return stampRepository.findByUserIdAndMissionId(userId, findStampRequest.getMissionId())
-                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
-    }
-
-    @Transactional(readOnly = true)
-    public Stamp findStampDeprecated(Long userId, Long missionId) {
-        return stampRepository.findByUserIdAndMissionId(userId, missionId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+    public StampInfo.Stamp findStamp(Long missionId, Long userId) {
+        val entity = stampRepository.findByUserIdAndMissionId(userId, missionId)
+            .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+        return StampInfo.Stamp.builder()
+            .id(entity.getId())
+            .contents(entity.getContents())
+            .images(entity.getImages())
+            .createdAt(entity.getCreatedAt())
+            .updatedAt(entity.getUpdatedAt())
+            .build();
     }
 
     @Transactional
-    public Stamp uploadStampDeprecated(
+    public StampInfo.Stamp uploadStampDeprecated(
             RegisterStampRequest stampRequest,
             List<String> imgPaths,
             Long userId,
             Long missionId) {
         val imgList = new ArrayList<>(imgPaths);
         val stamp = this.convertStampImgDeprecated(stampRequest, imgList, userId, missionId);
-
-        return stampRepository.save(stamp);
+        val newStamp = stampRepository.save(stamp);
+        return StampInfo.Stamp.builder()
+                .id(newStamp.getId())
+                .contents(newStamp.getContents())
+                .images(newStamp.getImages())
+                .createdAt(newStamp.getCreatedAt())
+                .updatedAt(newStamp.getUpdatedAt())
+                .build();
     }
 
     @Transactional
-    public Stamp uploadStamp(
+    public StampInfo.Stamp uploadStamp(
             RegisterStampRequest stampRequest,
             Long userId) {
         val stamp = Stamp.builder()
@@ -66,11 +66,18 @@ public class StampService {
                 .userId(userId)
                 .build();
 
-        return stampRepository.save(stamp);
+        val newStamp = stampRepository.save(stamp);
+        return StampInfo.Stamp.builder()
+                .id(newStamp.getId())
+                .contents(newStamp.getContents())
+                .images(newStamp.getImages())
+                .createdAt(newStamp.getCreatedAt())
+                .updatedAt(newStamp.getUpdatedAt())
+                .build();
     }
 
     @Transactional
-    public Stamp editStampContentsDeprecated(
+    public StampInfo.Stamp editStampContentsDeprecated(
             StampRequest.EditStampRequest editStampRequest,
             Long userId,
             Long missionId) {
@@ -82,11 +89,18 @@ public class StampService {
         }
 
         stamp.setUpdatedAt(LocalDateTime.now());
-        return stampRepository.save(stamp);
+        val newStamp = stampRepository.save(stamp);
+        return StampInfo.Stamp.builder()
+                .id(newStamp.getId())
+                .contents(newStamp.getContents())
+                .images(newStamp.getImages())
+                .createdAt(newStamp.getCreatedAt())
+                .updatedAt(newStamp.getUpdatedAt())
+                .build();
     }
 
     @Transactional
-    public Stamp editStampContents(
+    public StampInfo.Stamp editStampContents(
             StampRequest.EditStampRequest editStampRequest,
             Long userId) {
 
@@ -99,13 +113,29 @@ public class StampService {
             stamp.changeImages(List.of(editStampRequest.getImage()));
         }
         stamp.setUpdatedAt(LocalDateTime.now());
-        return stampRepository.save(stamp);
+        val newStamp = stampRepository.save(stamp);
+        return StampInfo.Stamp.builder()
+                .id(newStamp.getId())
+                .contents(newStamp.getContents())
+                .images(newStamp.getImages())
+                .createdAt(newStamp.getCreatedAt())
+                .updatedAt(newStamp.getUpdatedAt())
+                .build();
     }
 
     @Transactional
-    public Stamp editStampImagesDeprecated(Stamp stamp, List<String> imgPaths) {
-        stamp.changeImages(imgPaths);
-        return stampRepository.save(stamp);
+    public StampInfo.Stamp editStampImagesDeprecated(StampInfo.Stamp stamp, List<String> imgPaths) {
+        val oldStamp = stampRepository.findById(stamp.getId())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+        oldStamp.changeImages(imgPaths);
+        val newStamp = stampRepository.save(oldStamp);
+        return StampInfo.Stamp.builder()
+                .id(newStamp.getId())
+                .contents(newStamp.getContents())
+                .images(newStamp.getImages())
+                .createdAt(newStamp.getCreatedAt())
+                .updatedAt(newStamp.getUpdatedAt())
+                .build();
     }
 
     @Transactional(readOnly = true)
