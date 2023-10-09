@@ -9,13 +9,9 @@ import java.util.List;
 import javax.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.mission.MissionService;
-import org.sopt.app.application.s3.S3Service;
-import org.sopt.app.application.soptamp.SoptampPointService;
-import org.sopt.app.application.soptamp.SoptampUserService;
-import org.sopt.app.application.stamp.StampFacade;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.facade.SoptampFacade;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -39,11 +35,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class StampController {
 
     private final StampService stampService;
-    private final MissionService missionService;
-    private final SoptampUserService soptampUserService;
-    private final SoptampPointService soptampPointService;
-    private final S3Service s3Service;
-    private final StampFacade stampFacade;
+    private final SoptampFacade soptampFacade;
 
     private final StampResponseMapper stampResponseMapper;
 
@@ -57,8 +49,7 @@ public class StampController {
     public ResponseEntity<StampResponse.StampMain> findStampByMissionAndUserId(
             @Valid @ModelAttribute StampRequest.FindStampRequest findStampRequest
     ) {
-        val userId = soptampUserService.findByNickname(findStampRequest.getNickname()).getUserId();
-        val result = stampService.findStamp(findStampRequest, userId);
+        val result = soptampFacade.getStampInfo(findStampRequest.getMissionId(), findStampRequest.getNickname());
         val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -74,7 +65,7 @@ public class StampController {
             @AuthenticationPrincipal User user,
             @PathVariable Long missionId
     ) {
-        val result = stampService.findStampDeprecated(user.getId(), missionId);
+        val result = stampService.findStamp(missionId, user.getId());
         val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -88,7 +79,7 @@ public class StampController {
             @RequestPart("stampContent") StampRequest.RegisterStampRequest registerStampRequest,
             @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
     ) {
-        val result = stampFacade.uploadStampDeprecated(user.getId(), missionId, registerStampRequest, multipartFiles);
+        val result = soptampFacade.uploadStampDeprecated(user.getId(), missionId, registerStampRequest, multipartFiles);
         val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -101,11 +92,7 @@ public class StampController {
             @RequestPart(value = "stampContent", required = false) StampRequest.EditStampRequest editStampRequest,
             @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
     ) {
-        val stamp = stampService.editStampContentsDeprecated(editStampRequest, user.getId(), missionId);
-        val imgPaths = s3Service.uploadDeprecated(multipartFiles);
-        if (imgPaths.size() > 0) {
-            stampService.editStampImagesDeprecated(stamp, imgPaths);
-        }
+        val stamp = soptampFacade.editStamp(editStampRequest, user.getId(), missionId, multipartFiles);
         val response = stampResponseMapper.of(stamp.getId());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -123,7 +110,7 @@ public class StampController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody StampRequest.RegisterStampRequest registerStampRequest
     ) {
-        val result = stampFacade.uploadStamp(user.getId(), registerStampRequest);
+        val result = soptampFacade.uploadStamp(user.getId(), registerStampRequest);
         val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -155,7 +142,7 @@ public class StampController {
             @AuthenticationPrincipal User user,
             @PathVariable Long stampId
     ) {
-        stampFacade.deleteStamp(user.getId(), stampId);
+        soptampFacade.deleteStamp(user.getId(), stampId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
@@ -166,7 +153,7 @@ public class StampController {
     })
     @DeleteMapping("/all")
     public ResponseEntity<StampResponse.StampMain> deleteStampByUserId(@AuthenticationPrincipal User user) {
-        stampFacade.deleteStampAll(user.getId());
+        soptampFacade.deleteStampAll(user.getId());
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 }
