@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.facade.SoptampFacade;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -27,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
     private final SoptampUserService soptampUserService;
+    private final SoptampFacade soptampFacade;
     private final UserResponseMapper userResponseMapper;
 
     @Operation(summary = "유저 정보 조회")
@@ -78,9 +80,7 @@ public class UserController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody UserRequest.EditNicknameRequest editNicknameRequest
     ) {
-        val nickname = editNicknameRequest.getNickname();
-        val soptampUser = soptampUserService.getSotampUserInfo(user.getId());
-        val result = soptampUserService.editNickname(soptampUser, nickname);
+        val result = soptampFacade.editSoptampUserNickname(user.getId(), editNicknameRequest.getNickname());
         val response = UserResponse.Nickname.builder()
             .nickname(result.getNickname())
             .build();
@@ -97,8 +97,7 @@ public class UserController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody UserRequest.EditProfileMessageRequest editProfileMessageRequest
     ) {
-        val soptampUser = soptampUserService.getSotampUserInfo(user.getId());
-        val result = soptampUserService.editProfileMessage(soptampUser, editProfileMessageRequest.getProfileMessage());
+        val result = soptampFacade.editSoptampUserProfileMessage(user.getId(), editProfileMessageRequest.getProfileMessage());
         val response = UserResponse.ProfileMessage.builder()
             .profileMessage(result.getProfileMessage())
             .build();
