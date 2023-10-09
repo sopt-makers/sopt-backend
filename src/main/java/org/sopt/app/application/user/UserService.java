@@ -1,16 +1,13 @@
 package org.sopt.app.application.user;
 
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
-import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.auth.AppAuthRequest;
-import org.sopt.app.presentation.user.UserRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,7 +52,6 @@ public class UserService {
                 .username(username)
                 .playgroundId(playgroundId)
                 .playgroundToken(playgroundToken)
-                .isOptIn(false)
                 .build();
     }
 
@@ -73,9 +69,4 @@ public class UserService {
         return token;
     }
 
-    @Transactional
-    public User updateIsOptIn(User user, UserRequest.EditIsOptInRequest isOptIn) {
-        user.updateOptIn(isOptIn.getIsOptIn());
-        return userRepository.save(user);
-    }
 }
