@@ -87,3 +87,23 @@ app-server
 - 2기 API 문서 [바로가기](https://parangjy.notion.site/3278da92a8f646aea4eba1d0f5a45f43?v=15ca2103aaec4bbaaaea7808c872484c)
 - 1기 솝탬프 유스케이스 [바로가기](https://github.com/sopt-makers/app-server/wiki/솝탬프-프로젝트-유스케이스)
 - 1기 API 문서 [바로가기](https://parangjy.notion.site/166132ae964d4bc483c71e507497bb9c)
+
+# Architecture
+Layered Architecture방식을 채택.
+presentation layer, domain layer, interface layer, application layer, facade layer로 구성되어있다.
+## Presentation Layer
+presentation layer는 사용자의 요청을 받아서 응답을 해주는 역할을 한다.
+해당 layer에서는 facade layer 혹은 application layer를 호출하여 사용자의 요청에 대한 응답을 해준다.
+해당 layer에서는 response를 위한 dto를 정의하고, request를 위한 dto를 정의한다. 또한 response를 만드는 역할을 한다.
+## Domain Layer
+domain layer는 entity와 entity의 관계를 정의한다.
+## Interface Layer
+interface layer는 외부와의 통신을 위한 interface를 정의한다.
+repository interface가 해당된다.
+## Application Layer
+application layer는 비즈니스 로직을 정의한다.
+해당 layer에서는 service를 정의한다.
+해당 layer에서는 entity를 dto로 변환하는 역할을 한다.
+## Facade Layer
+facade layer는 application layer를 호출하는 역할을 한다.
+해당 layer에서는 service의 orchestrator 역할을 한다.
