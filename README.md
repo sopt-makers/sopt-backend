@@ -106,4 +106,4 @@ application layer는 비즈니스 로직을 정의한다.
 해당 layer에서는 entity를 dto로 변환하는 역할을 한다.
 ## Facade Layer
 facade layer는 application layer를 호출하는 역할을 한다.
-해당 layer에서는 service의 ochestrator 역할을 한다.
+해당 layer에서는 service의 orchestrator 역할을 한다.
