@@ -18,7 +18,7 @@ public interface UserResponseMapper {
     UserResponse.AppUser ofAppUser(User user);
 
     UserResponse.MainView ofMainView(PlaygroundAuthInfo.MainView user, OperationInfo.MainView operation,
-            Boolean exists);
+            Boolean isAllConfirm);
 
     UserResponse.Nickname of(UserInfo.Nickname nickname);
 
