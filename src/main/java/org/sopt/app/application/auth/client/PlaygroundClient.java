@@ -1,19 +1,23 @@
 package org.sopt.app.application.auth.client;
 
+import feign.HeaderMap;
+import feign.RequestLine;
+import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.presentation.auth.AppAuthRequest;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.GetMapping;
 
-@FeignClient(
-        name = "playgroundAuthClient",
-        url = "${makers.playground.server}"
-)
+import java.util.Map;
+
 public interface PlaygroundClient {
 
-    @GetMapping(
-            value = "/api/v1/idp/sso/auth",
-            consumes = MediaType.APPLICATION_JSON_VALUE
-    )
-    AppAuthRequest.AccessTokenRequest getAccessToken(AppAuthRequest.CodeRequest codeRequest);
+    @RequestLine("POST /api/v1/idp/sso/auth")
+    AppAuthRequest.AccessTokenRequest getAccessToken(@HeaderMap final Map<String, String> headers, final AppAuthRequest.CodeRequest codeRequest);
+
+    @RequestLine("GET /internal/api/v1/members/me")
+    PlaygroundAuthInfo.PlaygroundMain getPlaygroundMember(@HeaderMap Map<String, String> headers);
+
+    @RequestLine("GET /internal/api/v1/members/profile/me")
+    PlaygroundAuthInfo.PlaygroundProfile getPlaygroundMemberProfile(@HeaderMap Map<String, String> headers);
+
+    @RequestLine("POST /internal/api/v1/idp/auth/token")
+    PlaygroundAuthInfo.RefreshedToken refreshPlaygroundToken(@HeaderMap Map<String, String> headers, AppAuthRequest.AccessTokenRequest tokenRequest);
 }
