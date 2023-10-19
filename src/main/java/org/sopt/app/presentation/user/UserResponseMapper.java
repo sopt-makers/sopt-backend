@@ -23,9 +23,8 @@ public interface UserResponseMapper {
     UserResponse.Nickname of(UserInfo.Nickname nickname);
 
     UserResponse.ProfileMessage of(UserInfo.ProfileMessage profileMessage);
+    
 
-
-    UserResponse.IsOptIn ofIsOptIn(User user);
 
 
     UserResponse.Generation ofGeneration(PlaygroundAuthInfo.UserActiveInfo userActiveInfo);

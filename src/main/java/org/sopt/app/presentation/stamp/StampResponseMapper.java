@@ -3,6 +3,7 @@ package org.sopt.app.presentation.stamp;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
+import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.domain.entity.Stamp;
 
 @Mapper(
@@ -12,7 +13,7 @@ import org.sopt.app.domain.entity.Stamp;
 )
 public interface StampResponseMapper {
 
-    StampResponse.StampMain of(Stamp stamp);
+    StampResponse.StampMain of(StampInfo.Stamp stamp);
 
     StampResponse.StampId of(Long stampId);
 

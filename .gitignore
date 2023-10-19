@@ -45,3 +45,5 @@ http-client.private.env.json
 http-client.env.json
 **/resources/http/**/env/
 **/resources/http/**/data/
+**/resources/http
+*.http

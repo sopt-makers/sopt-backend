@@ -8,7 +8,7 @@ set search_path to app_dev;
 CREATE TABLE app_dev.app_users (
                                    user_id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
                                    username character varying(30) NOT NULL,
-                                   is_opt_in boolean DEFAULT false,
+--                                    is_opt_in boolean DEFAULT false,
                                    playground_id bigint UNIQUE ,
                                    playground_token character varying(500),
 --                                    os_type character varying(20),
@@ -63,38 +63,23 @@ CREATE UNIQUE INDEX "MISSION_pkey" ON app_dev.stamp(id int8_ops);
 
 CREATE TABLE app_dev.push_token
 (
-    playground_id bigint REFERENCES app_dev.app_users(playground_id),
-    token         text[],
-    created_at    timestamp without time zone,
-    updated_at    timestamp without time zone,
-    PRIMARY KEY (playground_id, token)
+    id              bigint  GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    user_id         bigint  not null ,
+    playground_id   bigint  not null ,
+    token           text not null ,
+    platform        character varying(10) not null ,
+    created_at      timestamp without time zone,
+    updated_at      timestamp without time zone
 );
 
-alter table app_dev.push_token
-    owner to makers;
+ALTER TABLE app_dev.push_token
+    OWNER TO makers;
 
--- Indices -------------------------------------------------------
+CREATE UNIQUE INDEX push_token_id_uindex ON app_dev.push_token(id int8_ops);
 
-CREATE UNIQUE INDEX "PUSH_TOKEN_pkey" ON app_dev.app_users(playground_id int8_ops);
+CREATE INDEX push_token_user_id_index ON app_dev.push_token (user_id);
 
--- Table Definition ----------------------------------------------
-
-CREATE TABLE app_dev.notification_option
-(
-    opt_id bigint  GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    user_id bigint REFERENCES app_dev.app_users(user_id) UNIQUE ,
-    all_opt_in boolean DEFAULT false,
-    part_opt_in boolean DEFAULT false,
-    news_opt_in boolean DEFAULT false
-);
-
-alter table app_dev.notification_option
-    owner to makers;
-
--- Indices -------------------------------------------------------
-
-CREATE UNIQUE INDEX "PUSH_OPTION_pkey" ON app_dev.app_users(user_id int8_ops);
-
+---
 create table app_dev.main_description
 (
     id                          serial
@@ -114,6 +99,7 @@ alter table app_dev.main_description
 create unique index main_description_id_uindex
     on app_dev.main_description (id);
 
+---
 create table app_dev.soptamp_point
 (
     id              serial
@@ -135,6 +121,7 @@ create unique index soptamp_point_id_uindex
 create index soptamp_point_soptamp_user_id_index
     on app_dev.soptamp_point (soptamp_user_id);
 
+---
 create table app_dev.soptamp_user
 (
     id serial
@@ -156,3 +143,26 @@ create unique index soptamp_user_id_uindex
 create unique index soptamp_user_user_id_uindex
     on app_dev.soptamp_user (user_id);
 
+---
+create table app_dev.notifications
+(
+    id                          serial
+        constraint notifications_pk
+            primary key,
+    user_id                     bigint not null ,
+    notification_title          text not null ,
+    notification_content        text,
+    notification_type           varchar(50) not null ,
+    notification_category       varchar(50) not null ,
+    deep_link                   varchar(255) ,
+    web_link                    varchar(255) ,
+    is_read                     boolean default false,
+    created_at                  timestamp default now(),
+    updated_at                  timestamp default now()
+);
+
+alter table app_dev.notifications
+    owner to makers;
+
+create unique index notifications_id_uindex
+    on app_dev.notifications (id);
