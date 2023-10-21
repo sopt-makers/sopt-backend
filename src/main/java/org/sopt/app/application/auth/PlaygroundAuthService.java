@@ -21,8 +21,6 @@ import org.springframework.web.client.HttpClientErrorException.BadRequest;
 public class PlaygroundAuthService {
 
     private final PlaygroundClient playgroundClient;
-    @Value("${makers.playground.server}")
-    private String baseURI;
     @Value("${sopt.current.generation}")
     private Long currentGeneration;
     @Value("${makers.playground.x-api-key}")

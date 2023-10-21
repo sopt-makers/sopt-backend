@@ -9,7 +9,6 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.notification.PushTokenService;
-import org.sopt.app.domain.entity.PushToken;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.notification.*;
 import org.springframework.http.HttpStatus;
@@ -56,10 +55,7 @@ public class UserPushTokenController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody PushTokenRequest.DeleteRequest deletePushTokenRequest
     ) {
-        PushToken targetPushToken = pushTokenService.getDeviceToken(
-                user.getId(), deletePushTokenRequest.getPushToken()
-        );
-        val result = pushTokenService.deleteDeviceToken(targetPushToken);
+        val result = pushTokenService.deleteDeviceToken(user, deletePushTokenRequest.getPushToken());
         val response = pushTokenResponseMapper.ofStatus(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
