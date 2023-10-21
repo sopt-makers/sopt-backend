@@ -2,24 +2,19 @@ package org.sopt.app.application.operation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.operation.client.OperationClient;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
-import org.springframework.web.client.RestTemplate;
+
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class OperationService {
 
-    private final RestTemplate restTemplate = new RestTemplate();
-
-    @Value("${makers.operation.server}")
-    private String baseURI;
+    private final OperationClient operationClient;
 
     public OperationInfo.MainView getOperationForMainView(String accessToken) {
         val scoreResponse = this.getAttendanceScore(accessToken);
@@ -30,22 +25,12 @@ public class OperationService {
     }
 
     private OperationInfo.ScoreResponse getAttendanceScore(String accessToken) {
-        val getScoreURL = baseURI + "/api/v1/app/score";
-
-        val headers = new HttpHeaders();
-        headers.add("content-type", "application/json;charset=UTF-8");
-        headers.add("Authorization", accessToken);
-
-        val entity = new HttpEntity(null, headers);
-
+        Map<String, String> headers = Map.of(
+                "content-type", "application/json;charset=UTF-8",
+                "Authorization", accessToken
+        );
         try {
-            val response = restTemplate.exchange(
-                    getScoreURL,
-                    HttpMethod.GET,
-                    entity,
-                    OperationInfo.ScoreResponse.class
-            );
-            return response.getBody();
+            return operationClient.getScore(headers);
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.OPERATION_PROFILE_NOT_EXISTS.getMessage());
         }
