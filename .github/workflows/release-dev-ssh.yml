@@ -1,0 +1,105 @@
+name: ⚙️ MAKERS-DEV-APP-DEPLOY
+
+on:
+  push:
+    branches: [ 'dev' ]
+
+
+env:
+  SSL_EXPORT_IN:
+  SSL_IN_KEY: ${{ secrets.DEV_SSL_IN_KEY }}
+  SSL_OUT_FORMAT: ${{ secrets.DEV_SSL_OUT_FORMAT }}
+  SSL_KEY_NAME: ${{ secrets.DEV_SSL_NAME }}
+
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+#    strategy:
+#      matrix:
+#        deployment-group-name: [ makers-dev-app ]
+#        codedeploy-application-name: [ dev-app ]
+#        s3-bucket: [ sopt-makers-dev-app ]
+
+    steps:
+      - name: Get Github Actions IP
+        id: ip
+        uses: haythem/public-ip@v1.2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ap-northeast-2
+
+      - name: Add Github Actions IP to Security Group
+        run:
+          aws ec2 authorize-security-group-ingress --group-id ${{ secrets.DEV_AWS_SECURITY_GROUP_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+      - name: Commands
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.DEV_AWS_SSH_HOST }}
+          username: ${{ secrets.DEV_AWS_SSH_USERNAME }}
+          key: ${{ secrets.DEV_AWS_SSH_KEY }}
+#          port: ${{ secrets.DEV_AWS_SSH_PORT }}
+          script_stop: true
+          script: |
+            cd sopt-backend
+            
+            # Pull Origin Repository Source
+            sudo git pull origin dev
+            
+            # Make Directory of resources
+            sudo mkdir -p /src/main/resources
+            sudo touch ./src/main/resources/application-local.yml
+            
+            # Copy application-local.yml
+            sudo touch ./src/main/resources/application-local.yml
+            
+            # Over-Write application.yaml 파일 값 입력
+            sudo echo "${{ secrets.APPLICATION_LOCAL_YML }}" >> ./src/main/resources/application-local.yaml
+
+            # Check application.yaml 
+            sudo cat ./application-local.yaml
+            
+            # Grant execute permission for gradlew
+            sudo chmod +x gradlew
+            sudo openssl pkcs12 -export -in ${{ secrets.DEV_SSL_EXPORT_IN }} -inkey ${{ secrets.DEV_SSL_IN_KEY }} -out ${{ secrets.DEV_SSL_OUT_FORMAT }} -name ${{ secrets.DEV_SSL_NAME }}
+            
+            # Gradle Build 
+            sudo ./gradlew clean build
+            
+            # Activate nohup
+            cd build/libs
+            sudo chmod 755 app-server-0.0.1-SNAPSHOT.jar
+            sudo nohup java -jar -Dspring.profiles.active=local app-server-0.0.1-SNAPSHOT.jar &
+            clear
+
+      - name: Remove Github Actions IP from Security Group
+        run:
+          aws ec2 revoke-security-group-ingress --group-id ${{ secrets.DEV_AWS_SECURITY_GROUP_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+
+
+
+#
+#      - name: 📂 Make zip file
+#        run: zip -r ./$GITHUB_SHA.zip .
+#
+#      - name: 🪣 S3 upload
+#        uses: aws-actions/configure-aws-credentials@v1
+#        with:
+#          aws-access-key-id: ${{ secrets.AWS_ACCESS_ID }}
+#          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+#          aws-region: ap-northeast-2
+#
+#      - name: 🚀 s3 upload
+#        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://${{matrix.s3-bucket}}/deploy/$GITHUB_SHA.zip
+#
+#      - name: CodeDeploy~!
+#        run: aws deploy create-deployment
+#          --application-name ${{matrix.codedeploy-application-name}}
+#          --deployment-group-name ${{matrix.deployment-group-name}}
+#          --s3-location bucket=${{matrix.s3-bucket}},bundleType=zip,key=deploy/$GITHUB_SHA.zip
+#          --region ap-northeast-2
