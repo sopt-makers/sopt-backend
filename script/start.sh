@@ -1,20 +1,20 @@
-DEFAULT_PATH=/home/ubuntu
+# appspec 내용 -> app 이라는 패키지명으로 통일화
+DEFAULT_PATH=/home/ubuntu/app
 # shellcheck disable=SC2164
 cd $DEFAULT_PATH
 
-if [ ! -d app ]; then
+if [ ! -f ./src/main/resources/application-local.yml ]; then
   # Dev 서버 배포의 경우
-  APPLICATION_PACKAGE=sopt-backend
-  PROFILE=local
-elif [ ! -d sopt-backend ]; then
-  # Prod 서버 배포의 경우
-  APPLICATION_PACKAGE=app
+#  APPLICATION_PACKAGE=sopt-backend
   PROFILE=prod
+elif [ ! -d ./src/main/resources/application-prod.yml ]; then
+  # Prod 서버 배포의 경우
+#  APPLICATION_PACKAGE=app
+  PROFILE=local
 fi
 echo "> Target Profile : $PROFILE"
 # shellcheck disable=SC2164
-cd $APPLICATION_PACKAGE
-REPOSITORY=/home/ubuntu/$APPLICATION_PACKAGE리
+REPOSITORY=/home/ubuntu/$DEFAULT_PATH
 
 # shellcheck disable=SC2010
 JAR_NAME=$(ls $REPOSITORY/build/libs/ | grep '.jar' | tail -n 1)
