@@ -1,18 +1,16 @@
-name: Palm-Springs-Server CI
+name: 🏭 Maker Dev App CI
 
 # 해당 Action이 실행되는 Trigger
 on:
   push:
-    branches: [ "develop" ]
+    branches: [ "dev" ]
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "dev" ]
 
 permissions:
   contents: read
 
 jobs:
-  SSH:
-
   build:
 
     runs-on: ubuntu-latest
