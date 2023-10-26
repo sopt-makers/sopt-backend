@@ -38,7 +38,7 @@ jobs:
           echo "${{ secrets.APPLICATION_LOCAL_YML }}" >> ./src/main/resources/application-local.yaml
           
           # application.yaml 파일 확인
-          cat ./application-local.yaml
+          cat ./src/main/resources/application-local.yaml
         shell: bash
 
       # 이 워크플로우는 gradle build
