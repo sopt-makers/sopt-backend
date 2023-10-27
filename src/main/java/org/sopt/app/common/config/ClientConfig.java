@@ -23,7 +23,6 @@ public class ClientConfig {
     private String operationEndPoint;
 
     @Value("${makers.push.server}")
-    private String pushEndPoint;
 
     @Bean
     public PlaygroundClient playgroundClient() {
@@ -68,9 +67,5 @@ public class ClientConfig {
     public OkHttpClient okHttpClient() {
         return new OkHttpClient();
     }
-//    @Bean
-//    public Contract feignContract() {
-//        return new Contract.Default();
-//    }
 
 }
