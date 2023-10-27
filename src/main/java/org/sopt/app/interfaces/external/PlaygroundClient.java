@@ -1,4 +1,4 @@
-package org.sopt.app.application.auth.client;
+package org.sopt.app.interfaces.external;
 
 import feign.HeaderMap;
 import feign.RequestLine;

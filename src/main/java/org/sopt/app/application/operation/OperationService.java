@@ -2,7 +2,7 @@ package org.sopt.app.application.operation;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.operation.client.OperationClient;
+import org.sopt.app.interfaces.external.OperationClient;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.springframework.stereotype.Service;

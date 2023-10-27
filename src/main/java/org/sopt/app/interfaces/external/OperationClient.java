@@ -1,4 +1,4 @@
-package org.sopt.app.application.operation.client;
+package org.sopt.app.interfaces.external;
 
 import feign.HeaderMap;
 import feign.RequestLine;

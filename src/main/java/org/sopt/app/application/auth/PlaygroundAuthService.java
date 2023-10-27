@@ -6,7 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.auth.client.PlaygroundClient;
+import org.sopt.app.interfaces.external.PlaygroundClient;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
