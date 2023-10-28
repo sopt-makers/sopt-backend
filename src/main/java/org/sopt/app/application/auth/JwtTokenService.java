@@ -1,7 +1,9 @@
 package org.sopt.app.application.auth;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Header;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -15,6 +17,7 @@ import lombok.val;
 import org.joda.time.LocalDateTime;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.AppToken;
 import org.sopt.app.application.user.UserInfo;
+import org.sopt.app.common.exception.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -73,11 +76,17 @@ public class JwtTokenService {
     }
 
     public UserInfo.Id getUserIdFromJwtToken(String token) {
-        val claims = Jwts.parser()
+        try {
+            val claims = Jwts.parser()
                 .setSigningKey(this.encodeKey(JWT_SECRET))
                 .parseClaimsJws(token)
                 .getBody();
         return UserInfo.Id.builder().id(Long.parseLong(claims.getSubject())).build();
+        } catch (ExpiredJwtException e) {
+            throw new UnauthorizedException("토큰이 만료되었습니다.");
+        } catch (Exception e) {
+            throw new UnauthorizedException("토큰이 유효하지 않습니다.");
+        }
     }
 
     public Authentication getAuthentication(String token) {
