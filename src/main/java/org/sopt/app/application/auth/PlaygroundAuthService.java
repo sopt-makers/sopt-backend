@@ -1,5 +1,6 @@
 package org.sopt.app.application.auth;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -80,6 +81,8 @@ public class PlaygroundAuthService {
                     PlaygroundAuthInfo.PlaygroundMain.class
             );
             return response.getBody();
+        } catch (ExpiredJwtException e) {
+            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
         } catch (Exception e) {
             throw new BadRequestException(ErrorCode.PLAYGROUND_USER_NOT_EXISTS.getMessage());
         }
@@ -105,7 +108,9 @@ public class PlaygroundAuthService {
             return response.getBody();
         } catch (BadRequest badRequest) {
             throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
-        }
+        } catch (ExpiredJwtException e) {
+        throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
+    }
     }
 
     public PlaygroundAuthInfo.MainView getPlaygroundUserForMainView(String accessToken) {
@@ -146,6 +151,8 @@ public class PlaygroundAuthService {
             return response.getBody();
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
+        } catch (ExpiredJwtException e) {
+            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
         }
     }
 
