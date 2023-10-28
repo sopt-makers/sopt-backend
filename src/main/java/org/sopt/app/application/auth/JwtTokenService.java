@@ -46,12 +46,14 @@ public class JwtTokenService {
 
     private String encodeJwtToken(UserInfo.Id userId, Long playgroundId) {
         val now = LocalDateTime.now();
+
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuer("sopt-makers")
                 .setIssuedAt(now.toDate())
                 .setSubject(userId.getId().toString())
-                .setExpiration(now.plusDays(1).toDate())
+//                .setExpiration(now.plusDays(1).toDate())
+                .setExpiration(now.plusMinutes(10).toDate())
                 .claim("id", userId.getId())
                 .claim("playgroundId", playgroundId)
                 .claim("roles", "USER")
@@ -64,7 +66,8 @@ public class JwtTokenService {
         return Jwts.builder()
                 .setIssuedAt(now.toDate())
                 .setSubject(userId.getId().toString())
-                .setExpiration(now.plusDays(30).toDate())
+//                .setExpiration(now.plusDays(30).toDate())
+                .setExpiration(now.plusMinutes(30).toDate())
                 .claim("id", userId.getId())
                 .claim("roles", "USER")
                 .signWith(getSigningKey(JWT_SECRET), SignatureAlgorithm.HS256)
