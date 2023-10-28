@@ -54,6 +54,7 @@ public class AuthFacade {
         val existingToken = userService.getPlaygroundToken(userId);
         val playgroundToken = playgroundAuthService.refreshPlaygroundToken(existingToken);
         val playgroundMember = playgroundAuthService.getPlaygroundInfo(playgroundToken.getAccessToken());
+        userService.updatePlaygroundToken(userId, playgroundToken.getAccessToken());
 
         val appToken = jwtTokenService.issueNewTokens(userId, playgroundMember);
         return authResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(),
