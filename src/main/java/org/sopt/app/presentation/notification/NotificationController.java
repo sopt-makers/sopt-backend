@@ -65,7 +65,7 @@ public class NotificationController {
     @GetMapping(value = "/{notificationId}")
     public ResponseEntity<NotificationResponse.NotificationDetail> findNotificationDetail(
             @AuthenticationPrincipal User user,
-            @PathVariable("notificationId") Long notificationId
+            @PathVariable("notificationId") String notificationId
     ) {
         val result = notificationService.findNotification(user, notificationId);
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -107,7 +107,7 @@ public class NotificationController {
     })
     public ResponseEntity<NotificationDetail> updateNotificationIsRead(
             @AuthenticationPrincipal User user,
-            @PathVariable(name = "notificationId", required = false) Long notificationId
+            @PathVariable(name = "notificationId", required = false) String notificationId
     ) {
         notificationService.updateNotificationIsRead(user, notificationId);
         return ResponseEntity.status(HttpStatus.OK).body(null);
