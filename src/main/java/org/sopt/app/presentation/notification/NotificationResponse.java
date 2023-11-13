@@ -13,8 +13,8 @@ public class NotificationResponse {
     @ToString
     public static class NotificationSimple {
 
-        @Schema(description = "알림 아이디", example = "1")
-        private Long notificationId;
+        @Schema(description = "알림 아이디", example = "알림 식별 ID")
+        private String notificationId;
 
         @Schema(description = "앱 유저 아이디", example = "1")
         private Long userId;
@@ -25,7 +25,7 @@ public class NotificationResponse {
         @Schema(description = "알림 내용", example = "공지 내용은 앱팀 최고입니다.")
         private String content;
 
-        @Schema(description = "알림 카테고리", example = "공지 내용은 앱팀 최고입니다.")
+        @Schema(description = "알림 카테고리", example = "NOTICE")
         private String category;
 
         @Schema(description = "알림 읽음 여부", example = "true")
@@ -35,7 +35,7 @@ public class NotificationResponse {
         private LocalDateTime createdAt;
 
         public static NotificationSimple of(
-                Long notificationId
+                String notificationId
                 , Long userId
                 , String title
                 , String content
@@ -57,7 +57,7 @@ public class NotificationResponse {
 
         @Schema(description = "알림 식별 아이디", example = "(String)")
         private String notificationId;
-        @Schema(description = "유저 유저 아이디", example = "1")
+        @Schema(description = "유저 아이디", example = "1")
         private Long userId;
         @Schema(description = "알림 제목", example = "공지다!")
         private String title;

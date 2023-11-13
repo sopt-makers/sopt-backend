@@ -48,7 +48,7 @@ public class NotificationController {
         return ResponseEntity.status(HttpStatus.OK).body(
                 result.stream()
                         .map((notification) -> NotificationResponse.NotificationSimple.of(
-                                notification.getId()
+                                notification.getNotificationId()
                                 , notification.getUserId()
                                 , notification.getTitle()
                                 , notification.getContent()
