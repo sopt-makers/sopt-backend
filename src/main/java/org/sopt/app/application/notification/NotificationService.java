@@ -27,8 +27,8 @@ public class NotificationService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public Notification findNotification(User user, Long notificationId) {
-        return notificationRepository.findByIdAndUserId(notificationId, user.getId())
+    public Notification findNotification(User user, String notificationId) {
+        return notificationRepository.findByNotificationIdAndUserId(notificationId, user.getId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
     }
 
@@ -56,6 +56,7 @@ public class NotificationService {
         val notifications = targetUserIds.stream()
                 .map(userId -> Notification.builder()
                         .userId(userId)
+                        .notificationId(registerNotificationRequest.getNotificationId())
                         .title(registerNotificationRequest.getTitle())
                         .content(registerNotificationRequest.getContent())
                         .type(registerNotificationRequest.getType())
@@ -70,7 +71,7 @@ public class NotificationService {
 
 
     @Transactional
-    public void updateNotificationIsRead(User user, Long notificationId) {
+    public void updateNotificationIsRead(User user, String notificationId) {
         if (Objects.isNull(notificationId)) {
             updateAllNotificationIsRead(user);
         } else {
@@ -89,8 +90,8 @@ public class NotificationService {
         notificationRepository.saveAll(readNotificationList);
     }
 
-    private void updateSingleNotificationIsRead(User user, Long notificationId) {
-        val notification = notificationRepository.findByIdAndUserId(notificationId, user.getId())
+    private void updateSingleNotificationIsRead(User user, String notificationId) {
+        val notification = notificationRepository.findByNotificationIdAndUserId(notificationId, user.getId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
         notification.updateIsRead();
         notificationRepository.save(notification);
