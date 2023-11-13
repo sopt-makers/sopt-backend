@@ -8,6 +8,7 @@ import org.sopt.app.common.response.ErrorCode;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Service
@@ -25,14 +26,17 @@ public class OperationService {
     }
 
     private OperationInfo.ScoreResponse getAttendanceScore(String accessToken) {
-        Map<String, String> headers = Map.of(
-                "content-type", "application/json;charset=UTF-8",
-                "Authorization", accessToken
-        );
+        Map<String, String> headers = createDefaultHeader();
+        headers.put("Authorization", accessToken);
         try {
             return operationClient.getScore(headers);
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.OPERATION_PROFILE_NOT_EXISTS.getMessage());
         }
+    }
+
+    // Header 생성 메서드
+    private Map<String, String> createDefaultHeader() {
+        return new HashMap<>(Map.of("content-type", "application/json;charset=UTF-8"));
     }
 }

@@ -1,6 +1,7 @@
 package org.sopt.app.application.auth;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -39,9 +40,7 @@ public class PlaygroundAuthService {
     }
 
     public AppAuthRequest.AccessTokenRequest getPlaygroundAccessToken(AppAuthRequest.CodeRequest codeRequest) {
-        Map<String, String> headers = Map.of(
-                "content-type", "application/json;charset=UTF-8"
-        );
+        Map<String, String> headers = createDefaultHeader();
         try {
             return playgroundClient.getAccessToken(headers, codeRequest);
         } catch (Exception e) {
@@ -50,10 +49,8 @@ public class PlaygroundAuthService {
     }
 
     private PlaygroundAuthInfo.PlaygroundMain getPlaygroundMember(String accessToken) {
-        Map<String, String> headers = Map.of(
-                "content-type", "application/json;charset=UTF-8"
-                , "Authorization", accessToken
-        );
+        Map<String, String> headers = createDefaultHeader();
+        headers.put("Authorization", accessToken);
         try {
             return playgroundClient.getPlaygroundMember(headers);
         } catch (Exception e) {
@@ -62,11 +59,9 @@ public class PlaygroundAuthService {
     }
 
     public PlaygroundAuthInfo.RefreshedToken refreshPlaygroundToken(AppAuthRequest.AccessTokenRequest tokenRequest) {
-        Map<String, String> headers = Map.of(
-                "content-type", "application/json;charset=UTF-8"
-                , "x-api-key", apiKey
-                , "x-request-from", requestFrom
-        );
+        Map<String, String> headers = createDefaultHeader();
+        headers.put("x-api-key", apiKey);
+        headers.put("x-request-from", requestFrom);
         try {
             return playgroundClient.refreshPlaygroundToken(headers, tokenRequest);
         } catch (BadRequest badRequest) {
@@ -94,10 +89,8 @@ public class PlaygroundAuthService {
     }
 
     private PlaygroundAuthInfo.PlaygroundProfile getPlaygroundMemberProfile(String accessToken) {
-        Map<String, String> headers = Map.of(
-                "content-type", "application/json;charset=UTF-8"
-                , "Authorization", accessToken
-        );
+        Map<String, String> headers = createDefaultHeader();
+        headers.put("Authorization", accessToken);
         try {
             return playgroundClient.getPlaygroundMemberProfile(headers);
         } catch (BadRequest e) {
@@ -114,5 +107,10 @@ public class PlaygroundAuthService {
                 .status(userStatus)
                 .currentGeneration(currentGeneration)
                 .build();
+    }
+
+    // Header 생성 메서드
+    private Map<String, String> createDefaultHeader() {
+        return new HashMap<>(Map.of("content-type", "application/json;charset=UTF-8"));
     }
 }
