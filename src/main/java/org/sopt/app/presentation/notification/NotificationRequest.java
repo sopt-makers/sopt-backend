@@ -32,7 +32,7 @@ public class NotificationRequest {
         @JsonProperty(value = "content")
         private String content;
 
-        @Schema(description = "알림 범위 타입", example = "INDIVIDUAL")
+        @Schema(description = "알림 범위 타입", example = "SEND")
         @NotNull(message = "type may not be null")
         @JsonProperty(value = "type")
         private NotificationType type;
@@ -50,6 +50,9 @@ public class NotificationRequest {
         @JsonProperty(value = "webLink")
         private String webLink;
 
+        @Schema(description = "알림 고유값")
+        @JsonProperty(value = "id")
+        private String notificationId;
     }
 
 }
