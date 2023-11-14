@@ -59,6 +59,7 @@ jobs:
         run: aws deploy create-deployment
           --application-name ${{matrix.codedeploy-application-name}}
           --deployment-group-name ${{matrix.deployment-group-name}}
+          --file-exists-behavior OVERWRITE
           --ignore-application-stop-failures
           --s3-location bucket=${{matrix.s3-bucket}},bundleType=zip,key=deploy/dev/$GITHUB_SHA.zip
           --region ap-northeast-2
