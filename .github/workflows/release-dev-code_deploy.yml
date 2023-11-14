@@ -4,7 +4,7 @@ on:
   push:
     branches: [ 'dev' ]
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "dev" ]
 
 env:
   RESOURCE_PATH: ./src/main/resources/application-local.yaml
