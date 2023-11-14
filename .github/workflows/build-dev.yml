@@ -1,0 +1,52 @@
+name: 🏭 Maker Dev App CI
+
+# 해당 Action이 실행되는 Trigger
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+      # 1) 워크플로우 실행 전 기본적으로 체크아웃 필요
+      - name: checkout
+        uses: actions/checkout@v3
+
+      # 2) JDK 11버전 설치, 다른 JDK 버전을 사용하다면 수정
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
+
+      # 3) 환경변수 파일 생성
+      - name: Copy application-local.yml
+        run: |
+          # application-local.yml 생성
+          touch ./src/main/resources/application-local.yml
+          
+          # application.yaml 파일 값 입력
+          echo "${{ secrets.APPLICATION_LOCAL_YML }}" >> ./src/main/resources/application-local.yaml
+          
+          # application.yaml 파일 확인
+          cat ./src/main/resources/application-local.yaml
+        shell: bash
+
+      # 이 워크플로우는 gradle build
+      - name: Grant execute permission for gradlew
+        run: |
+          chmod +x gradlew
+
+      - name: Build with Gradle
+        run: |
+          ./gradlew build -x test
+          
