@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.notification.PushTokenService;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.application.user.UserService;
+import org.sopt.app.domain.entity.PushToken;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.notification.PushTokenRequest;
 import org.sopt.app.presentation.notification.PushTokenResponse;

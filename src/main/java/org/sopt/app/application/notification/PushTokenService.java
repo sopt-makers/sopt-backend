@@ -3,6 +3,7 @@ package org.sopt.app.application.notification;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.PushToken;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.PushTokenPlatform;
@@ -16,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -84,30 +84,22 @@ public class PushTokenService {
 
     // 유효하지 않은 토큰으로 인해 BadRequest가 발생하더라도 넘어가야함.(Local 에는 모든 토큰을 쌓아놓기 때문에)
     @Transactional
-    public PushTokenResponse.StatusResponse deleteDeviceToken(User user, String pushToken) {
-        Optional<PushToken> targetToken = pushTokenRepository.findByUserIdAndToken(user.getId(), pushToken);
-        if (targetToken.isPresent()) {
-            try {
-                val entity = new HttpEntity(
-                        createBodyFor(targetToken.get()),
-                        createHeadersFor(ACTION_DELETE, targetToken.get().getPlatform().name())
-                );
-                val response = sendRequestToPushServer(entity);
-                pushTokenRepository.delete(targetToken.get());
-                return response.getBody();
-            } catch (BadRequestException e) {
-                return PushTokenResponse.StatusResponse.builder()
-                        .status(e.getStatusCode().value())
-                        .success(false)
-                        .message(e.getResponseMessage())
-                        .build();
-            }
+    public PushTokenResponse.StatusResponse deleteDeviceToken(PushToken pushToken) {
+        try {
+            val entity = new HttpEntity(
+                    createBodyFor(pushToken),
+                    createHeadersFor(ACTION_DELETE, pushToken.getPlatform().name())
+            );
+            val response = sendRequestToPushServer(entity);
+            pushTokenRepository.delete(pushToken);
+            return response.getBody();
+        } catch (BadRequestException e) {
+            return PushTokenResponse.StatusResponse.builder()
+                    .status(e.getStatusCode().value())
+                    .success(false)
+                    .message(e.getResponseMessage())
+                    .build();
         }
-        return PushTokenResponse.StatusResponse.builder()
-                .status(HttpStatus.OK.value())
-                .success(true)
-                .message("토큰 삭제 성공")
-                .build();
     }
 
     @Transactional
