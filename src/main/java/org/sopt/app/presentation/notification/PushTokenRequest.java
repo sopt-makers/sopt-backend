@@ -1,10 +1,7 @@
 package org.sopt.app.presentation.notification;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -40,13 +37,12 @@ public class PushTokenRequest {
         private String pushToken;
     }
 
-    public interface ExternalRequest {}
 
     @Getter
-    @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
-    public static class ExternalMemberRequest implements ExternalRequest{
-        //TODO : NonMember 정책 확정되면 비회원전용 Request 객체 필요
+    public static class PushTokenManageRequest {
 
         @Schema(description = "유저 아이디", example = "['1']")
         @NotNull(message = "target user's Playground ID List used by register/delete request for Push Server may not be null")
@@ -55,5 +51,9 @@ public class PushTokenRequest {
         @Schema(description = "푸시 토큰", example = "asdfasdf")
         @NotNull(message = "push token may not be null")
         private String deviceToken;
+
+        public static PushTokenManageRequest of(List<String> userIds, String deviceToken) {
+            return new PushTokenManageRequest(userIds, deviceToken);
+        }
     }
 }

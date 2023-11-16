@@ -3,7 +3,6 @@ package org.sopt.app.application.notification;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.common.exception.BadRequestException;
-import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.PushToken;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.PushTokenPlatform;
@@ -17,7 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -25,6 +24,7 @@ import java.util.UUID;
 public class PushTokenService {
 
     private static final String ACTION_REGISTER = "register";
+
     private static final String ACTION_DELETE = "cancel";
 
     private final PushTokenRepository pushTokenRepository;
@@ -49,9 +49,7 @@ public class PushTokenService {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.PUSH_TOKEN_NOT_FOUND_FROM_LOCAL.getMessage()));
     }
 
-
     @Transactional(rollbackFor = BadRequestException.class)
-    // 추후 비회원일 경우, Controller 단에서 고정 값으로 0과 같은 비회원 식별 번호 넣어줘야 함.
     public PushTokenResponse.StatusResponse registerDeviceToken(User user, String pushToken, String platform) {
         if (!pushTokenRepository.existsByUserIdAndToken(user.getId(), pushToken)) {
             PushToken registerToken = PushToken.builder()
@@ -86,23 +84,30 @@ public class PushTokenService {
 
     // 유효하지 않은 토큰으로 인해 BadRequest가 발생하더라도 넘어가야함.(Local 에는 모든 토큰을 쌓아놓기 때문에)
     @Transactional
-    public PushTokenResponse.StatusResponse deleteDeviceToken(PushToken pushToken) {
-        try {
-            val entity = new HttpEntity(
-                    createBodyFor(pushToken),
-                    createHeadersFor(ACTION_DELETE, pushToken.getPlatform().name())
-            );
-            val response = sendRequestToPushServer(entity);
-            pushTokenRepository.delete(pushToken);
-            return response.getBody();
-        } catch (BadRequestException e) {
-            return PushTokenResponse.StatusResponse.builder()
-                    .status(e.getStatusCode().value())
-                    .success(false)
-                    .message(e.getResponseMessage())
-                    .build();
+    public PushTokenResponse.StatusResponse deleteDeviceToken(User user, String pushToken) {
+        Optional<PushToken> targetToken = pushTokenRepository.findByUserIdAndToken(user.getId(), pushToken);
+        if (targetToken.isPresent()) {
+            try {
+                val entity = new HttpEntity(
+                        createBodyFor(targetToken.get()),
+                        createHeadersFor(ACTION_DELETE, targetToken.get().getPlatform().name())
+                );
+                val response = sendRequestToPushServer(entity);
+                pushTokenRepository.delete(targetToken.get());
+                return response.getBody();
+            } catch (BadRequestException e) {
+                return PushTokenResponse.StatusResponse.builder()
+                        .status(e.getStatusCode().value())
+                        .success(false)
+                        .message(e.getResponseMessage())
+                        .build();
+            }
         }
-
+        return PushTokenResponse.StatusResponse.builder()
+                .status(HttpStatus.OK.value())
+                .success(true)
+                .message("토큰 삭제 성공")
+                .build();
     }
 
     @Transactional
@@ -125,17 +130,15 @@ public class PushTokenService {
         headers.add("x-api-key", apiKey);
         headers.add("service", "app");
         headers.add("transactionId", UUID.randomUUID().toString());
-        if (Objects.nonNull(platform)) {
-            headers.add("platform", platform);
-        }
+        headers.add("platform", platform);
         return headers;
     }
 
-    private PushTokenRequest.ExternalRequest createBodyFor(PushToken pushToken) {
-        return PushTokenRequest.ExternalMemberRequest.builder()
-                .userIds(List.of(String.valueOf(pushToken.getPlaygroundId())))
-                .deviceToken(pushToken.getToken())
-                .build();
+    private PushTokenRequest.PushTokenManageRequest createBodyFor(PushToken pushToken) {
+        return PushTokenRequest.PushTokenManageRequest.of(
+                List.of(String.valueOf(pushToken.getPlaygroundId())),
+                pushToken.getToken()
+        );
     }
     private ResponseEntity<PushTokenResponse.StatusResponse> sendRequestToPushServer(HttpEntity requestEntity) {
         return restTemplate.exchange(

@@ -2,30 +2,27 @@ package org.sopt.app.application.auth;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.interfaces.external.PlaygroundClient;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
-import org.springframework.web.client.RestTemplate;
 
 @Service
 @RequiredArgsConstructor
 public class PlaygroundAuthService {
 
-    private final RestTemplate restTemplate;
-    @Value("${makers.playground.server}")
-    private String baseURI;
+    private final PlaygroundClient playgroundClient;
     @Value("${sopt.current.generation}")
     private Long currentGeneration;
     @Value("${makers.playground.x-api-key}")
@@ -44,43 +41,19 @@ public class PlaygroundAuthService {
     }
 
     public AppAuthRequest.AccessTokenRequest getPlaygroundAccessToken(AppAuthRequest.CodeRequest codeRequest) {
-        val getTokenURL = baseURI + "/api/v1/idp/sso/auth";
-
-        val headers = new HttpHeaders();
-        headers.add("content-type", "application/json;charset=UTF-8");
-
-        val entity = new HttpEntity(codeRequest, headers);
-
+        Map<String, String> headers = createDefaultHeader();
         try {
-            val response = restTemplate.exchange(
-                    getTokenURL,
-                    HttpMethod.POST,
-                    entity,
-                    AppAuthRequest.AccessTokenRequest.class
-            );
-            return response.getBody();
+            return playgroundClient.getAccessToken(headers, codeRequest);
         } catch (Exception e) {
             throw new BadRequestException(ErrorCode.INVALID_PLAYGROUND_CODE.getMessage());
         }
     }
 
     private PlaygroundAuthInfo.PlaygroundMain getPlaygroundMember(String accessToken) {
-        val getUserURL = baseURI + "/internal/api/v1/members/me";
-
-        val headers = new HttpHeaders();
-        headers.add("content-type", "application/json;charset=UTF-8");
-        headers.add("Authorization", accessToken);
-
-        val entity = new HttpEntity(null, headers);
-
+        Map<String, String> headers = createDefaultHeader();
+        headers.put("Authorization", accessToken);
         try {
-            val response = restTemplate.exchange(
-                    getUserURL,
-                    HttpMethod.GET,
-                    entity,
-                    PlaygroundAuthInfo.PlaygroundMain.class
-            );
-            return response.getBody();
+            return playgroundClient.getPlaygroundMember(headers);
         } catch (ExpiredJwtException e) {
             throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
         } catch (Exception e) {
@@ -89,23 +62,11 @@ public class PlaygroundAuthService {
     }
 
     public PlaygroundAuthInfo.RefreshedToken refreshPlaygroundToken(AppAuthRequest.AccessTokenRequest tokenRequest) {
-        val getTokenURL = baseURI + "/internal/api/v1/idp/auth/token";
-
-        val headers = new HttpHeaders();
-        headers.add("content-type", "application/json;charset=UTF-8");
-        headers.add("x-api-key", apiKey);
-        headers.add("x-request-from", requestFrom);
-
-        val entity = new HttpEntity(tokenRequest, headers);
-
+        Map<String, String> headers = createDefaultHeader();
+        headers.put("x-api-key", apiKey);
+        headers.put("x-request-from", requestFrom);
         try {
-            val response = restTemplate.exchange(
-                    getTokenURL,
-                    HttpMethod.POST,
-                    entity,
-                    PlaygroundAuthInfo.RefreshedToken.class
-            );
-            return response.getBody();
+            return playgroundClient.refreshPlaygroundToken(headers, tokenRequest);
         } catch (BadRequest badRequest) {
             throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
         } catch (ExpiredJwtException e) {
@@ -133,22 +94,10 @@ public class PlaygroundAuthService {
     }
 
     private PlaygroundAuthInfo.PlaygroundProfile getPlaygroundMemberProfile(String accessToken) {
-        val getUserURL = baseURI + "/internal/api/v1/members/profile/me";
-
-        val headers = new HttpHeaders();
-        headers.add("content-type", "application/json;charset=UTF-8");
-        headers.add("Authorization", accessToken);
-
-        val entity = new HttpEntity(null, headers);
-
+        Map<String, String> headers = createDefaultHeader();
+        headers.put("Authorization", accessToken);
         try {
-            val response = restTemplate.exchange(
-                    getUserURL,
-                    HttpMethod.GET,
-                    entity,
-                    PlaygroundAuthInfo.PlaygroundProfile.class
-            );
-            return response.getBody();
+            return playgroundClient.getPlaygroundMemberProfile(headers);
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
         } catch (ExpiredJwtException e) {
@@ -165,5 +114,10 @@ public class PlaygroundAuthService {
                 .status(userStatus)
                 .currentGeneration(currentGeneration)
                 .build();
+    }
+
+    // Header 생성 메서드
+    private Map<String, String> createDefaultHeader() {
+        return new HashMap<>(Map.of("content-type", "application/json;charset=UTF-8"));
     }
 }

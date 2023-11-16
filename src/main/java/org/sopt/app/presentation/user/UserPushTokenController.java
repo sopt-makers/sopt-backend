@@ -9,7 +9,6 @@ import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.notification.PushTokenService;
-import org.sopt.app.domain.entity.PushToken;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.notification.*;
 import org.springframework.http.HttpStatus;
