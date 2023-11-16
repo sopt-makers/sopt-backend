@@ -6,7 +6,7 @@ on:
 
 
 env:
-  SSL_EXPORT_IN:
+  SSL_EXPORT_IN: ${{ secrets.DEV_SSL_EXPORT_IN }}
   SSL_IN_KEY: ${{ secrets.DEV_SSL_IN_KEY }}
   SSL_OUT_FORMAT: ${{ secrets.DEV_SSL_OUT_FORMAT }}
   SSL_KEY_NAME: ${{ secrets.DEV_SSL_NAME }}
