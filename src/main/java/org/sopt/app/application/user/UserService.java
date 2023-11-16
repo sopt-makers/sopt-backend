@@ -69,4 +69,17 @@ public class UserService {
         return token;
     }
 
+    @Transactional
+    public void updatePlaygroundToken(UserInfo.Id userId, String playgroundToken) {
+        val user = userRepository.findUserById(userId.getId())
+                .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_REFRESH_TOKEN.getMessage()));
+        val newUser = User.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .playgroundId(user.getPlaygroundId())
+                .playgroundToken(playgroundToken)
+                .build();
+        userRepository.save(newUser);
+    }
+
 }

@@ -38,6 +38,17 @@ public class PushTokenService {
     private String apiKey;
 
 
+    @Transactional(readOnly = true)
+    public boolean isExistDeviceToken(Long userId, String token) {
+        return pushTokenRepository.existsByUserIdAndToken(userId, token);
+    }
+
+    @Transactional(readOnly = true)
+    public PushToken getDeviceToken(Long userId, String token) {
+        return pushTokenRepository.findByUserIdAndToken(userId, token)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.PUSH_TOKEN_NOT_FOUND_FROM_LOCAL.getMessage()));
+    }
+
     @Transactional(rollbackFor = BadRequestException.class)
     public PushTokenResponse.StatusResponse registerDeviceToken(User user, String pushToken, String platform) {
         if (!pushTokenRepository.existsByUserIdAndToken(user.getId(), pushToken)) {
@@ -101,11 +112,13 @@ public class PushTokenService {
 
     @Transactional
     public void deleteAllDeviceTokenOf(User user) {
+        // 기존에 저장되어 있던 Tokens -> 알림 서버에 삭제 요청
         List<PushToken> userTokens = pushTokenRepository.findAllByUserId(user.getId());
         if (!userTokens.isEmpty()) {
             for (PushToken token : userTokens) {
-                deleteDeviceToken(user, token.getToken());
+                deleteDeviceToken(token);
             }
+            // 우선 서비스 DB에 있는 모든 토큰 지워버리기
             pushTokenRepository.deleteAll(userTokens);
         }
     }

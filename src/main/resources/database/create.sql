@@ -150,6 +150,7 @@ create table app_dev.notifications
         constraint notifications_pk
             primary key,
     user_id                     bigint not null ,
+    notification_id             varchar(255) not null ,
     notification_title          text not null ,
     notification_content        text,
     notification_type           varchar(50) not null ,

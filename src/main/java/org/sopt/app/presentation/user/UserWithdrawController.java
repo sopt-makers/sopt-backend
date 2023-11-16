@@ -40,7 +40,12 @@ public class UserWithdrawController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody PushTokenRequest.DeleteRequest deleteRequest
     ) {
-        pushTokenService.deleteDeviceToken(user, deleteRequest.getPushToken());
+        if (pushTokenService.isExistDeviceToken(user.getId(), deleteRequest.getPushToken())) {
+            PushToken targetPushToken = pushTokenService.getDeviceToken(
+                    user.getId(), deleteRequest.getPushToken()
+            );
+            pushTokenService.deleteDeviceToken(targetPushToken);
+        }
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
