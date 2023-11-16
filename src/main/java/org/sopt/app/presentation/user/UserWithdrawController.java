@@ -41,12 +41,12 @@ public class UserWithdrawController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody PushTokenRequest.DeleteRequest deleteRequest
     ) {
-        PushToken targetPushToken = pushTokenService.getDeviceToken(
-                user.getId(), deleteRequest.getPushToken()
-        );
-//        val result =
-        pushTokenService.deleteDeviceToken(targetPushToken);
-//        val response = pushTokenResponseMapper.ofStatus(result);
+        if (pushTokenService.isExistDeviceToken(user.getId(), deleteRequest.getPushToken())) {
+            PushToken targetPushToken = pushTokenService.getDeviceToken(
+                    user.getId(), deleteRequest.getPushToken()
+            );
+            pushTokenService.deleteDeviceToken(targetPushToken);
+        }
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
