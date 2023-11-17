@@ -14,10 +14,13 @@ elif [ ! -d ./src/main/resources/application-prod.yml ]; then
 fi
 
 # shellcheck disable=SC2010
-JAR_NAME=$(ls $DEFAULT_PATH/build/libs/ | grep '.jar' | tail -n 1)
-JAR_PATH=$DEFAULT_PATH/build/libs/$JAR_NAME
+# JAR_NAME=$(ls $DEFAULT_PATH/build/libs/ | grep '.jar' | tail -n 1)
+# JAR_PATH=$DEFAULT_PATH/build/libs/$JAR_NAME
 
-echo "> 애플리케이션 pid 확인"
+# echo "> 애플리케이션 pid 확인"
+# JAR_PID=$(pgrep -f $JAR_NAME)
+
+JAR_NAME=app-server-0.0.1-SNAPSHOT.jar
 JAR_PID=$(pgrep -f $JAR_NAME)
 
 if [ -z $JAR_PID ]
@@ -30,4 +33,4 @@ else
 fi
 
 echo "> $JAR_PATH 배포" #3
-sudo nohup java -jar -Dspring.profiles.active=$PROFILE $REPOSITORY/build/libs/app-server-0.0.1-SNAPSHOT.jar >nohup.out 2>&1 </dev/null &
+sudo nohup java -jar -Dspring.profiles.active=$PROFILE $DEFAULT_PATH/build/libs/$JAR_NAME >nohup.out 2>&1 </dev/null &
