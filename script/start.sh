@@ -27,10 +27,10 @@ if [ -z $JAR_PID ]
 then
   echo "> 현재 구동중인 애플리케이션이 없으므로 종료하지 않습니다."
 else
-  echo "> kill -15 $JAR_PID"
-  kill -15 $JAR_PID
+  echo "> sudo kill -15 $JAR_PID"
+  sudo kill -15 $JAR_PID
   sleep 10
 fi
 
 echo "> $JAR_PATH 배포" #3
-nohup java -jar -Dspring.profiles.active=$PROFILE $REPOSITORY/build/libs/app-server-0.0.1-SNAPSHOT.jar >nohup.out 2>&1 </dev/null &
+sudo nohup java -jar -Dspring.profiles.active=$PROFILE $REPOSITORY/build/libs/app-server-0.0.1-SNAPSHOT.jar >nohup.out 2>&1 </dev/null &
