@@ -20,6 +20,17 @@ REPOSITORY=/home/ubuntu/$DEFAULT_PATH
 JAR_NAME=$(ls $REPOSITORY/build/libs/ | grep '.jar' | tail -n 1)
 JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
 
+echo "> 애플리케이션 pid 확인"
+JAR_PID=$(pgrep -f $JAR_NAME)
+
+if [ -z $JAR_PID ]
+then
+  echo "> 현재 구동중인 애플리케이션이 없으므로 종료하지 않습니다."
+else
+  echo "> kill -15 $JAR_PID"
+  kill -15 $JAR_PID
+  sleep 10
+fi
 
 echo "> $JAR_PATH 배포" #3
 nohup java -jar -Dspring.profiles.active=$PROFILE $REPOSITORY/build/libs/app-server-0.0.1-SNAPSHOT.jar >nohup.out 2>&1 </dev/null &
