@@ -12,13 +12,10 @@ elif [ ! -d ./src/main/resources/application-prod.yml ]; then
 #  APPLICATION_PACKAGE=app
   PROFILE=local
 fi
-echo "> Target Profile : $PROFILE"
-# shellcheck disable=SC2164
-REPOSITORY=/home/ubuntu/$DEFAULT_PATH
 
 # shellcheck disable=SC2010
-JAR_NAME=$(ls $REPOSITORY/build/libs/ | grep '.jar' | tail -n 1)
-JAR_PATH=$REPOSITORY/build/libs/$JAR_NAME
+JAR_NAME=$(ls $DEFAULT_PATH/build/libs/ | grep '.jar' | tail -n 1)
+JAR_PATH=$DEFAULT_PATH/build/libs/$JAR_NAME
 
 echo "> 애플리케이션 pid 확인"
 JAR_PID=$(pgrep -f $JAR_NAME)
