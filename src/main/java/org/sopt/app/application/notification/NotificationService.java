@@ -94,6 +94,21 @@ public class NotificationService {
         }
     }
 
+    private void updateSingleNotificationIsRead(User user, String notificationId) {
+        val notification = notificationRepository.findByNotificationIdAndUserId(notificationId, user.getId())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
+        notification.updateIsRead();
+        notificationRepository.save(notification);
+    }
+
+    @Deprecated
+    private void updateSingleNotificationIsReadDeprecated(User user, Long notificationId) {
+        val notification = notificationRepository.findByIdAndUserId(notificationId, user.getId())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
+        notification.updateIsRead();
+        notificationRepository.save(notification);
+    }
+
     private void updateAllNotificationIsRead(User user) {
         val notificationList = notificationRepository.findAllByUserId(user.getId());
         val readNotificationList = notificationList.stream()
@@ -103,19 +118,6 @@ public class NotificationService {
                     }
                 ).collect(Collectors.toList());
         notificationRepository.saveAll(readNotificationList);
-    }
-
-    private void updateSingleNotificationIsRead(User user, String notificationId) {
-        val notification = notificationRepository.findByNotificationIdAndUserId(notificationId, user.getId())
-                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
-        notification.updateIsRead();
-        notificationRepository.save(notification);
-    }
-    private void updateSingleNotificationIsReadDeprecated(User user, Long notificationId) {
-        val notification = notificationRepository.findByIdAndUserId(notificationId, user.getId())
-                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
-        notification.updateIsRead();
-        notificationRepository.save(notification);
     }
 
     @Transactional(readOnly = true)
