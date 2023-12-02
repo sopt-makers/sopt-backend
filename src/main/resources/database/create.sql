@@ -167,3 +167,39 @@ alter table app_dev.notifications
 
 create unique index notifications_id_uindex
     on app_dev.notifications (id);
+
+create table app_dev.friends
+(
+    id             serial
+        primary key,
+    user_id        integer                 not null,
+    friend_user_id integer                 not null,
+    created_at     timestamp default now() not null,
+    poke_count     integer   default 0,
+    updated_at     timestamp default now()
+);
+
+create table app_dev.poke_history
+(
+    id         serial
+        primary key,
+    poker_id   integer not null,
+    poked_id   integer not null,
+    create_at  date    not null,
+    message    text,
+    is_reply   boolean default false,
+    updated_at date    default now()
+);
+
+create type app_dev.message_type as enum ('new', 'friend');
+
+create table app_dev.poke_message
+(
+    id         integer default nextval('app_dev.messages_id_seq'::regclass) not null
+        constraint messages_pkey
+            primary key,
+    content    text                                                         not null,
+    type       message_type                                                 not null,
+    created_at date    default now(),
+    updated_at date    default now()
+);
