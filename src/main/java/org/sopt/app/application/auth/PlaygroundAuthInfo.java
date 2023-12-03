@@ -53,6 +53,15 @@ public class PlaygroundAuthInfo {
 
     @Getter
     @Setter
+    // TODO 임시
+    @Builder
+    @ToString
+    public static class PlaygroundProfileWithId extends PlaygroundProfile {
+        private Long id;
+    }
+
+    @Getter
+    @Setter
     @ToString
     public static class PlaygroundActivity {
 

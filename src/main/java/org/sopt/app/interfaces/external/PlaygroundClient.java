@@ -1,11 +1,14 @@
 package org.sopt.app.interfaces.external;
 
 import feign.HeaderMap;
+import feign.Param;
 import feign.RequestLine;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 
 import java.util.Map;
+import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
 
 public interface PlaygroundClient {
 
@@ -20,4 +23,7 @@ public interface PlaygroundClient {
 
     @RequestLine("POST /internal/api/v1/idp/auth/token")
     PlaygroundAuthInfo.RefreshedToken refreshPlaygroundToken(@HeaderMap Map<String, String> headers, AppAuthRequest.AccessTokenRequest tokenRequest);
+
+    @RequestLine("GET /internal/api/v1/members/latest?generation={generation}")
+    ActiveUserIds getPlaygroundUserIds(@HeaderMap Map<String, String> headers, @Param("generation") Long generation);
 }
