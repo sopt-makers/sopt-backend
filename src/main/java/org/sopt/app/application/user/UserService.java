@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileWithId;
-import org.sopt.app.application.user.UserInfo.PorkProfile;
+import org.sopt.app.application.user.UserInfo.PokeProfile;
 import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -117,4 +117,5 @@ public class UserService {
                 .build();
         }).toList();
     }
+    public List<UserInfo.UserProfile> findRandomFriendsOfFriends(Long userId, Long friendIds, int limitNum) {
 }
