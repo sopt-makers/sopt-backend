@@ -6,6 +6,7 @@ import lombok.val;
 import org.sopt.app.application.poke.PokeHistoryService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.PokeFacade;
+import org.sopt.app.presentation.poke.PokeResponse.Friend;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,6 +47,30 @@ public class PokeController {
     ) {
         val result = pokeHistoryService.isNewPoker(user.getId());
         val response = PokeResponse.IsNew.of(result);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/friend/random-user")
+    public ResponseEntity<List<Friend>> test(
+        @AuthenticationPrincipal User user
+    ) {
+        val result = pokeFacade.getRecommendFriendsOfUsersFriend(user);
+        val response = result.stream().map(
+            friend -> PokeResponse.Friend.of(
+                friend.getFriendId(),
+                friend.getFriendName(),
+                friend.getFriendProfileImage(),
+                friend.getFriendList().stream().map(
+                    profile -> PokeResponse.PokeProfile.of(
+                        profile.getUserId(),
+                        profile.getProfileImage(),
+                        profile.getName(),
+                        profile.getGeneration(),
+                        profile.getPart()
+                    )
+                ).toList()
+            )
+        ).toList();
         return ResponseEntity.ok(response);
     }
 }
