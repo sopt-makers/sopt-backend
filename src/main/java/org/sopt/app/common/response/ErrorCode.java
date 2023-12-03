@@ -48,6 +48,10 @@ public enum ErrorCode {
     INVALID_REQUEST_BODY_FOR_PUSH_TOKEN("잘못된 푸시 토큰 관련 요청입니다."),
     INTERNAL_SERVER_ERROR_IN_PUSH_SERVER("푸시 서버 내부 오류입니다."),
 
+    // POKE
+    POKE_HISTORY_NOT_FOUND("해당 찌르기 내역은 존재하지 않습니다."),
+    POKE_MESSAGE_NOT_FOUND("해당 찌르기 메시지는 존재하지 않습니다."),
+
     // S3
     PRE_SIGNED_URI_ERROR("URL을 생성할 수 없습니다.");
 
