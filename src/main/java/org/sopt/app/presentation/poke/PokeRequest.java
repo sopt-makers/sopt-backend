@@ -13,9 +13,9 @@ public class PokeRequest {
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
     public static class PokeMessageRequest {
-        @Schema(description = "찌르기 메시지 아이디", example = "1")
+        @Schema(description = "찌르기 메시지", example = "Message A")
         @NotNull(message = "messageId may not be null")
-        private Long messageId;
+        private String message;
 
     }
 

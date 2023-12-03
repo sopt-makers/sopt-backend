@@ -71,7 +71,7 @@ public class PokeController {
             @PathVariable("userId") Long pokedUserId,
             @RequestBody PokeRequest.PokeMessageRequest messageRequest
     ) {
-        pokeService.poke(user.getId(), pokedUserId, messageRequest.getMessageId());
+        pokeService.poke(user.getId(), pokedUserId, messageRequest.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(null);
