@@ -195,8 +195,7 @@ create type app_dev.message_type as enum ('new', 'friend');
 
 create table app_dev.poke_message
 (
-    id         integer default nextval('app_dev.messages_id_seq'::regclass) not null
-        constraint messages_pkey
+    id         serial
             primary key,
     content    text                                                         not null,
     type       message_type                                                 not null,
