@@ -12,6 +12,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @Setter
@@ -36,6 +37,11 @@ public class Friend extends BaseEntity {
     private Long friendUserId;
 
     @Column(name = "poke_count")
+    @ColumnDefault("1")
     private Integer pokeCount;
+
+    public void addCount() {
+        this.pokeCount++;
+    }
 
 }

@@ -175,7 +175,7 @@ create table app_dev.friends
     user_id        integer                 not null,
     friend_user_id integer                 not null,
     created_at     timestamp default now() not null,
-    poke_count     integer   default 0,
+    poke_count     integer   default 1,
     updated_at     timestamp default now()
 );
 
