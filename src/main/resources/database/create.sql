@@ -183,12 +183,12 @@ create table app_dev.poke_history
 (
     id         serial
         primary key,
-    poker_id   integer not null,
-    poked_id   integer not null,
-    create_at  date    not null,
+    poker_id   integer                 not null,
+    poked_id   integer                 not null,
+    created_at timestamp default now() not null,
     message    text,
-    is_reply   boolean default false,
-    updated_at date    default now()
+    is_reply   boolean   default false,
+    updated_at timestamp default now() not null
 );
 
 create type app_dev.message_type as enum ('new', 'friend');
@@ -196,9 +196,9 @@ create type app_dev.message_type as enum ('new', 'friend');
 create table app_dev.poke_message
 (
     id         serial
-            primary key,
-    content    text                                                         not null,
-    type       message_type                                                 not null,
-    created_at date    default now(),
-    updated_at date    default now()
+        primary key,
+    content    text         not null,
+    type       message_type not null,
+    created_at timestamp default now(),
+    updated_at timestamp default now()
 );
