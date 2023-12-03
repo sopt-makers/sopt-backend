@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.poke.PokeHistoryService;
 import org.sopt.app.application.poke.PokeService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.PokeFacade;
@@ -23,8 +24,10 @@ import java.util.List;
 @SecurityRequirement(name = "Authorization")
 public class PokeController {
 
+
     private final PokeFacade pokeFacade;
     private final PokeService pokeService;
+    private final PokeHistoryService pokeHistoryService;
 
     @GetMapping("/random-user")
     public ResponseEntity<List<PokeResponse.PokeProfile>> getRandomUserForNew(
@@ -46,6 +49,15 @@ public class PokeController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/new")
+    public ResponseEntity<PokeResponse.IsNew> getPokeList(
+            @AuthenticationPrincipal User user
+    ) {
+        val result = pokeHistoryService.isNewPoker(user.getId());
+        val response = PokeResponse.IsNew.of(result);
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "찌르기")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "success"),
@@ -62,7 +74,5 @@ public class PokeController {
                 .status(HttpStatus.CREATED)
                 .body(null);
     }
-
-
 
 }
