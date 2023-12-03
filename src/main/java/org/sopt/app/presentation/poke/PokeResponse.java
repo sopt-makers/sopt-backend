@@ -52,5 +52,21 @@ public class PokeResponse {
         }
     }
 
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @AllArgsConstructor(access = AccessLevel.PROTECTED)
+    @ToString
+    public static class PokeAlarmStatusResponse {
+
+        @Schema(description = "알림 서버 Response Status", example = "200")
+        private Integer status;
+
+        @Schema(description = "성공 여부", example = "true")
+        private Boolean success;
+
+        @Schema(description = "알림 서버 Response Message", example = "토큰 해지 성공")
+        private String message;
+    }
+
 }
 
