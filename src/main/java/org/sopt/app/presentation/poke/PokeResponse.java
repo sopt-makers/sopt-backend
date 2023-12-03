@@ -26,6 +26,7 @@ public class PokeResponse {
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
     public static class SimplePokeProfile {
+
         @Schema(description = "유저 ID", example = "1")
         private Long userId;
         @Schema(description = "프로필 사진 URL", example = ".....")
@@ -46,9 +47,14 @@ public class PokeResponse {
         private Boolean isAlreadyPoke;
 
         public static SimplePokeProfile of(
-                Long userId, String profileImage,String name, String message, PokeInfo.Activity activity, Long pickNum, List<String> mutual, Boolean isFirstMeet, Boolean isAlreadyPoke
+            Long userId, String profileImage, String name, String message,
+            PokeInfo.Activity activity, Long pickNum, List<String> mutual, Boolean isFirstMeet,
+            Boolean isAlreadyPoke
         ) {
-            return new SimplePokeProfile(userId, profileImage, name, message, activity, pickNum, mutual, isFirstMeet, isAlreadyPoke);
+            return new SimplePokeProfile(
+                userId, profileImage, name, message, activity, pickNum, mutual, isFirstMeet,
+                isAlreadyPoke
+            );
         }
     }
 
@@ -68,5 +74,26 @@ public class PokeResponse {
         private String message;
     }
 
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class PokeProfile {
+
+        @Schema(description = "유저 ID", example = "1")
+        private Long userId;
+        @Schema(description = "프로필 사진 URL", example = ".....")
+        private String profileImage;
+        @Schema(description = "유저 이름", example = "다혜다해")
+        private String name;
+        @Schema(description = "기수", example = "29")
+        private Long generation;
+        @Schema(description = "파트", example = "안드로이드")
+        private String part;
+
+        public static PokeProfile of(
+            Long userId, String profileImage, String name, Long generation, String part
+        ) {
+            return new PokeProfile(userId, profileImage, name, generation, part);
+        }
+    }
 }
 

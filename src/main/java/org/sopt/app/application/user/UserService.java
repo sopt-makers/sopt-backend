@@ -11,6 +11,8 @@ import org.sopt.app.presentation.auth.AppAuthRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 
 @Service
 @RequiredArgsConstructor
@@ -82,4 +84,35 @@ public class UserService {
         userRepository.save(newUser);
     }
 
+    public List<UserInfo.UserProfile> getUserProfiles(List<Long> recommendUserIds) {
+        return userRepository.findAllByPlaygroundIdIn(recommendUserIds).stream().map(
+            u -> UserInfo.UserProfile.builder()
+                .userId(u.getId())
+                .name(u.getUsername())
+                .playgroundId(u.getPlaygroundId())
+                .build()
+        ).toList();
+    }
+
+    public List<UserInfo.PorkProfile> combinePokeProfileList(
+            List<UserInfo.UserProfile> userProfiles, List<PlaygroundAuthInfo.PlaygroundProfileWithId> playgroundProfiles
+    ) {
+        return userProfiles.stream().map(userProfile -> {
+            val playgroundProfile = playgroundProfiles.stream()
+                .filter(profile -> profile.getId().equals(userProfile.getPlaygroundId()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("플레이그라운드 프로필이 없습니다."));
+            val generation = playgroundProfile.getActivities().get(0).getCardinalActivities().get(0)
+                .getGeneration();
+            val part = playgroundProfile.getActivities().get(0).getCardinalActivities().get(0)
+                .getPart();
+            return UserInfo.PorkProfile.builder()
+                .userId(userProfile.getUserId())
+                .profileImage(playgroundProfile.getProfileImage())
+                .name(playgroundProfile.getName())
+                .generation(generation)
+                .part(part)
+                .build();
+        }).toList();
+    }
 }

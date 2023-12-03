@@ -6,12 +6,16 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.sopt.app.application.poke.PokeService;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.facade.PokeFacade;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -19,7 +23,28 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "Authorization")
 public class PokeController {
 
+    private final PokeFacade pokeFacade;
     private final PokeService pokeService;
+
+    @GetMapping("/random-user")
+    public ResponseEntity<List<PokeResponse.PokeProfile>> getRandomUserForNew(
+            @AuthenticationPrincipal User user
+    ) {
+        val result = pokeFacade.getRecommendUserForNew(
+                user.getPlaygroundToken(),
+                user.getPlaygroundId()
+        );
+        val response = result.stream().map(
+                profile -> PokeResponse.PokeProfile.of(
+                        profile.getUserId(),
+                        profile.getProfileImage(),
+                        profile.getName(),
+                        profile.getGeneration(),
+                        profile.getPart()
+                )
+        ).toList();
+        return ResponseEntity.ok(response);
+    }
 
     @Operation(summary = "찌르기")
     @ApiResponses(value = {
@@ -37,5 +62,7 @@ public class PokeController {
                 .status(HttpStatus.CREATED)
                 .body(null);
     }
+
+
 
 }
