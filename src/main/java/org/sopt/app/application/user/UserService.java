@@ -96,7 +96,7 @@ public class UserService {
         ).toList();
     }
 
-    public List<PorkProfile> combinePokeProfileList(
+    public List<PokeProfile> combinePokeProfileList(
         List<UserProfile> userProfiles, List<PlaygroundProfileWithId> playgroundProfiles
     ) {
         return userProfiles.stream().map(userProfile -> {
@@ -108,7 +108,7 @@ public class UserService {
                 .getGeneration();
             val part = playgroundProfile.getActivities().get(0).getCardinalActivities().get(0)
                 .getPart();
-            return PorkProfile.builder()
+            return PokeProfile.builder()
                 .userId(userProfile.getUserId())
                 .profileImage(playgroundProfile.getProfileImage())
                 .name(userProfile.getName())
