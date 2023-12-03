@@ -17,7 +17,7 @@ import org.hibernate.annotations.Type;
 @Getter
 @Setter
 @Entity
-@Table(name = "poke_messages", schema = "app_dev")
+@Table(name = "poke_message", schema = "app_dev")
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
