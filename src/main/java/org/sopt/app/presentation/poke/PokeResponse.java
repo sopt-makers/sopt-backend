@@ -34,17 +34,6 @@ public class PokeResponse {
     }
 
     @Getter
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class IsNew {
-        @Schema(description = "새로운 유저 여부", example = "true")
-        private Boolean isNew;
-
-        public static IsNew of(Boolean isNew) {
-            return new IsNew(isNew);
-        }
-    }
-
-    @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
