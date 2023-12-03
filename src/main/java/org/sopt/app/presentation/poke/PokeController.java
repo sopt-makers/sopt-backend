@@ -1,10 +1,11 @@
 package org.sopt.app.presentation.poke;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.poke.PokeHistoryService;
 import org.sopt.app.domain.entity.User;
-import org.sopt.app.facade.UserFacade;
+import org.sopt.app.facade.PokeFacade;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +16,29 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v2/poke")
 @RequiredArgsConstructor
 public class PokeController {
-    private final UserFacade userFacade;
+
+    private final PokeFacade pokeFacade;
     private final PokeHistoryService pokeHistoryService;
+
+    @GetMapping("/random-user")
+    public ResponseEntity<List<PokeResponse.PokeProfile>> getRandomUserForNew(
+        @AuthenticationPrincipal User user
+    ) {
+        val result = pokeFacade.getRecommendUserForNew(
+            user.getPlaygroundToken(),
+            user.getPlaygroundId()
+        );
+        val response = result.stream().map(
+            profile -> PokeResponse.PokeProfile.of(
+                profile.getUserId(),
+                profile.getProfileImage(),
+                profile.getName(),
+                profile.getGeneration(),
+                profile.getPart()
+            )
+        ).toList();
+        return ResponseEntity.ok(response);
+    }
 
     @GetMapping("/new")
     public ResponseEntity<PokeResponse.IsNew> getPokeList(
@@ -26,5 +48,4 @@ public class PokeController {
         val response = PokeResponse.IsNew.of(result);
         return ResponseEntity.ok(response);
     }
-
 }

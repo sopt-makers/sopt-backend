@@ -1,8 +1,12 @@
 package org.sopt.app.application.user;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileWithId;
+import org.sopt.app.application.user.UserInfo.PorkProfile;
+import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.User;
@@ -82,4 +86,35 @@ public class UserService {
         userRepository.save(newUser);
     }
 
+    public List<UserProfile> getUserProfiles(List<Long> recommendUserIds) {
+        return userRepository.findAllByPlaygroundIdIn(recommendUserIds).stream().map(
+            u -> UserProfile.builder()
+                .userId(u.getId())
+                .name(u.getUsername())
+                .playgroundId(u.getPlaygroundId())
+                .build()
+        ).toList();
+    }
+
+    public List<PorkProfile> combinePokeProfileList(
+        List<UserProfile> userProfiles, List<PlaygroundProfileWithId> playgroundProfiles
+    ) {
+        return userProfiles.stream().map(userProfile -> {
+            val playgroundProfile = playgroundProfiles.stream()
+                .filter(profile -> profile.getId().equals(userProfile.getPlaygroundId()))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("플레이그라운드 프로필이 없습니다."));
+            val generation = playgroundProfile.getActivities().get(0).getCardinalActivities().get(0)
+                .getGeneration();
+            val part = playgroundProfile.getActivities().get(0).getCardinalActivities().get(0)
+                .getPart();
+            return PorkProfile.builder()
+                .userId(userProfile.getUserId())
+                .profileImage(playgroundProfile.getProfileImage())
+                .name(userProfile.getName())
+                .generation(generation)
+                .part(part)
+                .build();
+        }).toList();
+    }
 }
