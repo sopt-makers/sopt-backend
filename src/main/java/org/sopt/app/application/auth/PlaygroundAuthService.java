@@ -150,7 +150,7 @@ public class PlaygroundAuthService {
                     val playgroundProfile = new PlaygroundProfileWithId(userId);
                     playgroundProfile.setProfileImage("");
                     playgroundProfile.setName("test");
-                    playgroundProfile.setActivities(List.of(new PlaygroundActivity()));
+                    playgroundProfile.setActivities(List.of(dummyActivity));
                     return playgroundProfile;
                 }
         ).toList();

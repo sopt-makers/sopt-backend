@@ -1,8 +1,12 @@
 package org.sopt.app.application.user;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileWithId;
+import org.sopt.app.application.user.UserInfo.PorkProfile;
+import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.User;
@@ -107,7 +111,7 @@ public class UserService {
             return PorkProfile.builder()
                 .userId(userProfile.getUserId())
                 .profileImage(playgroundProfile.getProfileImage())
-                .name(playgroundProfile.getName())
+                .name(userProfile.getName())
                 .generation(generation)
                 .part(part)
                 .build();
