@@ -8,11 +8,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.interfaces.external.PlaygroundClient;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundActivity;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileWithId;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
+import org.sopt.app.interfaces.external.PlaygroundClient;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -119,5 +121,39 @@ public class PlaygroundAuthService {
     // Header 생성 메서드
     private Map<String, String> createDefaultHeader() {
         return new HashMap<>(Map.of("content-type", "application/json;charset=UTF-8"));
+    }
+
+    public PlaygroundAuthInfo.ActiveUserIds getPlayGroundUserIds(String accessToken) {
+        Map<String, String> headers = createDefaultHeader();
+        headers.put("Authorization", accessToken);
+        try {
+            return playgroundClient.getPlaygroundUserIds(headers, currentGeneration);
+        } catch (BadRequest e) {
+            throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
+        } catch (ExpiredJwtException e) {
+            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
+        }
+    }
+
+    public List<PlaygroundAuthInfo.PlaygroundProfileWithId> getPlaygroundProfiles(List<Long> recommendUserIds) {
+        val result = recommendUserIds.stream().map(
+                userId -> {
+                    val dummyActivity = new PlaygroundActivity();
+                    val dummyCardinalActivity = new PlaygroundAuthInfo.PlaygroundCardinalActivity();
+                    dummyCardinalActivity.setGeneration(currentGeneration);
+                    dummyCardinalActivity.setId(1L);
+                    dummyCardinalActivity.setIsProject(false);
+                    dummyCardinalActivity.setPart("서버");
+                    dummyCardinalActivity.setTeam("없음");
+                    dummyActivity.setCardinalActivities(List.of(dummyCardinalActivity));
+
+                    val playgroundProfile = new PlaygroundProfileWithId(userId);
+                    playgroundProfile.setProfileImage("");
+                    playgroundProfile.setName("test");
+                    playgroundProfile.setActivities(List.of(new PlaygroundActivity()));
+                    return playgroundProfile;
+                }
+        ).toList();
+        return result;
     }
 }
