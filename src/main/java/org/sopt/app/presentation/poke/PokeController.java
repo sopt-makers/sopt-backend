@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.poke.PokeHistoryService;
-import org.sopt.app.application.poke.PokeService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.PokeFacade;
 import org.springframework.http.HttpStatus;
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class PokeController {
 
     private final PokeFacade pokeFacade;
-    private final PokeService pokeService;
     private final PokeHistoryService pokeHistoryService;
 
     @GetMapping("/random-user")
@@ -71,7 +69,8 @@ public class PokeController {
             @PathVariable("userId") Long pokedUserId,
             @RequestBody PokeRequest.PokeMessageRequest messageRequest
     ) {
-        pokeService.poke(user.getId(), pokedUserId, messageRequest.getMessage());
+        pokeFacade.applyFriendship(user.getId(), pokedUserId);
+        pokeFacade.pokeFriend(user.getId(), pokedUserId, messageRequest.getMessage());
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(null);
