@@ -13,4 +13,8 @@ public class PokeHistoryService {
     public Boolean isNewPoker(Long userId) {
         return pokeHistoryRepository.findAllByPokerId(userId).isEmpty();
     }
+
+    public Boolean isUserPokeBeforeFriend(Long userId, Long friendId) {
+        return pokeHistoryRepository.findAllByPokerIdAndPokedId(userId, friendId).isEmpty();
+    }
 }
