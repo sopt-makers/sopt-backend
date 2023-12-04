@@ -40,7 +40,7 @@ public class Friend extends BaseEntity {
     @ColumnDefault("1")
     private Integer pokeCount;
 
-    public void addCount() {
+    public void addPokeCount() {
         this.pokeCount++;
     }
 

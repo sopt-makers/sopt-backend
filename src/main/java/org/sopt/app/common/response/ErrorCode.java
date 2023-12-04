@@ -52,6 +52,9 @@ public enum ErrorCode {
     POKE_HISTORY_NOT_FOUND("해당 찌르기 내역은 존재하지 않습니다."),
     POKE_MESSAGE_NOT_FOUND("해당 찌르기 메시지는 존재하지 않습니다."),
 
+    // FRIEND
+    FRIENDSHIP_NOT_FOUND("해당 친구관계는 존재하지 않습니다."),
+
     // S3
     PRE_SIGNED_URI_ERROR("URL을 생성할 수 없습니다.");
 
