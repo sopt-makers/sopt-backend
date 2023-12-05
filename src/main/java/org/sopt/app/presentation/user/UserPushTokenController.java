@@ -56,13 +56,12 @@ public class UserPushTokenController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody PushTokenRequest.DeleteRequest deletePushTokenRequest
     ) {
-        if (pushTokenService.isExistDeviceToken(user.getId(), deletePushTokenRequest.getPushToken())) {
-            PushToken targetPushToken = pushTokenService.getDeviceToken(
-                    user.getId(), deletePushTokenRequest.getPushToken()
-            );
-            pushTokenService.deleteDeviceToken(targetPushToken);
-        }
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        PushToken targetPushToken = pushTokenService.getDeviceToken(
+                user.getId(), deletePushTokenRequest.getPushToken()
+        );
+        val result = pushTokenService.deleteDeviceToken(targetPushToken);
+        val response = pushTokenResponseMapper.ofStatus(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
 }

@@ -39,7 +39,7 @@ public class NotificationController {
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @GetMapping(value = "/all")
+    @GetMapping(value = "")
     public ResponseEntity<List<NotificationResponse.NotificationSimple>> findNotificationList(
             @AuthenticationPrincipal User user,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
@@ -62,7 +62,7 @@ public class NotificationController {
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @GetMapping(value = "/detail/{notificationId}")
+    @GetMapping(value = "/{notificationId}")
     public ResponseEntity<NotificationResponse.NotificationDetail> findNotificationDetail(
             @AuthenticationPrincipal User user,
             @PathVariable("notificationId") String notificationId
@@ -70,8 +70,8 @@ public class NotificationController {
         val result = notificationService.findNotification(user, notificationId);
         return ResponseEntity.status(HttpStatus.OK).body(
                 NotificationResponse.NotificationDetail.of(
-                        result.getNotificationId(),
-                        result.getUserId(),
+                        notificationId,
+                        user.getId(),
                         result.getTitle(),
                         result.getContent(),
                         result.getDeepLink(),
@@ -103,7 +103,7 @@ public class NotificationController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PatchMapping(value = {
-            "/read/{notificationId}", "/read"
+            "/{notificationId}", ""
     })
     public ResponseEntity<NotificationDetail> updateNotificationIsRead(
             @AuthenticationPrincipal User user,
@@ -113,72 +113,4 @@ public class NotificationController {
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
 
-
-
-    @Operation(summary = "알림 목록 조회 - DEPRECATED")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping(value = "")
-    @Deprecated
-    public ResponseEntity<List<NotificationResponse.NotificationSimpleDeprecated>> findNotificationListDeprecated(
-            @AuthenticationPrincipal User user,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
-        val result = notificationService.findNotificationList(user, pageable);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                result.stream()
-                        .map((notification) -> NotificationResponse.NotificationSimpleDeprecated.of(
-                                notification.getId()
-                                , notification.getUserId()
-                                , notification.getTitle()
-                                , notification.getContent()
-                                , notification.getCategory().name()
-                                , notification.getIsRead()
-                                , notification.getCreatedAt()
-                        )).toList());
-    }
-    @Operation(summary = "알림 상세 조회 - DEPRECATED")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping(value = "/{notificationId}")
-    @Deprecated
-    public ResponseEntity<NotificationResponse.NotificationDetailDeprecated> findNotificationDetailDeprecated(
-            @AuthenticationPrincipal User user,
-            @PathVariable("notificationId") Long notificationId
-    ) {
-        val result = notificationService.findNotificationDeprecated(user, notificationId);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                NotificationResponse.NotificationDetailDeprecated.of(
-                        result.getId(),
-                        result.getUserId(),
-                        result.getTitle(),
-                        result.getContent(),
-                        result.getDeepLink(),
-                        result.getWebLink(),
-                        result.getCreatedAt(),
-                        result.getUpdatedAt()
-                )
-        );
-    }
-
-    @Operation(summary = "알림 읽음 여부 변경 - DEPRECATED")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @PatchMapping(value = {
-            "/{notificationId}", ""
-    })
-    @Deprecated
-    public ResponseEntity<NotificationDetail> updateNotificationIsReadDeprecated(
-            @AuthenticationPrincipal User user,
-            @PathVariable(name = "notificationId", required = false) Long notificationId
-    ) {
-        notificationService.updateNotificationIsReadDeprecated(user, notificationId);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
-    }
 }
