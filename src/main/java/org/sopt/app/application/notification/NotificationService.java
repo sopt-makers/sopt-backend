@@ -31,6 +31,12 @@ public class NotificationService {
         return notificationRepository.findByNotificationIdAndUserId(notificationId, user.getId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
     }
+    @Transactional(readOnly = true)
+    @Deprecated
+    public Notification findNotificationDeprecated(User user, Long notificationId) {
+        return notificationRepository.findByIdAndUserId(notificationId, user.getId())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
+    }
 
     @Transactional(readOnly = true)
     public List<Notification> findNotificationList(User user, Pageable pageable) {
@@ -78,6 +84,30 @@ public class NotificationService {
             updateSingleNotificationIsRead(user, notificationId);
         }
     }
+    @Transactional
+    @Deprecated
+    public void updateNotificationIsReadDeprecated(User user, Long notificationId) {
+        if (Objects.isNull(notificationId)) {
+            updateAllNotificationIsRead(user);
+        } else {
+            updateSingleNotificationIsReadDeprecated(user, notificationId);
+        }
+    }
+
+    private void updateSingleNotificationIsRead(User user, String notificationId) {
+        val notification = notificationRepository.findByNotificationIdAndUserId(notificationId, user.getId())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
+        notification.updateIsRead();
+        notificationRepository.save(notification);
+    }
+
+    @Deprecated
+    private void updateSingleNotificationIsReadDeprecated(User user, Long notificationId) {
+        val notification = notificationRepository.findByIdAndUserId(notificationId, user.getId())
+                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
+        notification.updateIsRead();
+        notificationRepository.save(notification);
+    }
 
     private void updateAllNotificationIsRead(User user) {
         val notificationList = notificationRepository.findAllByUserId(user.getId());
@@ -88,13 +118,6 @@ public class NotificationService {
                     }
                 ).collect(Collectors.toList());
         notificationRepository.saveAll(readNotificationList);
-    }
-
-    private void updateSingleNotificationIsRead(User user, String notificationId) {
-        val notification = notificationRepository.findByNotificationIdAndUserId(notificationId, user.getId())
-                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
-        notification.updateIsRead();
-        notificationRepository.save(notification);
     }
 
     @Transactional(readOnly = true)
