@@ -55,7 +55,7 @@ public class UserInfo {
     @Getter
     @Builder
     @ToString
-    public static class PorkProfile {
+    public static class PokeProfile {
         private Long userId;
         private String name;
         private String profileImage;

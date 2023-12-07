@@ -6,19 +6,10 @@ import lombok.*;
 import org.sopt.app.application.poke.PokeInfo;
 
 import java.util.List;
+import org.sopt.app.application.user.UserInfo;
+import org.sopt.app.application.user.UserInfo.PokeProfile;
 
 public class PokeResponse {
-    @Getter
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class IsNew {
-        @Schema(description = "새로운 유저 여부", example = "true")
-        private Boolean isNew;
-
-        public static IsNew of(Boolean isNew) {
-            return new IsNew(isNew);
-        }
-    }
-
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -30,6 +21,17 @@ public class PokeResponse {
 
         public static PokeMessages of(List<String> messages) {
             return new PokeMessages(messages);
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class IsNew {
+        @Schema(description = "새로운 유저 여부", example = "true")
+        private Boolean isNew;
+
+        public static IsNew of(Boolean isNew) {
+            return new IsNew(isNew);
         }
     }
 
@@ -84,6 +86,23 @@ public class PokeResponse {
 
         @Schema(description = "알림 서버 Response Message", example = "토큰 해지 성공")
         private String message;
+    }
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class Friend {
+        @Schema(description = "친구 ID", example = "1")
+        private Long friendId;
+        @Schema(description = "친구 이름", example = "제갈송현")
+        private String friendName;
+        @Schema(description = "친구 프로필 사진 URL", example = ".....")
+        private String friendProfileImage;
+        @Schema(description = "친구 프로필 리스트", example = "[{'userId': 1, 'profileImage': '...', 'name': '제갈송현', 'generation': 29, 'part': '안드로이드'}]")
+        private List<PokeProfile> friendList;
+
+        public static Friend of(Long friendId, String friendName, String friendProfileImage, List<PokeProfile> friendList) {
+            return new Friend(friendId, friendName, friendProfileImage, friendList);
+        }
     }
 
     @Getter
