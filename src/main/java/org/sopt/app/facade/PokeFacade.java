@@ -13,7 +13,6 @@ import org.sopt.app.application.poke.PokeHistoryService;
 import org.sopt.app.application.poke.PokeService;
 import org.sopt.app.application.friend.FriendInfo;
 import org.sopt.app.application.friend.FriendInfo.Friend;
-import org.sopt.app.application.friend.FriendService;
 import org.sopt.app.application.user.UserInfo.PokeProfile;
 import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.application.user.UserService;
@@ -27,16 +26,10 @@ public class PokeFacade {
     private final PlaygroundAuthService playgroundAuthService;
     private final UserService userService;
     private final FriendService friendService;
-
-    public List<PokeProfile> getRecommendUserForNew(String playgroundToken, Long userPlaygroundId) {
     private final PokeService pokeService;
-    private final FriendService friendService;
     private final PokeHistoryService pokeHistoryService;
 
-
-    private final int RECOMMEND_USER_NUM_FOR_NEW = 6;
-
-    public List<PorkProfile> getRecommendUserForNew(String playgroundToken, Long userPlaygroundId) {
+    public List<PokeProfile> getRecommendUserForNew(String playgroundToken, Long userPlaygroundId) {
         val playgroundUserIds = playgroundAuthService.getPlayGroundUserIds(playgroundToken);
         int RECOMMEND_USER_NUM_FOR_NEW = 6;
         val recommendUserIds = pickRandomUserIds(playgroundUserIds.getUserIds(), userPlaygroundId,
