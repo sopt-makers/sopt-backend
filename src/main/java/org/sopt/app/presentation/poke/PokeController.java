@@ -44,7 +44,8 @@ public class PokeController {
                         profile.getProfileImage(),
                         profile.getName(),
                         profile.getGeneration(),
-                        profile.getPart()
+                        profile.getPart(),
+                        profile.getIsAlreadyPoked()
                 )
         ).toList();
         return ResponseEntity.ok(response);
@@ -75,7 +76,8 @@ public class PokeController {
                         profile.getProfileImage(),
                         profile.getName(),
                         profile.getGeneration(),
-                        profile.getPart()
+                        profile.getPart(),
+                        profile.getIsAlreadyPoked()
                     )
                 ).toList()
             )
@@ -117,7 +119,8 @@ public class PokeController {
                         profile.getProfileImage(),
                         profile.getName(),
                         profile.getGeneration(),
-                        profile.getPart()
+                        profile.getPart(),
+                        profile.getIsAlreadyPoked()
                 )
         ).toList();
         return ResponseEntity.ok(response);

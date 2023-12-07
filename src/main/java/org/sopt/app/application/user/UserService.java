@@ -129,6 +129,7 @@ public class UserService {
                 .name(userProfile.getName())
                 .generation(generation)
                 .part(part)
+                .isAlreadyPoked(false)
                 .build();
         }).toList();
     }
