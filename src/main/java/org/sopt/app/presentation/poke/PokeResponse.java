@@ -2,6 +2,7 @@ package org.sopt.app.presentation.poke;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
+
 import org.sopt.app.application.poke.PokeInfo;
 
 import java.util.List;
@@ -9,17 +10,6 @@ import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.application.user.UserInfo.PokeProfile;
 
 public class PokeResponse {
-    @Getter
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class IsNew {
-        @Schema(description = "새로운 유저 여부", example = "true")
-        private Boolean isNew;
-
-        public static IsNew of(Boolean isNew) {
-            return new IsNew(isNew);
-        }
-    }
-
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -31,6 +21,17 @@ public class PokeResponse {
 
         public static PokeMessages of(List<String> messages) {
             return new PokeMessages(messages);
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class IsNew {
+        @Schema(description = "새로운 유저 여부", example = "true")
+        private Boolean isNew;
+
+        public static IsNew of(Boolean isNew) {
+            return new IsNew(isNew);
         }
     }
 
@@ -69,6 +70,22 @@ public class PokeResponse {
                 isAlreadyPoke
             );
         }
+    }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @AllArgsConstructor(access = AccessLevel.PROTECTED)
+    @ToString
+    public static class PokeAlarmStatusResponse {
+
+        @Schema(description = "알림 서버 Response Status", example = "200")
+        private Integer status;
+
+        @Schema(description = "성공 여부", example = "true")
+        private Boolean success;
+
+        @Schema(description = "알림 서버 Response Message", example = "토큰 해지 성공")
+        private String message;
     }
 
     @Getter

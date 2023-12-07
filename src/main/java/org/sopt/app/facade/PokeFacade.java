@@ -8,6 +8,9 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthService;
+import org.sopt.app.application.poke.FriendService;
+import org.sopt.app.application.poke.PokeHistoryService;
+import org.sopt.app.application.poke.PokeService;
 import org.sopt.app.application.friend.FriendInfo;
 import org.sopt.app.application.friend.FriendInfo.Friend;
 import org.sopt.app.application.friend.FriendService;
@@ -26,6 +29,14 @@ public class PokeFacade {
     private final FriendService friendService;
 
     public List<PokeProfile> getRecommendUserForNew(String playgroundToken, Long userPlaygroundId) {
+    private final PokeService pokeService;
+    private final FriendService friendService;
+    private final PokeHistoryService pokeHistoryService;
+
+
+    private final int RECOMMEND_USER_NUM_FOR_NEW = 6;
+
+    public List<PorkProfile> getRecommendUserForNew(String playgroundToken, Long userPlaygroundId) {
         val playgroundUserIds = playgroundAuthService.getPlayGroundUserIds(playgroundToken);
         int RECOMMEND_USER_NUM_FOR_NEW = 6;
         val recommendUserIds = pickRandomUserIds(playgroundUserIds.getUserIds(), userPlaygroundId,
@@ -62,4 +73,31 @@ public class PokeFacade {
             }
         ).toList();
     }
+
+    public void applyFriendship(Long pokerUserId, Long pokedUserId) {
+        Boolean userPokeBefore = pokeHistoryService.isUserPokeBeforeFriend(pokerUserId, pokedUserId);
+        Boolean friendPokeBefore = pokeHistoryService.isUserPokeBeforeFriend(pokedUserId, pokerUserId);
+        if (isFriendshipNeedToBeCreate(userPokeBefore, friendPokeBefore)) {
+            friendService.createRelation(pokerUserId, pokedUserId);
+        }
+    }
+
+    public void pokeFriend(Long pokerUserId, Long pokedUserId, String pokeMessage) {
+        boolean friendEachOther = friendService.isFriendEachOther(pokerUserId, pokedUserId);
+        if (friendEachOther) {
+            friendService.applyPokeCount(pokerUserId, pokedUserId);
+            pokeService.poke(pokerUserId, pokedUserId, pokeMessage);
+        }
+    }
+
+    private boolean isFriendshipNeedToBeCreate(Boolean isPokerPokeBefore, Boolean isPokedPokeBefore) {
+        if (isPokedPokeBefore && isPokerPokeBefore) {
+            return false;
+        }
+        if (!isPokedPokeBefore && !isPokerPokeBefore) {
+            return false;
+        }
+        return isPokedPokeBefore;
+    }
+
 }
