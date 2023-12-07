@@ -1,5 +1,6 @@
 package org.sopt.app.application.poke;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
@@ -15,6 +16,11 @@ import java.util.Optional;
 public class FriendService {
 
     private final FriendRepository friendRepository;
+
+    public List<Long> findAllFriendIdsByUserIdRandomly(Long userId, int limitNum) {
+        return friendRepository.getFriendRandom(userId, limitNum);
+    }
+
 
     @Transactional
     public void createRelation(Long pokerId, Long pokedId) {
