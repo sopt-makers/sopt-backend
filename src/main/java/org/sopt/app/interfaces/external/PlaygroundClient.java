@@ -8,7 +8,6 @@ import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 
 import java.util.Map;
-import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
 
 public interface PlaygroundClient {
 
@@ -26,4 +25,5 @@ public interface PlaygroundClient {
 
     @RequestLine("GET /internal/api/v1/members/latest?generation={generation}")
     ActiveUserIds getPlaygroundUserIds(@HeaderMap Map<String, String> headers, @Param("generation") Long generation);
+
 }
