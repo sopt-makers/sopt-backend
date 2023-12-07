@@ -20,4 +20,6 @@ public interface UserRepository extends JpaRepository<User, Long>, UserCustomRep
 
     @Query("SELECT DISTINCT u.playgroundId FROM User u")
     List<Long> findAllPlaygroundId();
+
+    List<User> findAllByIdIn(List<Long> userId);
 }

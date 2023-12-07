@@ -1,5 +1,6 @@
 package org.sopt.app.application.poke;
 
+import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.exception.NotFoundException;
@@ -52,4 +53,12 @@ public class FriendService {
         return pokerToPokedRelation.isPresent() && pokedToPokerRelation.isPresent();
     }
 
+    public List<Long> getNotPokeFriendIdRandomly(Long userId, List<Long> pokedFriendIds, List<Long> pokeFriendIds) {
+        List<Long> notPokeFriendIds = friendRepository.findAllByUserIdAndFriendUserIdNotInAndFriendUserIdNotIn(userId, pokedFriendIds, pokeFriendIds);
+        Collections.shuffle(notPokeFriendIds);
+        if (notPokeFriendIds.isEmpty()) {
+            return List.of();
+        }
+        return notPokeFriendIds.subList(0, 1);
+    }
 }

@@ -61,5 +61,6 @@ public class UserInfo {
         private String profileImage;
         private Long generation;
         private String part;
+        private Boolean isAlreadyPoked = false;
     }
 }
