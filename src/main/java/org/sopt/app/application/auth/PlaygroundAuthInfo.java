@@ -133,4 +133,35 @@ public class PlaygroundAuthInfo {
         private Long currentGeneration;
         private UserStatus status;
     }
+
+    @Getter
+    @Setter
+    @Builder
+    @ToString
+    public static class MemberProfile {
+        private Long id;
+        private String profileImage;
+        private String name;
+        private List<ActivityCardinalInfo> activities;
+
+        public ActivityCardinalInfo getLatestActivity() {
+            return activities.get(0);
+        }
+    }
+
+    @Getter
+    @Setter
+    @Builder
+    @ToString
+    public static class ActivityCardinalInfo {
+        private String cardinalInfo;
+
+        public String getGeneration() {
+            return cardinalInfo.split(",")[0];
+        }
+        public String getPart() {
+            return cardinalInfo.split(",")[1];
+        }
+    }
+
 }

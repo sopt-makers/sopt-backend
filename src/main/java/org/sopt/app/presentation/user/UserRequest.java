@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.List;
+
 public class UserRequest {
 
     @Getter
@@ -39,6 +41,14 @@ public class UserRequest {
         private Boolean isOptIn;
     }
 
+    @Getter
+    @Setter
+    @ToString
+    public static class MemberProfilesRequest {
 
+        @Schema(description = "프로필 조회 대상 플레이그라운드 ID 리스트", example = "[115, 106]")
+        @NotNull(message = "Member ID list may not be null")
+        private List<Long> memberIds;
+    }
 
 }

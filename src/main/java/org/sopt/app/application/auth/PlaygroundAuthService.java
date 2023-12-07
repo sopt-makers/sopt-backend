@@ -16,6 +16,7 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.interfaces.external.PlaygroundClient;
 import org.sopt.app.presentation.auth.AppAuthRequest;
+import org.sopt.app.presentation.user.UserRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
@@ -133,6 +134,20 @@ public class PlaygroundAuthService {
         } catch (ExpiredJwtException e) {
             throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
         }
+    }
+
+    public List<PlaygroundAuthInfo.MemberProfile> getPlaygroundMemberProfiles(String accessToken, List<Long> memberIds) {
+        Map<String, String> defaultHeader = createDefaultHeader();
+        defaultHeader.put("Authorization", accessToken);
+        UserRequest.MemberProfilesRequest request = new UserRequest.MemberProfilesRequest();
+        request.setMemberIds(memberIds);
+        try {
+            return playgroundClient.getMemberProfiles(defaultHeader, request);
+        } catch (BadRequest e) {
+            throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
+        } catch (ExpiredJwtException e) {
+        throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
+    }
     }
 
     public List<PlaygroundAuthInfo.PlaygroundProfileWithId> getPlaygroundProfiles(List<Long> recommendUserIds) {
