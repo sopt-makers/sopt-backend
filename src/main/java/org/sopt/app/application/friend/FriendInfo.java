@@ -10,9 +10,9 @@ public class FriendInfo {
     @Getter
     @Builder
     public static class Friend {
-        private Long friendId;
-        private String friendName;
-        private String friendProfileImage;
+        private Long id;
+        private String name;
+        private String profileImage;
         private List<PokeProfile> friendList;
     }
 }

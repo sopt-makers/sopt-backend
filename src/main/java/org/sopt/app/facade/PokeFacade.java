@@ -58,9 +58,9 @@ public class PokeFacade {
                 val playgroundProfiles = playgroundAuthService.getPlaygroundProfiles(recommendUserProfiles.stream().map(UserProfile::getPlaygroundId).toList());
                 val recommendFriendList = userService.combinePokeProfileList(recommendUserProfiles, playgroundProfiles);
                 return FriendInfo.Friend.builder()
-                    .friendId(friendId)
-                    .friendName(friendProfile.getName())
-                    .friendProfileImage(friendProfile.getProfileImage())
+                    .id(friendId)
+                    .name(friendProfile.getName())
+                    .profileImage(friendProfile.getProfileImage())
                     .friendList(recommendFriendList)
                     .build();
             }

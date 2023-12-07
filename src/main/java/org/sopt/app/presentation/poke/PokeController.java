@@ -60,7 +60,7 @@ public class PokeController {
     }
 
     @GetMapping("/friend/random-user")
-    public ResponseEntity<List<Friend>> test(
+    public ResponseEntity<List<Friend>> getRandomFriendsOfUsersFriend(
         @AuthenticationPrincipal User user
     ) {
         val result = pokeFacade.getRecommendFriendsOfUsersFriend(user);
