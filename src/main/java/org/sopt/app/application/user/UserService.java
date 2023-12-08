@@ -16,6 +16,8 @@ import org.sopt.app.presentation.auth.AppAuthRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -91,6 +93,19 @@ public class UserService {
         userRepository.save(newUser);
     }
 
+    @Transactional(readOnly = true)
+    public UserInfo.UserProfile getUserProfile(Long userId) {
+        val user = userRepository.findUserById(userId)
+                .orElseThrow(() -> new UnauthorizedException(ErrorCode.USER_NOT_FOUND.getMessage()));
+        return UserInfo.UserProfile.builder()
+                        .userId(user.getId())
+                        .name(user.getUsername())
+                        .playgroundId(user.getPlaygroundId())
+                        .build();
+    }
+
+    public List<UserInfo.UserProfile> getUserProfiles(List<Long> recommendUserIds) {
+        return userRepository.findAllByPlaygroundIdIn(recommendUserIds).stream().map(
     public List<UserInfo.UserProfile> getUserProfilesByPlaygroundIds(List<Long> playgroundIds) {
         return userRepository.findAllByPlaygroundIdIn(playgroundIds).stream().map(
             u -> UserInfo.UserProfile.builder()
@@ -108,7 +123,7 @@ public class UserService {
                 .name(u.getUsername())
                 .playgroundId(u.getPlaygroundId())
                 .build()
-        ).toList();
+        ).collect(Collectors.toList());
     }
 
     public List<PokeProfile> combinePokeProfileList(
