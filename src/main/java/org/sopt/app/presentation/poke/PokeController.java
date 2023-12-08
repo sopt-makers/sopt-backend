@@ -44,7 +44,8 @@ public class PokeController {
                         profile.getProfileImage(),
                         profile.getName(),
                         profile.getGeneration(),
-                        profile.getPart()
+                        profile.getPart(),
+                        profile.getIsAlreadyPoked()
                 )
         ).toList();
         return ResponseEntity.ok(response);
@@ -66,16 +67,17 @@ public class PokeController {
         val result = pokeFacade.getRecommendFriendsOfUsersFriend(user);
         val response = result.stream().map(
             friend -> PokeResponse.Friend.of(
-                friend.getFriendId(),
-                friend.getFriendName(),
-                friend.getFriendProfileImage(),
+                friend.getId(),
+                friend.getName(),
+                friend.getProfileImage(),
                 friend.getFriendList().stream().map(
                     profile -> PokeResponse.PokeProfile.of(
                         profile.getUserId(),
                         profile.getProfileImage(),
                         profile.getName(),
                         profile.getGeneration(),
-                        profile.getPart()
+                        profile.getPart(),
+                        profile.getIsAlreadyPoked()
                     )
                 ).toList()
             )
@@ -101,4 +103,26 @@ public class PokeController {
                 .body(null);
     }
 
+    @Operation(summary = "친구를 찔러보세요 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/friend")
+    public ResponseEntity<List<PokeResponse.PokeProfile>> getFriendList(
+            @AuthenticationPrincipal User user
+    ) {
+        val result = pokeFacade.getFriend(user.getId());
+        val response = result.stream().map(
+                profile -> PokeResponse.PokeProfile.of(
+                        profile.getUserId(),
+                        profile.getProfileImage(),
+                        profile.getName(),
+                        profile.getGeneration(),
+                        profile.getPart(),
+                        profile.getIsAlreadyPoked()
+                )
+        ).toList();
+        return ResponseEntity.ok(response);
+    }
 }

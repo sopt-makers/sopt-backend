@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class PokeFacade {
+
     private final PlaygroundAuthService playgroundAuthService;
     private final UserService userService;
     private final FriendService friendService;
@@ -36,11 +37,13 @@ public class PokeFacade {
             RECOMMEND_USER_NUM_FOR_NEW
         );
         val playgroundProfiles = playgroundAuthService.getPlaygroundProfiles(recommendUserIds);
-        val userProfiles = userService.getUserProfiles(recommendUserIds);
+        val userProfiles = userService.getUserProfilesByPlaygroundIds(recommendUserIds);
         return userService.combinePokeProfileList(userProfiles, playgroundProfiles);
     }
 
-    private List<Long> pickRandomUserIds(List<Long> playgroundUserIds, Long userPlaygroundId, int limitNum) {
+    private List<Long> pickRandomUserIds(
+        List<Long> playgroundUserIds, Long userPlaygroundId, int limitNum
+    ) {
         List<Long> copiedList = new ArrayList<>(playgroundUserIds);
         copiedList.remove(userPlaygroundId);
         Collections.shuffle(copiedList, new Random());
@@ -68,8 +71,10 @@ public class PokeFacade {
     }
 
     public void applyFriendship(Long pokerUserId, Long pokedUserId) {
-        Boolean userPokeBefore = pokeHistoryService.isUserPokeBeforeFriend(pokerUserId, pokedUserId);
-        Boolean friendPokeBefore = pokeHistoryService.isUserPokeBeforeFriend(pokedUserId, pokerUserId);
+        Boolean userPokeBefore = pokeHistoryService.isUserPokeBeforeFriend(
+            pokerUserId, pokedUserId);
+        Boolean friendPokeBefore = pokeHistoryService.isUserPokeBeforeFriend(
+            pokedUserId, pokerUserId);
         if (isFriendshipNeedToBeCreate(userPokeBefore, friendPokeBefore)) {
             friendService.createRelation(pokerUserId, pokedUserId);
         }
@@ -83,7 +88,9 @@ public class PokeFacade {
         }
     }
 
-    private boolean isFriendshipNeedToBeCreate(Boolean isPokerPokeBefore, Boolean isPokedPokeBefore) {
+    private boolean isFriendshipNeedToBeCreate(
+        Boolean isPokerPokeBefore, Boolean isPokedPokeBefore
+    ) {
         if (isPokedPokeBefore && isPokerPokeBefore) {
             return false;
         }
@@ -93,4 +100,16 @@ public class PokeFacade {
         return isPokedPokeBefore;
     }
 
+    public List<PokeProfile> getFriend(Long userId) {
+        val pokedFriendIds = pokeHistoryService.getPokedFriendIds(userId);
+        val pokeFriendIds = pokeHistoryService.getPokeFriendIds(userId);
+        val friendId = friendService.getNotPokeFriendIdRandomly(
+            userId,
+            pokedFriendIds, pokeFriendIds);
+        val userProfile = userService.getUserProfileByUserId(friendId);
+        val friendPlaygroundId = userProfile.stream().map(UserProfile::getPlaygroundId).toList();
+        val friendProfile = playgroundAuthService.getPlaygroundProfiles(friendPlaygroundId);
+
+        return userService.combinePokeProfileList(userProfile, friendProfile);
+    }
 }

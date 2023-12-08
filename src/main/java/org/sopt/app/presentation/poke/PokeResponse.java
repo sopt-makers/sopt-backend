@@ -119,11 +119,13 @@ public class PokeResponse {
         private Long generation;
         @Schema(description = "파트", example = "안드로이드")
         private String part;
+        @Schema(description = "이미 오늘 찔렀는지에 대한 여부", example = "true")
+        private Boolean isAlreadyPoked;
 
         public static PokeProfile of(
-            Long userId, String profileImage, String name, Long generation, String part
+            Long userId, String profileImage, String name, Long generation, String part, Boolean isAlreadyPoked
         ) {
-            return new PokeProfile(userId, profileImage, name, generation, part);
+            return new PokeProfile(userId, profileImage, name, generation, part, isAlreadyPoked);
         }
     }
 }
