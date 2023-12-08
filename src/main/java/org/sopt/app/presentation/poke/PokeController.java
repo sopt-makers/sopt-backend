@@ -90,14 +90,31 @@ public class PokeController {
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @PostMapping("/{userId}")
-    public ResponseEntity orderPoke(
+    @PutMapping("/{userId}")
+    public ResponseEntity<PokeResponse.SimplePokeProfile> orderPoke(
             @AuthenticationPrincipal User user,
             @PathVariable("userId") Long pokedUserId,
             @RequestBody PokeRequest.PokeMessageRequest messageRequest
     ) {
+        pokeHistoryService.checkUserOverDailyPokeLimit(user.getId());
         pokeFacade.applyFriendship(user.getId(), pokedUserId);
         pokeFacade.pokeFriend(user.getId(), pokedUserId, messageRequest.getMessage());
+
+        val pokedUserInfo = pokeFacade.getPokedUserInfo(user, pokedUserId);
+
+        val pokeInfo = pokeFacade.getPokeInfo(user, pokedUserId);
+        val response = PokeResponse.SimplePokeProfile.of(
+                pokedUserInfo.getUserId(),
+                pokedUserInfo.getProfileImage(),
+                pokedUserInfo.getName(),
+                pokeInfo.getMessage(),
+                pokedUserInfo.getActivity(),
+                pokedUserInfo.getRelation().getPokeCount(),
+                pokedUserInfo.getRelation().getRelationName(),
+                pokedUserInfo.getMutualFriendNames(),
+      pokedUserInfo.getRelation().getPokeCount() == 0,
+                pokeInfo.getIsReply()
+        );
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(null);
