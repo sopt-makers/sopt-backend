@@ -104,8 +104,6 @@ public class UserService {
                         .build();
     }
 
-    public List<UserInfo.UserProfile> getUserProfiles(List<Long> recommendUserIds) {
-        return userRepository.findAllByPlaygroundIdIn(recommendUserIds).stream().map(
     public List<UserInfo.UserProfile> getUserProfilesByPlaygroundIds(List<Long> playgroundIds) {
         return userRepository.findAllByPlaygroundIdIn(playgroundIds).stream().map(
             u -> UserInfo.UserProfile.builder()
@@ -118,7 +116,7 @@ public class UserService {
 
     public List<UserProfile> getUserProfileByUserId(List<Long> userId) {
         return userRepository.findAllByIdIn(userId).stream().map(
-            u -> UserInfo.UserProfile.builder()
+            u -> UserProfile.builder()
                 .userId(u.getId())
                 .name(u.getUsername())
                 .playgroundId(u.getPlaygroundId())
