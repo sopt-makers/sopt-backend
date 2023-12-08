@@ -1,5 +1,6 @@
 package org.sopt.app.interfaces.postgres;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -8,11 +9,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> {
 
-    Optional<PokeHistory> findByPokerIdAndIsReplyIsFalse(Long pokedId);
+    Optional<PokeHistory> findByPokerIdAndPokedIdAndIsReplyIsFalse(Long pokerId, Long pokedId);
     List<PokeHistory> findAllByPokerId(Long userId);
+    List<PokeHistory> findAllByPokerIdAndCreatedAt(Long userId, LocalDateTime date);
     List<PokeHistory> findAllByPokerIdAndPokedId(Long pokerId, Long pokedId);
 
     List<PokeHistory> findAllByPokerIdAndIsReply(Long userId, boolean isReply);
 
     List<PokeHistory> findAllByPokedIdAndIsReply(Long userId, boolean isReply);
+    List<PokeHistory> findAllByPokerIdAndPokedIdOrderByCreatedAtDesc(Long pokerId, Long pokedId);
 }
