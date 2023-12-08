@@ -1,6 +1,5 @@
 package org.sopt.app.interfaces.postgres;
 
-import java.util.List;
 import org.sopt.app.domain.entity.Friend;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
