@@ -17,6 +17,7 @@ import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.PokeHistory;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.Friendship;
+import org.sopt.app.presentation.poke.PokeResponse.EachRelationFriendList;
 import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -152,6 +153,21 @@ public class PokeFacade {
                 .limit(2)
                 .map(friendId -> getPokeHistoryProfileWith(user, friendId))
                 .toList();
+    }
+    @Transactional(readOnly = true)
+    public EachRelationFriendList getFriendByFriendship(User user, Friendship friendship, Pageable pageable) {
+        val friends = friendService.findAllFriendsByFriendship(
+                user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit(), pageable);
+        val eachFriendsHistory = friends.getContent().stream()
+                .map(friend -> getPokeHistoryProfileWith(user, friend.getUserId()))
+                .toList();
+        return EachRelationFriendList.of(
+                eachFriendsHistory,
+                // TODO: 여기서 필요한 PageSize의 값이 조회 결과 리스트의 Elements Size 인지,
+                //  이후 API 재호출 시 사용할 RequestParam 값을 위해 넣어주는 건지 논의
+                pageable.getPageSize(),
+                friends.getNumber()
+        );
     }
 
     @Transactional(readOnly = true)

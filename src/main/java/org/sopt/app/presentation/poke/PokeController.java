@@ -13,6 +13,8 @@ import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.facade.PokeFacade;
 import org.sopt.app.presentation.poke.PokeResponse.AllRelationFriendList;
+import org.sopt.app.presentation.poke.PokeResponse.EachRelationFriendList;
+import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -98,7 +100,7 @@ public class PokeController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PutMapping("/{userId}")
-    public ResponseEntity<PokeResponse.SimplePokeProfile> orderPoke(
+    public ResponseEntity<SimplePokeProfile> orderPoke(
             @AuthenticationPrincipal User user,
             @PathVariable("userId") Long pokedUserId,
             @RequestBody PokeRequest.PokeMessageRequest messageRequest
@@ -140,7 +142,7 @@ public class PokeController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/to/me")
-    public ResponseEntity<PokeResponse.SimplePokeProfile> getPokeMeMostRecent(
+    public ResponseEntity<SimplePokeProfile> getPokeMeMostRecent(
             @AuthenticationPrincipal User user
     ) {
         val mostRecentPokeUserId = pokeFacade.getFirstUserIdOfPokeMeReplyYet(user.getId());
@@ -157,7 +159,7 @@ public class PokeController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/to/me/list")
-    public ResponseEntity<List<PokeResponse.SimplePokeProfile>> getAllOfPokeMe(
+    public ResponseEntity<List<SimplePokeProfile>> getAllOfPokeMe(
             @AuthenticationPrincipal User user,
             // TODO : Notification List 에서도 기본 Size 요구사항이 25 개면 yaml 에서 속성 관리하기
             @PageableDefault(size = 25, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
@@ -187,5 +189,21 @@ public class PokeController {
                 soulMates, soulMates.size()
         );
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "친구 조회 - 리스트 (각 카테고리)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/friend/list")
+    public ResponseEntity<EachRelationFriendList> getFriendsOfRelation(
+            @AuthenticationPrincipal User user,
+            @RequestParam("type") String type,
+            @PageableDefault(size = 25) Pageable pageable
+    ) {
+        Friendship targetFriendship = Friendship.getFriendshipByValue(type);
+        val friends = pokeFacade.getFriendByFriendship(user, targetFriendship, pageable);
+        return ResponseEntity.ok(friends);
     }
 }
