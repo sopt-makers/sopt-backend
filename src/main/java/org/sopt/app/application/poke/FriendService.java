@@ -23,11 +23,10 @@ public class FriendService {
         return friendRepository.getFriendRandom(userId, limitNum);
     }
 
-    public List<Long> findAllFriendIdsByUserIdAndFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
-        List<Long> targetFriendIds = friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
-                userId, lowerLimit, upperLimit);
-        return targetFriendIds.stream()
-                .limit(2)
+    public List<Long> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
+        return friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
+                userId, lowerLimit, upperLimit).stream()
+                .map(Friend::getUserId)
                 .toList();
     }
 

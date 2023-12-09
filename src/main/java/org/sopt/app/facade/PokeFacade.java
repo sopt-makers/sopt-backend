@@ -147,8 +147,9 @@ public class PokeFacade {
 
     @Transactional(readOnly = true)
     public List<SimplePokeProfile> getFriendByFriendship(User user, Friendship friendship) {
-        List<Long> twoFriendsOfFriendship = friendService.findAllFriendIdsByUserIdAndFriendship(user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit());
+        List<Long> twoFriendsOfFriendship = friendService.findAllFriendsByFriendship(user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit());
         return twoFriendsOfFriendship.stream()
+                .limit(2)
                 .map(friendId -> getPokeHistoryProfileWith(user, friendId))
                 .toList();
     }
