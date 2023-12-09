@@ -10,7 +10,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.poke.PokeHistoryService;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.facade.PokeFacade;
+import org.sopt.app.presentation.poke.PokeResponse.AllRelationFriendList;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -164,6 +166,26 @@ public class PokeController {
         val response = mostRecentPokeUserIds.stream()
                 .map(id -> pokeFacade.getPokeHistoryProfileWith(user, id))
                 .toList();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "친구 조회 - 리스트 (전체 카테고리)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/friend/list")
+    public ResponseEntity<AllRelationFriendList> getFriendsForEachRelation(
+            @AuthenticationPrincipal User user
+    ) {
+        val newFriends = pokeFacade.getFriendByFriendship(user, Friendship.NEW_FRIEND);
+        val bestFriends = pokeFacade.getFriendByFriendship(user, Friendship.BEST_FRIEND);
+        val soulMates = pokeFacade.getFriendByFriendship(user, Friendship.SOULMATE);
+        val response = AllRelationFriendList.of(
+                newFriends, newFriends.size(),
+                bestFriends, bestFriends.size(),
+                soulMates, soulMates.size()
+        );
         return ResponseEntity.ok(response);
     }
 }

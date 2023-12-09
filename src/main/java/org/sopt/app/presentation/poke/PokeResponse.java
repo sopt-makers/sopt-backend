@@ -6,8 +6,6 @@ import lombok.*;
 import org.sopt.app.application.poke.PokeInfo;
 
 import java.util.List;
-import org.sopt.app.application.user.UserInfo;
-import org.sopt.app.application.user.UserInfo.PokeProfile;
 
 public class PokeResponse {
     @Getter
@@ -34,6 +32,58 @@ public class PokeResponse {
             return new IsNew(isNew);
         }
     }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @ToString
+    public static class AllRelationFriendList {
+
+        @Schema(description = "대표 친한 친구 2명")
+        private List<SimplePokeProfile> newFriend;
+        @Schema(description = "친한 친구 수", example = "1")
+        private Integer newFriendSize;
+        @Schema(description = "대표 단짝 친구 2명")
+        private List<SimplePokeProfile> bestFriend;
+        @Schema(description = "단짝 친구 수", example = "1")
+        private Integer bestFriendSize;
+        @Schema(description = "대표 소울메이트 친구 2명")
+        private List<SimplePokeProfile> soulmate;
+        @Schema(description = "소울메이트 친구 수", example = "1")
+        private Integer soulmateSize;
+
+        public static AllRelationFriendList of(
+            List<SimplePokeProfile> newFriend, Integer newFriendSize,
+            List<SimplePokeProfile> bestFriend, Integer bestFriendSize,
+            List<SimplePokeProfile> soulmate, Integer soulmateSize
+        ) {
+            return new AllRelationFriendList(
+                    newFriend, newFriendSize,
+                    bestFriend, bestFriendSize,
+                    soulmate, soulmateSize
+            );
+        }
+    }
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @ToString
+    public static class EachRelationFriendList {
+
+        private List<SimplePokeProfile> friendList;
+        private Integer pageSize;
+        private Integer pageNum;
+
+        public static EachRelationFriendList of(
+                List<SimplePokeProfile> friendList, Integer pageSize, Integer pageNum
+        ) {
+            return new EachRelationFriendList(
+                    friendList, pageSize, pageNum
+            );
+        }
+
+    }
+
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
