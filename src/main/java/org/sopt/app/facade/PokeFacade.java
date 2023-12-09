@@ -159,7 +159,7 @@ public class PokeFacade {
         val friends = friendService.findAllFriendsByFriendship(
                 user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit(), pageable);
         val eachFriendsHistory = friends.getContent().stream()
-                .map(friend -> getPokeHistoryProfileWith(user, friend.getUserId()))
+                .map(friend -> getPokeHistoryProfileWith(user, friend.getFriendUserId()))
                 .toList();
         return EachRelationFriendList.of(
                 eachFriendsHistory,
