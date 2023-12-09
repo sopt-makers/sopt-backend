@@ -39,6 +39,10 @@ public class PokeHistoryService {
                 .toList();
     }
 
+    public List<PokeHistory> getPokeFriendIdsInOrderByMostRecent(Long userId) {
+        return pokeHistoryRepository.findAllByPokedIdOrderByCreatedAtDesc(userId);
+    }
+
     public void checkUserOverDailyPokeLimit(Long userId) {
         LocalDateTime today = LocalDateTime.now();
         List<PokeHistory> allByPokerIdAndCreatedAtDate = pokeHistoryRepository.findAllByPokerIdAndCreatedAt(userId, today);
