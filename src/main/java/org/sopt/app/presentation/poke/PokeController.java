@@ -12,14 +12,11 @@ import org.sopt.app.application.poke.PokeHistoryService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.facade.PokeFacade;
-import org.sopt.app.presentation.poke.PokeResponse.AllRelationFriendList;
-import org.sopt.app.presentation.poke.PokeResponse.EachRelationFriendList;
-import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
+import org.sopt.app.presentation.poke.PokeResponse.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.sopt.app.presentation.poke.PokeResponse.Friend;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -177,33 +174,40 @@ public class PokeController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/friend/list")
-    public ResponseEntity<AllRelationFriendList> getFriendsForEachRelation(
-            @AuthenticationPrincipal User user
-    ) {
-        val newFriends = pokeFacade.getFriendByFriendship(user, Friendship.NEW_FRIEND);
-        val bestFriends = pokeFacade.getFriendByFriendship(user, Friendship.BEST_FRIEND);
-        val soulMates = pokeFacade.getFriendByFriendship(user, Friendship.SOULMATE);
-        val response = AllRelationFriendList.of(
-                newFriends, newFriends.size(),
-                bestFriends, bestFriends.size(),
-                soulMates, soulMates.size()
-        );
-        return ResponseEntity.ok(response);
-    }
-
-    @Operation(summary = "친구 조회 - 리스트 (각 카테고리)")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping("/friend/list")
-    public ResponseEntity<EachRelationFriendList> getFriendsOfRelation(
+    public ResponseEntity<FriendList> getFriendsForEachRelation(
             @AuthenticationPrincipal User user,
-            @RequestParam("type") String type,
+            @RequestParam(value = "type", required = false) String type,
             @PageableDefault(size = 25) Pageable pageable
     ) {
+        if (Objects.isNull(type)) {
+            val newFriends = pokeFacade.getFriendByFriendship(user, Friendship.NEW_FRIEND);
+            val bestFriends = pokeFacade.getFriendByFriendship(user, Friendship.BEST_FRIEND);
+            val soulMates = pokeFacade.getFriendByFriendship(user, Friendship.SOULMATE);
+            val response = AllRelationFriendList.of(
+                    newFriends, newFriends.size(),
+                    bestFriends, bestFriends.size(),
+                    soulMates, soulMates.size()
+            );
+            return ResponseEntity.ok(response);
+        }
         Friendship targetFriendship = Friendship.getFriendshipByValue(type);
         val friends = pokeFacade.getFriendByFriendship(user, targetFriendship, pageable);
         return ResponseEntity.ok(friends);
     }
+
+//    @Operation(summary = "친구 조회 - 리스트 (각 카테고리)")
+//    @ApiResponses(value = {
+//            @ApiResponse(responseCode = "200", description = "success"),
+//            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+//    })
+//    @GetMapping("/friend/list")
+//    public ResponseEntity<EachRelationFriendList> getFriendsOfRelation(
+//            @AuthenticationPrincipal User user,
+//            @RequestParam("type") String type,
+//            @PageableDefault(size = 25) Pageable pageable
+//    ) {
+//        Friendship targetFriendship = Friendship.getFriendshipByValue(type);
+//        val friends = pokeFacade.getFriendByFriendship(user, targetFriendship, pageable);
+//        return ResponseEntity.ok(friends);
+//    }
 }

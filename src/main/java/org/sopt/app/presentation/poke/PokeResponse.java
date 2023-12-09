@@ -33,11 +33,14 @@ public class PokeResponse {
         }
     }
 
+    interface FriendList {
+    }
+
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
-    public static class AllRelationFriendList {
+    public static class AllRelationFriendList implements FriendList{
 
         @Schema(description = "대표 친한 친구 2명")
         private List<SimplePokeProfile> newFriend;
@@ -68,7 +71,7 @@ public class PokeResponse {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
-    public static class EachRelationFriendList {
+    public static class EachRelationFriendList implements FriendList{
 
         private List<SimplePokeProfile> friendList;
         private Integer pageSize;
