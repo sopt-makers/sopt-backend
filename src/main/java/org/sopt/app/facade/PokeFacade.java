@@ -85,11 +85,13 @@ public class PokeFacade {
     }
 
     public void pokeFriend(Long pokerUserId, Long pokedUserId, String pokeMessage) {
+        pokeHistoryService.checkUserOverDailyPokeLimit(pokerUserId);
+
         boolean friendEachOther = friendService.isFriendEachOther(pokerUserId, pokedUserId);
         if (friendEachOther) {
             friendService.applyPokeCount(pokerUserId, pokedUserId);
-            pokeService.poke(pokerUserId, pokedUserId, pokeMessage);
         }
+        pokeService.poke(pokerUserId, pokedUserId, pokeMessage);
     }
 
     private boolean isFriendshipNeedToBeCreate(

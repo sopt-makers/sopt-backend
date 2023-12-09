@@ -96,9 +96,8 @@ public class PokeController {
             @PathVariable("userId") Long pokedUserId,
             @RequestBody PokeRequest.PokeMessageRequest messageRequest
     ) {
-        pokeHistoryService.checkUserOverDailyPokeLimit(user.getId());
-        pokeFacade.applyFriendship(user.getId(), pokedUserId);
         pokeFacade.pokeFriend(user.getId(), pokedUserId, messageRequest.getMessage());
+        pokeFacade.applyFriendship(user.getId(), pokedUserId);
 
         val pokedUserInfo = pokeFacade.getPokedUserInfo(user, pokedUserId);
 
