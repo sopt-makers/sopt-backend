@@ -28,6 +28,7 @@ public interface PlaygroundClient {
     @RequestLine("GET /internal/api/v1/members/latest?generation={generation}")
     ActiveUserIds getPlaygroundUserIds(@HeaderMap Map<String, String> headers, @Param("generation") Long generation);
 
+    // TODO : GET Method not allowed Request Body 문제 해경 (PG 팀의 수정 필요)
     @RequestLine("GET /internal/api/v1/members/profile")
     List<PlaygroundAuthInfo.MemberProfile> getMemberProfiles(@HeaderMap Map<String, String> headers, UserRequest.MemberProfilesRequest memberIds);
 }

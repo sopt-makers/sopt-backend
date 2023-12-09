@@ -52,7 +52,9 @@ public class PokeResponse {
         @Schema(description = "SOPT 최신 활동 기수 정보", example = "{'generation': 29, 'part': '안드로이드'}")
         private PokeInfo.Activity activity;
         @Schema(description = "현재까지 찌른 횟수", example = "3")
-        private Long pickNum;
+        private Integer pickNum;
+        @Schema(description = "관계 이름", example = "천생연분")
+        private String relationName;
         @Schema(description = "함께 친구 관계인 친구들의 이름", example = "['제갈송현', '왕건모', '진동규', '차승호']")
         private List<String> mutual;
         @Schema(description = "이전에 찌른 이력이 있는지에 대한 여부", example = "false")
@@ -62,11 +64,11 @@ public class PokeResponse {
 
         public static SimplePokeProfile of(
             Long userId, String profileImage, String name, String message,
-            PokeInfo.Activity activity, Long pickNum, List<String> mutual, Boolean isFirstMeet,
+            PokeInfo.Activity activity, Integer pickNum, String relationName, List<String> mutual, Boolean isFirstMeet,
             Boolean isAlreadyPoke
         ) {
             return new SimplePokeProfile(
-                userId, profileImage, name, message, activity, pickNum, mutual, isFirstMeet,
+                userId, profileImage, name, message, activity, pickNum, relationName, mutual, isFirstMeet,
                 isAlreadyPoke
             );
         }

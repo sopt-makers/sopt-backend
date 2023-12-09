@@ -1,24 +1,28 @@
 package org.sopt.app.facade;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.application.auth.PlaygroundAuthService;
-import org.sopt.app.application.poke.FriendService;
-import org.sopt.app.application.poke.PokeHistoryService;
-import org.sopt.app.application.poke.PokeService;
 import org.sopt.app.application.friend.FriendInfo;
 import org.sopt.app.application.friend.FriendInfo.Friend;
+import org.sopt.app.application.poke.FriendService;
+import org.sopt.app.application.poke.PokeHistoryService;
+import org.sopt.app.application.poke.PokeInfo;
+import org.sopt.app.application.poke.PokeService;
+import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.application.user.UserInfo.PokeProfile;
 import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.User;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -71,9 +75,9 @@ public class PokeFacade {
     }
 
     public void applyFriendship(Long pokerUserId, Long pokedUserId) {
-        Boolean userPokeBefore = pokeHistoryService.isUserPokeBeforeFriend(
+        Boolean userPokeBefore = pokeHistoryService.isUserPokeFriendBefore(
             pokerUserId, pokedUserId);
-        Boolean friendPokeBefore = pokeHistoryService.isUserPokeBeforeFriend(
+        Boolean friendPokeBefore = pokeHistoryService.isUserPokeFriendBefore(
             pokedUserId, pokerUserId);
         if (isFriendshipNeedToBeCreate(userPokeBefore, friendPokeBefore)) {
             friendService.createRelation(pokerUserId, pokedUserId);
@@ -81,11 +85,13 @@ public class PokeFacade {
     }
 
     public void pokeFriend(Long pokerUserId, Long pokedUserId, String pokeMessage) {
+        pokeHistoryService.checkUserOverDailyPokeLimit(pokerUserId);
+
         boolean friendEachOther = friendService.isFriendEachOther(pokerUserId, pokedUserId);
         if (friendEachOther) {
             friendService.applyPokeCount(pokerUserId, pokedUserId);
-            pokeService.poke(pokerUserId, pokedUserId, pokeMessage);
         }
+        pokeService.poke(pokerUserId, pokedUserId, pokeMessage);
     }
 
     private boolean isFriendshipNeedToBeCreate(
@@ -112,4 +118,36 @@ public class PokeFacade {
 
         return userService.combinePokeProfileList(userProfile, friendProfile);
     }
+
+    public PokeInfo.PokedUserInfo getPokedUserInfo(User user, Long pokedUserId) {
+        val pokedUser = userService.getUserProfile(pokedUserId);
+        val userProfile =  userService.getUserProfilesByPlaygroundIds(List.of(pokedUser.getPlaygroundId())).get(0);
+        val playgroundMemberProfile = (PlaygroundAuthInfo.MemberProfile) playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken(), List.of(userProfile.getPlaygroundId())).get(0);
+        val relationInfo = friendService.getRelationInfo(user.getId(), pokedUserId);
+        val latestActivity = playgroundMemberProfile.getLatestActivity();
+        val mutualFriendNames = friendService.getMutualFriendIds(user.getId(), pokedUserId).stream()
+                .map(id -> {
+                    UserInfo.UserProfile friendProfile = userService.getUserProfile(id);
+                    return friendProfile.getName();
+                })
+                .toList();
+        return PokeInfo.PokedUserInfo.builder()
+                .userId(userProfile.getUserId())
+                .name(userProfile.getName())
+                .profileImage(playgroundMemberProfile.getProfileImage())
+                .activity(
+                        PokeInfo.Activity.builder()
+                                .generation(Integer.parseInt(latestActivity.getGeneration()))
+                                .part(latestActivity.getPart())
+                                .build()
+                )
+                .relation(relationInfo)
+                .mutualFriendNames(mutualFriendNames)
+                .build();
+    }
+
+    public PokeInfo.PokeDetail getPokeInfo(User user, Long pokedUserId) {
+        return pokeService.getPokeDetail(user.getId(), pokedUserId);
+    }
+
 }

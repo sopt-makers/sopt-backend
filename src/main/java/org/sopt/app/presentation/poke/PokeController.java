@@ -32,28 +32,28 @@ public class PokeController {
 
     @GetMapping("/random-user")
     public ResponseEntity<List<PokeResponse.PokeProfile>> getRandomUserForNew(
-            @AuthenticationPrincipal User user
+        @AuthenticationPrincipal User user
     ) {
         val result = pokeFacade.getRecommendUserForNew(
-                user.getPlaygroundToken(),
-                user.getPlaygroundId()
+            user.getPlaygroundToken(),
+            user.getPlaygroundId()
         );
         val response = result.stream().map(
-                profile -> PokeResponse.PokeProfile.of(
-                        profile.getUserId(),
-                        profile.getProfileImage(),
-                        profile.getName(),
-                        profile.getGeneration(),
-                        profile.getPart(),
-                        profile.getIsAlreadyPoked()
-                )
+            profile -> PokeResponse.PokeProfile.of(
+                profile.getUserId(),
+                profile.getProfileImage(),
+                profile.getName(),
+                profile.getGeneration(),
+                profile.getPart(),
+                profile.getIsAlreadyPoked()
+            )
         ).toList();
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/new")
     public ResponseEntity<PokeResponse.IsNew> getPokeList(
-            @AuthenticationPrincipal User user
+        @AuthenticationPrincipal User user
     ) {
         val result = pokeHistoryService.isNewPoker(user.getId());
         val response = PokeResponse.IsNew.of(result);
@@ -90,17 +90,33 @@ public class PokeController {
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @PostMapping("/{userId}")
-    public ResponseEntity orderPoke(
+    @PutMapping("/{userId}")
+    public ResponseEntity<PokeResponse.SimplePokeProfile> orderPoke(
             @AuthenticationPrincipal User user,
             @PathVariable("userId") Long pokedUserId,
             @RequestBody PokeRequest.PokeMessageRequest messageRequest
     ) {
-        pokeFacade.applyFriendship(user.getId(), pokedUserId);
         pokeFacade.pokeFriend(user.getId(), pokedUserId, messageRequest.getMessage());
+        pokeFacade.applyFriendship(user.getId(), pokedUserId);
+
+        val pokedUserInfo = pokeFacade.getPokedUserInfo(user, pokedUserId);
+
+        val pokeInfo = pokeFacade.getPokeInfo(user, pokedUserId);
+        val response = PokeResponse.SimplePokeProfile.of(
+                pokedUserInfo.getUserId(),
+                pokedUserInfo.getProfileImage(),
+                pokedUserInfo.getName(),
+                pokeInfo.getMessage(),
+                pokedUserInfo.getActivity(),
+                pokedUserInfo.getRelation().getPokeCount(),
+                pokedUserInfo.getRelation().getRelationName(),
+                pokedUserInfo.getMutualFriendNames(),
+      pokedUserInfo.getRelation().getPokeCount() == 0,
+                pokeInfo.getIsReply()
+        );
         return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(null);
+                .status(HttpStatus.OK)
+                .body(response);
     }
 
     @Operation(summary = "친구를 찔러보세요 조회")

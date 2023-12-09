@@ -143,6 +143,8 @@ public class PlaygroundAuthService {
         request.setMemberIds(memberIds);
         try {
             return playgroundClient.getMemberProfiles(defaultHeader, request);
+            // TODO : 임시 Mock Data
+            //return List.of(new PlaygroundAuthInfo.MemberProfile(122L, null, "구건모", List.of(new PlaygroundAuthInfo.ActivityCardinalInfo("32,웹"))));
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
         } catch (ExpiredJwtException e) {

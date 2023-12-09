@@ -4,8 +4,12 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.domain.entity.PokeHistory;
+import org.sopt.app.common.response.ErrorCode;
+import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.interfaces.postgres.PokeHistoryRepository;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -17,7 +21,7 @@ public class PokeHistoryService {
         return pokeHistoryRepository.findAllByPokerId(userId).isEmpty();
     }
 
-    public Boolean isUserPokeBeforeFriend(Long userId, Long friendId) {
+    public Boolean isUserPokeFriendBefore(Long userId, Long friendId) {
         return pokeHistoryRepository.findAllByPokerIdAndPokedId(userId, friendId).isEmpty();
     }
 
@@ -33,5 +37,13 @@ public class PokeHistoryService {
         return friends.stream()
                 .map(PokeHistory::getPokerId)
                 .toList();
+    }
+
+    public void checkUserOverDailyPokeLimit(Long userId) {
+        LocalDateTime today = LocalDateTime.now();
+        List<PokeHistory> allByPokerIdAndCreatedAtDate = pokeHistoryRepository.findAllByPokerIdAndCreatedAt(userId, today);
+        if (allByPokerIdAndCreatedAtDate.size() >= 10) {
+            throw new BadRequestException(ErrorCode.OVER_DAILY_POKE_LIMIT.getMessage());
+        }
     }
 }
