@@ -18,7 +18,7 @@ public interface FriendRepository extends JpaRepository<Friend, Long>, FriendCus
     //AND friend_user_id not in (1)
     //AND friend_user_id not in (30)
     @Query(value = "SELECT f.friendUserId FROM Friend as f WHERE f.userId = :userId AND f.friendUserId not in :pokedFriendIds AND f.friendUserId not in :pokeFriendIds")
-    List<Long> findAllByUserIdAndFriendUserIdNotInAndFriendUserIdNotIn(Long userId, List<Long> pokedFriendIds, List<Long> pokeFriendIds);
+    List<Long> findAllByUserIdAndFriendUserIdNotInAndFriendUserIdNotIn(@Param("userId") Long userId, @Param("pokedFriendIds") List<Long> pokedFriendIds, @Param("pokeFriendIds") List<Long> pokeFriendIds);
     @Query("SELECT f.friendUserId FROM Friend f WHERE f.userId = :userId")
     List<Long> findAllOfFriendIdsByUserId(@Param("userId") Long userId);
     @Query(value = "SELECT f FROM Friend f WHERE f.userId = :userId AND f.pokeCount BETWEEN :lowerLimit AND :upperLimit ORDER BY f.pokeCount")
