@@ -20,5 +20,5 @@ public interface FriendRepository extends JpaRepository<Friend, Long>, FriendCus
     @Query("SELECT f.friendUserId FROM Friend f WHERE f.userId = :userId")
     List<Long> findAllOfFriendIdsByUserId(@Param("userId") Long userId);
     @Query(value = "SELECT f.friendUserId FROM Friend f WHERE f.userId = :userId AND f.pokeCount BETWEEN :lowerLimit AND :upperLimit ORDER BY f.pokeCount")
-    List<Long> findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(@Param("userId") Long userId, @Param("lowerLimit") Integer lowerLimit, @Param("upperLimit") Integer upperLimit);
+    List<Friend> findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(@Param("userId") Long userId, @Param("lowerLimit") Integer lowerLimit, @Param("upperLimit") Integer upperLimit);
 }
