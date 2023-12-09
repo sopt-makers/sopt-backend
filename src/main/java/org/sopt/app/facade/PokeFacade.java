@@ -16,7 +16,8 @@ import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.PokeHistory;
 import org.sopt.app.domain.entity.User;
-import org.sopt.app.presentation.poke.PokeResponse;
+import org.sopt.app.domain.enums.Friendship;
+import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -145,11 +146,19 @@ public class PokeFacade {
     }
 
     @Transactional(readOnly = true)
-    public PokeResponse.SimplePokeProfile getPokeHistoryProfileWith(User user, Long otherUserId) {
+    public List<SimplePokeProfile> getFriendByFriendship(User user, Friendship friendship) {
+        List<Long> twoFriendsOfFriendship = friendService.findAllFriendIdsByUserIdAndFriendship(user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit());
+        return twoFriendsOfFriendship.stream()
+                .map(friendId -> getPokeHistoryProfileWith(user, friendId))
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public SimplePokeProfile getPokeHistoryProfileWith(User user, Long otherUserId) {
         PokeInfo.PokedUserInfo otherUserInfo = getPokedUserInfo(user, otherUserId);
         PokeInfo.PokeDetail pokeDetail = getPokeInfo(user, otherUserId);
 
-        return PokeResponse.SimplePokeProfile.of(
+        return SimplePokeProfile.of(
                 otherUserInfo.getUserId(),
                 otherUserInfo.getProfileImage(),
                 otherUserInfo.getName(),

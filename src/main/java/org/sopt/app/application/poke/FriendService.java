@@ -16,14 +16,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class FriendService {
-    private static final int LIMIT_NEW_FRIEND = 2;
-    private static final int LIMIT_BEST_FRIEND = 5;
-    private static final int LIMIT_SOULMATE = 11;
 
     private final FriendRepository friendRepository;
 
     public List<Long> findAllFriendIdsByUserIdRandomly(Long userId, int limitNum) {
         return friendRepository.getFriendRandom(userId, limitNum);
+    }
+
+    public List<Long> findAllFriendIdsByUserIdAndFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
+        List<Long> targetFriendIds = friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
+                userId, lowerLimit, upperLimit);
+        return targetFriendIds.stream()
+                .limit(2)
+                .toList();
     }
 
 
@@ -68,13 +73,13 @@ public class FriendService {
     }
 
     private String decideRelationName(Integer pokeCount) {
-        if (pokeCount >= LIMIT_SOULMATE) {
+        if (pokeCount >= Friendship.SOULMATE.getLowerLimit()) {
             return Friendship.SOULMATE.getValue();
         }
-        if (pokeCount >= LIMIT_BEST_FRIEND) {
+        if (pokeCount >= Friendship.BEST_FRIEND.getLowerLimit()) {
             return Friendship.BEST_FRIEND.getValue();
         }
-        if (pokeCount >= LIMIT_NEW_FRIEND) {
+        if (pokeCount >= Friendship.NEW_FRIEND.getLowerLimit()) {
             return Friendship.NEW_FRIEND.getValue();
         }
         return Friendship.NON_FRIEND.getValue();
