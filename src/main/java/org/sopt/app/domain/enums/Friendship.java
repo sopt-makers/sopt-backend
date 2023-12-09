@@ -1,6 +1,10 @@
 package org.sopt.app.domain.enums;
 
 import lombok.*;
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
+
+import java.util.Arrays;
 
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
@@ -12,4 +16,10 @@ public enum Friendship {
     private final Integer lowerLimit;
     private final Integer upperLimit;
 
+    public static Friendship getFriendshipByValue(String value) {
+        return Arrays.stream(values())
+                .filter(friendship -> friendship.getValue().equals(value))
+                .findFirst()
+                .orElseThrow(() -> new BadRequestException(ErrorCode.FRIENDSHIP_NOT_FOUND.getMessage()));
+    }
 }
