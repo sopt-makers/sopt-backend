@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.sopt.app.domain.entity.PokeHistory;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> {
@@ -17,6 +18,7 @@ public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> 
     List<PokeHistory> findAllByPokerIdAndIsReply(Long userId, boolean isReply);
 
     List<PokeHistory> findAllByPokedIdAndIsReply(Long userId, boolean isReply);
-    List<PokeHistory> findAllByPokedIdOrderByCreatedAtDesc(Long userId);
+    List<PokeHistory> findAllByPokedId(Long userId);
+    List<PokeHistory> findAllByPokedId(Long userId, Pageable pageable);
     List<PokeHistory> findAllByPokerIdAndPokedIdOrderByCreatedAtDesc(Long pokerId, Long pokedId);
 }

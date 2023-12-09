@@ -17,6 +17,7 @@ import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.PokeHistory;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.poke.PokeResponse;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -88,8 +89,8 @@ public class PokeFacade {
     }
 
     @Transactional(readOnly = true)
-    public List<Long> getAllUserIdsOfPokeMe(Long userId) {
-        return pokeHistoryService.getPokeFriendIdsInOrderByMostRecent(userId).stream()
+    public List<Long> getAllUserIdsOfPokeMe(Long userId, Pageable pageable) {
+        return pokeHistoryService.getPokeFriendIdsInOrderByMostRecent(userId, pageable).stream()
                 .map(PokeHistory::getPokerId)
                 .distinct()
                 .toList();
