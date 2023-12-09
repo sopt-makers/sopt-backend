@@ -8,6 +8,8 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Friend;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.interfaces.postgres.FriendRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +30,10 @@ public class FriendService {
                 userId, lowerLimit, upperLimit).stream()
                 .map(Friend::getUserId)
                 .toList();
+    }
+    public Page<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit, Pageable pageable) {
+        return friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
+                userId, lowerLimit, upperLimit, pageable);
     }
 
 
