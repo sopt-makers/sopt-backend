@@ -1,18 +1,23 @@
 package org.sopt.app.domain.entity;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import org.sopt.app.domain.enums.PokeMessageType;
+import org.sopt.app.domain.enums.PostgreSqlMessageType;
 
 @Getter
 @Setter
@@ -21,6 +26,7 @@ import org.hibernate.annotations.Type;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@TypeDef(name = "message_type", typeClass = PostgreSqlMessageType.class)
 public class PokeMessage extends BaseEntity {
 
     @Id
@@ -33,6 +39,9 @@ public class PokeMessage extends BaseEntity {
     @Type(type = "org.hibernate.type.TextType")
     private String content;
 
-    @Column(name = "type", columnDefinition = "message_type(0, 0) not null")
-    private String type;
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    @Type(type = "message_type")
+    @Column(name = "type")
+    private PokeMessageType type;
 }
