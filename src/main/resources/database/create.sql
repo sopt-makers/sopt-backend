@@ -191,7 +191,7 @@ create table app_dev.poke_history
     updated_at timestamp default now() not null
 );
 
-create type app_dev.message_type as enum ('new', 'friend');
+create type app_dev.message_type as enum ('a', 'b', 'c');
 
 create table app_dev.poke_message
 (
