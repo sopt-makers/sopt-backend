@@ -47,4 +47,13 @@ public class PokeInfo {
 
     }
 
+    @Getter
+    @Builder
+    @ToString
+    public static class PokeMessageDetail {
+        private final Long id;
+        private final String content;
+
+    }
+
 }
