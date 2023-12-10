@@ -10,13 +10,19 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.poke.PokeHistoryService;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.facade.PokeFacade;
+import org.sopt.app.presentation.poke.PokeResponse.*;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
-import org.sopt.app.presentation.poke.PokeResponse.Friend;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import java.util.Objects;
+
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -91,29 +97,14 @@ public class PokeController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PutMapping("/{userId}")
-    public ResponseEntity<PokeResponse.SimplePokeProfile> orderPoke(
+    public ResponseEntity<SimplePokeProfile> orderPoke(
             @AuthenticationPrincipal User user,
             @PathVariable("userId") Long pokedUserId,
             @RequestBody PokeRequest.PokeMessageRequest messageRequest
     ) {
         pokeFacade.pokeFriend(user.getId(), pokedUserId, messageRequest.getMessage());
         pokeFacade.applyFriendship(user.getId(), pokedUserId);
-
-        val pokedUserInfo = pokeFacade.getPokedUserInfo(user, pokedUserId);
-
-        val pokeInfo = pokeFacade.getPokeInfo(user, pokedUserId);
-        val response = PokeResponse.SimplePokeProfile.of(
-                pokedUserInfo.getUserId(),
-                pokedUserInfo.getProfileImage(),
-                pokedUserInfo.getName(),
-                pokeInfo.getMessage(),
-                pokedUserInfo.getActivity(),
-                pokedUserInfo.getRelation().getPokeCount(),
-                pokedUserInfo.getRelation().getRelationName(),
-                pokedUserInfo.getMutualFriendNames(),
-      pokedUserInfo.getRelation().getPokeCount() == 0,
-                pokeInfo.getIsReply()
-        );
+        val response = pokeFacade.getPokeHistoryProfileWith(user, pokedUserId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
@@ -128,7 +119,7 @@ public class PokeController {
     public ResponseEntity<List<PokeResponse.PokeProfile>> getFriendList(
             @AuthenticationPrincipal User user
     ) {
-        val result = pokeFacade.getFriend(user.getId());
+        val result = pokeFacade.getFriend(user);
         val response = result.stream().map(
                 profile -> PokeResponse.PokeProfile.of(
                         profile.getUserId(),
@@ -141,4 +132,64 @@ public class PokeController {
         ).toList();
         return ResponseEntity.ok(response);
     }
+
+    @Operation(summary = "누가 나를 찔렀어요 조회 - 단일")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/to/me")
+    public ResponseEntity<SimplePokeProfile> getPokeMeMostRecent(
+            @AuthenticationPrincipal User user
+    ) {
+        val mostRecentPokeUserId = pokeFacade.getFirstUserIdOfPokeMeReplyYet(user.getId());
+        if (Objects.isNull(mostRecentPokeUserId)) {
+            return ResponseEntity.ok(null);
+        }
+        val response = pokeFacade.getPokeHistoryProfileWith(user, mostRecentPokeUserId);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "누가 나를 찔렀어요 조회 - 리스트")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/to/me/list")
+    public ResponseEntity<PokeToMeHistoryList> getAllOfPokeMe(
+            @AuthenticationPrincipal User user,
+            // TODO : Notification List 에서도 기본 Size 요구사항이 25 개면 yaml 에서 속성 관리하기
+            @PageableDefault(size = 25, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+            ) {
+        val response = pokeFacade.getAllUserIdsOfPokeMe(user, pageable);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "친구 조회 - 리스트 (전체 카테고리)")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/friend/list")
+    public ResponseEntity<FriendList> getFriendsForEachRelation(
+            @AuthenticationPrincipal User user,
+            @RequestParam(value = "type", required = false) String type,
+            @PageableDefault(size = 25) Pageable pageable
+    ) {
+        if (Objects.isNull(type)) {
+            val newFriends = pokeFacade.getFriendByFriendship(user, Friendship.NEW_FRIEND);
+            val bestFriends = pokeFacade.getFriendByFriendship(user, Friendship.BEST_FRIEND);
+            val soulMates = pokeFacade.getFriendByFriendship(user, Friendship.SOULMATE);
+            val response = AllRelationFriendList.of(
+                    newFriends, newFriends.size(),
+                    bestFriends, bestFriends.size(),
+                    soulMates, soulMates.size()
+            );
+            return ResponseEntity.ok(response);
+        }
+        Friendship targetFriendship = Friendship.getFriendshipByValue(type);
+        val friends = pokeFacade.getFriendByFriendship(user, targetFriendship, pageable);
+        return ResponseEntity.ok(friends);
+    }
+
 }

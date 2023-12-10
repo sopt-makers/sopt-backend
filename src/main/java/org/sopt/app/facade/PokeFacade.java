@@ -14,7 +14,14 @@ import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.application.user.UserInfo.PokeProfile;
 import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.application.user.UserService;
+import org.sopt.app.domain.entity.PokeHistory;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.enums.Friendship;
+import org.sopt.app.presentation.poke.PokeResponse.EachRelationFriendList;
+import org.sopt.app.presentation.poke.PokeResponse.PokeToMeHistoryList;
+import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,13 +41,14 @@ public class PokeFacade {
     private final PokeService pokeService;
     private final PokeHistoryService pokeHistoryService;
 
+    @Transactional(readOnly = true)
     public List<PokeProfile> getRecommendUserForNew(String playgroundToken, Long userPlaygroundId) {
         val playgroundUserIds = playgroundAuthService.getPlayGroundUserIds(playgroundToken);
         int RECOMMEND_USER_NUM_FOR_NEW = 6;
         val recommendUserIds = pickRandomUserIds(playgroundUserIds.getUserIds(), userPlaygroundId,
             RECOMMEND_USER_NUM_FOR_NEW
         );
-        val playgroundProfiles = playgroundAuthService.getPlaygroundProfiles(recommendUserIds);
+        val playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(playgroundToken, recommendUserIds);
         val userProfiles = userService.getUserProfilesByPlaygroundIds(recommendUserIds);
         return userService.combinePokeProfileList(userProfiles, playgroundProfiles);
     }
@@ -60,9 +68,9 @@ public class PokeFacade {
         val friendIds = friendService.findAllFriendIdsByUserIdRandomly(userId, 2);
         return friendIds.stream().map(
             friendId -> {
-                val friendProfile = playgroundAuthService.getPlaygroundProfiles(List.of(friendId)).get(0);
+                val friendProfile = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken() ,List.of(friendId)).get(0);
                 val recommendUserProfiles = userService.findRandomFriendsOfFriends(userId, friendId, 2);
-                val playgroundProfiles = playgroundAuthService.getPlaygroundProfiles(recommendUserProfiles.stream().map(UserProfile::getPlaygroundId).toList());
+                val playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken(), recommendUserProfiles.stream().map(UserProfile::getPlaygroundId).toList());
                 val recommendFriendList = userService.combinePokeProfileList(recommendUserProfiles, playgroundProfiles);
                 return FriendInfo.Friend.builder()
                     .id(friendId)
@@ -74,6 +82,32 @@ public class PokeFacade {
         ).toList();
     }
 
+    @Transactional(readOnly = true)
+    public Long getFirstUserIdOfPokeMeReplyYet(Long userId) {
+        return pokeHistoryService.getPokeFriendIdsInOrderByMostRecent(userId).stream()
+                .filter(history -> !history.getIsReply())
+                .map(PokeHistory::getPokerId)
+                .distinct()
+                .findFirst()
+                .orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public PokeToMeHistoryList getAllUserIdsOfPokeMe(User user, Pageable pageable) {
+        Page<PokeHistory> currentHistory = pokeHistoryService.getPokeFriendIdsInOrderByMostRecent(user.getId(), pageable);
+        List<SimplePokeProfile> pokeToMeHistories = currentHistory.stream()
+                .map(PokeHistory::getPokerId)
+                .distinct()
+                .map(id -> getPokeHistoryProfileWith(user, id))
+                .toList();
+        return PokeToMeHistoryList.of(
+                pokeToMeHistories,
+                pageable.getPageSize(),
+                currentHistory.getNumber()
+        );
+    }
+
+    @Transactional
     public void applyFriendship(Long pokerUserId, Long pokedUserId) {
         Boolean userPokeBefore = pokeHistoryService.isUserPokeFriendBefore(
             pokerUserId, pokedUserId);
@@ -84,6 +118,7 @@ public class PokeFacade {
         }
     }
 
+    @Transactional
     public void pokeFriend(Long pokerUserId, Long pokedUserId, String pokeMessage) {
         pokeHistoryService.checkUserOverDailyPokeLimit(pokerUserId);
 
@@ -106,20 +141,63 @@ public class PokeFacade {
         return isPokedPokeBefore;
     }
 
-    public List<PokeProfile> getFriend(Long userId) {
-        val pokedFriendIds = pokeHistoryService.getPokedFriendIds(userId);
-        val pokeFriendIds = pokeHistoryService.getPokeFriendIds(userId);
+    @Transactional(readOnly = true)
+    public List<PokeProfile> getFriend(User user) {
+        val pokedFriendIds = pokeHistoryService.getPokedFriendIds(user.getId());
+        val pokeFriendIds = pokeHistoryService.getPokeFriendIds(user.getId());
         val friendId = friendService.getNotPokeFriendIdRandomly(
-            userId,
+            user.getId(),
             pokedFriendIds, pokeFriendIds);
-        val userProfile = userService.getUserProfileByUserId(friendId);
-        val friendPlaygroundId = userProfile.stream().map(UserProfile::getPlaygroundId).toList();
-        val friendProfile = playgroundAuthService.getPlaygroundProfiles(friendPlaygroundId);
+        val friendUserProfile = userService.getUserProfileByUserId(friendId);
+        val friendPlaygroundIds = friendUserProfile.stream().map(UserProfile::getPlaygroundId).toList();
+        val friendProfile = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken(), friendPlaygroundIds);
 
-        return userService.combinePokeProfileList(userProfile, friendProfile);
+        return userService.combinePokeProfileList(friendUserProfile, friendProfile);
     }
 
-    public PokeInfo.PokedUserInfo getPokedUserInfo(User user, Long pokedUserId) {
+    @Transactional(readOnly = true)
+    public List<SimplePokeProfile> getFriendByFriendship(User user, Friendship friendship) {
+        List<Long> twoFriendsOfFriendship = friendService.findAllFriendsByFriendship(user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit());
+        return twoFriendsOfFriendship.stream()
+                .limit(2)
+                .map(friendId -> getPokeHistoryProfileWith(user, friendId))
+                .toList();
+    }
+    @Transactional(readOnly = true)
+    public EachRelationFriendList getFriendByFriendship(User user, Friendship friendship, Pageable pageable) {
+        val friends = friendService.findAllFriendsByFriendship(
+                user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit(), pageable);
+        val eachFriendsHistory = friends.getContent().stream()
+                .map(friend -> getPokeHistoryProfileWith(user, friend.getFriendUserId()))
+                .toList();
+        return EachRelationFriendList.of(
+                eachFriendsHistory,
+                // TODO: 여기서 필요한 PageSize의 값이 조회 결과 리스트의 Elements Size 인지,
+                //  이후 API 재호출 시 사용할 RequestParam 값을 위해 넣어주는 건지 논의
+                pageable.getPageSize(),
+                friends.getNumber()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public SimplePokeProfile getPokeHistoryProfileWith(User user, Long otherUserId) {
+        PokeInfo.PokedUserInfo otherUserInfo = getPokedUserInfo(user, otherUserId);
+        PokeInfo.PokeDetail pokeDetail = getPokeInfo(user, otherUserId);
+
+        return SimplePokeProfile.of(
+                otherUserInfo.getUserId(),
+                otherUserInfo.getProfileImage(),
+                otherUserInfo.getName(),
+                pokeDetail.getMessage(),
+                otherUserInfo.getActivity(),
+                otherUserInfo.getRelation().getPokeCount(),
+                otherUserInfo.getRelation().getRelationName(),
+                otherUserInfo.getMutualFriendNames(),
+                otherUserInfo.getRelation().getPokeCount() == 0,
+                pokeDetail.getIsReply()
+        );
+    }
+    private PokeInfo.PokedUserInfo getPokedUserInfo(User user, Long pokedUserId) {
         val pokedUser = userService.getUserProfile(pokedUserId);
         val userProfile =  userService.getUserProfilesByPlaygroundIds(List.of(pokedUser.getPlaygroundId())).get(0);
         val playgroundMemberProfile = (PlaygroundAuthInfo.MemberProfile) playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken(), List.of(userProfile.getPlaygroundId())).get(0);
@@ -133,7 +211,7 @@ public class PokeFacade {
                 .toList();
         return PokeInfo.PokedUserInfo.builder()
                 .userId(userProfile.getUserId())
-                .name(userProfile.getName())
+                .name(playgroundMemberProfile.getName())
                 .profileImage(playgroundMemberProfile.getProfileImage())
                 .activity(
                         PokeInfo.Activity.builder()
@@ -146,7 +224,7 @@ public class PokeFacade {
                 .build();
     }
 
-    public PokeInfo.PokeDetail getPokeInfo(User user, Long pokedUserId) {
+    private PokeInfo.PokeDetail getPokeInfo(User user, Long pokedUserId) {
         return pokeService.getPokeDetail(user.getId(), pokedUserId);
     }
 

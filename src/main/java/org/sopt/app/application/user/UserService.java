@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileWithId;
 import org.sopt.app.application.user.UserInfo.PokeProfile;
 import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.common.exception.UnauthorizedException;
@@ -94,19 +93,19 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public UserInfo.UserProfile getUserProfile(Long userId) {
+    public UserProfile getUserProfile(Long userId) {
         val user = userRepository.findUserById(userId)
                 .orElseThrow(() -> new UnauthorizedException(ErrorCode.USER_NOT_FOUND.getMessage()));
-        return UserInfo.UserProfile.builder()
+        return UserProfile.builder()
                         .userId(user.getId())
                         .name(user.getUsername())
                         .playgroundId(user.getPlaygroundId())
                         .build();
     }
 
-    public List<UserInfo.UserProfile> getUserProfilesByPlaygroundIds(List<Long> playgroundIds) {
+    public List<UserProfile> getUserProfilesByPlaygroundIds(List<Long> playgroundIds) {
         return userRepository.findAllByPlaygroundIdIn(playgroundIds).stream().map(
-            u -> UserInfo.UserProfile.builder()
+            u -> UserProfile.builder()
                 .userId(u.getId())
                 .name(u.getUsername())
                 .playgroundId(u.getPlaygroundId())
@@ -125,28 +124,26 @@ public class UserService {
     }
 
     public List<PokeProfile> combinePokeProfileList(
-        List<UserProfile> userProfiles, List<PlaygroundProfileWithId> playgroundProfiles
+        List<UserProfile> userProfiles, List<PlaygroundAuthInfo.MemberProfile> playgroundProfiles
     ) {
         return userProfiles.stream().map(userProfile -> {
             val playgroundProfile = playgroundProfiles.stream()
                 .filter(profile -> profile.getId().equals(userProfile.getPlaygroundId()))
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("플레이그라운드 프로필이 없습니다."));
-            val generation = playgroundProfile.getActivities().get(0).getCardinalActivities().get(0)
-                .getGeneration();
-            val part = playgroundProfile.getActivities().get(0).getCardinalActivities().get(0)
-                .getPart();
+            val generation = playgroundProfile.getActivities().get(0).getGeneration();
+            val part = playgroundProfile.getActivities().get(0).getPart();
             return PokeProfile.builder()
                 .userId(userProfile.getUserId())
                 .profileImage(playgroundProfile.getProfileImage())
                 .name(userProfile.getName())
-                .generation(generation)
+                .generation(Long.parseLong(generation))
                 .part(part)
                 .isAlreadyPoked(false)
                 .build();
         }).toList();
     }
-    public List<UserInfo.UserProfile> findRandomFriendsOfFriends(Long userId, Long friendIds, int limitNum) {
+    public List<UserProfile> findRandomFriendsOfFriends(Long userId, Long friendIds, int limitNum) {
         val users = userRepository.findRandomFriendsOfFriends(userId, friendIds, limitNum);
         return users.stream().map(
             u -> UserProfile.builder()

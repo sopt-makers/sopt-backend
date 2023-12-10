@@ -8,17 +8,15 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Friend;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.interfaces.postgres.FriendRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class FriendService {
-    private static final int LIMIT_NEW_FRIEND = 2;
-    private static final int LIMIT_BEST_FRIEND = 5;
-    private static final int LIMIT_SOULMATE = 11;
 
     private final FriendRepository friendRepository;
 
@@ -26,8 +24,18 @@ public class FriendService {
         return friendRepository.getFriendRandom(userId, limitNum);
     }
 
+    public List<Long> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
+        return friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
+                userId, lowerLimit, upperLimit).stream()
+                .map(Friend::getFriendUserId)
+                .toList();
+    }
+    public Page<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit, Pageable pageable) {
+        return friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
+                userId, lowerLimit, upperLimit, pageable);
+    }
 
-    @Transactional
+
     public void createRelation(Long pokerId, Long pokedId) {
         Friend createdRelationUserToFriend = Friend.builder()
                 .userId(pokerId)
@@ -43,21 +51,18 @@ public class FriendService {
         friendRepository.save(createdRelationFriendToUser);
     }
 
-    @Transactional
     public void applyPokeCount(Long pokerId, Long pokedId) {
         Friend friendship = friendRepository.findByUserIdAndFriendUserId(pokerId, pokedId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND.getMessage()));
         friendship.addPokeCount();
     }
 
-    @Transactional(readOnly = true)
     public boolean isFriendEachOther(Long pokerId, Long pokedId) {
         Optional<Friend> pokerToPokedRelation = friendRepository.findByUserIdAndFriendUserId(pokerId, pokedId);
         Optional<Friend> pokedToPokerRelation = friendRepository.findByUserIdAndFriendUserId(pokedId, pokerId);
         return pokerToPokedRelation.isPresent() && pokedToPokerRelation.isPresent();
     }
 
-    @Transactional(readOnly = true)
     public PokeInfo.Relationship getRelationInfo(Long pokerId, Long pokedId) {
         Friend friendship = friendRepository.findByUserIdAndFriendUserId(pokerId, pokedId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND.getMessage()));
@@ -68,19 +73,18 @@ public class FriendService {
     }
 
     private String decideRelationName(Integer pokeCount) {
-        if (pokeCount >= LIMIT_SOULMATE) {
-            return Friendship.SOULMATE.getValue();
+        if (pokeCount >= Friendship.SOULMATE.getLowerLimit()) {
+            return Friendship.SOULMATE.getFriendshipName();
         }
-        if (pokeCount >= LIMIT_BEST_FRIEND) {
-            return Friendship.BEST_FRIEND.getValue();
+        if (pokeCount >= Friendship.BEST_FRIEND.getLowerLimit()) {
+            return Friendship.BEST_FRIEND.getFriendshipName();
         }
-        if (pokeCount >= LIMIT_NEW_FRIEND) {
-            return Friendship.NEW_FRIEND.getValue();
+        if (pokeCount >= Friendship.NEW_FRIEND.getLowerLimit()) {
+            return Friendship.NEW_FRIEND.getFriendshipName();
         }
-        return Friendship.NON_FRIEND.getValue();
+        return Friendship.NON_FRIEND.getFriendshipName();
     }
 
-    @Transactional(readOnly = true)
     public List<Long> getMutualFriendIds(Long pokerId, Long pokedId) {
         List<Long> pokerFriendIds = friendRepository.findAllOfFriendIdsByUserId(pokerId);
         List<Long> pokedFriendIds = friendRepository.findAllOfFriendIdsByUserId(pokedId);

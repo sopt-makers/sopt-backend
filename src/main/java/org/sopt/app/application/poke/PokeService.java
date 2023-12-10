@@ -32,7 +32,10 @@ public class PokeService {
 
     @Transactional(readOnly = true)
     public PokeInfo.PokeDetail getPokeDetail(Long pokerId, Long pokedId) {
-        PokeHistory latestPokeHistory = historyRepository.findAllByPokerIdAndPokedIdOrderByCreatedAtDesc(pokerId, pokedId).get(0);
+        PokeHistory latestPokeHistory = historyRepository.findAllByPokerIdAndPokedIdOrderByCreatedAtDesc(pokerId, pokedId).stream()
+                .distinct()
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException(ErrorCode.POKE_HISTORY_NOT_FOUND.getMessage()));
         return PokeInfo.PokeDetail.builder()
                 .id(latestPokeHistory.getId())
                 .message(latestPokeHistory.getMessage())

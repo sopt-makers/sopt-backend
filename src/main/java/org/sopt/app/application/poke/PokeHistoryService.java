@@ -7,6 +7,8 @@ import org.sopt.app.domain.entity.PokeHistory;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.interfaces.postgres.PokeHistoryRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -37,6 +39,13 @@ public class PokeHistoryService {
         return friends.stream()
                 .map(PokeHistory::getPokerId)
                 .toList();
+    }
+
+    public List<PokeHistory> getPokeFriendIdsInOrderByMostRecent(Long userId) {
+        return pokeHistoryRepository.findAllByPokedId(userId);
+    }
+    public Page<PokeHistory> getPokeFriendIdsInOrderByMostRecent(Long userId, Pageable pageable) {
+        return pokeHistoryRepository.findAllByPokedId(userId, pageable);
     }
 
     public void checkUserOverDailyPokeLimit(Long userId) {
