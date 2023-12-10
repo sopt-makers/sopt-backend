@@ -37,7 +37,7 @@ public class PokeController {
     private final PokeHistoryService pokeHistoryService;
 
     @GetMapping("/random-user")
-    public ResponseEntity<List<PokeResponse.PokeProfile>> getRandomUserForNew(
+    public ResponseEntity<List<PokeProfile>> getRandomUserForNew(
         @AuthenticationPrincipal User user
     ) {
         val result = pokeFacade.getRecommendUserForNew(
@@ -45,7 +45,7 @@ public class PokeController {
             user.getPlaygroundId()
         );
         val response = result.stream().map(
-            profile -> PokeResponse.PokeProfile.of(
+            profile -> PokeProfile.of(
                 profile.getUserId(),
                 profile.getProfileImage(),
                 profile.getName(),
@@ -77,7 +77,7 @@ public class PokeController {
                 friend.getName(),
                 friend.getProfileImage(),
                 friend.getFriendList().stream().map(
-                    profile -> PokeResponse.PokeProfile.of(
+                    profile -> PokeProfile.of(
                         profile.getUserId(),
                         profile.getProfileImage(),
                         profile.getName(),
@@ -88,6 +88,20 @@ public class PokeController {
                 ).toList()
             )
         ).toList();
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "찌르기 메시지 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/message")
+    public ResponseEntity<PokeMessageList> getPokeMessages(
+            @RequestParam("messageType") String messageType
+    ) {
+        val messages = pokeFacade.getPokingMessages(messageType);
+        val response = PokeMessageList.of(messages);
         return ResponseEntity.ok(response);
     }
 
@@ -116,12 +130,12 @@ public class PokeController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/friend")
-    public ResponseEntity<List<PokeResponse.PokeProfile>> getFriendList(
+    public ResponseEntity<List<PokeProfile>> getFriendList(
             @AuthenticationPrincipal User user
     ) {
         val result = pokeFacade.getFriend(user);
         val response = result.stream().map(
-                profile -> PokeResponse.PokeProfile.of(
+                profile -> PokeProfile.of(
                         profile.getUserId(),
                         profile.getProfileImage(),
                         profile.getName(),
