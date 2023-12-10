@@ -156,15 +156,12 @@ public class PokeController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/to/me/list")
-    public ResponseEntity<List<SimplePokeProfile>> getAllOfPokeMe(
+    public ResponseEntity<PokeToMeHistoryList> getAllOfPokeMe(
             @AuthenticationPrincipal User user,
             // TODO : Notification List 에서도 기본 Size 요구사항이 25 개면 yaml 에서 속성 관리하기
             @PageableDefault(size = 25, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
             ) {
-        val mostRecentPokeUserIds = pokeFacade.getAllUserIdsOfPokeMe(user.getId(), pageable);
-        val response = mostRecentPokeUserIds.stream()
-                .map(id -> pokeFacade.getPokeHistoryProfileWith(user, id))
-                .toList();
+        val response = pokeFacade.getAllUserIdsOfPokeMe(user, pageable);
         return ResponseEntity.ok(response);
     }
 
@@ -195,19 +192,4 @@ public class PokeController {
         return ResponseEntity.ok(friends);
     }
 
-//    @Operation(summary = "친구 조회 - 리스트 (각 카테고리)")
-//    @ApiResponses(value = {
-//            @ApiResponse(responseCode = "200", description = "success"),
-//            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-//    })
-//    @GetMapping("/friend/list")
-//    public ResponseEntity<EachRelationFriendList> getFriendsOfRelation(
-//            @AuthenticationPrincipal User user,
-//            @RequestParam("type") String type,
-//            @PageableDefault(size = 25) Pageable pageable
-//    ) {
-//        Friendship targetFriendship = Friendship.getFriendshipByValue(type);
-//        val friends = pokeFacade.getFriendByFriendship(user, targetFriendship, pageable);
-//        return ResponseEntity.ok(friends);
-//    }
 }

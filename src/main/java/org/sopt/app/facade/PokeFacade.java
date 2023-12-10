@@ -18,7 +18,9 @@ import org.sopt.app.domain.entity.PokeHistory;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.presentation.poke.PokeResponse.EachRelationFriendList;
+import org.sopt.app.presentation.poke.PokeResponse.PokeToMeHistoryList;
 import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -91,11 +93,18 @@ public class PokeFacade {
     }
 
     @Transactional(readOnly = true)
-    public List<Long> getAllUserIdsOfPokeMe(Long userId, Pageable pageable) {
-        return pokeHistoryService.getPokeFriendIdsInOrderByMostRecent(userId, pageable).stream()
+    public PokeToMeHistoryList getAllUserIdsOfPokeMe(User user, Pageable pageable) {
+        Page<PokeHistory> currentHistory = pokeHistoryService.getPokeFriendIdsInOrderByMostRecent(user.getId(), pageable);
+        List<SimplePokeProfile> pokeToMeHistories = currentHistory.stream()
                 .map(PokeHistory::getPokerId)
                 .distinct()
+                .map(id -> getPokeHistoryProfileWith(user, id))
                 .toList();
+        return PokeToMeHistoryList.of(
+                pokeToMeHistories,
+                pageable.getPageSize(),
+                currentHistory.getNumber()
+        );
     }
 
     @Transactional
