@@ -10,9 +10,9 @@ import java.util.Arrays;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Friendship {
     NON_FRIEND("","", 0,1),
-    NEW_FRIEND("NF","친한친구",2, 4),
-    BEST_FRIEND("BF","단짝친구",5,10),
-    SOULMATE("SM","천생연분",11,99)
+    NEW_FRIEND("new","친한친구",2, 4),
+    BEST_FRIEND("bestfriend","단짝친구",5,10),
+    SOULMATE("soulmate","천생연분",11,99)
     ;
 
     private final String typeFlag;
