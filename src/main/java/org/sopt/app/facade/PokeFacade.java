@@ -16,7 +16,11 @@ import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.PokeHistory;
 import org.sopt.app.domain.entity.User;
-import org.sopt.app.presentation.poke.PokeResponse;
+import org.sopt.app.domain.enums.Friendship;
+import org.sopt.app.presentation.poke.PokeResponse.EachRelationFriendList;
+import org.sopt.app.presentation.poke.PokeResponse.PokeToMeHistoryList;
+import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -89,11 +93,18 @@ public class PokeFacade {
     }
 
     @Transactional(readOnly = true)
-    public List<Long> getAllUserIdsOfPokeMe(Long userId, Pageable pageable) {
-        return pokeHistoryService.getPokeFriendIdsInOrderByMostRecent(userId, pageable).stream()
+    public PokeToMeHistoryList getAllUserIdsOfPokeMe(User user, Pageable pageable) {
+        Page<PokeHistory> currentHistory = pokeHistoryService.getPokeFriendIdsInOrderByMostRecent(user.getId(), pageable);
+        List<SimplePokeProfile> pokeToMeHistories = currentHistory.stream()
                 .map(PokeHistory::getPokerId)
                 .distinct()
+                .map(id -> getPokeHistoryProfileWith(user, id))
                 .toList();
+        return PokeToMeHistoryList.of(
+                pokeToMeHistories,
+                pageable.getPageSize(),
+                currentHistory.getNumber()
+        );
     }
 
     @Transactional
@@ -145,11 +156,35 @@ public class PokeFacade {
     }
 
     @Transactional(readOnly = true)
-    public PokeResponse.SimplePokeProfile getPokeHistoryProfileWith(User user, Long otherUserId) {
+    public List<SimplePokeProfile> getFriendByFriendship(User user, Friendship friendship) {
+        List<Long> twoFriendsOfFriendship = friendService.findAllFriendsByFriendship(user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit());
+        return twoFriendsOfFriendship.stream()
+                .limit(2)
+                .map(friendId -> getPokeHistoryProfileWith(user, friendId))
+                .toList();
+    }
+    @Transactional(readOnly = true)
+    public EachRelationFriendList getFriendByFriendship(User user, Friendship friendship, Pageable pageable) {
+        val friends = friendService.findAllFriendsByFriendship(
+                user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit(), pageable);
+        val eachFriendsHistory = friends.getContent().stream()
+                .map(friend -> getPokeHistoryProfileWith(user, friend.getFriendUserId()))
+                .toList();
+        return EachRelationFriendList.of(
+                eachFriendsHistory,
+                // TODO: 여기서 필요한 PageSize의 값이 조회 결과 리스트의 Elements Size 인지,
+                //  이후 API 재호출 시 사용할 RequestParam 값을 위해 넣어주는 건지 논의
+                pageable.getPageSize(),
+                friends.getNumber()
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public SimplePokeProfile getPokeHistoryProfileWith(User user, Long otherUserId) {
         PokeInfo.PokedUserInfo otherUserInfo = getPokedUserInfo(user, otherUserId);
         PokeInfo.PokeDetail pokeDetail = getPokeInfo(user, otherUserId);
 
-        return PokeResponse.SimplePokeProfile.of(
+        return SimplePokeProfile.of(
                 otherUserInfo.getUserId(),
                 otherUserInfo.getProfileImage(),
                 otherUserInfo.getName(),
