@@ -33,11 +33,16 @@ public class PokeResponse {
         }
     }
 
+    interface FriendList {
+    }
+    interface  HistoryList{
+    }
+
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
-    public static class AllRelationFriendList {
+    public static class AllRelationFriendList implements FriendList{
 
         @Schema(description = "대표 친한 친구 2명")
         private List<SimplePokeProfile> newFriend;
@@ -68,7 +73,7 @@ public class PokeResponse {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
-    public static class EachRelationFriendList {
+    public static class EachRelationFriendList implements FriendList{
 
         private List<SimplePokeProfile> friendList;
         private Integer pageSize;
@@ -84,6 +89,25 @@ public class PokeResponse {
 
     }
 
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @ToString
+    public static class PokeToMeHistoryList implements HistoryList{
+
+        private List<SimplePokeProfile> history;
+        private Integer pageSize;
+        private Integer pageNum;
+
+        public static PokeToMeHistoryList of(
+                List<SimplePokeProfile> history, Integer pageSize, Integer pageNum
+        ) {
+            return new PokeToMeHistoryList(
+                    history, pageSize, pageNum
+            );
+        }
+
+    }
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -102,7 +126,7 @@ public class PokeResponse {
         @Schema(description = "SOPT 최신 활동 기수 정보", example = "{'generation': 29, 'part': '안드로이드'}")
         private PokeInfo.Activity activity;
         @Schema(description = "현재까지 찌른 횟수", example = "3")
-        private Integer pickNum;
+        private Integer pokeNum;
         @Schema(description = "관계 이름", example = "천생연분")
         private String relationName;
         @Schema(description = "함께 친구 관계인 친구들의 이름", example = "['제갈송현', '왕건모', '진동규', '차승호']")
