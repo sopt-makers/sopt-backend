@@ -174,9 +174,9 @@ public class PokeResponse {
         @Schema(description = "친구 프로필 사진 URL", example = ".....")
         private String friendProfileImage;
         @Schema(description = "친구 프로필 리스트", example = "[{'userId': 1, 'profileImage': '...', 'name': '제갈송현', 'generation': 29, 'part': '안드로이드'}]")
-        private List<PokeProfile> friendList;
+        private List<SimplePokeProfile> friendList;
 
-        public static Friend of(Long friendId, String friendName, String friendProfileImage, List<PokeProfile> friendList) {
+        public static Friend of(Long friendId, String friendName, String friendProfileImage, List<SimplePokeProfile> friendList) {
             return new Friend(friendId, friendName, friendProfileImage, friendList);
         }
     }
