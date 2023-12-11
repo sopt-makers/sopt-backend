@@ -51,16 +51,4 @@ public class UserInfo {
         private String name;
         private Long playgroundId;
     }
-
-    @Getter
-    @Builder
-    @ToString
-    public static class PokeProfile {
-        private Long userId;
-        private String name;
-        private String profileImage;
-        private Long generation;
-        private String part;
-        private Boolean isAlreadyPoked = false;
-    }
 }
