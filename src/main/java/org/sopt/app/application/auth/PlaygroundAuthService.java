@@ -1,22 +1,19 @@
 package org.sopt.app.application.auth;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundActivity;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileWithId;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.interfaces.external.PlaygroundClient;
 import org.sopt.app.presentation.auth.AppAuthRequest;
-import org.sopt.app.presentation.user.UserRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
@@ -139,36 +136,16 @@ public class PlaygroundAuthService {
     public List<PlaygroundAuthInfo.MemberProfile> getPlaygroundMemberProfiles(String accessToken, List<Long> memberIds) {
         Map<String, String> defaultHeader = createDefaultHeader();
         defaultHeader.put("Authorization", accessToken);
-        UserRequest.MemberProfilesRequest request = new UserRequest.MemberProfilesRequest();
-        request.setMemberIds(memberIds);
+        String stringifyIds = memberIds.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
         try {
-            return playgroundClient.getMemberProfiles(defaultHeader, request);
+            return playgroundClient.getMemberProfiles(defaultHeader, URLEncoder.encode(stringifyIds, StandardCharsets.UTF_8));
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
         } catch (ExpiredJwtException e) {
-        throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
-    }
+            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
+        }
     }
 
-    public List<PlaygroundAuthInfo.PlaygroundProfileWithId> getPlaygroundProfiles(List<Long> recommendUserIds) {
-        val result = recommendUserIds.stream().map(
-                userId -> {
-                    val dummyActivity = new PlaygroundActivity();
-                    val dummyCardinalActivity = new PlaygroundAuthInfo.PlaygroundCardinalActivity();
-                    dummyCardinalActivity.setGeneration(currentGeneration);
-                    dummyCardinalActivity.setId(1L);
-                    dummyCardinalActivity.setIsProject(false);
-                    dummyCardinalActivity.setPart("서버");
-                    dummyCardinalActivity.setTeam("없음");
-                    dummyActivity.setCardinalActivities(List.of(dummyCardinalActivity));
-
-                    val playgroundProfile = new PlaygroundProfileWithId(userId);
-                    playgroundProfile.setProfileImage("");
-                    playgroundProfile.setName("test");
-                    playgroundProfile.setActivities(List.of(dummyActivity));
-                    return playgroundProfile;
-                }
-        ).toList();
-        return result;
-    }
 }

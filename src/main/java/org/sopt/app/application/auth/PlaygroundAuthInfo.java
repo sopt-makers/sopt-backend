@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import org.sopt.app.domain.enums.UserStatus;
 
 public class PlaygroundAuthInfo {
@@ -49,15 +52,6 @@ public class PlaygroundAuthInfo {
         private String name;
         private String profileImage;
         private List<PlaygroundActivity> activities;
-    }
-
-    @Getter
-    @Setter
-    // TODO 임시
-    @Builder
-    @ToString
-    public static class PlaygroundProfileWithId extends PlaygroundProfile {
-        private Long id;
     }
 
     @Getter
@@ -135,9 +129,9 @@ public class PlaygroundAuthInfo {
     }
 
     @Getter
-    @Setter
-    @Builder
     @ToString
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class MemberProfile {
         private Long id;
         private String profileImage;
@@ -150,9 +144,9 @@ public class PlaygroundAuthInfo {
     }
 
     @Getter
-    @Setter
     @Builder
-    @ToString
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ActivityCardinalInfo {
         private String cardinalInfo;
 
