@@ -34,15 +34,11 @@ public class PokeMessageService {
     }
 
     public List<PokeMessageDetail> getMessagesDetail(List<Long> messageIds) {
-        return messageIds.stream()
-                .map(id -> {
-                    PokeMessage pokeMessage = messageRepository.findById(id)
-                            .orElseThrow(() -> new NotFoundException(ErrorCode.POKE_MESSAGE_NOT_FOUND.getMessage()));
-                    return PokeMessageDetail.builder()
+        return messageRepository.findAllByIdIn(messageIds).stream()
+                .map(pokeMessage -> PokeMessageDetail.builder()
                             .id(pokeMessage.getId())
                             .content(pokeMessage.getContent())
-                            .build();
-                })
+                            .build())
                 .collect(Collectors.toList());
     }
 
