@@ -9,8 +9,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.application.auth.PlaygroundAuthService;
-import org.sopt.app.application.friend.FriendInfo;
-import org.sopt.app.application.friend.FriendInfo.Friend;
 import org.sopt.app.application.poke.*;
 import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.application.user.UserInfo.UserProfile;
@@ -77,10 +75,8 @@ public class PokeFacade {
                     playgroundProfile.getProfileImage(),
                     playgroundProfile.getName(),
                     "",
-                    Activity.builder()
-                        .generation(Integer.parseInt(generation))
-                        .part(part)
-                        .build(),
+                    Integer.parseInt(generation),
+                    part,
                     0,
                     "",
                     List.of(),
@@ -227,7 +223,8 @@ public class PokeFacade {
                 otherUserInfo.getProfileImage(),
                 otherUserInfo.getName(),
                 pokeDetail.getMessage(),
-                otherUserInfo.getActivity(),
+                otherUserInfo.getGeneration(),
+                otherUserInfo.getPart(),
                 otherUserInfo.getRelation().getPokeCount(),
                 otherUserInfo.getRelation().getRelationName(),
                 otherUserInfo.getMutualFriendNames(),
@@ -251,12 +248,8 @@ public class PokeFacade {
                 .userId(userProfile.getUserId())
                 .name(playgroundMemberProfile.getName())
                 .profileImage(playgroundMemberProfile.getProfileImage())
-                .activity(
-                        PokeInfo.Activity.builder()
-                                .generation(Integer.parseInt(latestActivity.getGeneration()))
-                                .part(latestActivity.getPart())
-                                .build()
-                )
+                .generation(Integer.parseInt(latestActivity.getGeneration()))
+                .part(latestActivity.getPart())
                 .relation(relationInfo)
                 .mutualFriendNames(mutualFriendNames)
                 .build();

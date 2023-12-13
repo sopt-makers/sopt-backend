@@ -8,13 +8,7 @@ import java.util.List;
 
 public class PokeInfo {
 
-    @Getter
-    @Builder
-    @ToString
-    public static class Activity {
-        private final int generation;
-        private final String part;
-    }
+
 
     @Getter
     @Builder
@@ -31,7 +25,8 @@ public class PokeInfo {
         private final Long userId;
         private final String name;
         private final String profileImage;
-        private final Activity activity;
+        private final Integer generation;
+        private final String part;
         private final Relationship relation;
         private final List<String> mutualFriendNames;
 
