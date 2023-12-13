@@ -8,19 +8,6 @@ import org.sopt.app.application.poke.PokeInfo;
 import java.util.List;
 
 public class PokeResponse {
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @ToString
-    public static class PokeMessages {
-
-        @Schema(description = "찌르기 메시지 리스트", example = "['메시지A', '메시지B', '메시지C', '메시지D', '메시지E']")
-        List<String> messages;
-
-        public static PokeMessages of(List<String> messages) {
-            return new PokeMessages(messages);
-        }
-    }
 
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -36,6 +23,8 @@ public class PokeResponse {
     interface FriendList {
     }
     interface  HistoryList{
+    }
+    interface MessageList {
     }
 
     @Getter
@@ -108,6 +97,37 @@ public class PokeResponse {
         }
 
     }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @ToString
+    public static class PokeMessageList implements MessageList {
+        private List<PokeMessage> messages;
+
+        public static PokeMessageList of(
+            List<PokeMessage> messages
+        ) {
+            return new PokeMessageList(messages);
+        }
+    }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @ToString
+    public static class PokeMessage {
+        private Long messageId;
+        private String content;
+
+        public static PokeMessage of(
+            Long id, String content
+        ) {
+            return new PokeMessage(id, content);
+        }
+    }
+
+
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
