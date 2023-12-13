@@ -2,10 +2,10 @@ package org.sopt.app.application.user;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
-import org.sopt.app.application.user.UserInfo.PokeProfile;
 import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -14,8 +14,6 @@ import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.stream.Collectors;
 
 
 @Service
@@ -123,26 +121,6 @@ public class UserService {
         ).collect(Collectors.toList());
     }
 
-    public List<PokeProfile> combinePokeProfileList(
-        List<UserProfile> userProfiles, List<PlaygroundAuthInfo.MemberProfile> playgroundProfiles
-    ) {
-        return userProfiles.stream().map(userProfile -> {
-            val playgroundProfile = playgroundProfiles.stream()
-                .filter(profile -> profile.getId().equals(userProfile.getPlaygroundId()))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("플레이그라운드 프로필이 없습니다."));
-            val generation = playgroundProfile.getActivities().get(0).getGeneration();
-            val part = playgroundProfile.getActivities().get(0).getPart();
-            return PokeProfile.builder()
-                .userId(userProfile.getUserId())
-                .profileImage(playgroundProfile.getProfileImage())
-                .name(userProfile.getName())
-                .generation(Long.parseLong(generation))
-                .part(part)
-                .isAlreadyPoked(false)
-                .build();
-        }).toList();
-    }
     public List<UserProfile> findRandomFriendsOfFriends(Long userId, Long friendIds, int limitNum) {
         val users = userRepository.findRandomFriendsOfFriends(userId, friendIds, limitNum);
         return users.stream().map(

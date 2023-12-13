@@ -1,5 +1,10 @@
 package org.sopt.app.facade;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Random;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
@@ -8,7 +13,6 @@ import org.sopt.app.application.friend.FriendInfo;
 import org.sopt.app.application.friend.FriendInfo.Friend;
 import org.sopt.app.application.poke.*;
 import org.sopt.app.application.user.UserInfo;
-import org.sopt.app.application.user.UserInfo.PokeProfile;
 import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.PokeHistory;
@@ -22,12 +26,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -53,7 +51,7 @@ public class PokeFacade {
     }
 
     @Transactional(readOnly = true)
-    public List<PokeProfile> getRecommendUserForNew(String playgroundToken, Long userPlaygroundId) {
+    public List<SimplePokeProfile> getRecommendUserForNew(String playgroundToken, Long userPlaygroundId) {
         val playgroundUserIds = playgroundAuthService.getPlayGroundUserIds(playgroundToken);
         int RECOMMEND_USER_NUM_FOR_NEW = 6;
         val recommendUserIds = pickRandomUserIds(playgroundUserIds.getUserIds(), userPlaygroundId,
@@ -61,7 +59,36 @@ public class PokeFacade {
         );
         val playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(playgroundToken, recommendUserIds);
         val userProfiles = userService.getUserProfilesByPlaygroundIds(recommendUserIds);
-        return userService.combinePokeProfileList(userProfiles, playgroundProfiles);
+        return makeDummySimplePokeProfile(userProfiles, playgroundProfiles);
+    }
+
+    private List<SimplePokeProfile> makeDummySimplePokeProfile(List<UserProfile> userProfiles, List<PlaygroundAuthInfo.MemberProfile> playgroundProfiles) {
+        return userProfiles.stream().map(
+            userProfile -> {
+                val playgroundProfile = playgroundProfiles.stream()
+                    .filter(profile -> profile.getId().equals(userProfile.getPlaygroundId()))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("플레이그라운드 프로필이 없습니다."));
+                val generation = playgroundProfile.getActivities().get(0).getGeneration();
+                val part = playgroundProfile.getActivities().get(0).getPart();
+
+                return SimplePokeProfile.of(
+                    userProfile.getUserId(),
+                    playgroundProfile.getProfileImage(),
+                    playgroundProfile.getName(),
+                    "",
+                    Activity.builder()
+                        .generation(Integer.parseInt(generation))
+                        .part(part)
+                        .build(),
+                    0,
+                    "",
+                    List.of(),
+                    true,
+                    false
+                );
+            }
+        ).toList();
     }
 
     private List<Long> pickRandomUserIds(
@@ -74,7 +101,7 @@ public class PokeFacade {
     }
 
     @Transactional(readOnly = true)
-    public List<Friend> getRecommendFriendsOfUsersFriend(User user) {
+    public List<PokeResponse.Friend> getRecommendFriendsOfUsersFriend(User user) {
         val userId = user.getId();
         val friendIds = friendService.findAllFriendIdsByUserIdRandomly(userId, 2);
         return friendIds.stream().map(
@@ -82,13 +109,13 @@ public class PokeFacade {
                 val friendProfile = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken() ,List.of(friendId)).get(0);
                 val recommendUserProfiles = userService.findRandomFriendsOfFriends(userId, friendId, 2);
                 val playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken(), recommendUserProfiles.stream().map(UserProfile::getPlaygroundId).toList());
-                val recommendFriendList = userService.combinePokeProfileList(recommendUserProfiles, playgroundProfiles);
-                return FriendInfo.Friend.builder()
-                    .id(friendId)
-                    .name(friendProfile.getName())
-                    .profileImage(friendProfile.getProfileImage())
-                    .friendList(recommendFriendList)
-                    .build();
+                val simpleProfiles = makeDummySimplePokeProfile(recommendUserProfiles, playgroundProfiles);
+                return PokeResponse.Friend.of(
+                    friendId,
+                    friendProfile.getName(),
+                    friendProfile.getProfileImage(),
+                    simpleProfiles
+                );
             }
         ).toList();
     }
@@ -153,7 +180,7 @@ public class PokeFacade {
     }
 
     @Transactional(readOnly = true)
-    public List<PokeProfile> getFriend(User user) {
+    public List<SimplePokeProfile> getFriend(User user) {
         val pokedFriendIds = pokeHistoryService.getPokedFriendIds(user.getId());
         val pokeFriendIds = pokeHistoryService.getPokeFriendIds(user.getId());
         val friendId = friendService.getNotPokeFriendIdRandomly(
@@ -163,7 +190,7 @@ public class PokeFacade {
         val friendPlaygroundIds = friendUserProfile.stream().map(UserProfile::getPlaygroundId).toList();
         val friendProfile = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken(), friendPlaygroundIds);
 
-        return userService.combinePokeProfileList(friendUserProfile, friendProfile);
+        return makeDummySimplePokeProfile(friendUserProfile, friendProfile);
     }
 
     @Transactional(readOnly = true)

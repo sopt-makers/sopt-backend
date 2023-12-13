@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.poke.PokeHistoryService;
+import org.sopt.app.application.poke.PokeInfo.Activity;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.facade.PokeFacade;
@@ -37,24 +38,14 @@ public class PokeController {
     private final PokeHistoryService pokeHistoryService;
 
     @GetMapping("/random-user")
-    public ResponseEntity<List<PokeProfile>> getRandomUserForNew(
+    public ResponseEntity<List<PokeResponse.SimplePokeProfile>> getRandomUserForNew(
         @AuthenticationPrincipal User user
     ) {
         val result = pokeFacade.getRecommendUserForNew(
             user.getPlaygroundToken(),
             user.getPlaygroundId()
         );
-        val response = result.stream().map(
-            profile -> PokeProfile.of(
-                profile.getUserId(),
-                profile.getProfileImage(),
-                profile.getName(),
-                profile.getGeneration(),
-                profile.getPart(),
-                profile.getIsAlreadyPoked()
-            )
-        ).toList();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(result);
     }
 
     @GetMapping("/new")
@@ -71,24 +62,7 @@ public class PokeController {
         @AuthenticationPrincipal User user
     ) {
         val result = pokeFacade.getRecommendFriendsOfUsersFriend(user);
-        val response = result.stream().map(
-            friend -> PokeResponse.Friend.of(
-                friend.getId(),
-                friend.getName(),
-                friend.getProfileImage(),
-                friend.getFriendList().stream().map(
-                    profile -> PokeProfile.of(
-                        profile.getUserId(),
-                        profile.getProfileImage(),
-                        profile.getName(),
-                        profile.getGeneration(),
-                        profile.getPart(),
-                        profile.getIsAlreadyPoked()
-                    )
-                ).toList()
-            )
-        ).toList();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(result);
     }
 
     @Operation(summary = "찌르기 메시지 조회")
@@ -130,21 +104,11 @@ public class PokeController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/friend")
-    public ResponseEntity<List<PokeProfile>> getFriendList(
+    public ResponseEntity<List<PokeResponse.SimplePokeProfile>> getFriendList(
             @AuthenticationPrincipal User user
     ) {
         val result = pokeFacade.getFriend(user);
-        val response = result.stream().map(
-                profile -> PokeProfile.of(
-                        profile.getUserId(),
-                        profile.getProfileImage(),
-                        profile.getName(),
-                        profile.getGeneration(),
-                        profile.getPart(),
-                        profile.getIsAlreadyPoked()
-                )
-        ).toList();
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(result);
     }
 
     @Operation(summary = "누가 나를 찔렀어요 조회 - 단일")
