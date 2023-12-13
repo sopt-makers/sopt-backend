@@ -50,8 +50,9 @@ public enum ErrorCode {
     // POKE
     POKE_HISTORY_NOT_FOUND("해당 찌르기 내역은 존재하지 않습니다."),
     POKE_MESSAGE_NOT_FOUND("해당 찌르기 메시지는 존재하지 않습니다."),
+    POKE_MESSAGE_TYPE_NOT_FOUND("해당 찌르기 메시지 타입은 존재하지 않습니다."),
+    POKE_MESSAGE_MUST_NOT_BE_NULL("찌르기 메시지 타입은 필수 값입니다."),
     OVER_DAILY_POKE_LIMIT("일일 최대 찌르기 가능 횟수를 초과했습니다."),
-
 
     // FRIEND
     FRIENDSHIP_NOT_FOUND("해당 친구관계는 존재하지 않습니다."),

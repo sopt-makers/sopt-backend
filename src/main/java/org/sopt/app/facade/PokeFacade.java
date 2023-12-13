@@ -9,11 +9,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.application.auth.PlaygroundAuthService;
-import org.sopt.app.application.poke.FriendService;
-import org.sopt.app.application.poke.PokeHistoryService;
-import org.sopt.app.application.poke.PokeInfo;
-import org.sopt.app.application.poke.PokeInfo.Activity;
-import org.sopt.app.application.poke.PokeService;
+import org.sopt.app.application.friend.FriendInfo;
+import org.sopt.app.application.friend.FriendInfo.Friend;
+import org.sopt.app.application.poke.*;
 import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.application.user.UserService;
@@ -38,6 +36,19 @@ public class PokeFacade {
     private final FriendService friendService;
     private final PokeService pokeService;
     private final PokeHistoryService pokeHistoryService;
+    private final PokeMessageService pokeMessageService;
+
+    @Transactional(readOnly = true)
+    public List<PokeResponse.PokeMessage> getPokingMessages(String type) {
+        List<Long> targetMessageIds = pokeMessageService.pickRandomMessageIdsTypeOf(type);
+        List<PokeInfo.PokeMessageDetail> messagesDetails = pokeMessageService.getMessagesDetail(targetMessageIds);
+        return messagesDetails.stream()
+                .map(messagesDetail -> PokeResponse.PokeMessage.of(
+                        messagesDetail.getId(), messagesDetail.getContent()
+                    )
+                )
+                .toList();
+    }
 
     @Transactional(readOnly = true)
     public List<SimplePokeProfile> getRecommendUserForNew(String playgroundToken, Long userPlaygroundId) {

@@ -65,6 +65,20 @@ public class PokeController {
         return ResponseEntity.ok(result);
     }
 
+    @Operation(summary = "찌르기 메시지 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/message")
+    public ResponseEntity<PokeMessageList> getPokeMessages(
+            @RequestParam("messageType") String messageType
+    ) {
+        val messages = pokeFacade.getPokingMessages(messageType);
+        val response = PokeMessageList.of(messages);
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "찌르기")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "success"),
