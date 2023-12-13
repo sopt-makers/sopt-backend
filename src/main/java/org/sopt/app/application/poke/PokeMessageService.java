@@ -1,8 +1,6 @@
 package org.sopt.app.application.poke;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.common.response.ErrorCode;
-import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.domain.entity.PokeMessage;
 import org.sopt.app.domain.enums.PokeMessageType;
 import org.sopt.app.interfaces.postgres.PokeMessageRepository;
@@ -20,10 +18,7 @@ public class PokeMessageService {
     private final PokeMessageRepository messageRepository;
 
     public List<Long> pickRandomMessageIdsTypeOf(String type) {
-        PokeMessageType messageType = Arrays.stream(PokeMessageType.values())
-                .filter(pokeMessageType -> pokeMessageType.name().equals(type))
-                .findAny()
-                .orElseThrow(() -> new NotFoundException(ErrorCode.POKE_MESSAGE_NOT_FOUND.getMessage()));
+        PokeMessageType messageType = PokeMessageType.ofParam(type);
         List<Long> allMessageIds = messageRepository.findAllByType(messageType).stream()
                 .map(PokeMessage::getId)
                 .collect(Collectors.toList());
