@@ -9,10 +9,15 @@ import java.util.Arrays;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum PokeMessageType {
+
+    // 친구가 아닌 사람을 내가 먼저 찌를 때 필요한 찌르기 메시지
     POKE_SOMEONE("pokeSomeone"),
+
+    // 친구와 찔렀을 때 & 친구에게 찔렸을 때 필요한 메시지
     POKE_FRIEND("pokeFriend"),
+
+    // 친구가 아닌 사람이 나를 찔렀을 때 필요한 답찌르기 메시지
     REPLY_NEW("replyNew"),
-    REPLY_FRIEND("replyFriend"),
     ;
 
     private final String parameter;
