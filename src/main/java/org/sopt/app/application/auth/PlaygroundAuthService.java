@@ -1,18 +1,18 @@
 package org.sopt.app.application.auth;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.interfaces.external.PlaygroundClient;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
+import org.sopt.app.interfaces.external.PlaygroundClient;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -120,4 +120,32 @@ public class PlaygroundAuthService {
     private Map<String, String> createDefaultHeader() {
         return new HashMap<>(Map.of("content-type", "application/json;charset=UTF-8"));
     }
+
+    public PlaygroundAuthInfo.ActiveUserIds getPlayGroundUserIds(String accessToken) {
+        Map<String, String> headers = createDefaultHeader();
+        headers.put("Authorization", accessToken);
+        try {
+            return playgroundClient.getPlaygroundUserIds(headers, currentGeneration);
+        } catch (BadRequest e) {
+            throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
+        } catch (ExpiredJwtException e) {
+            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
+        }
+    }
+
+    public List<PlaygroundAuthInfo.MemberProfile> getPlaygroundMemberProfiles(String accessToken, List<Long> memberIds) {
+        Map<String, String> defaultHeader = createDefaultHeader();
+        defaultHeader.put("Authorization", accessToken);
+        String stringifyIds = memberIds.stream()
+                .map(String::valueOf)
+                .collect(Collectors.joining(","));
+        try {
+            return playgroundClient.getMemberProfiles(defaultHeader, URLEncoder.encode(stringifyIds, StandardCharsets.UTF_8));
+        } catch (BadRequest e) {
+            throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
+        } catch (ExpiredJwtException e) {
+            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
+        }
+    }
+
 }

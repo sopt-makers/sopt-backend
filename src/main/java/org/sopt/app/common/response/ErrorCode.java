@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum ErrorCode {
 
-
     // COMMON
     INVALID_PARAMETER("잘못된 파라미터 입니다."),
 
@@ -47,6 +46,16 @@ public enum ErrorCode {
 
     INVALID_REQUEST_BODY_FOR_PUSH_TOKEN("잘못된 푸시 토큰 관련 요청입니다."),
     INTERNAL_SERVER_ERROR_IN_PUSH_SERVER("푸시 서버 내부 오류입니다."),
+
+    // POKE
+    POKE_HISTORY_NOT_FOUND("해당 찌르기 내역은 존재하지 않습니다."),
+    POKE_MESSAGE_NOT_FOUND("해당 찌르기 메시지는 존재하지 않습니다."),
+    POKE_MESSAGE_TYPE_NOT_FOUND("해당 찌르기 메시지 타입은 존재하지 않습니다."),
+    POKE_MESSAGE_MUST_NOT_BE_NULL("찌르기 메시지 타입은 필수 값입니다."),
+    OVER_DAILY_POKE_LIMIT("일일 최대 찌르기 가능 횟수를 초과했습니다."),
+
+    // FRIEND
+    FRIENDSHIP_NOT_FOUND("해당 친구관계는 존재하지 않습니다."),
 
     // S3
     PRE_SIGNED_URI_ERROR("URL을 생성할 수 없습니다.");
