@@ -133,6 +133,7 @@ public class PlaygroundAuthInfo {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class MemberProfile {
+        @JsonProperty("memberId")
         private Long id;
         private String profileImage;
         private String name;
