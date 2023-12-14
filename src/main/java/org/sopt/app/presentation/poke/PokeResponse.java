@@ -3,7 +3,6 @@ package org.sopt.app.presentation.poke;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
-import org.sopt.app.application.poke.PokeInfo;
 
 import java.util.List;
 
@@ -144,7 +143,9 @@ public class PokeResponse {
         @Schema(description = "메시지", example = "메시지A")
         private String message;
         @Schema(description = "SOPT 최신 활동 기수 정보", example = "{'generation': 29, 'part': '안드로이드'}")
-        private PokeInfo.Activity activity;
+        private Integer generation;
+        @Schema(description = "SOPT 최신 활동 기수 정보", example = "{'generation': 29, 'part': '안드로이드'}")
+        private String part;
         @Schema(description = "현재까지 찌른 횟수", example = "3")
         private Integer pokeNum;
         @Schema(description = "관계 이름", example = "천생연분")
@@ -158,11 +159,11 @@ public class PokeResponse {
 
         public static SimplePokeProfile of(
             Long userId, String profileImage, String name, String message,
-            PokeInfo.Activity activity, Integer pickNum, String relationName, List<String> mutual, Boolean isFirstMeet,
+            Integer generation, String part, Integer pickNum, String relationName, List<String> mutual, Boolean isFirstMeet,
             Boolean isAlreadyPoke
         ) {
             return new SimplePokeProfile(
-                userId, profileImage, name, message, activity, pickNum, relationName, mutual, isFirstMeet,
+                userId, profileImage, name, message, generation, part, pickNum, relationName, mutual, isFirstMeet,
                 isAlreadyPoke
             );
         }
