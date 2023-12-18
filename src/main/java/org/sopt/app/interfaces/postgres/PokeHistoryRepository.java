@@ -12,14 +12,15 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> {
 
     Optional<PokeHistory> findByPokerIdAndPokedIdAndIsReplyIsFalse(Long pokerId, Long pokedId);
+
     List<PokeHistory> findAllByPokerId(Long userId);
     List<PokeHistory> findAllByPokerIdAndCreatedAt(Long userId, LocalDateTime date);
-    List<PokeHistory> findAllByPokerIdAndPokedId(Long pokerId, Long pokedId);
 
     List<PokeHistory> findAllByPokerIdAndIsReply(Long userId, boolean isReply);
-
     List<PokeHistory> findAllByPokedIdAndIsReply(Long userId, boolean isReply);
-    List<PokeHistory> findAllByPokedId(Long userId);
-    Page<PokeHistory> findAllByPokedId(Long userId, Pageable pageable);
+
+    List<PokeHistory> findAllByPokedIdOrderByCreatedAtDesc(Long pokedId);
+    Page<PokeHistory> findAllByPokedIdOrderByCreatedAtDesc(Long pokedId, Pageable pageable);
+
     List<PokeHistory> findAllByPokerIdAndPokedIdOrderByCreatedAtDesc(Long pokerId, Long pokedId);
 }
