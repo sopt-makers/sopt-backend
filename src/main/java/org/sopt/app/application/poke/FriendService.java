@@ -24,11 +24,9 @@ public class FriendService {
         return friendRepository.getFriendRandom(userId, limitNum);
     }
 
-    public List<Long> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
+    public List<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
         return friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
-                userId, lowerLimit, upperLimit).stream()
-                .map(Friend::getFriendUserId)
-                .toList();
+                userId, lowerLimit, upperLimit);
     }
     public Page<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit, Pageable pageable) {
         return friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
@@ -40,12 +38,12 @@ public class FriendService {
         Friend createdRelationUserToFriend = Friend.builder()
                 .userId(pokerId)
                 .friendUserId(pokedId)
-                .pokeCount(1)
+                .pokeCount(0)
                 .build();
         Friend createdRelationFriendToUser = Friend.builder()
                 .userId(pokedId)
                 .friendUserId(pokerId)
-                .pokeCount(1)
+                .pokeCount(0)
                 .build();
         friendRepository.save(createdRelationUserToFriend);
         friendRepository.save(createdRelationFriendToUser);
