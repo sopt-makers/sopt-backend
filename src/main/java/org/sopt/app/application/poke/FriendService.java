@@ -43,8 +43,8 @@ public class FriendService {
                 .pokeCount(1)
                 .build();
         Friend createdRelationFriendToUser = Friend.builder()
-                .userId(pokerId)
-                .friendUserId(pokedId)
+                .userId(pokedId)
+                .friendUserId(pokerId)
                 .pokeCount(1)
                 .build();
         friendRepository.save(createdRelationUserToFriend);
