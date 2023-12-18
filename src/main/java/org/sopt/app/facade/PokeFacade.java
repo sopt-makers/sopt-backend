@@ -117,7 +117,8 @@ public class PokeFacade {
     public List<SimplePokeProfile> getAllPokeMeHistory(User user) {
         List<PokeHistory> pokedHistories = pokeHistoryService.getAllPokedHistoryOrderByMostRecent(user.getId());
         return pokedHistories.stream()
-                .map(pokeHistory -> getPokeHistoryProfile(user, pokeHistory.getId()))
+                .filter(pokeHistory -> !pokeHistory.getIsReply())
+                .map(pokeHistory -> getPokeHistoryProfile(user, pokeHistory.getPokerId(),pokeHistory.getId()))
                 .distinct()
                 .toList();
     }
@@ -126,7 +127,8 @@ public class PokeFacade {
     public PokeToMeHistoryList getAllPokeMeHistory(User user, Pageable pageable) {
         Page<PokeHistory> pokedHistories = pokeHistoryService.getAllPokedHistoryOrderByMostRecent(user.getId(), pageable);
         List<SimplePokeProfile> pokeToMeHistories = pokedHistories.stream()
-                .map(pokeHistory -> getPokeHistoryProfile(user, pokeHistory.getId()))
+                .filter(pokeHistory -> !pokeHistory.getIsReply())
+                .map(pokeHistory -> getPokeHistoryProfile(user, pokeHistory.getPokerId(), pokeHistory.getId()))
                 .distinct()
                 .toList();
         return PokeToMeHistoryList.of(
@@ -152,12 +154,13 @@ public class PokeFacade {
             friendService.applyPokeCount(pokerUserId, pokedUserId);
             return;
         }
-        boolean userNotPokeBefore = pokeHistoryService.getAllOfPokeFromTo(
+        boolean userNotPokeBefore = pokeHistoryService.getAllOfPokeBetween(
             pokerUserId, pokedUserId).isEmpty();
-        boolean friendNotPokeBefore = pokeHistoryService.getAllOfPokeFromTo(
+        boolean friendNotPokeBefore = pokeHistoryService.getAllOfPokeBetween(
             pokedUserId, pokerUserId).isEmpty();
         if (!userNotPokeBefore && !friendNotPokeBefore) {
             friendService.createRelation(pokerUserId, pokedUserId);
+            friendService.createRelation(pokedUserId, pokerUserId);
             friendService.applyPokeCount(pokerUserId, pokedUserId);
             friendService.applyPokeCount(pokedUserId, pokerUserId);
         }
@@ -188,10 +191,10 @@ public class PokeFacade {
                 user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit());
         return friendsOfFriendship.stream()
                 .map(friend -> {
-                    List<PokeHistory> allOfPokeFromTo = pokeHistoryService.getAllOfPokeFromTo(friend.getUserId(), friend.getFriendUserId());
+                    List<PokeHistory> allOfPokeFromTo = pokeHistoryService.getAllOfPokeBetween(friend.getUserId(), friend.getFriendUserId());
                     return allOfPokeFromTo.stream()
-                            .map(poke -> getPokeHistoryProfile(user, poke.getId()))
-                            .distinct()
+                            .map(poke -> getPokeHistoryProfile(user, friend.getFriendUserId(), poke.getId()))
+//                            .distinct()
                             .findFirst().get();
                 })
                 .limit(2)
@@ -203,10 +206,10 @@ public class PokeFacade {
                 user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit(), pageable);
         List<SimplePokeProfile> allOfPokeWithFriends = friends.getContent().stream()
                 .map(friend -> {
-                    List<PokeHistory> allOfPokeFromTo = pokeHistoryService.getAllOfPokeFromTo(friend.getUserId(), friend.getFriendUserId());
+                    List<PokeHistory> allOfPokeFromTo = pokeHistoryService.getAllOfPokeBetween(friend.getUserId(), friend.getFriendUserId());
                     return allOfPokeFromTo.stream()
-                            .map(poke -> getPokeHistoryProfile(user, poke.getId()))
-                            .distinct()
+                            .map(poke -> getPokeHistoryProfile(user, friend.getFriendUserId(), poke.getId()))
+//                            .distinct()
                             .findFirst().get();
                 }).toList();
         return EachRelationFriendList.of(
@@ -219,24 +222,24 @@ public class PokeFacade {
     }
 
     @Transactional(readOnly = true)
-    public SimplePokeProfile getPokeHistoryProfile(User user, Long pokeId) {
+    public SimplePokeProfile getPokeHistoryProfile(User user, Long friendId, Long pokeId) {
         // 나에 대해 찌른 내역을 반환
         PokeInfo.PokeDetail pokeDetail = getPokeInfo(pokeId);
 
-        PokeInfo.PokedUserInfo pokedUserInfo = getFriendUserInfo(
-                user, pokeDetail.getPokerId());
+        PokeInfo.PokedUserInfo friendUserInfo = getFriendUserInfo(
+                user, friendId);
 
         return SimplePokeProfile.of(
-                pokedUserInfo.getUserId(),
-                pokedUserInfo.getProfileImage(),
-                pokedUserInfo.getName(),
+                friendUserInfo.getUserId(),
+                friendUserInfo.getProfileImage(),
+                friendUserInfo.getName(),
                 pokeDetail.getMessage(),
-                pokedUserInfo.getGeneration(),
-                pokedUserInfo.getPart(),
-                pokedUserInfo.getRelation().getPokeCount(),
-                pokedUserInfo.getRelation().getRelationName(),
-                pokedUserInfo.getMutualFriendNames(),
-                pokedUserInfo.getRelation().getPokeCount() == 0,
+                friendUserInfo.getGeneration(),
+                friendUserInfo.getPart(),
+                friendUserInfo.getRelation().getPokeCount(),
+                friendUserInfo.getRelation().getRelationName(),
+                friendUserInfo.getMutualFriendNames(),
+                friendUserInfo.getRelation().getPokeCount() == 0,
                 pokeDetail.getIsReply()
         );
     }

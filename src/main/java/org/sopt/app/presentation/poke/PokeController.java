@@ -90,7 +90,7 @@ public class PokeController {
             @RequestBody PokeRequest.PokeMessageRequest messageRequest
     ) {
         val pokeHistory = pokeFacade.pokeFriend(user.getId(), pokedUserId, messageRequest.getMessage());
-        val response = pokeFacade.getPokeHistoryProfile(user, pokeHistory.getId());
+        val response = pokeFacade.getPokeHistoryProfile(user, pokedUserId, pokeHistory.getId());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
