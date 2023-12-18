@@ -8,6 +8,8 @@ import org.sopt.app.domain.entity.PokeHistory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> {
 
@@ -23,4 +25,7 @@ public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> 
     Page<PokeHistory> findAllByPokedIdOrderByCreatedAtDesc(Long pokedId, Pageable pageable);
 
     List<PokeHistory> findAllByPokerIdAndPokedIdOrderByCreatedAtDesc(Long pokerId, Long pokedId);
+
+    @Query("SELECT ph FROM PokeHistory ph WHERE (ph.pokerId = :userId AND ph.pokedId = :friendId) OR (ph.pokerId = :friendId AND ph.pokedId = :userId) ORDER BY ph.createdAt DESC ")
+    List<PokeHistory> findAllWithFriendOrderByCreatedAtDesc(@Param("userId") Long userId, @Param("friendId") Long friendId);
 }

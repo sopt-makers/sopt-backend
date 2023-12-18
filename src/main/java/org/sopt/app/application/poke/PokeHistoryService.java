@@ -23,8 +23,8 @@ public class PokeHistoryService {
         return pokeHistoryRepository.findAllByPokerId(userId).isEmpty();
     }
 
-    public List<PokeHistory> getAllOfPokeFromTo(Long userId, Long friendId) {
-        return pokeHistoryRepository.findAllByPokerIdAndPokedIdOrderByCreatedAtDesc(userId, friendId);
+    public List<PokeHistory> getAllOfPokeBetween(Long userId, Long friendId) {
+        return pokeHistoryRepository.findAllWithFriendOrderByCreatedAtDesc(userId, friendId);
     }
 
     public List<Long> getPokedFriendIds(Long userId) {
