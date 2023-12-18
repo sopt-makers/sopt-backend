@@ -40,13 +40,7 @@ public class FriendService {
                 .friendUserId(pokedId)
                 .pokeCount(0)
                 .build();
-        Friend createdRelationFriendToUser = Friend.builder()
-                .userId(pokedId)
-                .friendUserId(pokerId)
-                .pokeCount(0)
-                .build();
         friendRepository.save(createdRelationUserToFriend);
-        friendRepository.save(createdRelationFriendToUser);
     }
 
     public void applyPokeCount(Long pokerId, Long pokedId) {
