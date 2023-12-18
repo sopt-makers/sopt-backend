@@ -37,6 +37,8 @@ public class PokeInfo {
     @ToString
     public static class PokeDetail {
         private final Long id;
+        private final Long pokerId;
+        private final Long pokedId;
         private final String message;
         private final Boolean isReply;
 

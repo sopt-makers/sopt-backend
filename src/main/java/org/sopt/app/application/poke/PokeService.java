@@ -22,28 +22,30 @@ public class PokeService {
     private final PokeHistoryRepository historyRepository;
 
     @Transactional(readOnly = true)
-    public PokeInfo.PokeDetail getPokeDetail(Long pokerId, Long pokedId) {
-        Optional<PokeHistory> latestPokeHistory = historyRepository.findAllByPokerIdAndPokedIdOrderByCreatedAtDesc(pokerId, pokedId).stream()
-                .findFirst();
-        return latestPokeHistory.map(history -> PokeInfo.PokeDetail.builder()
-                .id(history.getId())
-                .message(history.getMessage())
-                .isReply(history.getIsReply())
-                .build())
-                .orElse(null);
+    public PokeInfo.PokeDetail getPokeDetail(Long pokeHistoryId) {
+        PokeHistory latestPokeHistory = historyRepository.findById(pokeHistoryId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.POKE_HISTORY_NOT_FOUND.getMessage()));
+        return PokeInfo.PokeDetail.builder()
+                .id(latestPokeHistory.getId())
+                .pokerId(latestPokeHistory.getPokerId())
+                .pokedId(latestPokeHistory.getPokedId())
+                .message(latestPokeHistory.getMessage())
+                .isReply(latestPokeHistory.getIsReply())
+                .build();
     }
 
     @Transactional
-    public void poke(Long pokerUserId, Long pokedUserId, String pokeMessage) {
+    public PokeHistory poke(Long pokerUserId, Long pokedUserId, String pokeMessage) {
         User pokedUser = userRepository.findUserById(pokedUserId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
 
-        createPokeByApplyingReply(pokerUserId, pokedUserId, pokeMessage);
+        PokeHistory pokeByApplyingReply = createPokeByApplyingReply(pokerUserId, pokedUserId, pokeMessage);
 
         Events.raise(PokeEvent.of(pokedUser.getPlaygroundId()));
+        return pokeByApplyingReply;
     }
 
-    private void createPokeByApplyingReply(Long pokerUserId, Long pokedUserId, String pokeMessage) {
+    private PokeHistory createPokeByApplyingReply(Long pokerUserId, Long pokedUserId, String pokeMessage) {
         boolean currentPokeReply = false;
         Optional<PokeHistory> latestPokeFromPokedIsReplyFalse
                 = historyRepository.findByPokerIdAndPokedIdAndIsReplyIsFalse(pokedUserId, pokerUserId);
@@ -57,7 +59,7 @@ public class PokeService {
                 .message(pokeMessage)
                 .isReply(currentPokeReply)
                 .build();
-        historyRepository.save(createdPoke);
+        return historyRepository.save(createdPoke);
     }
 
 
