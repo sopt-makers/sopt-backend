@@ -182,6 +182,10 @@ public class PokeFacade {
         val friendId = friendService.getNotPokeFriendIdRandomly(
             user.getId(),
             pokedFriendIds, pokeFriendIds);
+        if (friendId.isEmpty()) {
+            return List.of();
+        }
+
         val friendUserProfile = userService.getUserProfileByUserId(friendId);
         val friendPlaygroundIds = friendUserProfile.stream().map(UserProfile::getPlaygroundId).toList();
         val friendProfile = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken(), friendPlaygroundIds);
