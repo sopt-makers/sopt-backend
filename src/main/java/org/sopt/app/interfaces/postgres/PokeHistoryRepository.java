@@ -8,18 +8,24 @@ import org.sopt.app.domain.entity.PokeHistory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> {
 
     Optional<PokeHistory> findByPokerIdAndPokedIdAndIsReplyIsFalse(Long pokerId, Long pokedId);
+
     List<PokeHistory> findAllByPokerId(Long userId);
     List<PokeHistory> findAllByPokerIdAndCreatedAt(Long userId, LocalDateTime date);
-    List<PokeHistory> findAllByPokerIdAndPokedId(Long pokerId, Long pokedId);
 
     List<PokeHistory> findAllByPokerIdAndIsReply(Long userId, boolean isReply);
-
     List<PokeHistory> findAllByPokedIdAndIsReply(Long userId, boolean isReply);
-    List<PokeHistory> findAllByPokedId(Long userId);
-    Page<PokeHistory> findAllByPokedId(Long userId, Pageable pageable);
+
+    List<PokeHistory> findAllByPokedIdAndIsReplyIsFalseOrderByCreatedAtDesc(Long pokedId);
+    Page<PokeHistory> findAllByPokedIdAndIsReplyIsFalseOrderByCreatedAtDesc(Long pokedId, Pageable pageable);
+
     List<PokeHistory> findAllByPokerIdAndPokedIdOrderByCreatedAtDesc(Long pokerId, Long pokedId);
+
+    @Query("SELECT ph FROM PokeHistory ph WHERE (ph.pokerId = :userId AND ph.pokedId = :friendId) OR (ph.pokerId = :friendId AND ph.pokedId = :userId) ORDER BY ph.createdAt DESC ")
+    List<PokeHistory> findAllWithFriendOrderByCreatedAtDesc(@Param("userId") Long userId, @Param("friendId") Long friendId);
 }

@@ -24,11 +24,9 @@ public class FriendService {
         return friendRepository.getFriendRandom(userId, limitNum);
     }
 
-    public List<Long> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
+    public List<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
         return friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
-                userId, lowerLimit, upperLimit).stream()
-                .map(Friend::getFriendUserId)
-                .toList();
+                userId, lowerLimit, upperLimit);
     }
     public Page<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit, Pageable pageable) {
         return friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
@@ -37,18 +35,17 @@ public class FriendService {
 
 
     public void createRelation(Long pokerId, Long pokedId) {
+        registerFriendshipOf(pokerId, pokedId);
+        registerFriendshipOf(pokedId, pokerId);
+    }
+
+    private void registerFriendshipOf(Long userId, Long friendId) {
         Friend createdRelationUserToFriend = Friend.builder()
-                .userId(pokerId)
-                .friendUserId(pokedId)
-                .pokeCount(1)
-                .build();
-        Friend createdRelationFriendToUser = Friend.builder()
-                .userId(pokedId)
-                .friendUserId(pokerId)
+                .userId(userId)
+                .friendUserId(friendId)
                 .pokeCount(1)
                 .build();
         friendRepository.save(createdRelationUserToFriend);
-        friendRepository.save(createdRelationFriendToUser);
     }
 
     public void applyPokeCount(Long pokerId, Long pokedId) {

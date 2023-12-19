@@ -23,8 +23,8 @@ public class PokeHistoryService {
         return pokeHistoryRepository.findAllByPokerId(userId).isEmpty();
     }
 
-    public Boolean isUserPokeFriendBefore(Long userId, Long friendId) {
-        return pokeHistoryRepository.findAllByPokerIdAndPokedId(userId, friendId).isEmpty();
+    public List<PokeHistory> getAllOfPokeBetween(Long userId, Long friendId) {
+        return pokeHistoryRepository.findAllWithFriendOrderByCreatedAtDesc(userId, friendId);
     }
 
     public List<Long> getPokedFriendIds(Long userId) {
@@ -41,11 +41,11 @@ public class PokeHistoryService {
                 .toList();
     }
 
-    public List<PokeHistory> getPokeFriendIdsInOrderByMostRecent(Long userId) {
-        return pokeHistoryRepository.findAllByPokedId(userId);
+    public List<PokeHistory> getAllPokedHistoryOrderByMostRecent(Long userId) {
+        return pokeHistoryRepository.findAllByPokedIdAndIsReplyIsFalseOrderByCreatedAtDesc(userId);
     }
-    public Page<PokeHistory> getPokeFriendIdsInOrderByMostRecent(Long userId, Pageable pageable) {
-        return pokeHistoryRepository.findAllByPokedId(userId, pageable);
+    public Page<PokeHistory> getAllPokedHistoryOrderByMostRecent(Long userId, Pageable pageable) {
+        return pokeHistoryRepository.findAllByPokedIdAndIsReplyIsFalseOrderByCreatedAtDesc(userId, pageable);
     }
 
     public void checkUserOverDailyPokeLimit(Long userId) {

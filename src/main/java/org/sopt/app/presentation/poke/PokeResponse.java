@@ -132,6 +132,7 @@ public class PokeResponse {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
+    @EqualsAndHashCode
     public static class SimplePokeProfile {
 
         @Schema(description = "유저 ID", example = "1")

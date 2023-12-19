@@ -89,9 +89,8 @@ public class PokeController {
             @PathVariable("userId") Long pokedUserId,
             @RequestBody PokeRequest.PokeMessageRequest messageRequest
     ) {
-        pokeFacade.pokeFriend(user.getId(), pokedUserId, messageRequest.getMessage());
-        pokeFacade.applyFriendship(user.getId(), pokedUserId);
-        val response = pokeFacade.getPokeHistoryProfileWith(user, pokedUserId);
+        val pokeHistory = pokeFacade.pokeFriend(user.getId(), pokedUserId, messageRequest.getMessage());
+        val response = pokeFacade.getPokeHistoryProfile(user, pokedUserId, pokeHistory.getId());
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);
@@ -119,11 +118,13 @@ public class PokeController {
     public ResponseEntity<SimplePokeProfile> getPokeMeMostRecent(
             @AuthenticationPrincipal User user
     ) {
-        val mostRecentPokeUserId = pokeFacade.getFirstUserIdOfPokeMeReplyYet(user.getId());
-        if (Objects.isNull(mostRecentPokeUserId)) {
+        val pokeMeHistoryProfiles = pokeFacade.getAllPokeMeHistory(user);
+        if (pokeMeHistoryProfiles.isEmpty()) {
             return ResponseEntity.ok(null);
         }
-        val response = pokeFacade.getPokeHistoryProfileWith(user, mostRecentPokeUserId);
+        val response = pokeMeHistoryProfiles.stream()
+                .filter(profile -> !profile.getIsAlreadyPoke())
+                .findFirst().orElse(null);
         return ResponseEntity.ok(response);
     }
 
@@ -138,7 +139,7 @@ public class PokeController {
             // TODO : Notification List 에서도 기본 Size 요구사항이 25 개면 yaml 에서 속성 관리하기
             @PageableDefault(size = 25, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
             ) {
-        val response = pokeFacade.getAllUserIdsOfPokeMe(user, pageable);
+        val response = pokeFacade.getAllPokeMeHistory(user, pageable);
         return ResponseEntity.ok(response);
     }
 
@@ -154,9 +155,9 @@ public class PokeController {
             @PageableDefault(size = 25) Pageable pageable
     ) {
         if (Objects.isNull(type)) {
-            val newFriends = pokeFacade.getFriendByFriendship(user, Friendship.NEW_FRIEND);
-            val bestFriends = pokeFacade.getFriendByFriendship(user, Friendship.BEST_FRIEND);
-            val soulMates = pokeFacade.getFriendByFriendship(user, Friendship.SOULMATE);
+            val newFriends = pokeFacade.getTwoFriendByFriendship(user, Friendship.NEW_FRIEND);
+            val bestFriends = pokeFacade.getTwoFriendByFriendship(user, Friendship.BEST_FRIEND);
+            val soulMates = pokeFacade.getTwoFriendByFriendship(user, Friendship.SOULMATE);
             val response = AllRelationFriendList.of(
                     newFriends, newFriends.size(),
                     bestFriends, bestFriends.size(),
@@ -165,7 +166,7 @@ public class PokeController {
             return ResponseEntity.ok(response);
         }
         Friendship targetFriendship = Friendship.getFriendshipByValue(type);
-        val friends = pokeFacade.getFriendByFriendship(user, targetFriendship, pageable);
+        val friends = pokeFacade.getAllFriendByFriendship(user, targetFriendship, pageable);
         return ResponseEntity.ok(friends);
     }
 
