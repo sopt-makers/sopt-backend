@@ -35,10 +35,15 @@ public class FriendService {
 
 
     public void createRelation(Long pokerId, Long pokedId) {
+        registerFriendshipOf(pokerId, pokedId);
+        registerFriendshipOf(pokedId, pokerId);
+    }
+
+    private void registerFriendshipOf(Long userId, Long friendId) {
         Friend createdRelationUserToFriend = Friend.builder()
-                .userId(pokerId)
-                .friendUserId(pokedId)
-                .pokeCount(0)
+                .userId(userId)
+                .friendUserId(friendId)
+                .pokeCount(1)
                 .build();
         friendRepository.save(createdRelationUserToFriend);
     }

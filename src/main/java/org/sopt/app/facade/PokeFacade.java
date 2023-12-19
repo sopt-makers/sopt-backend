@@ -160,9 +160,6 @@ public class PokeFacade {
             pokedUserId, pokerUserId).isEmpty();
         if (!userNotPokeBefore && !friendNotPokeBefore) {
             friendService.createRelation(pokerUserId, pokedUserId);
-            friendService.createRelation(pokedUserId, pokerUserId);
-            friendService.applyPokeCount(pokerUserId, pokedUserId);
-            friendService.applyPokeCount(pokedUserId, pokerUserId);
         }
     }
 
@@ -194,7 +191,6 @@ public class PokeFacade {
                     List<PokeHistory> allOfPokeFromTo = pokeHistoryService.getAllOfPokeBetween(friend.getUserId(), friend.getFriendUserId());
                     return allOfPokeFromTo.stream()
                             .map(poke -> getPokeHistoryProfile(user, friend.getFriendUserId(), poke.getId()))
-//                            .distinct()
                             .findFirst().get();
                 })
                 .limit(2)
@@ -209,7 +205,6 @@ public class PokeFacade {
                     List<PokeHistory> allOfPokeFromTo = pokeHistoryService.getAllOfPokeBetween(friend.getUserId(), friend.getFriendUserId());
                     return allOfPokeFromTo.stream()
                             .map(poke -> getPokeHistoryProfile(user, friend.getFriendUserId(), poke.getId()))
-//                            .distinct()
                             .findFirst().get();
                 }).toList();
         return EachRelationFriendList.of(
