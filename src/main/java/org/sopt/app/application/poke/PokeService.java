@@ -49,10 +49,7 @@ public class PokeService {
         boolean currentPokeReply = false;
         Optional<PokeHistory> latestPokeFromPokedIsReplyFalse
                 = historyRepository.findByPokerIdAndPokedIdAndIsReplyIsFalse(pokedUserId, pokerUserId);
-        if (latestPokeFromPokedIsReplyFalse.isPresent()) {
-            currentPokeReply = true;
-            latestPokeFromPokedIsReplyFalse.get().activateReply();
-        }
+        latestPokeFromPokedIsReplyFalse.ifPresent(PokeHistory::activateReply);
         PokeHistory createdPoke = PokeHistory.builder()
                 .pokerId(pokerUserId)
                 .pokedId(pokedUserId)
@@ -61,7 +58,4 @@ public class PokeService {
                 .build();
         return historyRepository.save(createdPoke);
     }
-
-
-
 }
