@@ -1,8 +1,10 @@
 package org.sopt.app.application.poke;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Friend;
@@ -51,7 +53,10 @@ public class FriendService {
     public void applyPokeCount(Long pokerId, Long pokedId) {
         Friend friendship = friendRepository.findByUserIdAndFriendUserId(pokerId, pokedId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND.getMessage()));
+        Friend pokedFriendship = friendRepository.findByUserIdAndFriendUserId(pokedId, pokerId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND.getMessage()));
         friendship.addPokeCount();
+        pokedFriendship.addPokeCount();
     }
 
     public boolean isFriendEachOther(Long pokerId, Long pokedId) {
@@ -91,7 +96,10 @@ public class FriendService {
     }
 
     public List<Long> getNotPokeFriendIdRandomly(Long userId, List<Long> pokedFriendIds, List<Long> pokeFriendIds) {
-        List<Long> notPokeFriendIds = friendRepository.findAllByUserIdAndFriendUserIdNotInAndFriendUserIdNotIn(userId, pokedFriendIds, pokeFriendIds);
+        val friendIds = new ArrayList<Long>();
+        friendIds.addAll(pokedFriendIds);
+        friendIds.addAll(pokeFriendIds);
+        List<Long> notPokeFriendIds = friendRepository.findAllByUserIdAndFriendUserIdNotInAndFriendUserIdNotIn(userId, friendIds);
         Collections.shuffle(notPokeFriendIds);
         if (notPokeFriendIds.isEmpty()) {
             return List.of();
