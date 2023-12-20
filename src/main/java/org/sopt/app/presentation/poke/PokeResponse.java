@@ -19,6 +19,7 @@ public class PokeResponse {
         }
     }
 
+    // TODO 사용되지 않는 interface 책임 지우기
     interface FriendList {
     }
     interface  HistoryList{
@@ -137,6 +138,8 @@ public class PokeResponse {
 
         @Schema(description = "유저 ID", example = "1")
         private Long userId;
+        @Schema(description = "playgroundId", example = "1")
+        private Long playgroundId;
         @Schema(description = "프로필 사진 URL", example = ".....")
         private String profileImage;
         @Schema(description = "유저 이름", example = "다혜다해")
@@ -159,12 +162,12 @@ public class PokeResponse {
         private Boolean isAlreadyPoke;
 
         public static SimplePokeProfile of(
-            Long userId, String profileImage, String name, String message,
+            Long userId, Long playgroundId, String profileImage, String name, String message,
             Integer generation, String part, Integer pickNum, String relationName, List<String> mutual, Boolean isFirstMeet,
             Boolean isAlreadyPoke
         ) {
             return new SimplePokeProfile(
-                userId, profileImage, name, message, generation, part, pickNum, relationName, mutual, isFirstMeet,
+                userId, playgroundId, profileImage, name, message, generation, part, pickNum, relationName, mutual, isFirstMeet,
                 isAlreadyPoke
             );
         }
@@ -191,6 +194,8 @@ public class PokeResponse {
     public static class Friend {
         @Schema(description = "친구 ID", example = "1")
         private Long friendId;
+        @Schema(description = "playgroundId", example = "1")
+        private Long playgroundId;
         @Schema(description = "친구 이름", example = "제갈송현")
         private String friendName;
         @Schema(description = "친구 프로필 사진 URL", example = ".....")
@@ -198,8 +203,8 @@ public class PokeResponse {
         @Schema(description = "친구 프로필 리스트", example = "[{'userId': 1, 'profileImage': '...', 'name': '제갈송현', 'generation': 29, 'part': '안드로이드'}]")
         private List<SimplePokeProfile> friendList;
 
-        public static Friend of(Long friendId, String friendName, String friendProfileImage, List<SimplePokeProfile> friendList) {
-            return new Friend(friendId, friendName, friendProfileImage, friendList);
+        public static Friend of(Long friendId, Long playgroundId, String friendName, String friendProfileImage, List<SimplePokeProfile> friendList) {
+            return new Friend(friendId, playgroundId, friendName, friendProfileImage, friendList);
         }
     }
 

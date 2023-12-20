@@ -23,6 +23,7 @@ public class PokeInfo {
     @ToString
     public static class PokedUserInfo {
         private final Long userId;
+        private final Long playgroundId;
         private final String name;
         private final String profileImage;
         private final Integer generation;
