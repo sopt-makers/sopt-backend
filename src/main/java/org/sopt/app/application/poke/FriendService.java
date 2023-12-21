@@ -95,11 +95,8 @@ public class FriendService {
                 .toList();
     }
 
-    public List<Long> getNotPokeFriendIdRandomly(Long userId, List<Long> pokedFriendIds, List<Long> pokeFriendIds) {
-        val friendIds = new ArrayList<Long>();
-        friendIds.addAll(pokedFriendIds);
-        friendIds.addAll(pokeFriendIds);
-        List<Long> notPokeFriendIds = friendRepository.findAllByUserIdAndFriendUserIdNotInAndFriendUserIdNotIn(userId, friendIds);
+    public List<Long> getNotPokeFriendIdRandomly(Long userId, List<Long> pokedFriendIds) {
+        List<Long> notPokeFriendIds = friendRepository.findAllByUserIdAndFriendUserIdNotInAndFriendUserIdNotIn(userId, pokedFriendIds);
         Collections.shuffle(notPokeFriendIds);
         if (notPokeFriendIds.isEmpty()) {
             return List.of();
