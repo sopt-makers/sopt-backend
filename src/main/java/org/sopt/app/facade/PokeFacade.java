@@ -172,10 +172,9 @@ public class PokeFacade {
     @Transactional(readOnly = true)
     public List<SimplePokeProfile> getFriend(User user) {
         val pokedFriendIds = pokeHistoryService.getPokedFriendIds(user.getId());
-        val pokeFriendIds = pokeHistoryService.getPokeFriendIds(user.getId());
         val friendId = friendService.getNotPokeFriendIdRandomly(
             user.getId(),
-            pokedFriendIds, pokeFriendIds);
+            pokedFriendIds);
         if (friendId.isEmpty()) {
             return List.of();
         }
@@ -213,7 +212,7 @@ public class PokeFacade {
     @Transactional(readOnly = true)
     public List<SimplePokeProfile> getTwoFriendByFriendship(User user, Friendship friendship) {
         val friendsOfFriendship = friendService.findAllFriendsByFriendship(
-                user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit());
+            user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit());
         return friendsOfFriendship.stream()
                 .map(friend -> {
                     List<PokeHistory> allOfPokeFromTo = pokeHistoryService.getAllOfPokeBetween(friend.getUserId(), friend.getFriendUserId());
