@@ -35,9 +35,8 @@ public class PokeFacade {
 
     @Transactional(readOnly = true)
     public List<PokeResponse.PokeMessage> getPokingMessages(String type) {
-        List<Long> targetMessageIds = pokeMessageService.pickRandomMessageIdsTypeOf(type);
-        List<PokeInfo.PokeMessageDetail> messagesDetails = pokeMessageService.getMessagesDetail(targetMessageIds);
-        return messagesDetails.stream()
+        val messages = pokeMessageService.pickRandomMessageByTypeOf(type);
+        return messages.stream()
                 .map(messagesDetail -> PokeResponse.PokeMessage.of(
                         messagesDetail.getId(), messagesDetail.getContent()
                     )
