@@ -10,9 +10,5 @@ import java.util.List;
 
 public interface PokeMessageRepository extends JpaRepository<PokeMessage, Long> {
 
-    @Query("SELECT pm FROM PokeMessage pm WHERE pm.type = :type")
-    List<PokeMessage> findAllByType(@Param("type") PokeMessageType type);
-
-    @Query("SELECT pm FROM PokeMessage pm WHERE pm.id in :messageIds")
-    List<PokeMessage> findAllByIdIn(@Param("messageIds") List<Long> messageIds);
+    List<PokeMessage> findAllByType(PokeMessageType type);
 }
