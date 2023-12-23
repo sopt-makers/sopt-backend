@@ -161,7 +161,8 @@ public class PokeController {
             val response = AllRelationFriendList.of(
                     newFriends, newFriends.size(),
                     bestFriends, bestFriends.size(),
-                    soulMates, soulMates.size()
+                    soulMates, soulMates.size(),
+                newFriends.size() + bestFriends.size() + soulMates.size()
             );
             return ResponseEntity.ok(response);
         }

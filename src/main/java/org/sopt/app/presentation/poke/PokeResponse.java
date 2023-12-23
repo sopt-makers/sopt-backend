@@ -36,25 +36,29 @@ public class PokeResponse {
         @Schema(description = "대표 친한 친구 2명")
         private List<SimplePokeProfile> newFriend;
         @Schema(description = "친한 친구 수", example = "1")
-        private Integer newFriendSize;
+        private int newFriendSize;
         @Schema(description = "대표 단짝 친구 2명")
         private List<SimplePokeProfile> bestFriend;
         @Schema(description = "단짝 친구 수", example = "1")
-        private Integer bestFriendSize;
+        private int bestFriendSize;
         @Schema(description = "대표 소울메이트 친구 2명")
         private List<SimplePokeProfile> soulmate;
         @Schema(description = "소울메이트 친구 수", example = "1")
-        private Integer soulmateSize;
+        private int soulmateSize;
+        @Schema(description = "전체 친구 수", example = "1")
+        private int totalSize;
 
         public static AllRelationFriendList of(
-            List<SimplePokeProfile> newFriend, Integer newFriendSize,
-            List<SimplePokeProfile> bestFriend, Integer bestFriendSize,
-            List<SimplePokeProfile> soulmate, Integer soulmateSize
+            List<SimplePokeProfile> newFriend, int newFriendSize,
+            List<SimplePokeProfile> bestFriend, int bestFriendSize,
+            List<SimplePokeProfile> soulmate, int soulmateSize,
+            int totalSize
         ) {
             return new AllRelationFriendList(
                     newFriend, newFriendSize,
                     bestFriend, bestFriendSize,
-                    soulmate, soulmateSize
+                    soulmate, soulmateSize,
+                    totalSize
             );
         }
     }
