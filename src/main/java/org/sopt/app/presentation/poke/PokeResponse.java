@@ -67,16 +67,20 @@ public class PokeResponse {
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
     public static class EachRelationFriendList implements FriendList{
-
+        @Schema(description = "친구 리스트")
         private List<SimplePokeProfile> friendList;
-        private Integer pageSize;
-        private Integer pageNum;
+        @Schema(description = "친구 수", example = "1")
+        private int totalSize;
+        @Schema(description = "페이지 사이즈", example = "1")
+        private int pageSize;
+        @Schema(description = "페이지 번호", example = "1")
+        private int pageNum;
 
         public static EachRelationFriendList of(
-                List<SimplePokeProfile> friendList, Integer pageSize, Integer pageNum
+                List<SimplePokeProfile> friendList, int totalSize, int pageSize, int pageNum
         ) {
             return new EachRelationFriendList(
-                    friendList, pageSize, pageNum
+                    friendList, totalSize, pageSize, pageNum
             );
         }
 
