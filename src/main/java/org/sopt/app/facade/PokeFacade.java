@@ -234,6 +234,7 @@ public class PokeFacade {
                 }).toList();
         return EachRelationFriendList.of(
                 allOfPokeWithFriends,
+            allOfPokeWithFriends.size(),
                 // TODO: 여기서 필요한 PageSize의 값이 조회 결과 리스트의 Elements Size 인지,
                 //  이후 API 재호출 시 사용할 RequestParam 값을 위해 넣어주는 건지 논의
                 pageable.getPageSize(),
