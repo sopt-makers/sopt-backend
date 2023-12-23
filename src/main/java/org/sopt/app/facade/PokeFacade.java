@@ -95,14 +95,13 @@ public class PokeFacade {
 
     @Transactional(readOnly = true)
     public List<PokeResponse.Friend> getRecommendFriendsOfUsersFriend(User user) {
-        val userId = user.getId();
-        val friendsUserIds = friendService.findAllFriendIdsByUserIdRandomly(userId, 2);
+        val friendsUserIds = friendService.findAllFriendIdsByUserIdRandomly(user.getId(), 2);
         return friendsUserIds.stream().map(
             friendsUserId -> {
                 val friendUser = userService.getUserProfile(friendsUserId);
                 val friendProfile = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken() ,List.of(
                     friendUser.getPlaygroundId())).get(0);
-                val recommendUserProfiles = userService.findRandomFriendsOfFriends(userId, friendsUserId, 2);
+                val recommendUserProfiles = userService.findRandomFriendsOfFriends(user.getId(), friendsUserId, 2);
                 val playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken(), recommendUserProfiles.stream().map(UserProfile::getPlaygroundId).toList());
                 val simpleProfiles = makeDummySimplePokeProfile(recommendUserProfiles, playgroundProfiles);
                 return PokeResponse.Friend.of(
@@ -170,10 +169,10 @@ public class PokeFacade {
 
     @Transactional(readOnly = true)
     public List<SimplePokeProfile> getFriend(User user) {
-        val pokedFriendIds = pokeHistoryService.getPokedFriendIds(user.getId());
-        val friendId = friendService.getNotPokeFriendIdRandomly(
+        val pokeUserIds = pokeHistoryService.getPokeFriendIds(user.getId());
+        val friendId = friendService.getPokeFriendIdRandomly(
             user.getId(),
-            pokedFriendIds);
+            pokeUserIds);
         if (friendId.isEmpty()) {
             return List.of();
         }
