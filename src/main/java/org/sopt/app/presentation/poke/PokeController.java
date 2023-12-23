@@ -156,13 +156,17 @@ public class PokeController {
     ) {
         if (Objects.isNull(type)) {
             val newFriends = pokeFacade.getTwoFriendByFriendship(user, Friendship.NEW_FRIEND);
+            val newFriendsSize = pokeFacade.getFriendSizeByFriendship(user.getId(), Friendship.NEW_FRIEND);
             val bestFriends = pokeFacade.getTwoFriendByFriendship(user, Friendship.BEST_FRIEND);
+            val bestFriendsSize = pokeFacade.getFriendSizeByFriendship(user.getId(), Friendship.BEST_FRIEND);
             val soulMates = pokeFacade.getTwoFriendByFriendship(user, Friendship.SOULMATE);
+            val soulMatesSize = pokeFacade.getFriendSizeByFriendship(user.getId(), Friendship.SOULMATE);
+
             val response = AllRelationFriendList.of(
-                    newFriends, newFriends.size(),
-                    bestFriends, bestFriends.size(),
-                    soulMates, soulMates.size(),
-                newFriends.size() + bestFriends.size() + soulMates.size()
+                    newFriends, newFriendsSize,
+                    bestFriends, bestFriendsSize,
+                    soulMates, soulMatesSize,
+                    newFriendsSize + bestFriendsSize + soulMatesSize
             );
             return ResponseEntity.ok(response);
         }
