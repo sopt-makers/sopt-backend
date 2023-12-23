@@ -239,9 +239,11 @@ public class PokeFacade {
                             .map(poke -> getPokeHistoryProfile(user, friend.getFriendUserId(), poke.getId()))
                             .findFirst().get();
                 }).toList();
+        val totalSize = friendService.findAllFriendSizeByFriendship(
+                user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit());
         return EachRelationFriendList.of(
                 allOfPokeWithFriends,
-            allOfPokeWithFriends.size(),
+                totalSize,
                 // TODO: 여기서 필요한 PageSize의 값이 조회 결과 리스트의 Elements Size 인지,
                 //  이후 API 재호출 시 사용할 RequestParam 값을 위해 넣어주는 건지 논의
                 pageable.getPageSize(),

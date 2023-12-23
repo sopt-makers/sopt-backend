@@ -28,6 +28,12 @@ public class FriendService {
         return friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
                 userId, lowerLimit, upperLimit);
     }
+
+    public int findAllFriendSizeByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
+        return friendRepository.findSizeByUserIdAndPokeCountBetween(
+            userId, lowerLimit, upperLimit);
+    }
+
     public Page<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit, Pageable pageable) {
         return friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
                 userId, lowerLimit, upperLimit, pageable);
