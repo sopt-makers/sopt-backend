@@ -221,6 +221,13 @@ public class PokeFacade {
                 .limit(2)
                 .toList();
     }
+
+    @Transactional(readOnly = true)
+    public int getFriendSizeByFriendship(Long userId, Friendship friendship) {
+        return friendService.findAllFriendsByFriendship(
+            userId, friendship.getLowerLimit(), friendship.getUpperLimit()).size();
+    }
+
     @Transactional(readOnly = true)
     public EachRelationFriendList getAllFriendByFriendship(User user, Friendship friendship, Pageable pageable) {
         val friends = friendService.findAllFriendsByFriendship(
