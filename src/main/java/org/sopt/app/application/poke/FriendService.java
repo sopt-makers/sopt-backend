@@ -101,10 +101,12 @@ public class FriendService {
 
     public List<Long> getPokeFriendIdRandomly(Long userId, List<Long> pokeUserIds) {
         List<Long> pokeFriendIds = friendRepository.findAllByUserIdAndFriendUserIdNotIn(userId, pokeUserIds);
-        Collections.shuffle(pokeFriendIds);
         if (pokeFriendIds.isEmpty()) {
-            return List.of();
+            return friendRepository.findAllByUserId(userId).stream()
+                    .map(Friend::getFriendUserId)
+                    .toList().subList(0, 1);
         }
+        Collections.shuffle(pokeFriendIds);
         return pokeFriendIds.subList(0, 1);
     }
 }
