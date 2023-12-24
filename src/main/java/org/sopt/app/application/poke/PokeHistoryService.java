@@ -55,4 +55,11 @@ public class PokeHistoryService {
             throw new BadRequestException(ErrorCode.OVER_DAILY_POKE_LIMIT.getMessage());
         }
     }
+
+    public void checkDuplicate(Long pokerUserId, Long pokedUserId) {
+        val pokeHistory = pokeHistoryRepository.findByPokerIdAndPokedIdAndIsReplyIsFalse(pokerUserId, pokedUserId);
+        if (pokeHistory.isPresent()) {
+            throw new BadRequestException(ErrorCode.DUPLICATE_POKE.getMessage());
+        }
+    }
 }
