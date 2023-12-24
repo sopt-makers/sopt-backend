@@ -111,12 +111,14 @@ public class PokeResponse {
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
     public static class PokeMessageList implements MessageList {
+        private String header;
         private List<PokeMessage> messages;
 
         public static PokeMessageList of(
+            String header,
             List<PokeMessage> messages
         ) {
-            return new PokeMessageList(messages);
+            return new PokeMessageList(header, messages);
         }
     }
 

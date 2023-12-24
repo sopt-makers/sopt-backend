@@ -45,6 +45,9 @@ public class PokeFacade {
                 )
                 .toList();
     }
+    public String getPokingMessageHeader(String type) {
+        return pokeMessageService.getMessagesHeaderComment(type);
+    }
 
     @Transactional(readOnly = true)
     public List<SimplePokeProfile> getRecommendUserForNew(String playgroundToken, Long userPlaygroundId) {
