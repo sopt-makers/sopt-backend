@@ -69,7 +69,7 @@ public class PokeFacade {
                 return SimplePokeProfile.of(
                     userProfile.getUserId(),
                     playgroundProfile.getId(),
-                    playgroundProfile.getProfileImage(),
+                    playgroundProfile.getProfileImage() == null ? "" : playgroundProfile.getProfileImage(),
                     playgroundProfile.getName(),
                     "",
                     Integer.parseInt(generation),
@@ -108,7 +108,7 @@ public class PokeFacade {
                     friendsUserId,
                     friendProfile.getId(),
                     friendProfile.getName(),
-                    friendProfile.getProfileImage(),
+                    friendProfile.getProfileImage() == null ? "" : friendProfile.getProfileImage(),
                     simpleProfiles
                 );
             }
@@ -193,7 +193,7 @@ public class PokeFacade {
             SimplePokeProfile.of(
                 friendUserProfile.get(0).getUserId(),
                 friendProfile.get(0).getId(),
-                friendProfile.get(0).getProfileImage(),
+                friendProfile.get(0).getProfileImage()  == null ? "" : friendProfile.get(0).getProfileImage(),
                 friendProfile.get(0).getName(),
                 "",
                 Integer.parseInt(friendProfile.get(0).getActivities().get(0).getGeneration()),
@@ -264,7 +264,7 @@ public class PokeFacade {
         return SimplePokeProfile.of(
                 friendUserInfo.getUserId(),
                 friendUserInfo.getPlaygroundId(),
-                friendUserInfo.getProfileImage(),
+                friendUserInfo.getProfileImage() == null ? "" : friendUserInfo.getProfileImage(),
                 friendUserInfo.getName(),
                 pokeDetail.getMessage(),
                 friendUserInfo.getGeneration(),
