@@ -100,7 +100,8 @@ public class PokeFacade {
 
     @Transactional(readOnly = true)
     public List<PokeResponse.Friend> getRecommendFriendsOfUsersFriend(User user) {
-        val friendsUserIds = friendService.findAllFriendIdsByUserIdRandomly(user.getId(), 2);
+        val hasPokeMeBeforeUserIds = pokeHistoryService.getPokeFriendIds(user.getId());
+        val friendsUserIds = friendService.findAllFriendIdsByUserIdRandomly(user.getId(), hasPokeMeBeforeUserIds, 2);
         return friendsUserIds.stream().map(
             friendsUserId -> {
                 val friendUser = userService.getUserProfile(friendsUserId);

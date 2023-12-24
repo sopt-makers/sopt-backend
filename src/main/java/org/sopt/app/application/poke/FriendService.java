@@ -20,8 +20,8 @@ public class FriendService {
 
     private final FriendRepository friendRepository;
 
-    public List<Long> findAllFriendIdsByUserIdRandomly(Long userId, int limitNum) {
-        return friendRepository.getFriendRandom(userId, limitNum);
+    public List<Long> findAllFriendIdsByUserIdRandomly(Long userId, List<Long> excludeUserIds, int limitNum) {
+        return friendRepository.getFriendRandom(userId, excludeUserIds, limitNum);
     }
 
     public List<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
