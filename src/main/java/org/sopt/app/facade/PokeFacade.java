@@ -144,6 +144,7 @@ public class PokeFacade {
 
     @Transactional
     public PokeHistory pokeFriend(Long pokerUserId, Long pokedUserId, String pokeMessage) {
+        pokeHistoryService.checkDuplicate(pokerUserId, pokedUserId);
         pokeHistoryService.checkUserOverDailyPokeLimit(pokerUserId);
         PokeHistory newPoke = pokeService.poke(pokerUserId, pokedUserId, pokeMessage);
 
