@@ -173,9 +173,6 @@ public class PokeFacade {
         val friendId = friendService.getPokeFriendIdRandomly(
             user.getId(),
             pokeUserIds);
-        if (friendId.isEmpty()) {
-            return List.of();
-        }
 
         val friendUserProfile = userService.getUserProfileByUserId(friendId);
         val friendPlaygroundIds = friendUserProfile.stream().map(UserProfile::getPlaygroundId).toList();
@@ -187,7 +184,9 @@ public class PokeFacade {
                     return friendProfile1.getName();
                 })
                 .toList();
-        val isAlreadyPoke = pokeHistoryService.getAllOfPokeBetween(user.getId(), friendId.get(0)).isEmpty();
+
+        val pokeHistory = pokeHistoryService.getAllOfPokeBetween(user.getId(), friendId.get(0)).get(0);
+        val isAlreadyPoke = pokeHistory.getPokerId().equals(user.getId());
 
         return List.of(
             SimplePokeProfile.of(

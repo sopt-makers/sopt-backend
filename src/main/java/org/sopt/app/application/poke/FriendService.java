@@ -103,7 +103,9 @@ public class FriendService {
         List<Long> pokeFriendIds = friendRepository.findAllByUserIdAndFriendUserIdNotIn(userId, pokeUserIds);
         Collections.shuffle(pokeFriendIds);
         if (pokeFriendIds.isEmpty()) {
-            return List.of();
+            return friendRepository.findAllByUserId(userId).stream()
+                    .map(Friend::getFriendUserId)
+                    .toList().subList(0, 1);
         }
         return pokeFriendIds.subList(0, 1);
     }

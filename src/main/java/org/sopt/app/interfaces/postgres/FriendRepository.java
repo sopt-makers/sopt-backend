@@ -24,4 +24,6 @@ public interface FriendRepository extends JpaRepository<Friend, Long>, FriendCus
 
     @Query(value = "SELECT count(f) FROM Friend f WHERE f.userId = :userId AND f.pokeCount BETWEEN :lowerLimit AND :upperLimit")
     int findSizeByUserIdAndPokeCountBetween(Long userId, Integer lowerLimit, Integer upperLimit);
+
+    List<Friend> findAllByUserId(Long userId);
 }
