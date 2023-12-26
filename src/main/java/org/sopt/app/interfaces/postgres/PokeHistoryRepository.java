@@ -16,7 +16,7 @@ public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> 
     Optional<PokeHistory> findByPokerIdAndPokedIdAndIsReplyIsFalse(Long pokerId, Long pokedId);
 
     List<PokeHistory> findAllByPokerId(Long userId);
-    List<PokeHistory> findAllByPokerIdAndCreatedAt(Long userId, LocalDateTime date);
+    List<PokeHistory> findAllByPokerIdAndCreatedAtBetween(Long userId, LocalDateTime start, LocalDateTime end);
 
     List<PokeHistory> findAllByPokerIdAndIsReply(Long userId, boolean isReply);
     List<PokeHistory> findAllByPokedIdAndIsReply(Long userId, boolean isReply);

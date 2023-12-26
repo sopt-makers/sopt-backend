@@ -1,5 +1,7 @@
 package org.sopt.app.application.poke;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -49,8 +51,9 @@ public class PokeHistoryService {
     }
 
     public void checkUserOverDailyPokeLimit(Long userId) {
-        LocalDateTime today = LocalDateTime.now();
-        List<PokeHistory> allByPokerIdAndCreatedAtDate = pokeHistoryRepository.findAllByPokerIdAndCreatedAt(userId, today);
+        LocalDateTime startDatetime = LocalDateTime.of(LocalDate.now(), LocalTime.of(0,0,0));
+        LocalDateTime endDatetime = LocalDateTime.of(LocalDate.now(), LocalTime.of(23,59,59));
+        List<PokeHistory> allByPokerIdAndCreatedAtDate = pokeHistoryRepository.findAllByPokerIdAndCreatedAtBetween(userId, startDatetime, endDatetime);
         if (allByPokerIdAndCreatedAtDate.size() >= 10) {
             throw new BadRequestException(ErrorCode.OVER_DAILY_POKE_LIMIT.getMessage());
         }
