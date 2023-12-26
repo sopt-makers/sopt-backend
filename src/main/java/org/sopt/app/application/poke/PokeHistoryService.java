@@ -60,8 +60,8 @@ public class PokeHistoryService {
     }
 
     public void checkDuplicate(Long pokerUserId, Long pokedUserId) {
-        val pokeHistory = pokeHistoryRepository.findByPokerIdAndPokedIdAndIsReplyIsFalse(pokerUserId, pokedUserId);
-        if (pokeHistory.isPresent()) {
+        val pokeHistory = pokeHistoryRepository.findAllByPokerIdAndPokedIdAndIsReplyIsFalse(pokerUserId, pokedUserId);
+        if (pokeHistory.size() > 1) {
             throw new BadRequestException(ErrorCode.DUPLICATE_POKE.getMessage());
         }
     }

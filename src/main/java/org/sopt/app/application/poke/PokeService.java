@@ -11,7 +11,7 @@ import org.sopt.app.interfaces.postgres.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Optional;
+import java.util.List;
 
 
 @Service
@@ -47,9 +47,11 @@ public class PokeService {
 
     private PokeHistory createPokeByApplyingReply(Long pokerUserId, Long pokedUserId, String pokeMessage) {
         boolean currentPokeReply = false;
-        Optional<PokeHistory> latestPokeFromPokedIsReplyFalse
-                = historyRepository.findByPokerIdAndPokedIdAndIsReplyIsFalse(pokedUserId, pokerUserId);
-        latestPokeFromPokedIsReplyFalse.ifPresent(PokeHistory::activateReply);
+        List<PokeHistory> latestPokeFromPokedIsReplyFalse
+                = historyRepository.findAllByPokerIdAndPokedIdAndIsReplyIsFalse(pokedUserId, pokerUserId);
+        if (!latestPokeFromPokedIsReplyFalse.isEmpty()){
+            latestPokeFromPokedIsReplyFalse.get(0).activateReply();
+        }
         PokeHistory createdPoke = PokeHistory.builder()
                 .pokerId(pokerUserId)
                 .pokedId(pokedUserId)
