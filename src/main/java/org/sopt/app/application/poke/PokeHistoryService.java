@@ -54,7 +54,8 @@ public class PokeHistoryService {
         LocalDateTime startDatetime = LocalDateTime.of(LocalDate.now(), LocalTime.of(0,0,0));
         LocalDateTime endDatetime = LocalDateTime.of(LocalDate.now(), LocalTime.of(23,59,59));
         List<PokeHistory> allByPokerIdAndCreatedAtDate = pokeHistoryRepository.findAllByPokerIdAndCreatedAtBetween(userId, startDatetime, endDatetime);
-        if (allByPokerIdAndCreatedAtDate.size() >= 10) {
+        // TODO: Prod 배포 이전에 10 으로 변경
+        if (allByPokerIdAndCreatedAtDate.size() >= 100) {
             throw new BadRequestException(ErrorCode.OVER_DAILY_POKE_LIMIT.getMessage());
         }
     }
