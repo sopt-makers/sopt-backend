@@ -59,7 +59,7 @@ public class PokeEventListener {
                 "콕 찌르기",
                 "누군가가 콕 찔렀어요. 확인해보세요!",
                 NotificationCategory.NEWS.name(),
-                "/home"
+                "home/poke/notification-list"
         );
     }
     private ResponseEntity<PokeResponse.PokeAlarmStatusResponse> sendRequestToAlarmServer(HttpEntity requestEntity) {
