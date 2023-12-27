@@ -100,8 +100,9 @@ public class PokeFacade {
 
     @Transactional(readOnly = true)
     public List<PokeResponse.Friend> getRecommendFriendsOfUsersFriend(User user) {
+        // 나를 찌른 사람(`isReply = false`)
         val hasPokeMeBeforeUserIds = pokeHistoryService.getPokeFriendIds(user.getId());
-        List<Long> friendsUserIds = friendService.findAllFriendIdsByUserIdRandomly(user.getId(), hasPokeMeBeforeUserIds, 2);
+        List<Long> friendsUserIds = friendService.findAllFriendIdsByUserIdRandomly(user.getId(), 2);
         if (friendsUserIds.isEmpty()) {
             friendsUserIds = friendService.findAllFriendIdsByUserIdRandomlyIncludeDuplicatedFriend(
                     user.getId(), hasPokeMeBeforeUserIds, 2);
@@ -112,9 +113,13 @@ public class PokeFacade {
                 val friendProfile = playgroundAuthService.getPlaygroundMemberProfiles(
                         user.getPlaygroundToken(), List.of(friendUser.getPlaygroundId())
                 ).get(0);
-                val recommendUserProfiles = userService.findRandomFriendsOfFriends(user.getId(), friendsUserId, 2);
-                val playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken(), recommendUserProfiles.stream().map(UserProfile::getPlaygroundId).toList());
-                val simpleProfiles = makeDummySimplePokeProfile(recommendUserProfiles, playgroundProfiles);
+
+                List<UserProfile> randomFriendsOfFriends = userService.findRandomFriendsOfFriends(user.getId(), friendsUserId, hasPokeMeBeforeUserIds, 2);
+                if (randomFriendsOfFriends.isEmpty()) {
+                    randomFriendsOfFriends = userService.findRandomFriendsOfFriends(user.getId(), friendsUserId, 2);
+                }
+                val playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken(), randomFriendsOfFriends.stream().map(UserProfile::getPlaygroundId).toList());
+                val simpleProfiles = makeDummySimplePokeProfile(randomFriendsOfFriends, playgroundProfiles);
                 return PokeResponse.Friend.of(
                     friendsUserId,
                     friendProfile.getId(),

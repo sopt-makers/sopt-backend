@@ -14,7 +14,7 @@ public class UserRepositoryImpl implements UserCustomRepository{
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public List<User> findRandomFriendsOfFriends(Long userId, Long friendId, int limitNum) {
+    public List<User> findRandomFriendsOfFriendsExclude(Long userId, Long friendId, List<Long> excludeIds, int limitNum) {
         val au = QUser.user;
         val f = QFriend.friend;
         val sf = new QFriend("sf");
@@ -25,9 +25,27 @@ public class UserRepositoryImpl implements UserCustomRepository{
             .leftJoin(sf).on(sf.friendUserId.eq(au.id).and(sf.userId.eq(userId)))
             .where(f.userId.eq(friendId)
                 .and(au.id.ne(userId))
-                .and(sf.userId.isNull())) // Ensuring that left join found no match
+                .and(sf.userId.isNull())
+                .and(au.id.notIn(excludeIds))) // Ensuring that left join found no match
             .orderBy(Expressions.numberTemplate(Long.class, "RANDOM()").asc())
             .limit(2)
             .fetch();
+    }
+    @Override
+    public List<User> findRandomFriendsOfFriends(Long userId, Long friendId, int limitNum) {
+        val au = QUser.user;
+        val f = QFriend.friend;
+        val sf = new QFriend("sf");
+
+        return queryFactory
+                .selectFrom(au)
+                .join(f).on(f.friendUserId.eq(au.id))
+                .leftJoin(sf).on(sf.friendUserId.eq(au.id).and(sf.userId.eq(userId)))
+                .where(f.userId.eq(friendId)
+                        .and(au.id.ne(userId))
+                        .and(sf.userId.isNull())) // Ensuring that left join found no match
+                .orderBy(Expressions.numberTemplate(Long.class, "RANDOM()").asc())
+                .limit(2)
+                .fetch();
     }
 }
