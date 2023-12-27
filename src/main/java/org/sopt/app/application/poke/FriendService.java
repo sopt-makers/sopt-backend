@@ -23,6 +23,9 @@ public class FriendService {
     public List<Long> findAllFriendIdsByUserIdRandomly(Long userId, List<Long> excludeUserIds, int limitNum) {
         return friendRepository.getFriendRandom(userId, excludeUserIds, limitNum);
     }
+    public List<Long> findAllFriendIdsByUserIdRandomlyIncludeDuplicatedFriend(Long userId, List<Long> excludeUserIds, int limitNum) {
+        return friendRepository.getFriendRandomIncludeDuplicated(userId, excludeUserIds, limitNum);
+    }
 
     public List<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
         return friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
