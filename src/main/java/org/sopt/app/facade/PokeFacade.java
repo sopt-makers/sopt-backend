@@ -109,8 +109,9 @@ public class PokeFacade {
         return friendsUserIds.stream().map(
             friendsUserId -> {
                 val friendUser = userService.getUserProfile(friendsUserId);
-                val friendProfile = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken() ,List.of(
-                    friendUser.getPlaygroundId())).get(0);
+                val friendProfile = playgroundAuthService.getPlaygroundMemberProfiles(
+                        user.getPlaygroundToken(), List.of(friendUser.getPlaygroundId())
+                ).get(0);
                 val recommendUserProfiles = userService.findRandomFriendsOfFriends(user.getId(), friendsUserId, 2);
                 val playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken(), recommendUserProfiles.stream().map(UserProfile::getPlaygroundId).toList());
                 val simpleProfiles = makeDummySimplePokeProfile(recommendUserProfiles, playgroundProfiles);
