@@ -111,12 +111,14 @@ public class PokeResponse {
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
     public static class PokeMessageList implements MessageList {
+        private String header;
         private List<PokeMessage> messages;
 
         public static PokeMessageList of(
+            String header,
             List<PokeMessage> messages
         ) {
-            return new PokeMessageList(messages);
+            return new PokeMessageList(header, messages);
         }
     }
 
@@ -162,8 +164,13 @@ public class PokeResponse {
         private Integer pokeNum;
         @Schema(description = "관계 이름", example = "천생연분")
         private String relationName;
-        @Schema(description = "함께 친구 관계인 친구들의 이름", example = "['제갈송현', '왕건모', '진동규', '차승호']")
-        private List<String> mutual;
+
+        //TODO: 건모 Align 이후 삭제
+//        @Schema(description = "함께 친구 관계인 친구들의 이름", example = "['제갈송현', '왕건모', '진동규', '차승호']")
+//        private List<String> mutual;
+        @Schema(description = "함께 아는 친구관계 문구", example = "제갈송현 외 1명과 친구")
+        private String mutualRelationMessage;
+
         @Schema(description = "이전에 찌른 이력이 있는지에 대한 여부", example = "false")
         private Boolean isFirstMeet;
         @Schema(description = "이미 오늘 찔렀는지에 대한 여부", example = "true")
@@ -171,11 +178,16 @@ public class PokeResponse {
 
         public static SimplePokeProfile of(
             Long userId, Long playgroundId, String profileImage, String name, String message,
-            Integer generation, String part, Integer pickNum, String relationName, List<String> mutual, Boolean isFirstMeet,
+            Integer generation, String part, Integer pickNum, String relationName,
+//                , List<String> mutual
+                String mutualRelationMessage, Boolean isFirstMeet,
             Boolean isAlreadyPoke
         ) {
             return new SimplePokeProfile(
-                userId, playgroundId, profileImage, name, message, generation, part, pickNum, relationName, mutual, isFirstMeet,
+                userId, playgroundId, profileImage, name, message, generation, part, pickNum, relationName
+//                    , mutual
+                    , mutualRelationMessage
+                    , isFirstMeet,
                 isAlreadyPoke
             );
         }

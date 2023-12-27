@@ -25,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class PokeFacade {
-
+    private static final String NEW_FRIEND_NO_MUTUAL = "새로운 친구";
+    private static final String NEW_FRIEND_ONE_MUTUAL = "%s의 친구";
+    private static final String NEW_FRIEND_MANY_MUTUAL = "%s 외 %d명과 친구";
     private final PlaygroundAuthService playgroundAuthService;
     private final UserService userService;
     private final FriendService friendService;
@@ -42,6 +44,9 @@ public class PokeFacade {
                     )
                 )
                 .toList();
+    }
+    public String getPokingMessageHeader(String type) {
+        return pokeMessageService.getMessagesHeaderComment(type);
     }
 
     @Transactional(readOnly = true)
@@ -76,7 +81,7 @@ public class PokeFacade {
                     part,
                     0,
                     Friendship.NON_FRIEND.getFriendshipName(),
-                    List.of(),
+                    NEW_FRIEND_NO_MUTUAL,
                     true,
                     false
                 );
@@ -95,7 +100,12 @@ public class PokeFacade {
 
     @Transactional(readOnly = true)
     public List<PokeResponse.Friend> getRecommendFriendsOfUsersFriend(User user) {
-        val friendsUserIds = friendService.findAllFriendIdsByUserIdRandomly(user.getId(), 2);
+        val hasPokeMeBeforeUserIds = pokeHistoryService.getPokeFriendIds(user.getId());
+        List<Long> friendsUserIds = friendService.findAllFriendIdsByUserIdRandomly(user.getId(), hasPokeMeBeforeUserIds, 2);
+        if (friendsUserIds.isEmpty()) {
+            friendsUserIds = friendService.findAllFriendIdsByUserIdRandomlyIncludeDuplicatedFriend(
+                    user.getId(), hasPokeMeBeforeUserIds, 2);
+        }
         return friendsUserIds.stream().map(
             friendsUserId -> {
                 val friendUser = userService.getUserProfile(friendsUserId);
@@ -188,7 +198,6 @@ public class PokeFacade {
 
         val pokeHistory = pokeHistoryService.getAllOfPokeBetween(user.getId(), friendId.get(0)).get(0);
         val isAlreadyPoke = pokeHistory.getPokerId().equals(user.getId());
-
         return List.of(
             SimplePokeProfile.of(
                 friendUserProfile.get(0).getUserId(),
@@ -200,7 +209,9 @@ public class PokeFacade {
                 friendProfile.get(0).getActivities().get(0).getPart(),
                 friendRelationInfo.getPokeCount(),
                 friendRelationInfo.getRelationName(),
-                mutualFriendNames,
+                mutualFriendNames.size() == 0 ? NEW_FRIEND_NO_MUTUAL :
+                    mutualFriendNames.size() == 1 ? String.format(NEW_FRIEND_ONE_MUTUAL, mutualFriendNames.get(0))
+                    : String.format(NEW_FRIEND_MANY_MUTUAL, mutualFriendNames.get(0), mutualFriendNames.size()-1),
                 false,
                 isAlreadyPoke
             )
@@ -261,6 +272,25 @@ public class PokeFacade {
         PokeInfo.PokedUserInfo friendUserInfo = getFriendUserInfo(
                 user, friendId);
 
+        List<String> mutualFriendNames = friendUserInfo.getMutualFriendNames();
+        if (friendUserInfo.getRelation().getPokeCount() == 0) {
+            return SimplePokeProfile.of(
+                    friendUserInfo.getUserId(),
+                    friendUserInfo.getPlaygroundId(),
+                    friendUserInfo.getProfileImage() == null ? "" : friendUserInfo.getProfileImage(),
+                    friendUserInfo.getName(),
+                    pokeDetail.getMessage(),
+                    friendUserInfo.getGeneration(),
+                    friendUserInfo.getPart(),
+                    0,
+                    friendUserInfo.getRelation().getRelationName(),
+                    mutualFriendNames.size() == 0 ? NEW_FRIEND_NO_MUTUAL :
+                            mutualFriendNames.size() == 1 ? String.format(NEW_FRIEND_ONE_MUTUAL, mutualFriendNames.get(0))
+                                    : String.format(NEW_FRIEND_MANY_MUTUAL, mutualFriendNames.get(0), mutualFriendNames.size()-1),
+                    true,
+                    isAlreadyReply
+            );
+        }
         return SimplePokeProfile.of(
                 friendUserInfo.getUserId(),
                 friendUserInfo.getPlaygroundId(),
@@ -271,8 +301,8 @@ public class PokeFacade {
                 friendUserInfo.getPart(),
                 friendUserInfo.getRelation().getPokeCount(),
                 friendUserInfo.getRelation().getRelationName(),
-                friendUserInfo.getMutualFriendNames(),
-                friendUserInfo.getRelation().getPokeCount() == 0,
+                friendUserInfo.getRelation().getRelationName(),
+                false,
                 isAlreadyReply
         );
     }

@@ -23,8 +23,6 @@ public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> 
     List<PokeHistory> findAllByPokedIdAndIsReplyIsFalseOrderByCreatedAtDesc(Long pokedId);
     Page<PokeHistory> findAllByPokedIdAndIsReplyIsFalseOrderByCreatedAtDesc(Long pokedId, Pageable pageable);
 
-    List<PokeHistory> findAllByPokerIdAndPokedIdOrderByCreatedAtDesc(Long pokerId, Long pokedId);
-
     @Query("SELECT ph FROM PokeHistory ph WHERE ((ph.pokerId = :userId AND ph.pokedId = :friendId) OR (ph.pokerId = :friendId AND ph.pokedId = :userId)) AND ph.isReply = false ORDER BY ph.createdAt DESC ")
     List<PokeHistory> findAllWithFriendOrderByCreatedAtDesc(@Param("userId") Long userId, @Param("friendId") Long friendId);
 }

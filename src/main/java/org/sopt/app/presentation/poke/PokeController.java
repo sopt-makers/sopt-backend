@@ -74,7 +74,8 @@ public class PokeController {
             @RequestParam("messageType") String messageType
     ) {
         val messages = pokeFacade.getPokingMessages(messageType);
-        val response = PokeMessageList.of(messages);
+        val pokingMessageHeader = pokeFacade.getPokingMessageHeader(messageType);
+        val response = PokeMessageList.of(pokingMessageHeader, messages);
         return ResponseEntity.ok(response);
     }
 
