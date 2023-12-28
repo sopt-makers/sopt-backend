@@ -46,6 +46,7 @@ public class PokeHistoryService {
     public List<PokeHistory> getAllPokedHistoryOrderByMostRecent(Long userId) {
         return pokeHistoryRepository.findAllByPokedIdAndIsReplyIsFalseOrderByCreatedAtDesc(userId);
     }
+
     public Page<PokeHistory> getAllPokedHistoryOrderByMostRecent(Long userId, Pageable pageable) {
         return pokeHistoryRepository.findAllByPokedIdAndIsReplyIsFalseOrderByCreatedAtDesc(userId, pageable);
     }
