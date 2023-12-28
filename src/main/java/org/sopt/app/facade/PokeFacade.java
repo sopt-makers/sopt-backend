@@ -351,7 +351,7 @@ public class PokeFacade {
                 .relation(
                         PokeInfo.Relationship.builder()
                                 .pokeCount(0)
-                                .relationName("")
+                                .relationName(Friendship.NON_FRIEND.getFriendshipName())
                                 .build()
                 )
                 .mutualFriendNames(mutualFriendNames)
