@@ -145,6 +145,8 @@ public class PokeFacade {
     @Transactional(readOnly = true)
     public PokeToMeHistoryList getAllPokeMeHistory(User user, Pageable pageable) {
         Page<PokeHistory> pokedHistories = pokeHistoryService.getAllPokedHistoryOrderByMostRecent(user.getId(), pageable);
+        val size = pokeHistoryService.getAllPokedHistoryOrderByMostRecent(user.getId()).size();
+        val totalPageSize = size / pageable.getPageSize();
         List<SimplePokeProfile> pokeToMeHistories = pokedHistories.stream()
                 .filter(pokeHistory -> !pokeHistory.getIsReply())
                 .map(pokeHistory -> getPokeHistoryProfile(user, pokeHistory.getPokerId(), pokeHistory.getId()))
@@ -152,6 +154,7 @@ public class PokeFacade {
                 .toList();
         return PokeToMeHistoryList.of(
                 pokeToMeHistories,
+                totalPageSize,
                 pageable.getPageSize(),
                 pokedHistories.getNumber()
         );
@@ -258,11 +261,11 @@ public class PokeFacade {
                 }).toList();
         val totalSize = friendService.findAllFriendSizeByFriendship(
                 user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit());
+        val totalPageSize = totalSize / pageable.getPageSize();
         return EachRelationFriendList.of(
                 allOfPokeWithFriends,
                 totalSize,
-                // TODO: 여기서 필요한 PageSize의 값이 조회 결과 리스트의 Elements Size 인지,
-                //  이후 API 재호출 시 사용할 RequestParam 값을 위해 넣어주는 건지 논의
+                totalPageSize,
                 pageable.getPageSize(),
                 friends.getNumber()
         );

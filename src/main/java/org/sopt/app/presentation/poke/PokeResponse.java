@@ -71,16 +71,19 @@ public class PokeResponse {
         private List<SimplePokeProfile> friendList;
         @Schema(description = "친구 수", example = "1")
         private int totalSize;
+        @Schema(description = "전체 페이지 사이즈", example = "1")
+        private int totalPageSize;
         @Schema(description = "페이지 사이즈", example = "1")
         private int pageSize;
         @Schema(description = "페이지 번호", example = "1")
         private int pageNum;
 
+
         public static EachRelationFriendList of(
-                List<SimplePokeProfile> friendList, int totalSize, int pageSize, int pageNum
+                List<SimplePokeProfile> friendList, int totalSize, int totalPageSize, int pageSize, int pageNum
         ) {
             return new EachRelationFriendList(
-                    friendList, totalSize, pageSize, pageNum
+                    friendList, totalSize, totalPageSize, pageSize, pageNum
             );
         }
 
@@ -93,14 +96,15 @@ public class PokeResponse {
     public static class PokeToMeHistoryList implements HistoryList{
 
         private List<SimplePokeProfile> history;
+        private int totalPageSize;
         private Integer pageSize;
         private Integer pageNum;
 
         public static PokeToMeHistoryList of(
-                List<SimplePokeProfile> history, Integer pageSize, Integer pageNum
+                List<SimplePokeProfile> history, int totalPageSize, Integer pageSize, Integer pageNum
         ) {
             return new PokeToMeHistoryList(
-                    history, pageSize, pageNum
+                    history, totalPageSize, pageSize, pageNum
             );
         }
 
