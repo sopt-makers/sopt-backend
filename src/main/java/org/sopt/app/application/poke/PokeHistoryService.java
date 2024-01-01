@@ -2,6 +2,7 @@ package org.sopt.app.application.poke;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -66,5 +67,14 @@ public class PokeHistoryService {
         if (pokeHistory.size() >= 1) {
             throw new BadRequestException(ErrorCode.DUPLICATE_POKE.getMessage());
         }
+    }
+
+    public HashMap<Long, Boolean> getAllPokeHistoryMap(Long userId) {
+        val pokeHistories = pokeHistoryRepository.findAllByPokerIdAndIsReply(userId, false);
+        HashMap<Long, Boolean> pokeHistoryMap = new HashMap<>();
+        for (PokeHistory pokeHistory : pokeHistories) {
+            pokeHistoryMap.put(pokeHistory.getPokedId(), pokeHistory.getIsReply());
+        }
+        return pokeHistoryMap;
     }
 }
