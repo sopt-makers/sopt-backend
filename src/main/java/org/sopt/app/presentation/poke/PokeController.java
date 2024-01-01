@@ -42,7 +42,8 @@ public class PokeController {
     ) {
         val result = pokeFacade.getRecommendUserForNew(
             user.getPlaygroundToken(),
-            user.getPlaygroundId()
+            user.getPlaygroundId(),
+            user.getId()
         );
         return ResponseEntity.ok(result);
     }
