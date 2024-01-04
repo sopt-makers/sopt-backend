@@ -124,7 +124,15 @@ public class PokeFacade {
 
                 List<UserProfile> randomFriendsOfFriends = userService.findRandomFriendsOfFriends(user.getId(), friendsUserId, hasPokeMeBeforeUserIds, 2);
                 if (randomFriendsOfFriends.isEmpty()) {
-                    randomFriendsOfFriends = userService.findRandomFriendsOfFriends(user.getId(), friendsUserId, 2);
+                    //TODO : 추후 수정 가능 (우선 EmptyList로)
+//                    randomFriendsOfFriends = userService.findRandomFriendsOfFriends(user.getId(), friendsUserId, 2);
+                    return PokeResponse.Friend.of(
+                            friendsUserId,
+                            friendProfile.getId(),
+                            friendProfile.getName(),
+                            friendProfile.getProfileImage() == null ? "" : friendProfile.getProfileImage(),
+                            Collections.emptyList()
+                    );
                 }
                 val pokeHistories = pokeHistoryService.getAllPokeHistoryMap(user.getId());
                 val playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken(), randomFriendsOfFriends.stream().map(UserProfile::getPlaygroundId).toList());
