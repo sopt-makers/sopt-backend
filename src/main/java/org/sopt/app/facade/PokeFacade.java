@@ -108,38 +108,43 @@ public class PokeFacade {
 
     @Transactional(readOnly = true)
     public List<PokeResponse.Friend> getRecommendFriendsOfUsersFriend(User user) {
-        // 나를 찌른 사람(`isReply = false`)
+        val randomFriendsUserIds = friendService.findAllFriendIdsByUserIdRandomly(user.getId(), 2);
+
         val hasPokeMeBeforeUserIds = pokeHistoryService.getPokeFriendIds(user.getId());
-        List<Long> friendsUserIds = friendService.findAllFriendIdsByUserIdRandomly(user.getId(), 2);
-        if (friendsUserIds.isEmpty()) {
-            friendsUserIds = friendService.findAllFriendIdsByUserIdRandomlyIncludeDuplicatedFriend(
-                    user.getId(), hasPokeMeBeforeUserIds, 2);
-        }
-        return friendsUserIds.stream().map(
+        val friendUserIds = friendService.findAllFriendIdsByUserId(user.getId());
+
+        val excludedUserIds = new ArrayList<>(hasPokeMeBeforeUserIds);
+        excludedUserIds.addAll(friendUserIds);
+        excludedUserIds.add(user.getId());
+
+        return randomFriendsUserIds.stream().map(
             friendsUserId -> {
                 val friendUser = userService.getUserProfile(friendsUserId);
                 val friendProfile = playgroundAuthService.getPlaygroundMemberProfiles(
                         user.getPlaygroundToken(), List.of(friendUser.getPlaygroundId())
                 ).get(0);
 
-                List<UserProfile> randomFriendsOfFriends = userService.findRandomFriendsOfFriends(user.getId(), friendsUserId, hasPokeMeBeforeUserIds, 2);
-                if (randomFriendsOfFriends.isEmpty()) {
-                    //TODO : 추후 수정 가능 (우선 EmptyList로)
-//                    randomFriendsOfFriends = userService.findRandomFriendsOfFriends(user.getId(), friendsUserId, 2);
+                val randomFriendsIds = friendService.findAllFriendIdsByUserIdRandomlyExcludeUserId(friendsUserId, excludedUserIds, 2);
+
+                if (randomFriendsIds.isEmpty()) {
                     return PokeResponse.Friend.of(
-                            friendsUserId,
-                            friendProfile.getId(),
-                            friendProfile.getName(),
-                            friendProfile.getProfileImage() == null ? "" : friendProfile.getProfileImage(),
-                            Collections.emptyList()
+                        friendsUserId,
+                        friendProfile.getId(),
+                        friendProfile.getName(),
+                        friendProfile.getProfileImage() == null ? "" : friendProfile.getProfileImage(),
+                        List.of()
                     );
                 }
+
+                val randomFriendsOfFriends = userService.getUserProfileByUserId(randomFriendsIds);
+
                 val pokeHistories = pokeHistoryService.getAllPokeHistoryMap(user.getId());
                 val playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken(), randomFriendsOfFriends.stream().map(UserProfile::getPlaygroundId).toList());
                 val simpleProfiles = makeDummySimplePokeProfile(randomFriendsOfFriends, playgroundProfiles,
                     pokeHistories,
                     user.getId()
                 );
+
                 return PokeResponse.Friend.of(
                     friendsUserId,
                     friendProfile.getId(),
@@ -182,13 +187,13 @@ public class PokeFacade {
 
 
     @Transactional
-    public PokeHistory pokeFriend(Long pokerUserId, Long pokedUserId, String pokeMessage) {
+    public Long pokeFriend(Long pokerUserId, Long pokedUserId, String pokeMessage) {
         pokeHistoryService.checkDuplicate(pokerUserId, pokedUserId);
         pokeHistoryService.checkUserOverDailyPokeLimit(pokerUserId);
         PokeHistory newPoke = pokeService.poke(pokerUserId, pokedUserId, pokeMessage);
 
         applyFriendship(pokerUserId, pokedUserId);
-        return newPoke;
+        return newPoke.getId();
     }
     private void applyFriendship(Long pokerUserId, Long pokedUserId) {
         // 친구 관계 확인
@@ -209,10 +214,7 @@ public class PokeFacade {
 
     @Transactional(readOnly = true)
     public List<SimplePokeProfile> getFriend(User user) {
-        val pokeUserIds = pokeHistoryService.getPokeFriendIds(user.getId());
-        val friendId = friendService.getPokeFriendIdRandomly(
-            user.getId(),
-            pokeUserIds);
+        val friendId = friendService.getPokeFriendIdRandomly(user.getId());
 
         val friendUserProfile = userService.getUserProfileByUserId(friendId);
         val friendPlaygroundIds = friendUserProfile.stream().map(UserProfile::getPlaygroundId).toList();

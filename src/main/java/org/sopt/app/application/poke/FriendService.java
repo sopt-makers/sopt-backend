@@ -23,9 +23,6 @@ public class FriendService {
     public List<Long> findAllFriendIdsByUserIdRandomly(Long userId, int limitNum) {
         return friendRepository.getFriendRandom(userId, limitNum);
     }
-    public List<Long> findAllFriendIdsByUserIdRandomlyIncludeDuplicatedFriend(Long userId, List<Long> excludeUserIds, int limitNum) {
-        return friendRepository.getFriendRandomIncludeDuplicated(userId, excludeUserIds, limitNum);
-    }
 
     public List<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
         return friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
@@ -102,14 +99,17 @@ public class FriendService {
                 .toList();
     }
 
-    public List<Long> getPokeFriendIdRandomly(Long userId, List<Long> pokeUserIds) {
-        List<Long> pokeFriendIds = friendRepository.findAllByUserIdAndFriendUserIdNotIn(userId, pokeUserIds);
-        if (pokeFriendIds.isEmpty()) {
-            return friendRepository.findAllByUserId(userId).stream()
-                    .map(Friend::getFriendUserId)
-                    .toList().subList(0, 1);
-        }
+    public List<Long> getPokeFriendIdRandomly(Long userId) {
+        List<Long> pokeFriendIds = friendRepository.findAllOfFriendIdsByUserId(userId);
         Collections.shuffle(pokeFriendIds);
         return pokeFriendIds.subList(0, 1);
+    }
+
+    public List<Long> findAllFriendIdsByUserIdRandomlyExcludeUserId(Long friendsUserId, List<Long> excludedUserId, int limitNum) {
+        return friendRepository.getFriendRandom(friendsUserId, excludedUserId, limitNum);
+    }
+
+    public List<Long> findAllFriendIdsByUserId(Long userId) {
+        return friendRepository.findAllOfFriendIdsByUserId(userId);
     }
 }
