@@ -20,10 +20,10 @@ public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> 
     List<PokeHistory> findAllByPokerIdAndIsReply(Long userId, boolean isReply);
     List<PokeHistory> findAllByPokedIdAndIsReply(Long userId, boolean isReply);
 
-    @Query("SELECT ph FROM PokeHistory ph WHERE (ph.pokerId, ph.createdAt) in (SELECT history.pokerId, max(history.createdAt) FROM PokeHistory history WHERE history.pokedId = :pokedId GROUP BY history.pokerId ORDER BY history.createdAt DESC) ORDER BY ph.createdAt DESC")
-    List<PokeHistory> findLatestPokesByPokedId(Long pokedId);
-    @Query("SELECT ph FROM PokeHistory ph WHERE (ph.pokerId, ph.createdAt) in (SELECT history.pokerId, max(history.createdAt) FROM PokeHistory history WHERE history.pokedId = :pokedId GROUP BY history.pokerId ORDER BY history.createdAt DESC) ORDER BY ph.createdAt DESC")
-    Page<PokeHistory> findLatestPokesByPokedId(Long pokedId, Pageable pageable);
+    @Query(value = "SELECT ph FROM PokeHistory ph WHERE (ph.pokerId, ph.createdAt) in (SELECT history.pokerId, max(history.createdAt) FROM PokeHistory history WHERE history.pokedId = :pokedId GROUP BY history.pokerId ORDER BY history.createdAt DESC) ORDER BY ph.createdAt DESC", nativeQuery = true)
+    List<PokeHistory> findLatestPokesByPokedId(@Param("pokedId") Long pokedId);
+    @Query(value = "SELECT ph FROM PokeHistory ph WHERE (ph.pokerId, ph.createdAt) in (SELECT history.pokerId, max(history.createdAt) FROM PokeHistory history WHERE history.pokedId = :pokedId GROUP BY history.pokerId ORDER BY history.createdAt DESC) ORDER BY ph.createdAt DESC", nativeQuery = true)
+    Page<PokeHistory> findLatestPokesByPokedId(@Param("pokedId") Long pokedId, Pageable pageable);
 
     @Query("SELECT ph FROM PokeHistory ph WHERE ((ph.pokerId = :userId AND ph.pokedId = :friendId) OR (ph.pokerId = :friendId AND ph.pokedId = :userId)) AND ph.isReply = false ORDER BY ph.createdAt DESC ")
     List<PokeHistory> findAllWithFriendOrderByCreatedAtDesc(@Param("userId") Long userId, @Param("friendId") Long friendId);
