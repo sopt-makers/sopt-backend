@@ -45,11 +45,11 @@ public class PokeHistoryService {
     }
 
     public List<PokeHistory> getAllPokedHistoryOrderByMostRecent(Long userId) {
-        return pokeHistoryRepository.findAllByPokedIdAndIsReplyIsFalseOrderByCreatedAtDesc(userId);
+        return pokeHistoryRepository.findLatestPokesByPokedId(userId);
     }
 
     public Page<PokeHistory> getAllPokedHistoryOrderByMostRecent(Long userId, Pageable pageable) {
-        return pokeHistoryRepository.findAllByPokedIdAndIsReplyIsFalseOrderByCreatedAtDesc(userId, pageable);
+        return pokeHistoryRepository.findLatestPokesByPokedId(userId, pageable);
     }
 
     public void checkUserOverDailyPokeLimit(Long userId) {

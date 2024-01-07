@@ -121,9 +121,6 @@ public class PokeController {
             @AuthenticationPrincipal User user
     ) {
         val pokeMeHistoryProfiles = pokeFacade.getAllPokeMeHistory(user);
-        if (pokeMeHistoryProfiles.isEmpty()) {
-            return ResponseEntity.ok(null);
-        }
         val response = pokeMeHistoryProfiles.stream()
                 .filter(profile -> !profile.getIsAlreadyPoke())
                 .findFirst().orElse(null);
