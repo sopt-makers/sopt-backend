@@ -53,7 +53,7 @@ public class PokeController {
     public ResponseEntity<PokeResponse.IsNew> getPokeList(
         @AuthenticationPrincipal User user
     ) {
-        val result = friendService.getPokeFriendIdRandomly(user.getId());
+        val result = friendService.getPokeFriendIdRandomly(17L);
         val response = PokeResponse.IsNew.of(result.isEmpty());
         return ResponseEntity.ok(response);
     }
