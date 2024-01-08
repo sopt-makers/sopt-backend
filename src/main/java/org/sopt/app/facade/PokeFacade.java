@@ -152,18 +152,30 @@ public class PokeFacade {
     }
 
     @Transactional(readOnly = true)
-    public List<SimplePokeProfile> getAllPokeMeHistory(User user) {
-        List<PokeHistory> pokedHistories = pokeHistoryService.getAllPokedHistoryOrderByMostRecent(user.getId());
-        return pokedHistories.stream()
-                .map(pokeHistory ->
-                    getPokeHistoryProfile(user, pokeHistory.getPokerId(),pokeHistory.getId()))
-                .distinct()
-                .toList();
+    public SimplePokeProfile getMostRecentPokeMeHistory(User user) {
+        List<Long> pokeMeUserIds = pokeHistoryService.getPokeMeUserIds(user.getId());
+        Optional<PokeHistory> mostRecentPokeMeHistory = pokeMeUserIds.stream()
+                .map(pokeMeUserId ->
+                        pokeHistoryService.getAllLatestPokeHistoryFromTo(pokeMeUserId, user.getId()).get(0)
+                ).filter(pokeHistory -> !pokeHistory.getIsReply())
+                .findFirst();
+        return mostRecentPokeMeHistory
+                .map(pokeHistory -> getPokeHistoryProfile(
+                        user, pokeHistory.getPokerId(), pokeHistory.getId()))
+                .orElse(null);
+
     }
 
     @Transactional(readOnly = true)
     public PokeToMeHistoryList getAllPokeMeHistory(User user, Pageable pageable) {
-        Page<PokeHistory> pokedHistories = pokeHistoryService.getAllPokedHistoryOrderByMostRecent(user.getId(), pageable);
+        List<Long> pokeMeUserIds = pokeHistoryService.getPokeMeUserIds(user.getId());
+        List<Long> latestHistoryIds = pokeMeUserIds.stream()
+                .map(pokeMeUserId ->
+                        pokeHistoryService.getAllLatestPokeHistoryFromTo(pokeMeUserId, user.getId())
+                                .get(0).getId()
+                )
+                .toList();
+        Page<PokeHistory> pokedHistories = pokeHistoryService.getAllLatestPokeHistoryIn(latestHistoryIds, pageable);
         val size = pokedHistories.getSize();
         val totalPageSize = size / pageable.getPageSize();
         List<SimplePokeProfile> pokeToMeHistories = pokedHistories.stream()
