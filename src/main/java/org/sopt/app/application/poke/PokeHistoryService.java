@@ -44,12 +44,19 @@ public class PokeHistoryService {
                 .toList();
     }
 
-    public List<PokeHistory> getAllPokedHistoryOrderByMostRecent(Long userId) {
-        return pokeHistoryRepository.findLatestPokesByPokedId(userId);
+    public List<Long> getPokeMeUserIds(Long userId) {
+        return pokeHistoryRepository.findAllByPokedId(userId).stream()
+                .map(PokeHistory::getPokerId)
+                .distinct()
+                .toList();
     }
 
-    public Page<PokeHistory> getAllPokedHistoryOrderByMostRecent(Long userId, Pageable pageable) {
-        return pokeHistoryRepository.findLatestPokesByPokedId(userId, pageable);
+    public List<PokeHistory> getAllLatestPokeHistoryFromTo(Long pokerId, Long pokedId) {
+        return pokeHistoryRepository.findAllByPokerIdAndPokedIdOrderByCreatedAtDesc(pokerId, pokedId);
+    }
+
+    public Page<PokeHistory> getAllLatestPokeHistoryIn(List<Long> targetHistoryIds, Pageable pageable) {
+        return pokeHistoryRepository.findAllByIdIsInOrderByCreatedAt(targetHistoryIds, pageable);
     }
 
     public void checkUserOverDailyPokeLimit(Long userId) {
