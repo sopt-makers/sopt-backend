@@ -14,7 +14,7 @@ public class PokeInfo {
     @Builder
     @ToString
     public static class Relationship {
-        private final int pokeCount;
+        private final int pokeNum;
         private final String relationName;
     }
 
@@ -41,7 +41,6 @@ public class PokeInfo {
         private final Long pokerId;
         private final Long pokedId;
         private final String message;
-        private final Boolean isReply;
 
     }
 
