@@ -30,5 +30,5 @@ public interface FriendRepository extends JpaRepository<Friend, Long>, FriendCus
 
     List<Friend> findAllByUserIdAndFriendUserIdIn(Long userId, List<Long> friendIdsPokeMe);
 
-    Page<Friend> findAllByUserIdAndFriendUserIdIn(Long userId, List<Long> friendIdsPokeMe, Pageable pageable);
+    Page<Friend> findAllByUserIdAndFriendUserIdInOOrderByPokeCount(Long userId, List<Long> friendIdsPokeMe, Pageable pageable);
 }

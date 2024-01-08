@@ -82,7 +82,7 @@ public class FriendService {
                 .map(Entry::getKey)
                 .toList();
 
-        return friendRepository.findAllByUserIdAndFriendUserIdIn(userId, friendIds, pageable);
+        return friendRepository.findAllByUserIdAndFriendUserIdInOOrderByPokeCount(userId, friendIds, pageable);
     }
 
 
