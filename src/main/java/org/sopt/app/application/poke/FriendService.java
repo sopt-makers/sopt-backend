@@ -3,6 +3,7 @@ package org.sopt.app.application.poke;
 import java.util.Collections;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Friend;
@@ -101,9 +102,18 @@ public class FriendService {
     }
 
     public List<Long> getPokeFriendIdRandomly(Long userId) {
-        List<Long> pokeFriendIds = friendRepository.findAllOfFriendIdsByUserId(userId);
-        Collections.shuffle(pokeFriendIds);
-        return pokeFriendIds.subList(0, 1);
+        val friendIdsPokeMe = friendRepository.findAllByFriendUserId(userId).stream()
+                .map(Friend::getUserId)
+                .toList();
+        val friendIds = friendRepository.findAllByUserIdAndFriendUserIdIn(userId, friendIdsPokeMe).stream().map(
+                Friend::getFriendUserId
+        ).toList();
+
+        if(friendIds.isEmpty()) {
+            return friendIds;
+        }
+        Collections.shuffle(friendIds);
+        return friendIds.subList(0, 1);
     }
 
     public List<Long> findAllFriendIdsByUserIdRandomlyExcludeUserId(Long friendsUserId, List<Long> excludedUserId, int limitNum) {
