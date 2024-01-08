@@ -1,9 +1,11 @@
 package org.sopt.app.application.poke;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
@@ -157,14 +159,15 @@ public class FriendService {
 
         val friendIds = friendRepository.findAllByUserIdAndFriendUserIdIn(userId, friendIdsPokeMe).stream().map(
                 Friend::getFriendUserId
-        ).toList();
+        ).collect(Collectors.toList());
 
         if(friendIds.isEmpty()) {
             return friendIds;
         }
 
-        Collections.shuffle(friendIds);
-        return friendIds.subList(0, 1);
+        List<Long> modifiableFriendIds = new ArrayList<>(friendIds);
+        Collections.shuffle(modifiableFriendIds);
+        return modifiableFriendIds.subList(0, 1);
     }
 
     public List<Long> findAllFriendIdsByUserIdRandomlyExcludeUserId(Long friendsUserId, List<Long> excludedUserId, int limitNum) {
