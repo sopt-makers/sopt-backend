@@ -1,9 +1,12 @@
 package org.sopt.app.application.poke;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.jetbrains.annotations.NotNull;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Friend;
@@ -26,18 +29,60 @@ public class FriendService {
     }
 
     public List<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
-        return friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
-                userId, lowerLimit, upperLimit);
+        HashMap<Long, Integer> map = getPokeCountMap(userId);
+
+        return map.entrySet().stream()
+                .filter(entry -> entry.getValue() >= lowerLimit && entry.getValue() < upperLimit)
+                .sorted(Collections.reverseOrder(java.util.Map.Entry.comparingByValue()))
+                .map(entry -> Friend.builder()
+                        .userId(userId)
+                        .friendUserId(entry.getKey())
+                        .pokeCount(entry.getValue())
+                        .build())
+                .toList();
     }
 
     public int findAllFriendSizeByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
-        return friendRepository.findSizeByUserIdAndPokeCountBetween(
-            userId, lowerLimit, upperLimit);
+        HashMap<Long, Integer> map = getPokeCountMap(userId);
+
+        val count = map.entrySet().stream()
+                .filter(entry -> entry.getValue() >= lowerLimit && entry.getValue() < upperLimit)
+                .count();
+
+        return (int) count;
+    }
+
+    @NotNull
+    private HashMap<Long, Integer> getPokeCountMap(Long userId) {
+        HashMap<Long, Integer> map = new HashMap<>();
+
+        val friendsPokeMe = friendRepository.findAllByFriendUserId(userId);
+
+        for (Friend friend : friendsPokeMe) {
+            map.put(friend.getUserId(), friend.getPokeCount());
+        }
+
+        val friendsPokeByMe = friendRepository.findAllByUserId(userId);
+
+        for (Friend friend : friendsPokeByMe) {
+            if (map.containsKey(friend.getFriendUserId())) {
+                map.put(friend.getFriendUserId(), map.get(friend.getFriendUserId()) + friend.getPokeCount());
+            } else {
+                map.put(friend.getFriendUserId(), friend.getPokeCount());
+            }
+        }
+        return map;
     }
 
     public Page<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit, Pageable pageable) {
-        return friendRepository.findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(
-                userId, lowerLimit, upperLimit, pageable);
+        val map = getPokeCountMap(userId);
+        val friendIds = map.entrySet().stream()
+                .filter(entry -> entry.getValue() >= lowerLimit && entry.getValue() < upperLimit)
+                .sorted(Collections.reverseOrder(java.util.Map.Entry.comparingByValue()))
+                .map(Entry::getKey)
+                .toList();
+
+        return friendRepository.findAllByUserIdAndFriendUserIdIn(userId, friendIds, pageable);
     }
 
 

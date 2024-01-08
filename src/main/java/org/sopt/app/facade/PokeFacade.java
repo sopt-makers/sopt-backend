@@ -262,6 +262,7 @@ public class PokeFacade {
     public List<SimplePokeProfile> getTwoFriendByFriendship(User user, Friendship friendship) {
         val friendsOfFriendship = friendService.findAllFriendsByFriendship(
             user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit());
+
         return friendsOfFriendship.stream()
                 .map(friend -> {
                     List<PokeHistory> allOfPokeFromTo = pokeHistoryService.getAllOfPokeBetween(friend.getUserId(), friend.getFriendUserId());
