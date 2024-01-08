@@ -43,12 +43,9 @@ public class FriendService {
     }
 
 
-    public void createRelation(Long pokerId, Long pokedId) {
-        registerFriendshipOf(pokerId, pokedId);
-        registerFriendshipOf(pokedId, pokerId);
-    }
 
-    private void registerFriendshipOf(Long userId, Long friendId) {
+
+    public void registerFriendshipOf(Long userId, Long friendId) {
         Friend createdRelationUserToFriend = Friend.builder()
                 .userId(userId)
                 .friendUserId(friendId)
@@ -60,10 +57,7 @@ public class FriendService {
     public void applyPokeCount(Long pokerId, Long pokedId) {
         Friend friendship = friendRepository.findByUserIdAndFriendUserId(pokerId, pokedId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND.getMessage()));
-        Friend pokedFriendship = friendRepository.findByUserIdAndFriendUserId(pokedId, pokerId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND.getMessage()));
         friendship.addPokeCount();
-        pokedFriendship.addPokeCount();
     }
 
     public boolean isFriendEachOther(Long pokerId, Long pokedId) {
@@ -73,11 +67,18 @@ public class FriendService {
     }
 
     public PokeInfo.Relationship getRelationInfo(Long pokerId, Long pokedId) {
-        Friend friendship = friendRepository.findByUserIdAndFriendUserId(pokerId, pokedId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND.getMessage()));
+        Optional<Friend> friendshipFromPokerToPoked = friendRepository.findByUserIdAndFriendUserId(pokerId, pokedId);
+        Optional<Friend> friendshipFromPokedToPoker = friendRepository.findByUserIdAndFriendUserId(pokedId, pokerId);
+        int totalPokeNum = 0;
+        if (friendshipFromPokerToPoked.isPresent()) {
+            totalPokeNum += friendshipFromPokerToPoked.get().getPokeCount();
+        }
+        if (friendshipFromPokedToPoker.isPresent()) {
+            totalPokeNum += friendshipFromPokedToPoker.get().getPokeCount();
+        }
         return PokeInfo.Relationship.builder()
-                .pokeCount(friendship.getPokeCount())
-                .relationName(decideRelationName(friendship.getPokeCount()))
+                .pokeNum(totalPokeNum)
+                .relationName(decideRelationName(totalPokeNum))
                 .build();
     }
 

@@ -30,7 +30,6 @@ public class PokeService {
                 .pokerId(latestPokeHistory.getPokerId())
                 .pokedId(latestPokeHistory.getPokedId())
                 .message(latestPokeHistory.getMessage())
-                .isReply(latestPokeHistory.getIsReply())
                 .build();
     }
 
