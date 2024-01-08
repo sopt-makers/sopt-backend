@@ -120,10 +120,7 @@ public class PokeController {
     public ResponseEntity<SimplePokeProfile> getPokeMeMostRecent(
             @AuthenticationPrincipal User user
     ) {
-        val pokeMeHistoryProfiles = pokeFacade.getAllPokeMeHistory(user);
-        val response = pokeMeHistoryProfiles.stream()
-                .filter(profile -> !profile.getIsAlreadyPoke())
-                .findFirst().orElse(null);
+        val response = pokeFacade.getMostRecentPokeMeHistory(user);
         return ResponseEntity.ok(response);
     }
 
