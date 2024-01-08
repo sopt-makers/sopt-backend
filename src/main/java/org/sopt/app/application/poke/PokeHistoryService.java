@@ -22,10 +22,6 @@ public class PokeHistoryService {
 
     private final PokeHistoryRepository pokeHistoryRepository;
 
-    public Boolean isNewPoker(Long userId) {
-        return pokeHistoryRepository.findAllByPokerId(userId).isEmpty();
-    }
-
     public List<PokeHistory> getAllOfPokeBetween(Long userId, Long friendId) {
         return pokeHistoryRepository.findAllWithFriendOrderByCreatedAtDesc(userId, friendId);
     }

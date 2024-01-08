@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.poke.FriendService;
 import org.sopt.app.application.poke.PokeHistoryService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.Friendship;
@@ -34,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PokeController {
 
     private final PokeFacade pokeFacade;
-    private final PokeHistoryService pokeHistoryService;
+    private final FriendService friendService;
 
     @GetMapping("/random-user")
     public ResponseEntity<List<PokeResponse.SimplePokeProfile>> getRandomUserForNew(
@@ -52,8 +53,8 @@ public class PokeController {
     public ResponseEntity<PokeResponse.IsNew> getPokeList(
         @AuthenticationPrincipal User user
     ) {
-        val result = pokeHistoryService.isNewPoker(user.getId());
-        val response = PokeResponse.IsNew.of(result);
+        val result = friendService.getPokeFriendIdRandomly(user.getId());
+        val response = PokeResponse.IsNew.of(result.isEmpty());
         return ResponseEntity.ok(response);
     }
 
