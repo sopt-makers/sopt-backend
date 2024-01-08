@@ -203,7 +203,6 @@ public class PokeFacade {
         return newPoke;
     }
     private void applyFriendship(Long pokerUserId, Long pokedUserId) {
-        // 친구 관계 확인
         boolean friendEachOther = friendService.isFriendEachOther(pokerUserId, pokedUserId);
         if (friendEachOther) {
             friendService.applyPokeCount(pokerUserId, pokedUserId);
@@ -211,10 +210,8 @@ public class PokeFacade {
         }
         boolean userNotPokeBefore = pokeHistoryService.getAllOfPokeBetween(
             pokerUserId, pokedUserId).isEmpty();
-        boolean friendNotPokeBefore = pokeHistoryService.getAllOfPokeBetween(
-            pokedUserId, pokerUserId).isEmpty();
-        if (!userNotPokeBefore && !friendNotPokeBefore) {
-            friendService.createRelation(pokerUserId, pokedUserId);
+        if (!userNotPokeBefore) {
+            friendService.registerFriendshipOf(pokerUserId, pokedUserId);
         }
     }
 
@@ -248,7 +245,7 @@ public class PokeFacade {
                 "",
                 Integer.parseInt(friendProfile.get(0).getActivities().get(0).getGeneration()),
                 friendProfile.get(0).getActivities().get(0).getPart(),
-                friendRelationInfo.getPokeCount(),
+                friendRelationInfo.getPokeNum(),
                 friendRelationInfo.getRelationName(),
                 mutualFriendNames.size() == 0 ? NEW_FRIEND_NO_MUTUAL :
                     mutualFriendNames.size() == 1 ? String.format(NEW_FRIEND_ONE_MUTUAL, mutualFriendNames.get(0))
@@ -305,33 +302,18 @@ public class PokeFacade {
 
     @Transactional(readOnly = true)
     public SimplePokeProfile getPokeHistoryProfile(User user, Long friendId, Long pokeId) {
-        // 나에 대해 찌른 내역을 반환
         PokeInfo.PokeDetail pokeDetail = getPokeInfo(pokeId);
-
-        val isAlreadyReply = pokeDetail.getPokerId().equals(user.getId());
-
         PokeInfo.PokedUserInfo friendUserInfo = getFriendUserInfo(
                 user, friendId);
 
+        boolean isFirstMeet = friendUserInfo.getRelation().getPokeNum() < 2;
+
+        boolean isExistPokedReplyYet = pokeHistoryService.getAllOfPokeBetween(pokeDetail.getPokerId(), pokeDetail.getPokedId()).stream()
+                .filter(pokeHistory -> pokeHistory.getPokerId().equals(user.getId()))
+                .anyMatch(pokeHistory -> !pokeHistory.getIsReply());
+
         List<String> mutualFriendNames = friendUserInfo.getMutualFriendNames();
-        if (friendUserInfo.getRelation().getPokeCount() == 0) {
-            return SimplePokeProfile.of(
-                    friendUserInfo.getUserId(),
-                    friendUserInfo.getPlaygroundId(),
-                    friendUserInfo.getProfileImage() == null ? "" : friendUserInfo.getProfileImage(),
-                    friendUserInfo.getName(),
-                    pokeDetail.getMessage(),
-                    friendUserInfo.getGeneration(),
-                    friendUserInfo.getPart(),
-                    0,
-                    friendUserInfo.getRelation().getRelationName(),
-                    mutualFriendNames.size() == 0 ? NEW_FRIEND_NO_MUTUAL :
-                            mutualFriendNames.size() == 1 ? String.format(NEW_FRIEND_ONE_MUTUAL, mutualFriendNames.get(0))
-                                    : String.format(NEW_FRIEND_MANY_MUTUAL, mutualFriendNames.get(0), mutualFriendNames.size()-1),
-                    true,
-                    isAlreadyReply
-            );
-        }
+
         return SimplePokeProfile.of(
                 friendUserInfo.getUserId(),
                 friendUserInfo.getPlaygroundId(),
@@ -340,11 +322,13 @@ public class PokeFacade {
                 pokeDetail.getMessage(),
                 friendUserInfo.getGeneration(),
                 friendUserInfo.getPart(),
-                friendUserInfo.getRelation().getPokeCount(),
+                friendUserInfo.getRelation().getPokeNum(),
                 friendUserInfo.getRelation().getRelationName(),
-                friendUserInfo.getRelation().getRelationName(),
-                false,
-                isAlreadyReply
+                mutualFriendNames.size() == 0 ? NEW_FRIEND_NO_MUTUAL :
+                        mutualFriendNames.size() == 1 ? String.format(NEW_FRIEND_ONE_MUTUAL, mutualFriendNames.get(0))
+                                : String.format(NEW_FRIEND_MANY_MUTUAL, mutualFriendNames.get(0), mutualFriendNames.size()-1),
+                isFirstMeet,
+                isExistPokedReplyYet
         );
     }
 
@@ -360,19 +344,7 @@ public class PokeFacade {
                     return friendProfile.getName();
                 })
                 .toList();
-        if (friendService.isFriendEachOther(user.getId(), friendUserId)) {
-            val relationInfo = friendService.getRelationInfo(user.getId(), friendUserId);
-            return PokeInfo.PokedUserInfo.builder()
-                    .userId(pokedUserProfile.getUserId())
-                    .playgroundId(pokedUserPlaygroundProfile.getId())
-                    .name(pokedUserPlaygroundProfile.getName())
-                    .profileImage(pokedUserPlaygroundProfile.getProfileImage())
-                    .generation(Integer.parseInt(latestActivity.getGeneration()))
-                    .part(latestActivity.getPart())
-                    .relation(relationInfo)
-                    .mutualFriendNames(mutualFriendNames)
-                    .build();
-        }
+        val relationInfo = friendService.getRelationInfo(user.getId(), friendUserId);
         return PokeInfo.PokedUserInfo.builder()
                 .userId(pokedUserProfile.getUserId())
                 .playgroundId(pokedUserPlaygroundProfile.getId())
@@ -380,12 +352,7 @@ public class PokeFacade {
                 .profileImage(pokedUserPlaygroundProfile.getProfileImage())
                 .generation(Integer.parseInt(latestActivity.getGeneration()))
                 .part(latestActivity.getPart())
-                .relation(
-                        PokeInfo.Relationship.builder()
-                                .pokeCount(0)
-                                .relationName(Friendship.NON_FRIEND.getFriendshipName())
-                                .build()
-                )
+                .relation(relationInfo)
                 .mutualFriendNames(mutualFriendNames)
                 .build();
     }
