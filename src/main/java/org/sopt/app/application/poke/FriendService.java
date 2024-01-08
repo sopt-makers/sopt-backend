@@ -105,6 +105,11 @@ public class FriendService {
         val friendIdsPokeMe = friendRepository.findAllByFriendUserId(userId).stream()
                 .map(Friend::getUserId)
                 .toList();
+
+        if (friendIdsPokeMe.isEmpty()) {
+            return friendIdsPokeMe;
+        }
+
         val friendIds = friendRepository.findAllByUserIdAndFriendUserIdIn(userId, friendIdsPokeMe).stream().map(
                 Friend::getFriendUserId
         ).toList();
@@ -112,6 +117,7 @@ public class FriendService {
         if(friendIds.isEmpty()) {
             return friendIds;
         }
+
         Collections.shuffle(friendIds);
         return friendIds.subList(0, 1);
     }
