@@ -91,8 +91,8 @@ public class PokeController {
             @PathVariable("userId") Long pokedUserId,
             @RequestBody PokeRequest.PokeMessageRequest messageRequest
     ) {
-        val pokeHistory = pokeFacade.pokeFriend(user.getId(), pokedUserId, messageRequest.getMessage());
-        val response = pokeFacade.getPokeHistoryProfile(user, pokedUserId, pokeHistory.getId());
+        val pokeHistoryId = pokeFacade.pokeFriend(user.getId(), pokedUserId, messageRequest.getMessage());
+        val response = pokeFacade.getPokeHistoryProfile(user, pokedUserId, pokeHistoryId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(response);

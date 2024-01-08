@@ -120,25 +120,4 @@ public class UserService {
                 .build()
         ).collect(Collectors.toList());
     }
-
-    public List<UserProfile> findRandomFriendsOfFriends(Long userId, Long friendIds, List<Long> excludeUserIds, int limitNum) {
-        val users = userRepository.findRandomFriendsOfFriendsExclude(userId, friendIds, excludeUserIds, limitNum);
-        return users.stream().map(
-            u -> UserProfile.builder()
-                .userId(u.getId())
-                .name(u.getUsername())
-                .playgroundId(u.getPlaygroundId())
-                .build()
-        ).toList();
-    }
-    public List<UserProfile> findRandomFriendsOfFriends(Long userId, Long friendIds, int limitNum) {
-        val users = userRepository.findRandomFriendsOfFriends(userId, friendIds, limitNum);
-        return users.stream().map(
-                u -> UserProfile.builder()
-                        .userId(u.getId())
-                        .name(u.getUsername())
-                        .playgroundId(u.getPlaygroundId())
-                        .build()
-        ).toList();
-    }
 }
