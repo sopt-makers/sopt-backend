@@ -56,7 +56,7 @@ public class PokeHistoryService {
     }
 
     public Page<PokeHistory> getAllLatestPokeHistoryIn(List<Long> targetHistoryIds, Pageable pageable) {
-        return pokeHistoryRepository.findAllByIdIsInOrderByCreatedAt(targetHistoryIds, pageable);
+        return pokeHistoryRepository.findAllByIdIsInOrderByCreatedAtDesc(targetHistoryIds, pageable);
     }
 
     public void checkUserOverDailyPokeLimit(Long userId) {

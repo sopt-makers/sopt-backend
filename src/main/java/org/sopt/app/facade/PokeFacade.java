@@ -157,7 +157,9 @@ public class PokeFacade {
         Optional<PokeHistory> mostRecentPokeMeHistory = pokeMeUserIds.stream()
                 .map(pokeMeUserId ->
                         pokeHistoryService.getAllLatestPokeHistoryFromTo(pokeMeUserId, user.getId()).get(0)
-                ).filter(pokeHistory -> !pokeHistory.getIsReply())
+                )
+                .sorted(Comparator.comparing(PokeHistory::getCreatedAt).reversed())
+                .filter(pokeHistory -> !pokeHistory.getIsReply())
                 .findFirst();
         return mostRecentPokeMeHistory
                 .map(pokeHistory -> getPokeHistoryProfile(
