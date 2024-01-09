@@ -55,8 +55,13 @@ public class PokeFacade {
         Long userId
     ) {
         val playgroundUserIds = playgroundAuthService.getPlayGroundUserIds(playgroundToken);
+        // TODO : 친구가 아닌 유저 아이디로만 Shuffle 하도록
+        val notFriendUserPlaygroundIds = userService.getUserProfilesByPlaygroundIds(playgroundUserIds.getUserIds()).stream()
+                .filter(userProfile -> !friendService.isFriendEachOther(userId, userProfile.getUserId()))
+                .map(UserProfile::getPlaygroundId)
+                .collect(Collectors.toList());
         int RECOMMEND_USER_NUM_FOR_NEW = 6;
-        val recommendUserIds = pickRandomUserIds(playgroundUserIds.getUserIds(), userPlaygroundId,
+        val recommendUserIds = pickRandomUserIds(notFriendUserPlaygroundIds, userPlaygroundId,
             RECOMMEND_USER_NUM_FOR_NEW
         );
         val playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(playgroundToken, recommendUserIds);
