@@ -153,21 +153,15 @@ public class FriendService {
                 .map(Friend::getUserId)
                 .toList();
 
-        if (friendIdsPokeMe.isEmpty()) {
-            return friendIdsPokeMe;
+        val friends = friendRepository.findAllByUserIdAndFriendUserIdIn(userId, friendIdsPokeMe);
+
+        if (friendIdsPokeMe.isEmpty() || friends.isEmpty()) {
+            throw new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND.getMessage());
         }
 
-        val friendIds = friendRepository.findAllByUserIdAndFriendUserIdIn(userId, friendIdsPokeMe).stream().map(
-                Friend::getFriendUserId
-        ).collect(Collectors.toList());
+        Collections.shuffle(friends);
 
-        if(friendIds.isEmpty()) {
-            return friendIds;
-        }
-
-        List<Long> modifiableFriendIds = new ArrayList<>(friendIds);
-        Collections.shuffle(modifiableFriendIds);
-        return modifiableFriendIds.subList(0, 1);
+        return friends.subList(0, 1).stream().map(Friend::getFriendUserId).toList();
     }
 
     public List<Long> findAllFriendIdsByUserIdRandomlyExcludeUserId(Long friendsUserId, List<Long> excludedUserId, int limitNum) {
