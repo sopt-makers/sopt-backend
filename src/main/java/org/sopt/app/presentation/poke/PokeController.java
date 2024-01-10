@@ -9,7 +9,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.poke.FriendService;
-import org.sopt.app.application.poke.PokeHistoryService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.facade.PokeFacade;
@@ -53,8 +52,8 @@ public class PokeController {
     public ResponseEntity<PokeResponse.IsNew> getPokeList(
         @AuthenticationPrincipal User user
     ) {
-        val result = friendService.getPokeFriendIdRandomly(user.getId());
-        val response = PokeResponse.IsNew.of(result.isEmpty());
+        val result = friendService.getIsNewUser(user.getId());
+        val response = PokeResponse.IsNew.of(result);
         return ResponseEntity.ok(response);
     }
 
