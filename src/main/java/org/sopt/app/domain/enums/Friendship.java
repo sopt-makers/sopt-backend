@@ -10,7 +10,7 @@ import java.util.Arrays;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Friendship {
     NON_FRIEND("nonfriend","새로운 친구", 0,2),
-    NEW_FRIEND("new","친한친구",2, 4),
+    NEW_FRIEND("new","친한친구",2, 5),
     BEST_FRIEND("bestfriend","단짝친구",5,10),
     SOULMATE("soulmate","천생연분",11,99)
     ;
