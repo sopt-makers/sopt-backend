@@ -77,6 +77,7 @@ public class PokeFacade {
         return userProfiles.stream().map(
             userProfile -> {
                 val isAlreadyPoke = Objects.nonNull(pokeHistories.get(userProfile.getUserId()));
+                val pokeCount = friendService.getRelationInfo(userId, userProfile.getUserId()).getPokeNum();
                 val playgroundProfile = playgroundProfiles.stream()
                     .filter(profile -> profile.getId().equals(userProfile.getPlaygroundId()))
                     .findFirst()
@@ -92,7 +93,7 @@ public class PokeFacade {
                     "",
                     Integer.parseInt(generation),
                     part,
-                    0,
+                    pokeCount,
                     Friendship.NON_FRIEND.getFriendshipName(),
                     NEW_FRIEND_NO_MUTUAL,
                     true,
