@@ -42,4 +42,13 @@ public class UserInfo {
     public static class IsOptIn {
         private Boolean isOptIn;
     }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class UserProfile {
+        private Long userId;
+        private String name;
+        private Long playgroundId;
+    }
 }

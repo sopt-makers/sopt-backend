@@ -167,3 +167,36 @@ alter table app_dev.notifications
 
 create unique index notifications_id_uindex
     on app_dev.notifications (id);
+
+create table app_dev.friends
+(
+    id             serial
+        primary key,
+    user_id        integer                 not null,
+    friend_user_id integer                 not null,
+    created_at     timestamp default now() not null,
+    poke_count     integer   default 1,
+    updated_at     timestamp default now()
+);
+
+create table app_dev.poke_history
+(
+    id         serial
+        primary key,
+    poker_id   integer                 not null,
+    poked_id   integer                 not null,
+    created_at timestamp default now() not null,
+    message    text,
+    is_reply   boolean   default false,
+    updated_at timestamp default now() not null
+);
+
+create table app_dev.poke_message
+(
+    id         serial
+        primary key,
+    content    text         not null,
+    type       varchar(20) not null,
+    created_at timestamp default now(),
+    updated_at timestamp default now()
+);
