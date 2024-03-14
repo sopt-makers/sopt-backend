@@ -27,7 +27,7 @@ public class DescriptionControllerTest {
 
     @Test
     @WithUserDetails("1")
-    @DisplayName("성공 - 메인 정보 조회")
+    @DisplayName("성공 - 메인 문구 조회")
     void getMainDescriptionSuccess() throws Exception {
         mockMvc.perform(MockMvcRequestBuilders.get(BASE_URI + "/main"))
                 .andExpect(status().isOk())
@@ -37,7 +37,7 @@ public class DescriptionControllerTest {
 
     @Test
     @WithUserDetails("1")
-    @DisplayName("실패 - 메인 정보 조회 (플그 멤버 프로필)")
+    @DisplayName("실패 - 메인 문구 조회 (플그 멤버 프로필)")
     void getMainDescriptionFailGetPlaygroundMemberProfile() {
         Assertions.assertThatThrownBy(() -> mockMvc.perform(MockMvcRequestBuilders.get(BASE_URI + "/main"))
                 .andExpect(status().isInternalServerError())
