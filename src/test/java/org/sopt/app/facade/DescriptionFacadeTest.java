@@ -28,7 +28,7 @@ public class DescriptionFacadeTest {
 
     @Test
     @DisplayName("SUCCESS - getMainDescriptionForUserSuccessActive")
-    void getMainDescriptionForUserSuccessActive() {
+    void success_getMainDescriptionForUserActive() {
         UserStatus userStatus = UserStatus.ACTIVE;
         Mockito.when(playgroundAuthService.getPlaygroundUserActiveInfo(any()))
                 .thenReturn(UserActiveInfo.builder().currentGeneration(34L).status(userStatus).build());
@@ -43,7 +43,7 @@ public class DescriptionFacadeTest {
 
     @Test
     @DisplayName("SUCCESS - getMainDescriptionForUserSuccessInactive")
-    void getMainDescriptionForUserSuccessInactive() {
+    void success_getMainDescriptionForUserInactive() {
         UserStatus userStatus = UserStatus.INACTIVE;
         Mockito.when(playgroundAuthService.getPlaygroundUserActiveInfo(any()))
                 .thenReturn(UserActiveInfo.builder().currentGeneration(29L).status(userStatus).build());

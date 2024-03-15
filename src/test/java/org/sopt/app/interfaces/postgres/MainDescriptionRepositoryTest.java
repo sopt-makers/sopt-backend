@@ -13,7 +13,7 @@ public class MainDescriptionRepositoryTest {
 
     @Test
     @DisplayName("SUCCESS - findAll")
-    void findAll() {
+    void success_findAll() {
         System.out.println(mainDescriptionRepository.findAll());
     }
 }

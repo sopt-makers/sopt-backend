@@ -37,7 +37,7 @@ public class DescriptionServiceTest {
 
     @Test
     @DisplayName("SUCCESS - getMainDescriptionSuccessActive")
-    void getMainDescriptionSuccessActive() {
+    void success_getMainDescriptionActive() {
         DescriptionInfo.MainDescription result = descriptionService.getMainDescription(UserStatus.ACTIVE);
         Assertions.assertEquals("activeTop", result.getTopDescription());
         Assertions.assertEquals("activeBottom", result.getBottomDescription());
@@ -45,7 +45,7 @@ public class DescriptionServiceTest {
 
     @Test
     @DisplayName("SUCCESS - getMainDescriptionSuccessInactive")
-    void getMainDescriptionSuccessInactive() {
+    void success_getMainDescriptionInactive() {
         DescriptionInfo.MainDescription result = descriptionService.getMainDescription(UserStatus.INACTIVE);
         Assertions.assertEquals("inactiveTop", result.getTopDescription());
         Assertions.assertEquals("inactiveBottom", result.getBottomDescription());
@@ -53,7 +53,7 @@ public class DescriptionServiceTest {
 
     @Test
     @DisplayName("SUCCESS - getMainDescriptionSuccessUnauthenticated")
-    void getMainDescriptionSuccessUnauthenticated() {
+    void success_getMainDescriptionUnauthenticated() {
         DescriptionInfo.MainDescription result = descriptionService.getMainDescription(UserStatus.UNAUTHENTICATED);
         Assertions.assertEquals("inactiveTop", result.getTopDescription());
         Assertions.assertEquals("inactiveBottom", result.getBottomDescription());
