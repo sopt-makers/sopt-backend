@@ -103,8 +103,7 @@ public class StampService {
             StampRequest.EditStampRequest editStampRequest,
             Long userId) {
 
-        val stamp = stampRepository.findByUserIdAndMissionId(userId,
-                        editStampRequest.getMissionId())
+        val stamp = stampRepository.findByUserIdAndMissionId(userId, editStampRequest.getMissionId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());
