@@ -2,8 +2,8 @@ package org.sopt.app.application.stamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.common.event.Events;
@@ -149,7 +149,7 @@ public class StampService {
         stampRepository.deleteAllByUserId(userId);
 
         val imageUrls = stampRepository.findAllByUserId(userId).stream().map(Stamp::getImages)
-                .flatMap(images -> images.stream()).collect(Collectors.toList());
+                .flatMap(Collection::stream).toList();
         Events.raise(new StampDeletedEvent(imageUrls));
     }
 
