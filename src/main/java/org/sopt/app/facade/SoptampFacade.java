@@ -85,7 +85,7 @@ public class SoptampFacade {
     public StampInfo.Stamp editStamp(StampRequest.EditStampRequest editStampRequest, Long userId, Long missionId, List<MultipartFile> multipartFiles){
         val stamp = stampService.editStampContentsDeprecated(editStampRequest, userId, missionId);
         val imgPaths = s3Service.uploadDeprecated(multipartFiles);
-        if (imgPaths.size() > 0) {
+        if (!imgPaths.isEmpty()) {
             stampService.editStampImagesDeprecated(stamp, imgPaths);
         }
         return stamp;
