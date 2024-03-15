@@ -49,8 +49,7 @@ public class StampController {
     public ResponseEntity<StampResponse.StampMain> findStampByMissionAndUserId(
             @Valid @ModelAttribute StampRequest.FindStampRequest findStampRequest
     ) {
-        val result = soptampFacade.getStampInfo(findStampRequest.getMissionId(),
-                findStampRequest.getNickname());
+        val result = soptampFacade.getStampInfo(findStampRequest.getMissionId(), findStampRequest.getNickname());
         val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -80,8 +79,7 @@ public class StampController {
             @RequestPart("stampContent") StampRequest.RegisterStampRequest registerStampRequest,
             @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
     ) {
-        val result = soptampFacade.uploadStampDeprecated(user.getId(), missionId,
-                registerStampRequest, multipartFiles);
+        val result = soptampFacade.uploadStampDeprecated(user.getId(), missionId, registerStampRequest, multipartFiles);
         val response = stampResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -94,8 +92,7 @@ public class StampController {
             @RequestPart(value = "stampContent", required = false) StampRequest.EditStampRequest editStampRequest,
             @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
     ) {
-        val stamp = soptampFacade.editStamp(editStampRequest, user.getId(), missionId,
-                multipartFiles);
+        val stamp = soptampFacade.editStamp(editStampRequest, user.getId(), missionId, multipartFiles);
         val response = stampResponseMapper.of(stamp.getId());
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -155,8 +152,7 @@ public class StampController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @DeleteMapping("/all")
-    public ResponseEntity<StampResponse.StampMain> deleteStampByUserId(
-            @AuthenticationPrincipal User user) {
+    public ResponseEntity<StampResponse.StampMain> deleteStampByUserId(@AuthenticationPrincipal User user) {
         soptampFacade.deleteStampAll(user.getId());
         return ResponseEntity.status(HttpStatus.OK).body(null);
     }
