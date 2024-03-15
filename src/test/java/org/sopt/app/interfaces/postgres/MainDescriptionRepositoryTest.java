@@ -12,8 +12,8 @@ public class MainDescriptionRepositoryTest {
     private MainDescriptionRepository mainDescriptionRepository;
 
     @Test
-    @DisplayName("SUCCESS - findAll")
-    void success_findAll() {
+    @DisplayName("SUCCESS_findAll")
+    void SUCCESS_findAll() {
         System.out.println(mainDescriptionRepository.findAll());
     }
 }
