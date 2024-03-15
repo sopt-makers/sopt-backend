@@ -26,14 +26,15 @@ public class StampService {
     @Transactional(readOnly = true)
     public StampInfo.Stamp findStamp(Long missionId, Long userId) {
         val entity = stampRepository.findByUserIdAndMissionId(userId, missionId)
-            .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
         return StampInfo.Stamp.builder()
-            .id(entity.getId())
-            .contents(entity.getContents())
-            .images(entity.getImages())
-            .createdAt(entity.getCreatedAt())
-            .updatedAt(entity.getUpdatedAt())
-            .build();
+                .id(entity.getId())
+                .contents(entity.getContents())
+                .images(entity.getImages())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .missionId(entity.getMissionId())
+                .build();
     }
 
     @Transactional
@@ -51,6 +52,7 @@ public class StampService {
                 .images(newStamp.getImages())
                 .createdAt(newStamp.getCreatedAt())
                 .updatedAt(newStamp.getUpdatedAt())
+                .missionId(newStamp.getMissionId())
                 .build();
     }
 
@@ -73,6 +75,7 @@ public class StampService {
                 .images(newStamp.getImages())
                 .createdAt(newStamp.getCreatedAt())
                 .updatedAt(newStamp.getUpdatedAt())
+                .missionId(newStamp.getMissionId())
                 .build();
     }
 
@@ -92,10 +95,6 @@ public class StampService {
         val newStamp = stampRepository.save(stamp);
         return StampInfo.Stamp.builder()
                 .id(newStamp.getId())
-                .contents(newStamp.getContents())
-                .images(newStamp.getImages())
-                .createdAt(newStamp.getCreatedAt())
-                .updatedAt(newStamp.getUpdatedAt())
                 .build();
     }
 
@@ -104,7 +103,8 @@ public class StampService {
             StampRequest.EditStampRequest editStampRequest,
             Long userId) {
 
-        val stamp = stampRepository.findByUserIdAndMissionId(userId, editStampRequest.getMissionId())
+        val stamp = stampRepository.findByUserIdAndMissionId(userId,
+                        editStampRequest.getMissionId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());
@@ -116,26 +116,15 @@ public class StampService {
         val newStamp = stampRepository.save(stamp);
         return StampInfo.Stamp.builder()
                 .id(newStamp.getId())
-                .contents(newStamp.getContents())
-                .images(newStamp.getImages())
-                .createdAt(newStamp.getCreatedAt())
-                .updatedAt(newStamp.getUpdatedAt())
                 .build();
     }
 
     @Transactional
-    public StampInfo.Stamp editStampImagesDeprecated(StampInfo.Stamp stamp, List<String> imgPaths) {
+    public void editStampImagesDeprecated(StampInfo.Stamp stamp, List<String> imgPaths) {
         val oldStamp = stampRepository.findById(stamp.getId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
         oldStamp.changeImages(imgPaths);
-        val newStamp = stampRepository.save(oldStamp);
-        return StampInfo.Stamp.builder()
-                .id(newStamp.getId())
-                .contents(newStamp.getContents())
-                .images(newStamp.getImages())
-                .createdAt(newStamp.getCreatedAt())
-                .updatedAt(newStamp.getUpdatedAt())
-                .build();
+        stampRepository.save(oldStamp);
     }
 
     @Transactional(readOnly = true)
