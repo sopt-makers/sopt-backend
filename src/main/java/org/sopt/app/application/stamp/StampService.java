@@ -62,7 +62,6 @@ public class StampService {
             Long userId) {
         val stamp = Stamp.builder()
                 .contents(stampRequest.getContents())
-                .createdAt(LocalDateTime.now())
                 .images(List.of(stampRequest.getImage()))
                 .missionId(stampRequest.getMissionId())
                 .userId(userId)
@@ -160,7 +159,6 @@ public class StampService {
             Long missionId) {
         return Stamp.builder()
                 .contents(stampRequest.getContents())
-                .createdAt(LocalDateTime.now())
                 .images(imgList)
                 .missionId(missionId)
                 .userId(userId)
