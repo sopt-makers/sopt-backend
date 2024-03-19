@@ -1,13 +1,12 @@
 package org.sopt.app.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import lombok.val;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,10 +35,10 @@ class StampServiceTest {
     @DisplayName("SUCCESS_UserId와 MissionId로 스탬프를 찾으면 StampInfo.Stamp DTO 반환")
     void SUCCESS_findStamp() {
         //given
-        val stampUserId = anyLong();
-        val stampMissionId = anyLong();
-        val stampId = 1L;
-        val stamp = Stamp.builder().id(stampId).userId(stampUserId).missionId(stampMissionId).build();
+        final Long stampUserId = anyLong();
+        final Long stampMissionId = anyLong();
+        final Long stampId = 1L;
+        final Stamp stamp = Stamp.builder().id(stampId).userId(stampUserId).missionId(stampMissionId).build();
 
         //when
         Mockito.when(stampRepository.findByUserIdAndMissionId(stampUserId, stampMissionId))
@@ -62,8 +61,8 @@ class StampServiceTest {
     @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
     void FAIL_findStampBadRequest() {
         //given
-        val anyUserId = anyLong();
-        val anyMissionId = anyLong();
+        final Long anyUserId = anyLong();
+        final Long anyMissionId = anyLong();
 
         //when
         Mockito.when(stampRepository.findByUserIdAndMissionId(anyUserId, anyMissionId))
@@ -79,17 +78,65 @@ class StampServiceTest {
     @DisplayName("SUCCESS_스탬프가 request에서 보낸 내용의 이미지와 내용으로 변경되었는지 확인")
     void SUCCESS_uploadStampDeprecated() {
         // given
-        val requestUserId = 1L;
-        val requestMissionId = 1L;
-        val requestContents = "requestContents";
-        List<String> imgPaths = List.of("requestImage1", "requestImage2");
+        final Long requestUserId = 1L;
+        final Long requestMissionId = 1L;
+        final String requestContents = "requestContents";
+        final List<String> imgPaths = List.of("requestImage1", "requestImage2");
+
         RegisterStampRequest stampRequest = new RegisterStampRequest();
         stampRequest.setContents(requestContents);
-        val stamp = this.convertStampImgDeprecated(stampRequest, imgPaths, requestUserId, requestMissionId);
+
+        Stamp stamp = Stamp.builder()
+                .id(1L)
+                .contents(stampRequest.getContents())
+                .createdAt(LocalDateTime.now())
+                .images(imgPaths)
+                .missionId(requestMissionId)
+                .userId(requestUserId)
+                .build();
 
         //when
-        Mockito.when(stampRepository.save(stamp)).thenReturn(stamp);
-        val newStamp = stampRepository.save(stamp);
+        Mockito.when(stampRepository.save(any(Stamp.class))).thenReturn(stamp);
+
+        Stamp newStamp = stampRepository.save(stamp);
+        StampInfo.Stamp expected = StampInfo.Stamp.builder()
+                .id(newStamp.getId())
+                .contents(newStamp.getContents())
+                .images(newStamp.getImages())
+                .createdAt(newStamp.getCreatedAt())
+                .updatedAt(newStamp.getUpdatedAt())
+                .build();
+        StampInfo.Stamp result = stampService.uploadStampDeprecated(stampRequest, imgPaths, requestUserId, requestMissionId);
+
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_스탬프가 request에서 보낸 내용의 이미지와 내용으로 변경되었는지 확인")
+    void SUCCESS_uploadStamp() {
+        // given
+        final Long requestUserId = 1L;
+        final Long requestMissionId = 1L;
+        final String requestContents = "requestContents";
+        final String requestImage = "requestImage";
+
+        RegisterStampRequest stampRequest = new RegisterStampRequest();
+        stampRequest.setContents(requestContents);
+        stampRequest.setImage(requestImage);
+        stampRequest.setMissionId(requestMissionId);
+
+        Stamp stamp = Stamp.builder()
+                .contents(stampRequest.getContents())
+                .createdAt(LocalDateTime.now())
+                .images(List.of(stampRequest.getImage()))
+                .missionId(stampRequest.getMissionId())
+                .userId(requestUserId)
+                .build();
+
+        //when
+        Mockito.when(stampRepository.save(any(Stamp.class))).thenReturn(stamp);
+        Stamp newStamp = stampRepository.save(stamp);
         StampInfo.Stamp expected = StampInfo.Stamp.builder()
                 .id(newStamp.getId())
                 .contents(newStamp.getContents())
@@ -98,30 +145,13 @@ class StampServiceTest {
                 .updatedAt(newStamp.getUpdatedAt())
                 .build();
 
-        //then
-        Assertions.assertEquals(expected.getId(), stamp.getId());
-        Assertions.assertEquals(expected.getImages(), imgPaths);
-        Assertions.assertEquals(expected.getContents(), requestContents);
-    }
+        StampInfo.Stamp result = stampService.uploadStamp(stampRequest, requestUserId);
 
-    private Stamp convertStampImgDeprecated(
-            RegisterStampRequest stampRequest,
-            List<String> imgList,
-            Long userId,
-            Long missionId) {
-        return Stamp.builder()
-                .contents(stampRequest.getContents())
-                .createdAt(LocalDateTime.now())
-                .images(imgList)
-                .missionId(missionId)
-                .userId(userId)
-                .build();
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
     /* TODO: Implement the following tests
-    @Test
-    void SUCCESS_uploadStamp() {
-    }
 
     @Test
     void editStampContentsDeprecated() {
