@@ -28,13 +28,13 @@ import org.springframework.mock.web.MockMultipartFile;
 public class S3ServiceTest {
 
     @Mock
-    private static AmazonS3 s3Client;
+    private AmazonS3 s3Client;
 
     @InjectMocks
     private S3Service s3Service;
 
     @Test
-    @DisplayName("SUCCESS_uploadDeprecatedNull")
+    @DisplayName("SUCCESS_업로드(DEPRECATED) 파일 리스트 null일 때")
     void SUCCESS_uploadDeprecatedNull() throws MalformedURLException {
         when(s3Client.putObject(any())).thenReturn(new PutObjectResult());
         when(s3Client.getUrl(any(), any())).thenReturn(new URL("http://url.com"));
@@ -44,7 +44,7 @@ public class S3ServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_uploadDeprecatedEmpty")
+    @DisplayName("SUCCESS_업로드(DEPRECATED) 파일 리스트 첫 원소 empty일 때")
     void SUCCESS_uploadDeprecatedEmpty() throws MalformedURLException {
         when(s3Client.putObject(any())).thenReturn(new PutObjectResult());
         when(s3Client.getUrl(any(), any())).thenReturn(new URL("http://url.com"));
@@ -56,7 +56,7 @@ public class S3ServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_uploadDeprecatedNotNull")
+    @DisplayName("SUCCESS_업로드(DEPRECATED) 파일 리스트 not null일 때")
     void SUCCESS_uploadDeprecatedNotNull() throws MalformedURLException {
         when(s3Client.putObject(any())).thenReturn(new PutObjectResult());
         when(s3Client.getUrl(any(), any())).thenReturn(new URL("http://url.com"));
@@ -69,7 +69,7 @@ public class S3ServiceTest {
     }
 
     @Test()
-    @DisplayName("FAIL_uploadDeprecatedInvalidFilename")
+    @DisplayName("FAIL_업로드(DEPRECATED) 잘못된 파일명")
     void FAIL_uploadDeprecatedInvalidFilename() throws IOException {
         when(s3Client.putObject(any())).thenReturn(new PutObjectResult());
         when(s3Client.getUrl(any(), any())).thenReturn(new URL("http://url.com"));
@@ -82,7 +82,7 @@ public class S3ServiceTest {
     }
 
     @Test
-    @DisplayName("FAIL_uploadDeprecatedInvalidExtension")
+    @DisplayName("FAIL_업로드(DEPRECATED) 잘못된 파일 확장자")
     void FAIL_uploadDeprecatedInvalidExtension() throws IOException {
         when(s3Client.putObject(any())).thenReturn(new PutObjectResult());
         when(s3Client.getUrl(any(), any())).thenReturn(new URL("http://url.com"));
@@ -95,7 +95,7 @@ public class S3ServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_getPreSignedUrl")
+    @DisplayName("SUCCESS_PreSignedUrl 조회 성공")
     void SUCCESS_getPreSignedUrl() throws MalformedURLException {
         when(s3Client.generatePresignedUrl(any(), any(), any(), any()))
                 .thenReturn(new URL("http://url.com"));
@@ -106,7 +106,7 @@ public class S3ServiceTest {
     }
 
     @Test
-    @DisplayName("FAIL_getPreSignedUrlNullPointerException")
+    @DisplayName("FAIL_PreSignedUrl 조회 중 NullPointerException 발생")
     void FAIL_getPreSignedUrlNullPointerException() {
         when(s3Client.generatePresignedUrl(any(), any(), any(), any()))
                 .thenThrow(NullPointerException.class);
@@ -117,7 +117,7 @@ public class S3ServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_deleteFiles")
+    @DisplayName("SUCCESS_파일 삭제")
     void SUCCESS_deleteFiles() {
         doNothing().when(s3Client).deleteObject(any(), any());
 
@@ -125,8 +125,8 @@ public class S3ServiceTest {
     }
 
     @Test
-    @DisplayName("FAIL_deleteFiles")
-    void FAIL_deleteFiles() {
+    @DisplayName("FAIL_파일 삭제 중 AmazonServiceException 발생")
+    void FAIL_deleteFilesAmazonServiceException() {
         doThrow(AmazonServiceException.class).when(s3Client).deleteObject(any(), any());
 
         s3Service.deleteFiles(List.of("https://url.com"), "folderName");

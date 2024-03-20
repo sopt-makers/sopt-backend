@@ -5,6 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.UserActiveInfo;
 import org.sopt.app.application.auth.PlaygroundAuthService;
@@ -18,16 +20,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 @SpringBootTest
 public class DescriptionFacadeTest {
 
-    private static DescriptionService descriptionService = Mockito.mock(DescriptionService.class);
-    private static PlaygroundAuthService playgroundAuthService = Mockito.mock(PlaygroundAuthService.class);
+    @Mock
+    private DescriptionService descriptionService;
 
-    private DescriptionFacade descriptionFacade = new DescriptionFacade(
-            descriptionService,
-            playgroundAuthService
-    );
+    @Mock
+    private PlaygroundAuthService playgroundAuthService;
+
+    @InjectMocks
+    private DescriptionFacade descriptionFacade;
 
     @Test
-    @DisplayName("SUCCESS_getMainDescriptionForUserActive")
+    @DisplayName("SUCCESS_활동 유저 메인 문구 조회")
     void SUCCESS_getMainDescriptionForUserActive() {
         UserStatus userStatus = UserStatus.ACTIVE;
         Mockito.when(playgroundAuthService.getPlaygroundUserActiveInfo(any()))
@@ -42,7 +45,7 @@ public class DescriptionFacadeTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_getMainDescriptionForUserInactive")
+    @DisplayName("SUCCESS_비활동 유저 메인 문구 조회")
     void SUCCESS_getMainDescriptionForUserInactive() {
         UserStatus userStatus = UserStatus.INACTIVE;
         Mockito.when(playgroundAuthService.getPlaygroundUserActiveInfo(any()))
