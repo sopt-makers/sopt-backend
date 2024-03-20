@@ -239,13 +239,24 @@ class StampServiceTest {
                 .build();
     }
 
-    /* TODO: Implement the following tests
     @Test
     @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
     void FAIL_editStampContentsDeprecated() {
+        //given
+        final Long requestUserId = anyLong();
+        final Long requestMissionId = anyLong();
+        final StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
+
+        //when
+        Mockito.when(stampRepository.findByUserIdAndMissionId(requestUserId, requestMissionId)).thenReturn(Optional.empty());
+
+        //then
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            stampService.editStampContentsDeprecated(editStampRequest, requestUserId, requestMissionId);
+        });
     }
 
-
+    /* TODO: Implement the following tests
     @Test
     void editStampContents() {
     }
