@@ -39,12 +39,9 @@ class StampServiceTest {
         //given
         final Long stampUserId = anyLong();
         final Long stampMissionId = anyLong();
-        final Long stampId = 1L;
-        final Stamp stamp = Stamp.builder().id(stampId).userId(stampUserId).missionId(stampMissionId).build();
+        final Stamp stamp = getSavedStamp(stampMissionId, stampUserId);
 
         //when
-        Mockito.when(stampRepository.findByUserIdAndMissionId(stampUserId, stampMissionId))
-                .thenReturn(Optional.of(stamp));
         StampInfo.Stamp expected = StampInfo.Stamp.builder()
                 .id(stamp.getId())
                 .contents(stamp.getContents())
@@ -56,7 +53,6 @@ class StampServiceTest {
 
         //then
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
-        Assertions.assertInstanceOf(StampInfo.Stamp.class, result);
     }
 
     @Test
@@ -230,8 +226,9 @@ class StampServiceTest {
             editStampRequest.setContents(oldStamp.getContents());
         }
 
-        if (isDeprecated && !StringUtils.hasText(editStampRequest.getImage())) {
+        if (!isDeprecated && !StringUtils.hasText(editStampRequest.getImage())) {
             editStampRequest.setImage(oldStamp.getImages().get(0));
+
         }
 
         final LocalDateTime changedUpdatedAt = LocalDateTime.of(2024, 2, 2, 0, 0, 0);
@@ -246,7 +243,7 @@ class StampServiceTest {
                 .userId(requestUserId)
                 .build();
 
-        Mockito.when(stampRepository.save(newStamp)).thenReturn(newStamp);
+        Mockito.when(stampRepository.save(any(Stamp.class))).thenReturn(newStamp);
 
         return StampInfo.Stamp.builder()
                 .id(oldStamp.getId())
@@ -346,13 +343,26 @@ class StampServiceTest {
         Assertions.assertEquals(oldStamp.getImages(), result.getImages());
         Assertions.assertEquals(expected.getContents(), result.getContents());
     }
-    /* TODO: Implement the following tests
 
     @Test
     @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
-    void SUCCESS_editStampContents() {
+    void FAIL_editStampContents() {
+        //given
+        final Long requestUserId = anyLong();
+        final Long requestMissionId = anyLong();
+        final StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
+        editStampRequest.setMissionId(requestMissionId);
 
+        //when
+        Mockito.when(stampRepository.findByUserIdAndMissionId(requestUserId, requestMissionId))
+                .thenReturn(Optional.empty());
+
+        //then
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            stampService.editStampContents(editStampRequest, requestUserId);
+        });
     }
+    /* TODO: Implement the following tests
 
     @Test
     void editStampImagesDeprecated() {
