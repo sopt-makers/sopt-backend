@@ -22,6 +22,7 @@ import org.sopt.app.domain.entity.Stamp;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
+import org.springframework.util.StringUtils;
 
 @ExtendWith(MockitoExtension.class)
 class StampServiceTest {
@@ -167,22 +168,57 @@ class StampServiceTest {
         editStampRequest.setImage(requestImage);
 
         //when
+        StampInfo.Stamp expected = getExpectedEditStampDeprecated(editStampRequest, requestUserId, requestMissionId);
+        StampInfo.Stamp result = stampService.editStampContentsDeprecated(editStampRequest, requestUserId, requestMissionId);
+
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_request의 contents가 빈 문자열이면 contents를 변경하지 않음")
+    void SUCCESS_editStampContentsDeprecatedNoChangeContents() {
+        // given
+        final Long requestUserId = anyLong();
+        final Long requestMissionId = anyLong();
+
+        final String requestBlankContents = "";
+        final String requestImage = "requestImage";
+        StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
+        editStampRequest.setContents(requestBlankContents);
+        editStampRequest.setImage(requestImage);
+
+        //when
+        StampInfo.Stamp expected = getExpectedEditStampDeprecated(editStampRequest, requestUserId, requestMissionId);
+        StampInfo.Stamp result = stampService.editStampContentsDeprecated(editStampRequest, requestUserId, requestMissionId);
+
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    private StampInfo.Stamp getExpectedEditStampDeprecated(StampRequest.EditStampRequest editStampRequest, Long requestUserId, Long requestMissionId) {
         final Long stampId = 1L;
         final LocalDateTime createdAt = LocalDateTime.of(2024,1,1,0,0,0);
         final LocalDateTime unchangedUpdatedAt = LocalDateTime.of(2024,1,1,0,0,0);
-        Mockito.when(stampRepository.findByUserIdAndMissionId(requestUserId, requestMissionId))
-                .thenReturn(Optional.of(Stamp.builder()
-                        .id(stampId)
-                        .contents("oldContents")
-                        .images(List.of("oldImage"))
-                        .createdAt(createdAt)
-                        .updatedAt(unchangedUpdatedAt)
-                        .missionId(requestMissionId)
-                        .userId(requestUserId)
-                        .build()));
+
+        final Optional<Stamp> oldStamp = Optional.of(Stamp.builder()
+                .id(stampId)
+                .contents("oldContents")
+                .images(List.of("oldImage"))
+                .createdAt(createdAt)
+                .updatedAt(unchangedUpdatedAt)
+                .missionId(requestMissionId)
+                .userId(requestUserId)
+                .build());
+
+        Mockito.when(stampRepository.findByUserIdAndMissionId(requestUserId, requestMissionId)).thenReturn(oldStamp);
 
         final LocalDateTime changedUpdatedAt = LocalDateTime.of(2024,2,2,0,0,0);
-        Mockito.when(stampRepository.save(any(Stamp.class))).thenReturn(Stamp.builder()
+
+        if (!StringUtils.hasText(editStampRequest.getContents())) {
+            editStampRequest.setContents(oldStamp.get().getContents());
+        }
+
+        final Stamp newStamp = Stamp.builder()
                 .id(stampId)
                 .contents(editStampRequest.getContents())
                 .images(List.of(editStampRequest.getImage()))
@@ -190,28 +226,20 @@ class StampServiceTest {
                 .updatedAt(changedUpdatedAt)
                 .missionId(requestMissionId)
                 .userId(requestUserId)
-                .build());
+                .build();
 
-        //then
+        Mockito.when(stampRepository.save(any(Stamp.class))).thenReturn(newStamp);
 
-        StampInfo.Stamp expected = StampInfo.Stamp.builder()
+        return StampInfo.Stamp.builder()
                 .id(stampId)
                 .contents(editStampRequest.getContents())
                 .images(List.of(editStampRequest.getImage()))
                 .createdAt(createdAt)
                 .updatedAt(changedUpdatedAt)
                 .build();
-        StampInfo.Stamp result = stampService.editStampContentsDeprecated(editStampRequest, requestUserId, requestMissionId);
-
-        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
     /* TODO: Implement the following tests
-    @Test
-    @DisplayName("SUCCESS_request의 contents가 빈 문자열이면 contents를 변경하지 않음")
-    void FAIL_editStampContentsDeprecated() {
-    }
-
     @Test
     @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
     void FAIL_editStampContentsDeprecated() {
