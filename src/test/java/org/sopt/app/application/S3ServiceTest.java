@@ -1,0 +1,134 @@
+package org.sopt.app.application;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
+
+import com.amazonaws.AmazonServiceException;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.PutObjectResult;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.sopt.app.application.s3.S3Info;
+import org.sopt.app.application.s3.S3Service;
+import org.sopt.app.common.exception.BadRequestException;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
+
+@SpringBootTest
+public class S3ServiceTest {
+
+    @Mock
+    private static AmazonS3 s3Client;
+
+    @InjectMocks
+    private S3Service s3Service;
+
+    @Test
+    @DisplayName("SUCCESS_uploadDeprecatedNull")
+    void SUCCESS_uploadDeprecatedNull() throws MalformedURLException {
+        when(s3Client.putObject(any())).thenReturn(new PutObjectResult());
+        when(s3Client.getUrl(any(), any())).thenReturn(new URL("http://url.com"));
+
+        List<String> result = s3Service.uploadDeprecated(null);
+        Assertions.assertEquals(0, result.size());
+    }
+
+    @Test
+    @DisplayName("SUCCESS_uploadDeprecatedEmpty")
+    void SUCCESS_uploadDeprecatedEmpty() throws MalformedURLException {
+        when(s3Client.putObject(any())).thenReturn(new PutObjectResult());
+        when(s3Client.getUrl(any(), any())).thenReturn(new URL("http://url.com"));
+
+        List<String> result = s3Service.uploadDeprecated(
+                List.of(new MockMultipartFile("name", (byte[]) null))
+        );
+        Assertions.assertEquals(0, result.size());
+    }
+
+    @Test
+    @DisplayName("SUCCESS_uploadDeprecatedNotNull")
+    void SUCCESS_uploadDeprecatedNotNull() throws MalformedURLException {
+        when(s3Client.putObject(any())).thenReturn(new PutObjectResult());
+        when(s3Client.getUrl(any(), any())).thenReturn(new URL("http://url.com"));
+
+        List<String> result = s3Service.uploadDeprecated(
+                List.of(new MockMultipartFile("files", "image.jpg", "text/plain",
+                        "1234".getBytes(StandardCharsets.UTF_8)))
+        );
+        Assertions.assertEquals(1, result.size());
+    }
+
+    @Test()
+    @DisplayName("FAIL_uploadDeprecatedInvalidFilename")
+    void FAIL_uploadDeprecatedInvalidFilename() throws IOException {
+        when(s3Client.putObject(any())).thenReturn(new PutObjectResult());
+        when(s3Client.getUrl(any(), any())).thenReturn(new URL("http://url.com"));
+
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            s3Service.uploadDeprecated(
+                    List.of(new MockMultipartFile("files", "", "text/plain",
+                            "1234".getBytes(StandardCharsets.UTF_8))));
+        });
+    }
+
+    @Test
+    @DisplayName("FAIL_uploadDeprecatedInvalidExtension")
+    void FAIL_uploadDeprecatedInvalidExtension() throws IOException {
+        when(s3Client.putObject(any())).thenReturn(new PutObjectResult());
+        when(s3Client.getUrl(any(), any())).thenReturn(new URL("http://url.com"));
+
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            s3Service.uploadDeprecated(
+                    List.of(new MockMultipartFile("files", "file.csv", "text/plain",
+                            "1234".getBytes(StandardCharsets.UTF_8))));
+        });
+    }
+
+    @Test
+    @DisplayName("SUCCESS_getPreSignedUrl")
+    void SUCCESS_getPreSignedUrl() throws MalformedURLException {
+        when(s3Client.generatePresignedUrl(any(), any(), any(), any()))
+                .thenReturn(new URL("http://url.com"));
+
+        S3Info.PreSignedUrl result = s3Service.getPreSignedUrl("FolderName");
+        Assertions.assertEquals("http://url.com", result.getPreSignedURL());
+        Assertions.assertEquals("nullFolderName", result.getImageURL().substring(0, 14));
+    }
+
+    @Test
+    @DisplayName("FAIL_getPreSignedUrlNullPointerException")
+    void FAIL_getPreSignedUrlNullPointerException() {
+        when(s3Client.generatePresignedUrl(any(), any(), any(), any()))
+                .thenThrow(NullPointerException.class);
+
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            s3Service.getPreSignedUrl("FolderName");
+        });
+    }
+
+    @Test
+    @DisplayName("SUCCESS_deleteFiles")
+    void SUCCESS_deleteFiles() {
+        doNothing().when(s3Client).deleteObject(any(), any());
+
+        s3Service.deleteFiles(List.of("https://url.com"), "folderName");
+    }
+
+    @Test
+    @DisplayName("FAIL_deleteFiles")
+    void FAIL_deleteFiles() {
+        doThrow(AmazonServiceException.class).when(s3Client).deleteObject(any(), any());
+
+        s3Service.deleteFiles(List.of("https://url.com"), "folderName");
+    }
+}
