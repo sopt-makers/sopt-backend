@@ -166,9 +166,10 @@ class StampServiceTest {
         StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
         editStampRequest.setContents(requestContents);
         editStampRequest.setImage(requestImage);
+        editStampRequest.setMissionId(requestMissionId);
 
         //when
-        StampInfo.Stamp expected = getExpectedEditStampDeprecated(editStampRequest, requestUserId, requestMissionId);
+        StampInfo.Stamp expected = getExpectedEditStamp(editStampRequest, requestUserId, true);
         StampInfo.Stamp result = stampService.editStampContentsDeprecated(editStampRequest, requestUserId, requestMissionId);
 
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
@@ -186,16 +187,17 @@ class StampServiceTest {
         StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
         editStampRequest.setContents(requestBlankContents);
         editStampRequest.setImage(requestImage);
+        editStampRequest.setMissionId(requestMissionId);
 
         //when
-        StampInfo.Stamp expected = getExpectedEditStampDeprecated(editStampRequest, requestUserId, requestMissionId);
+        StampInfo.Stamp expected = getExpectedEditStamp(editStampRequest, requestUserId, true);
         StampInfo.Stamp result = stampService.editStampContentsDeprecated(editStampRequest, requestUserId, requestMissionId);
 
         //then
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
-    private StampInfo.Stamp getExpectedEditStampDeprecated(StampRequest.EditStampRequest editStampRequest, Long requestUserId, Long requestMissionId) {
+    private StampInfo.Stamp getExpectedEditStamp(StampRequest.EditStampRequest editStampRequest, Long requestUserId, boolean isDeprecated) {
         final Long stampId = 1L;
         final LocalDateTime createdAt = LocalDateTime.of(2024,1,1,0,0,0);
         final LocalDateTime unchangedUpdatedAt = LocalDateTime.of(2024,1,1,0,0,0);
@@ -206,16 +208,20 @@ class StampServiceTest {
                 .images(List.of("oldImage"))
                 .createdAt(createdAt)
                 .updatedAt(unchangedUpdatedAt)
-                .missionId(requestMissionId)
+                .missionId(editStampRequest.getMissionId())
                 .userId(requestUserId)
                 .build());
 
-        Mockito.when(stampRepository.findByUserIdAndMissionId(requestUserId, requestMissionId)).thenReturn(oldStamp);
+        Mockito.when(stampRepository.findByUserIdAndMissionId(requestUserId, editStampRequest.getMissionId())).thenReturn(oldStamp);
 
         final LocalDateTime changedUpdatedAt = LocalDateTime.of(2024,2,2,0,0,0);
 
         if (!StringUtils.hasText(editStampRequest.getContents())) {
             editStampRequest.setContents(oldStamp.get().getContents());
+        }
+
+        if (isDeprecated && !StringUtils.hasText(editStampRequest.getImage())) {
+            editStampRequest.setImage(oldStamp.get().getImages().get(0));
         }
 
         final Stamp newStamp = Stamp.builder()
@@ -224,7 +230,7 @@ class StampServiceTest {
                 .images(List.of(editStampRequest.getImage()))
                 .createdAt(createdAt)
                 .updatedAt(changedUpdatedAt)
-                .missionId(requestMissionId)
+                .missionId(editStampRequest.getMissionId())
                 .userId(requestUserId)
                 .build();
 
@@ -260,10 +266,44 @@ class StampServiceTest {
     @Test
     @DisplayName("SUCCESS_request에서 보낸 내용의 이미지와 내용의 스탬프 DTO를 잘 반환하는지 확인")
     void SUCCESS_editStampContents() {
+// given
+        final Long requestUserId = anyLong();
+        final Long requestMissionId = anyLong();
+        final String requestContents = "requestContents";
+        final String requestImage = "requestImage";
+
+        StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
+        editStampRequest.setContents(requestContents);
+        editStampRequest.setImage(requestImage);
+        editStampRequest.setMissionId(requestMissionId);
+
+        //when
+        StampInfo.Stamp expected = getExpectedEditStamp(editStampRequest, requestUserId, false);
+        StampInfo.Stamp result = stampService.editStampContents(editStampRequest, requestUserId);
+
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
 
     }
 
     /* TODO: Implement the following tests
+    @Test
+    @DisplayName("SUCCESS_SUCCESS_request의 contents가 빈 문자열이면 contents를 변경하지 않음")
+    void SUCCESS_editStampContents() {
+
+    }
+
+    @Test
+    @DisplayName("SUCCESS_SUCCESS_request의 image가 빈 문자열이면 image를 변경하지 않음")
+    void SUCCESS_editStampContents() {
+
+    }
+
+    @Test
+    @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
+    void SUCCESS_editStampContents() {
+
+    }
+
     @Test
     void editStampImagesDeprecated() {
     }
