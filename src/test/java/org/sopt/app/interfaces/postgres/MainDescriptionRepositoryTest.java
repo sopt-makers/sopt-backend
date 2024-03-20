@@ -12,7 +12,7 @@ public class MainDescriptionRepositoryTest {
     private MainDescriptionRepository mainDescriptionRepository;
 
     @Test
-    @DisplayName("SUCCESS_findAll")
+    @DisplayName("SUCCESS_메인 문구 전체 조회")
     void SUCCESS_findAll() {
         System.out.println(mainDescriptionRepository.findAll());
     }
