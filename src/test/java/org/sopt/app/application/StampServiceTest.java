@@ -20,6 +20,7 @@ import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.domain.entity.Stamp;
 import org.sopt.app.interfaces.postgres.StampRepository;
+import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
 
 @ExtendWith(MockitoExtension.class)
@@ -106,7 +107,8 @@ class StampServiceTest {
                 .createdAt(newStamp.getCreatedAt())
                 .updatedAt(newStamp.getUpdatedAt())
                 .build();
-        StampInfo.Stamp result = stampService.uploadStampDeprecated(stampRequest, imgPaths, requestUserId, requestMissionId);
+        StampInfo.Stamp result = stampService.uploadStampDeprecated(stampRequest, imgPaths, requestUserId,
+                requestMissionId);
 
         //then
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
@@ -152,10 +154,69 @@ class StampServiceTest {
     }
 
     @Test
-    void editStampContentsDeprecated() {
+    @DisplayName("SUCCESS_스탬프가 request에서 보낸 내용의 이미지와 내용으로 변경되었는지 확인")
+    void SUCCESS_editStampContentsDeprecated() {
+        // given
+        final Long requestUserId = anyLong();
+        final Long requestMissionId = anyLong();
+        final String requestContents = "requestContents";
+        final String requestImage = "requestImage";
 
+        StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
+        editStampRequest.setContents(requestContents);
+        editStampRequest.setImage(requestImage);
+
+        //when
+        final Long stampId = 1L;
+        final LocalDateTime createdAt = LocalDateTime.of(2024,1,1,0,0,0);
+        final LocalDateTime unchangedUpdatedAt = LocalDateTime.of(2024,1,1,0,0,0);
+        Mockito.when(stampRepository.findByUserIdAndMissionId(requestUserId, requestMissionId))
+                .thenReturn(Optional.of(Stamp.builder()
+                        .id(stampId)
+                        .contents("oldContents")
+                        .images(List.of("oldImage"))
+                        .createdAt(createdAt)
+                        .updatedAt(unchangedUpdatedAt)
+                        .missionId(requestMissionId)
+                        .userId(requestUserId)
+                        .build()));
+
+        final LocalDateTime changedUpdatedAt = LocalDateTime.of(2024,2,2,0,0,0);
+        Mockito.when(stampRepository.save(any(Stamp.class))).thenReturn(Stamp.builder()
+                .id(stampId)
+                .contents(editStampRequest.getContents())
+                .images(List.of(editStampRequest.getImage()))
+                .createdAt(createdAt)
+                .updatedAt(changedUpdatedAt)
+                .missionId(requestMissionId)
+                .userId(requestUserId)
+                .build());
+
+        //then
+
+        StampInfo.Stamp expected = StampInfo.Stamp.builder()
+                .id(stampId)
+                .contents(editStampRequest.getContents())
+                .images(List.of(editStampRequest.getImage()))
+                .createdAt(createdAt)
+                .updatedAt(changedUpdatedAt)
+                .build();
+        StampInfo.Stamp result = stampService.editStampContentsDeprecated(editStampRequest, requestUserId, requestMissionId);
+
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
+
     /* TODO: Implement the following tests
+    @Test
+    @DisplayName("SUCCESS_request의 contents가 빈 문자열이면 contents를 변경하지 않음")
+    void FAIL_editStampContentsDeprecated() {
+    }
+
+    @Test
+    @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
+    void FAIL_editStampContentsDeprecated() {
+    }
+
 
     @Test
     void editStampContents() {
