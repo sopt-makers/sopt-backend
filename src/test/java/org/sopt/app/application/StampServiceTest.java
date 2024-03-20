@@ -155,7 +155,7 @@ class StampServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_스탬프가 request에서 보낸 내용의 이미지와 내용으로 변경되었는지 확인")
+    @DisplayName("SUCCESS_스탬프가 request에서 보낸 내용의 이미지와 내용으로 변경되었는지 확인_DEPRECATED")
     void SUCCESS_editStampContentsDeprecated() {
         // given
         final Long requestUserId = anyLong();
@@ -175,7 +175,7 @@ class StampServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_request의 contents가 빈 문자열이면 contents를 변경하지 않음")
+    @DisplayName("SUCCESS_request의 contents가 빈 문자열이면 contents를 변경하지 않음_DEPRECATED")
     void SUCCESS_editStampContentsDeprecatedNoChangeContents() {
         // given
         final Long requestUserId = anyLong();
@@ -240,7 +240,7 @@ class StampServiceTest {
     }
 
     @Test
-    @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
+    @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생_DEPRECATED")
     void FAIL_editStampContentsDeprecated() {
         //given
         final Long requestUserId = anyLong();
@@ -256,11 +256,13 @@ class StampServiceTest {
         });
     }
 
-    /* TODO: Implement the following tests
+
     @Test
-    void editStampContents() {
+    void SUCCESS_editStampContents() {
+
     }
 
+    /* TODO: Implement the following tests
     @Test
     void editStampImagesDeprecated() {
     }
