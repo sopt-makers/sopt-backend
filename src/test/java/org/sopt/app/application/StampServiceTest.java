@@ -75,7 +75,7 @@ class StampServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_스탬프가 request에서 보낸 내용의 이미지와 내용으로 변경되었는지 확인")
+    @DisplayName("SUCCESS_스탬프가 request에서 보낸 내용의 이미지와 내용으로 등록되었는지 확인")
     void SUCCESS_uploadStampDeprecated() {
         // given
         final Long requestUserId = 1L;
@@ -113,7 +113,7 @@ class StampServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_스탬프가 request에서 보낸 내용의 이미지와 내용으로 변경되었는지 확인")
+    @DisplayName("SUCCESS_스탬프가 request에서 보낸 내용의 이미지와 내용으로 등록되었는지 확인")
     void SUCCESS_uploadStamp() {
         // given
         final Long requestUserId = 1L;
@@ -151,11 +151,11 @@ class StampServiceTest {
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
-    /* TODO: Implement the following tests
-
     @Test
     void editStampContentsDeprecated() {
+
     }
+    /* TODO: Implement the following tests
 
     @Test
     void editStampContents() {
