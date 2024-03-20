@@ -155,7 +155,7 @@ class StampServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_스탬프가 request에서 보낸 내용의 이미지와 내용으로 변경되었는지 확인_DEPRECATED")
+    @DisplayName("SUCCESS_request에서 보낸 내용의 이미지와 내용의 스탬프 DTO를 잘 반환하는지 확인_DEPRECATED")
     void SUCCESS_editStampContentsDeprecated() {
         // given
         final Long requestUserId = anyLong();
@@ -258,6 +258,7 @@ class StampServiceTest {
 
 
     @Test
+    @DisplayName("SUCCESS_request에서 보낸 내용의 이미지와 내용의 스탬프 DTO를 잘 반환하는지 확인")
     void SUCCESS_editStampContents() {
 
     }
