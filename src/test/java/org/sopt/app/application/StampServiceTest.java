@@ -460,7 +460,7 @@ class StampServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_중복된 스탬프가 있으면 BadRequestException 발생")
+    @DisplayName("SUCCESS_스탬프를 찾으면 삭제")
     void SUCCESS_deleteStampById() {
         //given
         final Long stampId = anyLong();
@@ -470,6 +470,21 @@ class StampServiceTest {
 
         //then
         Assertions.assertDoesNotThrow(() -> {
+            stampService.deleteStampById(stampId);
+        });
+    }
+
+    @Test
+    @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
+    void FAIL_deleteStampById() {
+        //given
+        final Long stampId = anyLong();
+
+        //when
+        Mockito.when(stampRepository.findById(stampId)).thenReturn(Optional.empty());
+
+        //then
+        Assertions.assertThrows(BadRequestException.class, () -> {
             stampService.deleteStampById(stampId);
         });
     }
