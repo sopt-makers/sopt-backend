@@ -386,25 +386,48 @@ class StampServiceTest {
                 .updatedAt(oldStamp.getUpdatedAt())
                 .build();
 
+        //when
         Mockito.when(stampRepository.findById(anyLong())).thenReturn(Optional.of(oldStamp));
         oldStamp.changeImages(imgPaths);
         Mockito.when(stampRepository.save(any(Stamp.class))).thenReturn(oldStamp);
 
-        StampInfo.Stamp result = stampService.editStampImagesDeprecated(oldStampInfo, imgPaths);
-
-        assertThat(result.getImages()).usingRecursiveComparison().isEqualTo(imgPaths);
+        //then
+        Assertions.assertEquals(imgPaths, stampService.editStampImagesDeprecated(oldStampInfo, imgPaths).getImages());
     }
 
- /* TODO: Implement the following tests
 
     @Test
     @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
-    void SUCCESS_editStampImagesDeprecated() {
+    void FAIL_editStampImagesDeprecated() {
         // given
+        final List<String> imgPaths = List.of("requestImage");
 
+        Stamp oldStamp = Stamp.builder()
+                .id(1L)
+                .contents("oldContents")
+                .images(List.of("oldImage"))
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
 
+        StampInfo.Stamp oldStampInfo = StampInfo.Stamp.builder()
+                .id(oldStamp.getId())
+                .contents(oldStamp.getContents())
+                .images(oldStamp.getImages())
+                .createdAt(oldStamp.getCreatedAt())
+                .updatedAt(oldStamp.getUpdatedAt())
+                .build();
 
+        //when
+        Mockito.when(stampRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        //then
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            stampService.editStampImagesDeprecated(oldStampInfo, imgPaths);
+        });
     }
+     /* TODO: Implement the following tests
+
     @Test
     void checkDuplicateStamp() {
     }
