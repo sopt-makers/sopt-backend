@@ -489,15 +489,40 @@ class StampServiceTest {
         });
     }
 
-    /* TODO: Implement the following tests
-
     @Test
     void deleteAllStamps() {
+
     }
 
     @Test
-    void getMissionIdByStampId() {
+    @DisplayName("SUCCESS_스탬프 아이디로 미션 아이디 조회")
+    void SUCCESS_getMissionIdByStampId() {
+        //given
+        final Long anyStampId = anyLong();
+        final Long savedMissionId = 1L;
+
+        //when
+        Stamp savedStamp = Stamp.builder().missionId(savedMissionId).build();
+        Mockito.when(stampRepository.findById(anyStampId)).thenReturn(Optional.of(savedStamp));
+
+        //then
+        Assertions.assertEquals(savedMissionId, stampService.getMissionIdByStampId(anyStampId));
     }
 
- */
+    @Test
+    @DisplayName("FAIL_스탬프 아이디로 미션 아이디 조회되지 않을 시 BadRequestException 발생")
+    void FAIL_getMissionIdByStampId() {
+        //given
+        final Long anyStampId = anyLong();
+
+        //when
+        Mockito.when(stampRepository.findById(anyStampId)).thenReturn(Optional.empty());
+
+        //then
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            stampService.getMissionIdByStampId(anyStampId);
+        });
+    }
+
+
 }
