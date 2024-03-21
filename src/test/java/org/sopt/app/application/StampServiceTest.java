@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Stamp;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.presentation.stamp.StampRequest;
@@ -166,7 +167,7 @@ class StampServiceTest {
 
         //when
         Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
-        StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, requestUserId, true);
+        StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, requestUserId, true, false);
         StampInfo.Stamp result = stampService.editStampContentsDeprecated(editStampRequest, requestUserId,
                 requestMissionId);
 
@@ -189,7 +190,7 @@ class StampServiceTest {
 
         //when
         Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
-        editStamp(oldStamp, editStampRequest, requestUserId, true);
+        editStamp(oldStamp, editStampRequest, requestUserId, true, false);
 
         StampInfo.Stamp result = stampService.editStampContentsDeprecated(editStampRequest, requestUserId,
                 requestMissionId);
@@ -221,12 +222,12 @@ class StampServiceTest {
     }
 
     private StampInfo.Stamp editStamp(Stamp oldStamp, StampRequest.EditStampRequest editStampRequest,
-            Long requestUserId, boolean isDeprecated) {
-        if (!StringUtils.hasText(editStampRequest.getContents())) {
+            Long requestUserId, boolean isDeprecatedEditStampContents, boolean isDeprecatedEditStampImages) {
+        if (!isDeprecatedEditStampImages && !StringUtils.hasText(editStampRequest.getContents())) {
             editStampRequest.setContents(oldStamp.getContents());
         }
 
-        if (!isDeprecated && !StringUtils.hasText(editStampRequest.getImage())) {
+        if (!isDeprecatedEditStampContents && !StringUtils.hasText(editStampRequest.getImage())) {
             editStampRequest.setImage(oldStamp.getImages().get(0));
 
         }
@@ -289,7 +290,7 @@ class StampServiceTest {
 
         //when
         Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
-        StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, requestUserId, false);
+        StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, requestUserId, false, false);
         StampInfo.Stamp result = stampService.editStampContents(editStampRequest, requestUserId);
 
         //then
@@ -312,7 +313,7 @@ class StampServiceTest {
 
         //when
         Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
-        StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, requestUserId, false);
+        StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, requestUserId, false, false);
         StampInfo.Stamp result = stampService.editStampContents(editStampRequest, requestUserId);
 
         //then
@@ -336,7 +337,7 @@ class StampServiceTest {
 
         //when
         Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
-        StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, requestUserId, false);
+        StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, requestUserId, false, false);
         StampInfo.Stamp result = stampService.editStampContents(editStampRequest, requestUserId);
 
         //then
@@ -362,12 +363,48 @@ class StampServiceTest {
             stampService.editStampContents(editStampRequest, requestUserId);
         });
     }
-    /* TODO: Implement the following tests
 
     @Test
-    void editStampImagesDeprecated() {
+    @DisplayName("SUCCESS_스탬프 이미지 변경")
+    void SUCCESS_editStampImagesDeprecated() {
+        // given
+        final List<String> imgPaths = List.of("requestImage");
+
+        Stamp oldStamp = Stamp.builder()
+                .id(1L)
+                .contents("oldContents")
+                .images(List.of("oldImage"))
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+        StampInfo.Stamp oldStampInfo = StampInfo.Stamp.builder()
+                .id(oldStamp.getId())
+                .contents(oldStamp.getContents())
+                .images(oldStamp.getImages())
+                .createdAt(oldStamp.getCreatedAt())
+                .updatedAt(oldStamp.getUpdatedAt())
+                .build();
+
+        Mockito.when(stampRepository.findById(anyLong())).thenReturn(Optional.of(oldStamp));
+        oldStamp.changeImages(imgPaths);
+        Mockito.when(stampRepository.save(any(Stamp.class))).thenReturn(oldStamp);
+
+        StampInfo.Stamp result = stampService.editStampImagesDeprecated(oldStampInfo, imgPaths);
+
+        assertThat(result.getImages()).usingRecursiveComparison().isEqualTo(imgPaths);
     }
 
+ /* TODO: Implement the following tests
+
+    @Test
+    @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
+    void SUCCESS_editStampImagesDeprecated() {
+        // given
+
+
+
+    }
     @Test
     void checkDuplicateStamp() {
     }
