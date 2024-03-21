@@ -459,11 +459,22 @@ class StampServiceTest {
         });
     }
 
-    /* TODO: Implement the following tests
-
     @Test
-    void deleteStampById() {
+    @DisplayName("SUCCESS_중복된 스탬프가 있으면 BadRequestException 발생")
+    void SUCCESS_deleteStampById() {
+        //given
+        final Long stampId = anyLong();
+
+        //when
+        Mockito.when(stampRepository.findById(stampId)).thenReturn(Optional.of(new Stamp()));
+
+        //then
+        Assertions.assertDoesNotThrow(() -> {
+            stampService.deleteStampById(stampId);
+        });
     }
+
+    /* TODO: Implement the following tests
 
     @Test
     void deleteAllStamps() {
