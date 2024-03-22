@@ -118,11 +118,22 @@ class SoptampUserServiceTest {
         Assertions.assertEquals(soptampUserService.editNickname(soptampUser, newNickname).getNickname(), newNickname);
     }
 
-    /* TODO: Implement test cases
     @Test
-    void editProfileMessage() {
+    @DisplayName("SUCCESS_프로필 메시지 변경")
+    void SUCCESS_editProfileMessage() {
+        //given
+        final String newProfileMessage = "newProfileMessage";
+        SoptampUserInfo.SoptampUser soptampUser = SoptampUserInfo.SoptampUser.builder()
+                .nickname("oldProfileMessage")
+                .build();
+
+        //then
+        Assertions.assertEquals(
+                soptampUserService.editProfileMessage(soptampUser, newProfileMessage).getProfileMessage(),
+                newProfileMessage);
     }
 
+    /* TODO: Implement test cases
     @Test
     void updateSoptampUser() {
     }
