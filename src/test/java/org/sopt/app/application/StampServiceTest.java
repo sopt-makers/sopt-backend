@@ -490,8 +490,15 @@ class StampServiceTest {
     }
 
     @Test
-    void deleteAllStamps() {
+    @DisplayName("SUCCESS_모든 스탬프 삭제")
+    void SUCCESS_deleteAllStamps() {
+        //given
+        final Long anyUserId = anyLong();
 
+        //then
+        Assertions.assertDoesNotThrow(() -> {
+            stampService.deleteAllStamps(anyUserId);
+        });
     }
 
     @Test
