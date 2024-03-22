@@ -1,11 +1,18 @@
 package org.sopt.app.application;
 
+import static org.mockito.Mockito.when;
+
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.api.TestInstance.Lifecycle;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.description.DescriptionInfo;
 import org.sopt.app.application.description.DescriptionService;
 import org.sopt.app.domain.entity.MainDescription;
@@ -14,17 +21,19 @@ import org.sopt.app.interfaces.postgres.MainDescriptionRepository;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
+@TestInstance(Lifecycle.PER_CLASS)
+@ExtendWith(MockitoExtension.class)
 public class DescriptionServiceTest {
 
-    private static MainDescriptionRepository mainDescriptionRepository = Mockito.mock(MainDescriptionRepository.class);
+    @Mock
+    private MainDescriptionRepository mainDescriptionRepository;
 
-    private DescriptionService descriptionService = new DescriptionService(
-            mainDescriptionRepository
-    );
+    @InjectMocks
+    private DescriptionService descriptionService;
 
     @BeforeAll
-    private static void beforeTest() {
-        Mockito.when(mainDescriptionRepository.findAll()).thenReturn(List.of(
+    private void beforeTest() {
+        when(mainDescriptionRepository.findAll()).thenReturn(List.of(
                 MainDescription.builder()
                         .id(1L)
                         .activeTopDescription("activeTop")
@@ -36,25 +45,28 @@ public class DescriptionServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_getMainDescriptionActive")
+    @DisplayName("SUCCESS_활동 유저 메인 문구 조회")
     void SUCCESS_getMainDescriptionActive() {
         DescriptionInfo.MainDescription result = descriptionService.getMainDescription(UserStatus.ACTIVE);
+
         Assertions.assertEquals("activeTop", result.getTopDescription());
         Assertions.assertEquals("activeBottom", result.getBottomDescription());
     }
 
     @Test
-    @DisplayName("SUCCESS_getMainDescriptionInactive")
+    @DisplayName("SUCCESS_비활동 유저 메인 문구 조회")
     void SUCCESS_getMainDescriptionInactive() {
         DescriptionInfo.MainDescription result = descriptionService.getMainDescription(UserStatus.INACTIVE);
+
         Assertions.assertEquals("inactiveTop", result.getTopDescription());
         Assertions.assertEquals("inactiveBottom", result.getBottomDescription());
     }
 
     @Test
-    @DisplayName("SUCCESS_getMainDescriptionUnauthenticated")
+    @DisplayName("SUCCESS_미인증 유저 메인 문구 조회")
     void SUCCESS_getMainDescriptionUnauthenticated() {
         DescriptionInfo.MainDescription result = descriptionService.getMainDescription(UserStatus.UNAUTHENTICATED);
+
         Assertions.assertEquals("inactiveTop", result.getTopDescription());
         Assertions.assertEquals("inactiveBottom", result.getBottomDescription());
     }

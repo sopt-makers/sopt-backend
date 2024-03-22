@@ -51,9 +51,9 @@ public class UserController {
     public ResponseEntity<UserResponse.Soptamp> getSoptampInfo(@AuthenticationPrincipal User user) {
         val SoptampUser = soptampUserService.getSoptampUserInfo(user.getId());
         val response = UserResponse.Soptamp.builder()
-            .nickname(SoptampUser.getNickname())
-            .profileMessage(SoptampUser.getProfileMessage())
-            .points(SoptampUser.getTotalPoints())
+            .nickname(soptampUser.getNickname())
+            .profileMessage(soptampUser.getProfileMessage())
+            .points(soptampUser.getTotalPoints())
             .build();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
