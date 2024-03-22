@@ -37,12 +37,12 @@ class SoptampUserServiceTest {
         final String nickname = "nickname";
 
         Optional<SoptampUser> soptampUser = Optional.of(SoptampUser.builder()
-            .id(id)
-            .userId(anyUserId)
-            .profileMessage(profileMessage)
-            .totalPoints(totalPoints)
-            .nickname(nickname)
-            .build());
+                .id(id)
+                .userId(anyUserId)
+                .profileMessage(profileMessage)
+                .totalPoints(totalPoints)
+                .nickname(nickname)
+                .build());
 
         //when
         SoptampUserInfo.SoptampUser expected = SoptampUserInfo.SoptampUser.builder()
@@ -105,11 +105,20 @@ class SoptampUserServiceTest {
         });
     }
 
-    /* TODO: Implement test cases
     @Test
-    void editNickname() {
+    @DisplayName("SUCCESS_닉네임 변경")
+    void SUCCESS_editNickname() {
+        //given
+        final String newNickname = "newNickname";
+        SoptampUserInfo.SoptampUser soptampUser = SoptampUserInfo.SoptampUser.builder()
+                .nickname("oldNickname")
+                .build();
+
+        //then
+        Assertions.assertEquals(soptampUserService.editNickname(soptampUser, newNickname).getNickname(), newNickname);
     }
 
+    /* TODO: Implement test cases
     @Test
     void editProfileMessage() {
     }
