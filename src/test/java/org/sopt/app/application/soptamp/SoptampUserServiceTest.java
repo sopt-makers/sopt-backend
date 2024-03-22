@@ -2,6 +2,7 @@ package org.sopt.app.application.soptamp;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
@@ -74,11 +75,37 @@ class SoptampUserServiceTest {
         });
     }
 
-    /* TODO: Implement test cases
     @Test
-    void checkUserNickname() {
+    @DisplayName("SUCCESS_닉네임 중복 검사")
+    void SUCCESS_checkUserNickname() {
+        //given
+        final String anyNickname = anyString();
+
+        //when
+        Mockito.when(soptampUserRepository.findUserByNickname(anyNickname)).thenReturn(Optional.empty());
+
+        //then
+        Assertions.assertDoesNotThrow(() -> {
+            soptampUserService.checkUserNickname(anyNickname);
+        });
     }
 
+    @Test
+    @DisplayName("FAIL_닉네임 중복 검사")
+    void FAIL_checkUserNickname() {
+        //given
+        final String anyNickname = anyString();
+
+        //when
+        Mockito.when(soptampUserRepository.findUserByNickname(anyNickname)).thenReturn(Optional.of(new SoptampUser()));
+
+        //then
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            soptampUserService.checkUserNickname(anyNickname);
+        });
+    }
+
+    /* TODO: Implement test cases
     @Test
     void editNickname() {
     }
