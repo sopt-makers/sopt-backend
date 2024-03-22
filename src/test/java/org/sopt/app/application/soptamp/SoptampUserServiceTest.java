@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
 
 import java.util.Optional;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -11,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.domain.entity.SoptampUser;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 
@@ -55,6 +57,21 @@ class SoptampUserServiceTest {
         //then
 
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("FAIL_솝탬프 유저 정보 조회")
+    void FAIL_getSoptampUserInfo() {
+        //given
+        final Long anyUserId = anyLong();
+
+        //when
+        Mockito.when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.empty());
+
+        //then
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            soptampUserService.getSoptampUserInfo(anyUserId);
+        });
     }
 
     /* TODO: Implement test cases
