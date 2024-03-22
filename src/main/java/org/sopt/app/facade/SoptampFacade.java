@@ -10,7 +10,6 @@ import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampService;
-import org.sopt.app.domain.entity.Stamp;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
 import org.springframework.stereotype.Service;
@@ -65,13 +64,13 @@ public class SoptampFacade {
 
     @Transactional
     public SoptampUserInfo.SoptampUser editSoptampUserNickname(Long userId, String nickname){
-        val soptampUser = soptampUserService.getSotampUserInfo(userId);
+        val soptampUser = soptampUserService.getSoptampUserInfo(userId);
         return soptampUserService.editNickname(soptampUser, nickname);
     }
 
     @Transactional
     public SoptampUserInfo.SoptampUser editSoptampUserProfileMessage(Long userId, String newProfileMessage){
-        val soptampUser = soptampUserService.getSotampUserInfo(userId);
+        val soptampUser = soptampUserService.getSoptampUserInfo(userId);
         return soptampUserService.editProfileMessage(soptampUser, newProfileMessage);
     }
 

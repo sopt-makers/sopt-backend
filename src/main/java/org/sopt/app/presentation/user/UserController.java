@@ -49,7 +49,7 @@ public class UserController {
     })
     @GetMapping(value = "/soptamp")
     public ResponseEntity<UserResponse.Soptamp> getSoptampInfo(@AuthenticationPrincipal User user) {
-        val SoptampUser = soptampUserService.getSotampUserInfo(user.getId());
+        val SoptampUser = soptampUserService.getSoptampUserInfo(user.getId());
         val response = UserResponse.Soptamp.builder()
             .nickname(SoptampUser.getNickname())
             .profileMessage(SoptampUser.getProfileMessage())

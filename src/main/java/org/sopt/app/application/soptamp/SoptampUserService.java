@@ -1,6 +1,5 @@
 package org.sopt.app.application.soptamp;
 
-import com.sun.xml.bind.v2.runtime.JaxBeanInfo;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -13,7 +12,6 @@ import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.SoptampUser;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,7 +22,7 @@ public class SoptampUserService {
     private final SoptampUserRepository soptampUserRepository;
 
     @Transactional(readOnly = true)
-    public SoptampUserInfo.SoptampUser getSotampUserInfo(Long userId) {
+    public SoptampUserInfo.SoptampUser getSoptampUserInfo(Long userId) {
         val user = soptampUserRepository.findByUserId(userId)
             .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
         return SoptampUserInfo.SoptampUser.builder()
