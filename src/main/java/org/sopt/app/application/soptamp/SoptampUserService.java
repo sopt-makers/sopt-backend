@@ -127,7 +127,7 @@ public class SoptampUserService {
 
     private List<Main> getCurrentRanking(List<SoptampUser> userList, List<Point> soptampPointList) {
         val rankPoint = new AtomicInteger(1);
-        val result =  soptampPointList.stream().sorted(Comparator.comparing(Point::getPoints).reversed())
+        return soptampPointList.stream().sorted(Comparator.comparing(Point::getPoints).reversed())
             .map(point -> {
                 val user = userList.stream()
                     .filter(u -> u.getId().equals(point.getSoptampUserId()))
@@ -140,7 +140,6 @@ public class SoptampUserService {
                     .profileMessage(user.getProfileMessage())
                     .build();
             }).collect(Collectors.toList());
-        return result;
     }
 
     public SoptampUser findRankByNickname(String nickname) {
