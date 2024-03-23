@@ -1,6 +1,7 @@
 package org.sopt.app.application.soptamp;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 
@@ -134,12 +135,12 @@ class SoptampUserServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_프로필 메시지 변경")
-    void updateSoptampUser() {
+    @DisplayName("SUCCESS_등록된 유저이면 이름을 변경하지 않음")
+    void SUCCESS_updateSoptampUser() {
         //given
-        final Long anyUserId = anyLong();
         final Long id = 1L;
-        final String name = "newName";
+        final Long anyUserId = anyLong();
+        final String newNickname = "newNickname";
         SoptampUser soptampUser = SoptampUser.builder()
                 .id(id)
                 .userId(anyUserId)
@@ -150,7 +151,32 @@ class SoptampUserServiceTest {
         Mockito.when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.of(soptampUser));
 
         //then
-        Assertions.assertEquals(soptampUserService.updateSoptampUser(name, anyUserId), id);
+        Assertions.assertEquals(soptampUserService.updateSoptampUser(newNickname, anyUserId), id);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_등록된 유저가 아니면 이름을 생성하여 변경")
+    void FAIL_updateSoptampUser() {
+        //given
+        final Long id = 1L;
+        final Long anyUserId = anyLong();
+        final String newNickname = "newNickname";
+        SoptampUser soptampUser = SoptampUser.builder()
+                .id(id)
+                .userId(anyUserId)
+                .nickname(generateNickname(newNickname))
+                .build();
+
+        //when
+        Mockito.when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.empty());
+        Mockito.when(soptampUserRepository.save(any(SoptampUser.class))).thenReturn(soptampUser);
+
+        //then
+        Assertions.assertEquals(soptampUserService.updateSoptampUser(newNickname, anyUserId), id);
+    }
+
+    private String generateNickname(String username) {
+        return username + Math.round(Math.random() * 10000);
     }
 
     /* TODO: Implement test cases
