@@ -268,11 +268,40 @@ class SoptampUserServiceTest {
         });
     }
 
-    /* TODO: Implement test cases
+
     @Test
-    void findRankByNickname() {
+    @DisplayName("SUCCESS_닉네임으로 랭킹 조회")
+    void SUCCESS_findRankByNickname() {
+        // given
+        final String anyNickname = anyString();
+        final SoptampUser soptampUser = SoptampUser.builder().nickname(anyNickname).build();
+
+        //when
+        Mockito.when(soptampUserRepository.findUserByNickname(anyNickname)).thenReturn(Optional.of(soptampUser));
+        Optional<SoptampUser> result = soptampUserRepository.findUserByNickname(anyNickname);
+
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(Optional.of(soptampUser));
     }
 
+    @Test
+    @DisplayName("FAIL_닉네임으로 랭킹 조회")
+    void FAIL_findRankByNickname() {
+        // given
+        final String anyNickname = anyString();
+        final SoptampUser soptampUser = SoptampUser.builder().nickname(anyNickname).build();
+
+        //when
+        Mockito.when(soptampUserRepository.findUserByNickname(anyNickname)).thenReturn(Optional.empty());
+
+        //then
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            soptampUserService.findRankByNickname(anyNickname);
+        });
+
+    }
+
+    /* TODO: Implement test cases
     @Test
     void addPoint() {
     }
