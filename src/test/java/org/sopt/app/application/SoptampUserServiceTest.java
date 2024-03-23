@@ -240,6 +240,34 @@ class SoptampUserServiceTest {
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
+    @Test
+    @DisplayName("FAIL_솝탬프 포인트 리스트를 받았을 때 유저를 찾지 못하면 BadRequestException 발생")
+    void FAIL_findCurrentRanks() {
+        //given
+        List<Point> soptampPointList = Stream.of(
+                Point.of(1L, 1L, 1L, 100L),
+                Point.of(2L, 1L, 2L, 200L),
+                Point.of(3L, 1L, 3L, 300L)
+        ).collect(Collectors.toList());
+
+        List<Long> soptampUserIdList = soptampPointList.stream()
+                .map(Point::getSoptampUserId).toList();
+
+        //when
+        List<Main> expected = List.of(
+                Main.builder().rank(1).point(300L).build(),
+                Main.builder().rank(2).point(200L).build(),
+                Main.builder().rank(3).point(100L).build()
+        );
+
+        Mockito.when(soptampUserRepository.findAllById(soptampUserIdList)).thenReturn(List.of());
+
+        //then
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            soptampUserService.findCurrentRanks(soptampPointList);
+        });
+    }
+
     /* TODO: Implement test cases
     @Test
     void findRankByNickname() {
