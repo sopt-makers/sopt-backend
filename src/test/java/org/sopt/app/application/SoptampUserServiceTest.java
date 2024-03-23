@@ -1,4 +1,4 @@
-package org.sopt.app.application.soptamp;
+package org.sopt.app.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,7 +20,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
+import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
+import org.sopt.app.application.soptamp.SoptampUserInfo;
+import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.SoptampUser;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 
@@ -170,7 +174,7 @@ class SoptampUserServiceTest {
         SoptampUser soptampUser = SoptampUser.builder()
                 .id(id)
                 .userId(anyUserId)
-                .nickname(generateNickname(newNickname))
+                .nickname(newNickname)
                 .build();
 
         //when
@@ -181,47 +185,62 @@ class SoptampUserServiceTest {
         Assertions.assertEquals(soptampUserService.updateSoptampUser(newNickname, anyUserId), id);
     }
 
-    private String generateNickname(String username) {
-        return username + Math.round(Math.random() * 10000);
-    }
-
-
     @Test
-    @DisplayName("SUCCESS_랭크 조회")
+    @DisplayName("SUCCESS_솝탬프 유저 리스트를 받아 랭크 조회")
     void SUCCESS_findRanks() {
         //given
         final SoptampUser soptampUser1 = SoptampUser.builder().nickname("1stUser").totalPoints(100L).build();
         final SoptampUser soptampUser2 = SoptampUser.builder().nickname("2stUser").totalPoints(200L).build();
         final SoptampUser soptampUser3 = SoptampUser.builder().nickname("3stUser").totalPoints(300L).build();
-        List<SoptampUser> soptampUserList = List.of(soptampUser1, soptampUser2, soptampUser3);
+        final List<SoptampUser> soptampUserList = List.of(soptampUser1, soptampUser2, soptampUser3);
 
         //when
+        List<Main> expected = List.of(
+                Main.builder().rank(1).point(300L).nickname("3stUser").build(),
+                Main.builder().rank(2).point(200L).nickname("2stUser").build(),
+                Main.builder().rank(3).point(100L).nickname("1stUser").build()
+        );
+
         Mockito.when(soptampUserRepository.findAll()).thenReturn(soptampUserList);
         List<Main> result = soptampUserService.findRanks();
-        List<Main> expected = getRanking(soptampUserList);
 
         //then
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
-    private List<Main> getRanking(List<SoptampUser> userList) {
-        AtomicInteger rankPoint = new AtomicInteger(1);
-        return userList.stream().sorted(
-                        Comparator.comparing(SoptampUser::getTotalPoints).reversed())
-                .map(user -> Main.builder()
-                        .rank(rankPoint.getAndIncrement())
-                        .nickname(user.getNickname())
-                        .point(user.getTotalPoints())
-                        .profileMessage(user.getProfileMessage())
-                        .build())
-                .collect(Collectors.toList());
+    @Test
+    @DisplayName("SUCCESS_솝탬프 포인트 리스트를 받아 랭크를 조회")
+    void SUCCESS_findCurrentRanks() {
+        //given
+        List<Point> soptampPointList = Stream.of(
+                Point.of(1L, 1L, 1L, 100L),
+                Point.of(2L, 1L, 2L, 200L),
+                Point.of(3L, 1L, 3L, 300L)
+        ).collect(Collectors.toList());
+
+        List<Long> soptampUserIdList = soptampPointList.stream()
+                .map(Point::getSoptampUserId).toList();
+
+        //when
+        List<Main> expected = List.of(
+                Main.builder().rank(1).point(300L).build(),
+                Main.builder().rank(2).point(200L).build(),
+                Main.builder().rank(3).point(100L).build()
+        );
+
+        Mockito.when(soptampUserRepository.findAllById(soptampUserIdList)).thenReturn(
+                List.of(
+                        SoptampUser.builder().id(1L).build(),
+                        SoptampUser.builder().id(2L).build(),
+                        SoptampUser.builder().id(3L).build()
+                ));
+        List<Main> result = soptampUserService.findCurrentRanks(soptampPointList);
+
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
     /* TODO: Implement test cases
-    @Test
-    void findCurrentRanks() {
-    }
-
     @Test
     void findRankByNickname() {
     }
