@@ -289,7 +289,6 @@ class SoptampUserServiceTest {
     void FAIL_findRankByNickname() {
         // given
         final String anyNickname = anyString();
-        final SoptampUser soptampUser = SoptampUser.builder().nickname(anyNickname).build();
 
         //when
         Mockito.when(soptampUserRepository.findUserByNickname(anyNickname)).thenReturn(Optional.empty());
