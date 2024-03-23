@@ -5,10 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
@@ -24,7 +22,6 @@ import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.exception.BadRequestException;
-import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.SoptampUser;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 
