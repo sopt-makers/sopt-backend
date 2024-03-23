@@ -394,11 +394,53 @@ class SoptampUserServiceTest {
         });
     }
 
-    /* TODO: Implement test cases
     @Test
-    void findByNickname() {
+    @DisplayName("SUCCESS_닉네임으로 유저 조회")
+    void SUCCESS_findByNickname() {
+        //given
+        final Long id = 1L;
+        final Long userId = 1L;
+        final String profileMessage = "profileMessage";
+        final Long totalPoints = 100L;
+        final String anyNickname = anyString();
+
+        final SoptampUser soptampUser = SoptampUser.builder()
+                .id(id)
+                .userId(userId)
+                .profileMessage(profileMessage)
+                .totalPoints(totalPoints)
+                .nickname(anyNickname)
+                .build();
+        //when
+        Mockito.when(soptampUserRepository.findUserByNickname(anyNickname)).thenReturn(Optional.of(soptampUser));
+        SoptampUserInfo.SoptampUser expected = SoptampUserInfo.SoptampUser.builder()
+                .id(id)
+                .userId(userId)
+                .profileMessage(profileMessage)
+                .totalPoints(totalPoints)
+                .nickname(anyNickname)
+                .build();
+
+        //then
+        assertThat(soptampUserService.findByNickname(anyNickname)).usingRecursiveComparison().isEqualTo(expected);
     }
 
+    @Test
+    @DisplayName("FAIL_닉네임으로 유저 조회 실패시 BadRequestException 발생")
+    void FAIL_findByNickname() {
+        //given
+        final String anyNickname = anyString();
+
+        //when
+        Mockito.when(soptampUserRepository.findUserByNickname(anyNickname)).thenReturn(Optional.empty());
+
+        //then
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            soptampUserService.findByNickname(anyNickname);
+        });
+    }
+
+    /* TODO: Implement test cases
     @Test
     void initPoint() {
     }
