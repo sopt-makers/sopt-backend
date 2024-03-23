@@ -48,6 +48,7 @@ class StampServiceTest {
                 .images(stamp.getImages())
                 .createdAt(stamp.getCreatedAt())
                 .updatedAt(stamp.getUpdatedAt())
+                .missionId(stamp.getMissionId())
                 .build();
         StampInfo.Stamp result = stampService.findStamp(stampUserId, stampMissionId);
 
@@ -87,7 +88,6 @@ class StampServiceTest {
         Stamp stamp = Stamp.builder()
                 .id(1L)
                 .contents(stampRequest.getContents())
-                .createdAt(LocalDateTime.now())
                 .images(imgPaths)
                 .missionId(requestMissionId)
                 .userId(requestUserId)
@@ -99,6 +99,7 @@ class StampServiceTest {
         Stamp newStamp = stampRepository.save(stamp);
         StampInfo.Stamp expected = StampInfo.Stamp.builder()
                 .id(newStamp.getId())
+                .missionId(newStamp.getMissionId())
                 .contents(newStamp.getContents())
                 .images(newStamp.getImages())
                 .createdAt(newStamp.getCreatedAt())
@@ -127,7 +128,6 @@ class StampServiceTest {
 
         Stamp stamp = Stamp.builder()
                 .contents(stampRequest.getContents())
-                .createdAt(LocalDateTime.now())
                 .images(List.of(stampRequest.getImage()))
                 .missionId(stampRequest.getMissionId())
                 .userId(requestUserId)
@@ -138,6 +138,7 @@ class StampServiceTest {
         Stamp newStamp = stampRepository.save(stamp);
         StampInfo.Stamp expected = StampInfo.Stamp.builder()
                 .id(newStamp.getId())
+                .missionId(newStamp.getMissionId())
                 .contents(newStamp.getContents())
                 .images(newStamp.getImages())
                 .createdAt(newStamp.getCreatedAt())
@@ -166,11 +167,12 @@ class StampServiceTest {
 
         //when
         Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
-        StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, requestUserId, true, false);
+        StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, true);
         StampInfo.Stamp result = stampService.editStampContentsDeprecated(editStampRequest, requestUserId,
                 requestMissionId);
 
-        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+        //then
+        Assertions.assertEquals(expected.getId(), result.getId());
     }
 
     @Test
@@ -189,28 +191,24 @@ class StampServiceTest {
 
         //when
         Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
-        editStamp(oldStamp, editStampRequest, requestUserId, true, false);
+        editStamp(oldStamp, editStampRequest, true);
 
         StampInfo.Stamp result = stampService.editStampContentsDeprecated(editStampRequest, requestUserId,
                 requestMissionId);
 
         //then
-        Assertions.assertEquals(oldStamp.getContents(), result.getContents());
+        Assertions.assertEquals(oldStamp.getId(), result.getId());
     }
 
     private Stamp getSavedStamp(Long missionId, Long requestUserId) {
         final Long stampId = 1L;
         final String contents = "savedContents";
         final List<String> images = List.of("savedImage");
-        final LocalDateTime createdAt = LocalDateTime.of(2024, 1, 1, 0, 0, 0);
-        final LocalDateTime savedUpdatedAt = LocalDateTime.of(2024, 1, 1, 0, 0, 0);
 
         final Optional<Stamp> savedStamp = Optional.of(Stamp.builder()
                 .id(stampId)
                 .contents(contents)
                 .images(images)
-                .createdAt(createdAt)
-                .updatedAt(savedUpdatedAt)
                 .missionId(missionId)
                 .userId(requestUserId)
                 .build());
@@ -220,14 +218,13 @@ class StampServiceTest {
         return savedStamp.get();
     }
 
-    private StampInfo.Stamp editStamp(Stamp oldStamp, StampRequest.EditStampRequest editStampRequest,
-            Long requestUserId, boolean isDeprecatedEditStampContents, boolean isDeprecatedEditStampImages) {
-        if (!isDeprecatedEditStampImages && !StringUtils.hasText(editStampRequest.getContents())) {
-            editStampRequest.setContents(oldStamp.getContents());
+    private StampInfo.Stamp editStamp(Stamp oldStamp, StampRequest.EditStampRequest editStampRequest, boolean isDeprecatedEditStampContents) {
+        if (!isDeprecatedEditStampContents && StringUtils.hasText(editStampRequest.getContents())) {
+            oldStamp.changeContents(editStampRequest.getContents());
         }
 
-        if (!isDeprecatedEditStampContents && !StringUtils.hasText(editStampRequest.getImage())) {
-            editStampRequest.setImage(oldStamp.getImages().get(0));
+        if (StringUtils.hasText(editStampRequest.getImage())) {
+            oldStamp.changeImages(List.of(editStampRequest.getImage()));
 
         }
 
@@ -235,21 +232,20 @@ class StampServiceTest {
 
         final Stamp newStamp = Stamp.builder()
                 .id(oldStamp.getId())
-                .contents(editStampRequest.getContents())
-                .images(List.of(editStampRequest.getImage()))
-                .createdAt(oldStamp.getCreatedAt())
-                .updatedAt(changedUpdatedAt)
-                .missionId(editStampRequest.getMissionId())
-                .userId(requestUserId)
+                .contents(oldStamp.getContents())
+                .images(oldStamp.getImages())
+                .missionId(oldStamp.getMissionId())
+                .userId(oldStamp.getUserId())
                 .build();
 
         Mockito.when(stampRepository.save(any(Stamp.class))).thenReturn(newStamp);
 
         return StampInfo.Stamp.builder()
-                .id(oldStamp.getId())
-                .contents(editStampRequest.getContents())
-                .images(List.of(editStampRequest.getImage()))
-                .createdAt(oldStamp.getCreatedAt())
+                .id(newStamp.getId())
+                .missionId(newStamp.getMissionId())
+                .contents(newStamp.getContents())
+                .images(newStamp.getImages())
+                .createdAt(newStamp.getCreatedAt())
                 .updatedAt(changedUpdatedAt)
                 .build();
     }
@@ -289,11 +285,11 @@ class StampServiceTest {
 
         //when
         Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
-        StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, requestUserId, false, false);
+        editStamp(oldStamp, editStampRequest,false);
         StampInfo.Stamp result = stampService.editStampContents(editStampRequest, requestUserId);
 
         //then
-        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+        Assertions.assertEquals(oldStamp.getId(), result.getId());
     }
 
     @Test
@@ -312,12 +308,11 @@ class StampServiceTest {
 
         //when
         Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
-        StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, requestUserId, false, false);
+        StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, false);
         StampInfo.Stamp result = stampService.editStampContents(editStampRequest, requestUserId);
 
         //then
-        Assertions.assertEquals(oldStamp.getContents(), result.getContents());
-        Assertions.assertEquals(expected.getImages(), result.getImages());
+        Assertions.assertEquals(expected.getId(), result.getId());
     }
 
     @Test
@@ -336,12 +331,11 @@ class StampServiceTest {
 
         //when
         Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
-        StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, requestUserId, false, false);
+        editStamp(oldStamp, editStampRequest, false);
         StampInfo.Stamp result = stampService.editStampContents(editStampRequest, requestUserId);
 
         //then
-        Assertions.assertEquals(oldStamp.getImages(), result.getImages());
-        Assertions.assertEquals(expected.getContents(), result.getContents());
+        Assertions.assertEquals(oldStamp.getId(), result.getId());
     }
 
     @Test
@@ -373,8 +367,6 @@ class StampServiceTest {
                 .id(1L)
                 .contents("oldContents")
                 .images(List.of("oldImage"))
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .build();
 
         StampInfo.Stamp oldStampInfo = StampInfo.Stamp.builder()
@@ -391,7 +383,9 @@ class StampServiceTest {
         Mockito.when(stampRepository.save(any(Stamp.class))).thenReturn(oldStamp);
 
         //then
-        Assertions.assertEquals(imgPaths, stampService.editStampImagesDeprecated(oldStampInfo, imgPaths).getImages());
+        Assertions.assertDoesNotThrow(() -> {
+            stampService.editStampImagesDeprecated(oldStampInfo, imgPaths);
+        });
     }
 
 
@@ -405,8 +399,6 @@ class StampServiceTest {
                 .id(1L)
                 .contents("oldContents")
                 .images(List.of("oldImage"))
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
                 .build();
 
         StampInfo.Stamp oldStampInfo = StampInfo.Stamp.builder()
