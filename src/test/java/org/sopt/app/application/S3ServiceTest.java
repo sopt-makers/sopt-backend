@@ -121,7 +121,9 @@ public class S3ServiceTest {
     void SUCCESS_deleteFiles() {
         doNothing().when(s3Client).deleteObject(any(), any());
 
-        s3Service.deleteFiles(List.of("https://url.com"), "folderName");
+        Assertions.assertDoesNotThrow(() ->
+                s3Service.deleteFiles(List.of("https://url.com"), "folderName")
+        );
     }
 
     @Test
