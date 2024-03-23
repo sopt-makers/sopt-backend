@@ -440,10 +440,38 @@ class SoptampUserServiceTest {
         });
     }
 
-    /* TODO: Implement test cases
     @Test
-    void initPoint() {
+    @DisplayName("SUCCESS_포인트 초기화")
+    void SUCCESS_initPoint() {
+        //given
+        final Long anyUserId = anyLong();
+        final SoptampUser soptampUser = SoptampUser.builder()
+                .userId(anyUserId)
+                .build();
+
+        //when
+        Mockito.when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.of(soptampUser));
+        Mockito.when(soptampUserRepository.save(any(SoptampUser.class))).thenReturn(soptampUser);
+
+        //then
+        Assertions.assertDoesNotThrow(() -> {
+            soptampUserService.initPoint(anyUserId);
+        });
     }
 
-    */
+    @Test
+    @DisplayName("FAIL_포인트 초기화")
+    void FAIL_initPoint() {
+        //given
+        final Long anyUserId = anyLong();
+
+        //when
+        Mockito.when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.empty());
+
+        //then
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            soptampUserService.initPoint(anyUserId);
+        });
+    }
+
 }
