@@ -2,8 +2,8 @@ package org.sopt.app.application.stamp;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.common.event.Events;
@@ -26,14 +26,15 @@ public class StampService {
     @Transactional(readOnly = true)
     public StampInfo.Stamp findStamp(Long missionId, Long userId) {
         val entity = stampRepository.findByUserIdAndMissionId(userId, missionId)
-            .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
         return StampInfo.Stamp.builder()
-            .id(entity.getId())
-            .contents(entity.getContents())
-            .images(entity.getImages())
-            .createdAt(entity.getCreatedAt())
-            .updatedAt(entity.getUpdatedAt())
-            .build();
+                .id(entity.getId())
+                .contents(entity.getContents())
+                .images(entity.getImages())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .missionId(entity.getMissionId())
+                .build();
     }
 
     @Transactional
@@ -51,6 +52,7 @@ public class StampService {
                 .images(newStamp.getImages())
                 .createdAt(newStamp.getCreatedAt())
                 .updatedAt(newStamp.getUpdatedAt())
+                .missionId(newStamp.getMissionId())
                 .build();
     }
 
@@ -60,7 +62,6 @@ public class StampService {
             Long userId) {
         val stamp = Stamp.builder()
                 .contents(stampRequest.getContents())
-                .createdAt(LocalDateTime.now())
                 .images(List.of(stampRequest.getImage()))
                 .missionId(stampRequest.getMissionId())
                 .userId(userId)
@@ -73,6 +74,7 @@ public class StampService {
                 .images(newStamp.getImages())
                 .createdAt(newStamp.getCreatedAt())
                 .updatedAt(newStamp.getUpdatedAt())
+                .missionId(newStamp.getMissionId())
                 .build();
     }
 
@@ -92,10 +94,6 @@ public class StampService {
         val newStamp = stampRepository.save(stamp);
         return StampInfo.Stamp.builder()
                 .id(newStamp.getId())
-                .contents(newStamp.getContents())
-                .images(newStamp.getImages())
-                .createdAt(newStamp.getCreatedAt())
-                .updatedAt(newStamp.getUpdatedAt())
                 .build();
     }
 
@@ -116,26 +114,15 @@ public class StampService {
         val newStamp = stampRepository.save(stamp);
         return StampInfo.Stamp.builder()
                 .id(newStamp.getId())
-                .contents(newStamp.getContents())
-                .images(newStamp.getImages())
-                .createdAt(newStamp.getCreatedAt())
-                .updatedAt(newStamp.getUpdatedAt())
                 .build();
     }
 
     @Transactional
-    public StampInfo.Stamp editStampImagesDeprecated(StampInfo.Stamp stamp, List<String> imgPaths) {
+    public void editStampImagesDeprecated(StampInfo.Stamp stamp, List<String> imgPaths) {
         val oldStamp = stampRepository.findById(stamp.getId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
         oldStamp.changeImages(imgPaths);
-        val newStamp = stampRepository.save(oldStamp);
-        return StampInfo.Stamp.builder()
-                .id(newStamp.getId())
-                .contents(newStamp.getContents())
-                .images(newStamp.getImages())
-                .createdAt(newStamp.getCreatedAt())
-                .updatedAt(newStamp.getUpdatedAt())
-                .build();
+        stampRepository.save(oldStamp);
     }
 
     @Transactional(readOnly = true)
@@ -160,7 +147,7 @@ public class StampService {
         stampRepository.deleteAllByUserId(userId);
 
         val imageUrls = stampRepository.findAllByUserId(userId).stream().map(Stamp::getImages)
-                .flatMap(images -> images.stream()).collect(Collectors.toList());
+                .flatMap(Collection::stream).toList();
         Events.raise(new StampDeletedEvent(imageUrls));
     }
 
@@ -172,7 +159,6 @@ public class StampService {
             Long missionId) {
         return Stamp.builder()
                 .contents(stampRequest.getContents())
-                .createdAt(LocalDateTime.now())
                 .images(imgList)
                 .missionId(missionId)
                 .userId(userId)

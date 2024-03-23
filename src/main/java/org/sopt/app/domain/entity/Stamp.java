@@ -2,7 +2,6 @@ package org.sopt.app.domain.entity;
 
 
 import com.vladmihalcea.hibernate.type.array.ListArrayType;
-import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -37,12 +36,6 @@ public class Stamp extends BaseEntity {
       columnDefinition = "text[]"
   )
   private List<String> images;
-
-  @Column
-  private LocalDateTime createdAt;
-
-  @Column
-  private LocalDateTime updatedAt;
 
   @Column
   private Long userId;
