@@ -302,7 +302,7 @@ class SoptampUserServiceTest {
     void SUCCESS_addPoint() {
         //given
         final Long anyUserId = anyLong();
-        final Integer level =  1;
+        final Integer level = 1;
         final Long soptampUserTotalPoints = 100L;
         final SoptampUser oldSoptampUser = SoptampUser.builder()
                 .userId(anyUserId)
@@ -349,7 +349,7 @@ class SoptampUserServiceTest {
     void SUCCESS_subtractPoint() {
         //given
         final Long anyUserId = anyLong();
-        final Integer level =  1;
+        final Integer level = 1;
         final Long soptampUserTotalPoints = 100L;
         final SoptampUser oldSoptampUser = SoptampUser.builder()
                 .userId(anyUserId)
