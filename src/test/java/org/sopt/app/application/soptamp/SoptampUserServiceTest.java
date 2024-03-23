@@ -133,11 +133,27 @@ class SoptampUserServiceTest {
                 newProfileMessage);
     }
 
-    /* TODO: Implement test cases
     @Test
+    @DisplayName("SUCCESS_프로필 메시지 변경")
     void updateSoptampUser() {
+        //given
+        final Long anyUserId = anyLong();
+        final Long id = 1L;
+        final String name = "newName";
+        SoptampUser soptampUser = SoptampUser.builder()
+                .id(id)
+                .userId(anyUserId)
+                .nickname("oldNickName")
+                .build();
+
+        //when
+        Mockito.when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.of(soptampUser));
+
+        //then
+        Assertions.assertEquals(soptampUserService.updateSoptampUser(name, anyUserId), id);
     }
 
+    /* TODO: Implement test cases
     @Test
     void findRanks() {
     }
