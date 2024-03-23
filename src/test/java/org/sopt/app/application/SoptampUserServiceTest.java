@@ -347,11 +347,54 @@ class SoptampUserServiceTest {
         });
     }
 
-    /* TODO: Implement test cases
     @Test
-    void subtractPoint() {
+    @DisplayName("SUCCESS_미션 레벨별로 유저의 포인트 감소")
+    void SUCCESS_subtractPoint() {
+        //given
+        final Long anyUserId = anyLong();
+        final Integer level =  1;
+        final Long soptampUserTotalPoints = 100L;
+        final SoptampUser oldSoptampUser = SoptampUser.builder()
+                .userId(anyUserId)
+                .totalPoints(soptampUserTotalPoints)
+                .build();
+        final SoptampUser newSoptampUser = SoptampUser.builder()
+                .userId(anyUserId)
+                .totalPoints(soptampUserTotalPoints - level)
+                .build();
+
+        //when
+        SoptampUserInfo.SoptampUser result = SoptampUserInfo.SoptampUser.builder()
+                .id(newSoptampUser.getId())
+                .userId(newSoptampUser.getUserId())
+                .profileMessage(newSoptampUser.getProfileMessage())
+                .totalPoints(newSoptampUser.getTotalPoints())
+                .nickname(newSoptampUser.getNickname())
+                .build();
+
+        Mockito.when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.of(oldSoptampUser));
+        Mockito.when(soptampUserRepository.save(any(SoptampUser.class))).thenReturn(newSoptampUser);
+
+        //then
+        assertThat(soptampUserService.subtractPoint(anyUserId, level)).usingRecursiveComparison().isEqualTo(result);
     }
 
+    @Test
+    @DisplayName("FAIL_유저를 찾지 못하면 BadRequestException 발생")
+    void FAIL_subtractPoint() {
+        //given
+        final Long anyUserId = anyLong();
+
+        //when
+        Mockito.when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.empty());
+
+        //then
+        Assertions.assertThrows(BadRequestException.class, () -> {
+            soptampUserService.subtractPoint(anyUserId, 1);
+        });
+    }
+
+    /* TODO: Implement test cases
     @Test
     void findByNickname() {
     }
