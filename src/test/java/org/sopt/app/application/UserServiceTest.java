@@ -46,6 +46,27 @@ class UserServiceTest {
         Assertions.assertEquals(expected.getId(), result.getId());
     }
 
+    @Test
+    @DisplayName("SUCCESS_등록된 유저가 있으면 플레이그라운드 아이디로 로그인")
+    void SUCCESS_loginWithUserPlaygroundIdWithRegisteredUser() {
+        //given
+        final Long anyUserId = anyLong();
+        PlaygroundMain playgroundMemberResponse = new PlaygroundMain();
+        playgroundMemberResponse.setId(anyUserId);
+
+        User registeredUser = User.builder().id(anyUserId).build();
+
+        //when
+        when(userRepository.findUserByPlaygroundId(anyUserId)).thenReturn(Optional.of(registeredUser));
+        when(userRepository.save(any(User.class))).thenReturn(registeredUser);
+
+        UserInfo.Id expected = UserInfo.Id.builder().id(anyUserId).build();
+        UserInfo.Id result = userService.loginWithUserPlaygroundId(playgroundMemberResponse);
+
+        //then
+        Assertions.assertEquals(expected.getId(), result.getId());
+    }
+
     /* TODO: Implement following test cases
     @Test
     void deleteUser() {
