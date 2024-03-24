@@ -1,5 +1,6 @@
 package org.sopt.app.application;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
@@ -140,15 +141,46 @@ class UserServiceTest {
         Assertions.assertThrows(UnauthorizedException.class, () -> userService.updatePlaygroundToken(userId, playgroundToken));
     }
 
-    /* TODO: Implement following test cases
     @Test
-    void getUserProfile() {
+    @DisplayName("SUCCESS_유저 프로필 조회")
+    void SUCCESS_getUserProfile() {
+        //given
+        final Long anyUserId = anyLong();
+        final String username = "username";
+        final String playgroundToken = "playgroundToken";
+        final Long playgroundId = 1L;
+        final User user = User.builder().id(anyUserId).username(username).playgroundId(playgroundId)
+                .playgroundToken(playgroundToken).build();
+
+        //when
+        when(userRepository.findUserById(anyUserId)).thenReturn(Optional.of(user));
+
+        UserInfo.UserProfile result = userService.getUserProfile(anyUserId);
+        UserInfo.UserProfile expected = UserInfo.UserProfile.builder().userId(anyUserId).name(username)
+                .playgroundId(playgroundId).build();
+
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    @Test
+    @DisplayName("FAIL_유저 프로필 조회시 유저를 찾지 못하면 UnauthorizedException 발생")
+    void FAIL_getUserProfile() {
+        //given
+        final Long anyUserId = anyLong();
+
+        //when
+        when(userRepository.findUserById(anyUserId)).thenReturn(Optional.empty());
+
+        //then
+        Assertions.assertThrows(UnauthorizedException.class, () -> userService.getUserProfile(anyUserId));
     }
 
     @Test
     void getUserProfilesByPlaygroundIds() {
     }
 
+    /* TODO: Implement following test cases
     @Test
     void getUserProfileByUserId() {
     }
