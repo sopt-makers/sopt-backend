@@ -38,17 +38,18 @@ public class UserService {
 
             return UserInfo.Id.builder()
                 .id(registeredUser.get().getId()).build();
-        } else {
-            val newUser = this.registerNewUser(
-                playgroundMemberResponse.getName(),
-                playgroundMemberResponse.getId(),
-                playgroundMemberResponse.getAccessToken()
-            );
-            userRepository.save(newUser);
-
-            return UserInfo.Id.builder()
-                .id(newUser.getId()).build();
         }
+
+        val newUser = this.registerNewUser(
+            playgroundMemberResponse.getName(),
+            playgroundMemberResponse.getId(),
+            playgroundMemberResponse.getAccessToken()
+        );
+        userRepository.save(newUser);
+
+        return UserInfo.Id.builder()
+            .id(newUser.getId()).build();
+
     }
 
     private User registerNewUser(String username, Long playgroundId, String playgroundToken) {
