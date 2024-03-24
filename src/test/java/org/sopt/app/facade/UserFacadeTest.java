@@ -6,7 +6,6 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -19,7 +18,6 @@ import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.application.operation.OperationInfo;
 import org.sopt.app.domain.entity.User;
-import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.user.UserResponse;
 import org.sopt.app.presentation.user.UserResponse.Operation;
 import org.sopt.app.presentation.user.UserResponseMapper;
