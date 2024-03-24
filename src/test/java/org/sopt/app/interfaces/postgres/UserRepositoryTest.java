@@ -75,11 +75,17 @@ class UserRepositoryTest {
         Assertions.assertEquals(List.of(user1.getId(), user2.getId()), userRepository.findAllIdByPlaygroundIdIn(playgroundIds));
     }
 
-    /* TODO: Implement the following test cases
+
     @Test
-    void findAllPlaygroundId() {
+    void SUCCESS_findAllPlaygroundId() {
+        //given
+        final List<Long> playgroundIds = List.of(user1.getPlaygroundId(), user2.getPlaygroundId());
+
+        //then
+        Assertions.assertTrue(userRepository.findAllPlaygroundId().containsAll(playgroundIds));
     }
 
+    /* TODO: Implement the following test cases
     @Test
     void findAllByIdIn() {
     }
