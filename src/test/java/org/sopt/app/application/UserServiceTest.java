@@ -15,6 +15,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundMain;
 import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.application.user.UserService;
+import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
 
@@ -67,7 +68,6 @@ class UserServiceTest {
         Assertions.assertEquals(expected.getId(), result.getId());
     }
 
-
     @Test
     @DisplayName("SUCCESS_유저 삭제")
     void SUCCESS_deleteUser() {
@@ -78,9 +78,34 @@ class UserServiceTest {
         Assertions.assertDoesNotThrow(() -> userService.deleteUser(user));
     }
 
+    @Test
+    @DisplayName("SUCCESS_플레이그라운드 토큰 조회")
+    void SUCCESS_getPlaygroundToken() {
+        //given
+        final Long anyUserId = anyLong();
+        final String playgroundToken = "token";
+        final UserInfo.Id userId = UserInfo.Id.builder().id(anyUserId).build();
+        User user = User.builder().id(anyUserId).playgroundToken(playgroundToken).build();
+
+        //when
+        when(userRepository.findUserById(anyUserId)).thenReturn(Optional.of(user));
+
+        //then
+        Assertions.assertEquals(playgroundToken, userService.getPlaygroundToken(userId).getAccessToken());
+    }
 
     @Test
-    void getPlaygroundToken() {
+    @DisplayName("FAIL_플레이그라운드 토큰 조회시 유저를 찾지 못하면 UnauthorizedException 발생")
+    void FAIL_getPlaygroundToken() {
+        //given
+        final Long anyUserId = anyLong();
+        final UserInfo.Id userId = UserInfo.Id.builder().id(anyUserId).build();
+
+        //when
+        when(userRepository.findUserById(anyUserId)).thenReturn(Optional.empty());
+
+        //then
+        Assertions.assertThrows(UnauthorizedException.class, () -> userService.getPlaygroundToken(userId));
     }
 
     /* TODO: Implement following test cases
