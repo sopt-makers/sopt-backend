@@ -1,6 +1,5 @@
 package org.sopt.app.application.user;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final JPAQueryFactory queryFactory;
 
     @Transactional
     public UserInfo.Id loginWithUserPlaygroundId(
