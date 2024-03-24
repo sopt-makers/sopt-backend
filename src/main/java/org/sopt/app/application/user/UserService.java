@@ -23,33 +23,32 @@ public class UserService {
 
     @Transactional
     public UserInfo.Id loginWithUserPlaygroundId(
-        PlaygroundAuthInfo.PlaygroundMain playgroundMemberResponse
+            PlaygroundAuthInfo.PlaygroundMain playgroundMemberResponse
     ) {
         val registeredUser = userRepository.findUserByPlaygroundId(
-            playgroundMemberResponse.getId());
+                playgroundMemberResponse.getId());
 
         // 기존에 로그인/가입한 이력이 있으면
         if (registeredUser.isPresent()) {
             registeredUser.get().updatePlaygroundUserInfo(
-                playgroundMemberResponse.getName(),
-                playgroundMemberResponse.getAccessToken()
+                    playgroundMemberResponse.getName(),
+                    playgroundMemberResponse.getAccessToken()
             );
             userRepository.save(registeredUser.get());
 
             return UserInfo.Id.builder()
-                .id(registeredUser.get().getId()).build();
+                    .id(registeredUser.get().getId()).build();
         }
 
-        val newUser = this.registerNewUser(
-            playgroundMemberResponse.getName(),
-            playgroundMemberResponse.getId(),
-            playgroundMemberResponse.getAccessToken()
-        );
-        userRepository.save(newUser);
+        val newUser = userRepository.save(
+                this.registerNewUser(
+                        playgroundMemberResponse.getName(),
+                        playgroundMemberResponse.getId(),
+                        playgroundMemberResponse.getAccessToken()
+                ));
 
         return UserInfo.Id.builder()
-            .id(newUser.getId()).build();
-
+                .id(newUser.getId()).build();
     }
 
     private User registerNewUser(String username, Long playgroundId, String playgroundToken) {
