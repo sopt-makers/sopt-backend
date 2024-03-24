@@ -1,5 +1,6 @@
 package org.sopt.app.interfaces.postgres;
 
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,15 +48,23 @@ class UserRepositoryTest {
         Assertions.assertEquals(Optional.of(user1), userRepository.findUserById(user1.getId()));
     }
 
-    /* TODO: Implement following test code
     @Test
-    void findUserByPlaygroundId() {
+    @DisplayName("SUCCESS_플레이그라운드 아이디로 유저 찾기")
+    void SUCCESS_findUserByPlaygroundId() {
+        Assertions.assertEquals(Optional.of(user1), userRepository.findUserByPlaygroundId(user1.getPlaygroundId()));
     }
 
     @Test
-    void findAllByPlaygroundIdIn() {
+    @DisplayName("SUCCESS_플레이그라운드 아이디 리스트로 유저 리스트 찾기")
+    void SUCCESS_findAllByPlaygroundIdIn() {
+        //given
+        final List<Long> playgroundIds = List.of(user1.getPlaygroundId(), user2.getPlaygroundId());
+
+        //then
+        Assertions.assertEquals(List.of(user1, user2), userRepository.findAllByPlaygroundIdIn(playgroundIds));
     }
 
+    /* TODO: Implement the following test cases
     @Test
     void findAllIdByPlaygroundIdIn() {
     }
