@@ -64,11 +64,18 @@ class UserRepositoryTest {
         Assertions.assertEquals(List.of(user1, user2), userRepository.findAllByPlaygroundIdIn(playgroundIds));
     }
 
-    /* TODO: Implement the following test cases
+
     @Test
-    void findAllIdByPlaygroundIdIn() {
+    @DisplayName("SUCCESS_플레이그라운드 아이디 리스트로 유저 아이디 리스트 찾기")
+    void SUCCESS_findAllIdByPlaygroundIdIn() {
+        //given
+        final List<Long> playgroundIds = List.of(user1.getPlaygroundId(), user2.getPlaygroundId());
+
+        //then
+        Assertions.assertEquals(List.of(user1.getId(), user2.getId()), userRepository.findAllIdByPlaygroundIdIn(playgroundIds));
     }
 
+    /* TODO: Implement the following test cases
     @Test
     void findAllPlaygroundId() {
     }
