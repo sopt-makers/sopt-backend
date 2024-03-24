@@ -67,15 +67,23 @@ class UserServiceTest {
         Assertions.assertEquals(expected.getId(), result.getId());
     }
 
-    /* TODO: Implement following test cases
+
     @Test
-    void deleteUser() {
+    @DisplayName("SUCCESS_유저 삭제")
+    void SUCCESS_deleteUser() {
+        //given
+        User user = new User();
+
+        //then
+        Assertions.assertDoesNotThrow(() -> userService.deleteUser(user));
     }
+
 
     @Test
     void getPlaygroundToken() {
     }
 
+    /* TODO: Implement following test cases
     @Test
     void updatePlaygroundToken() {
     }
