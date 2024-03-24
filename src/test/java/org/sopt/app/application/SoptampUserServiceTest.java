@@ -251,11 +251,6 @@ class SoptampUserServiceTest {
                 .map(Point::getSoptampUserId).toList();
 
         //when
-        List<Main> expected = List.of(
-                Main.builder().rank(1).point(300L).build(),
-                Main.builder().rank(2).point(200L).build(),
-                Main.builder().rank(3).point(100L).build()
-        );
 
         Mockito.when(soptampUserRepository.findAllById(soptampUserIdList)).thenReturn(List.of());
 
