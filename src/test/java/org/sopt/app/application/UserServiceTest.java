@@ -108,11 +108,39 @@ class UserServiceTest {
         Assertions.assertThrows(UnauthorizedException.class, () -> userService.getPlaygroundToken(userId));
     }
 
-    /* TODO: Implement following test cases
+
     @Test
-    void updatePlaygroundToken() {
+    @DisplayName("SUCCESS_플레이그라운드 토큰 업데이트")
+    void SUCCESS_updatePlaygroundToken() {
+        //given
+        final Long anyUserId = anyLong();
+        final UserInfo.Id userId = UserInfo.Id.builder().id(anyUserId).build();
+        final String playgroundToken = "newToken";
+
+        //when
+        when(userRepository.findUserById(anyUserId)).thenReturn(Optional.of(User.builder().id(anyUserId).build()));
+        when(userRepository.save(any(User.class))).thenReturn(User.builder().id(anyUserId).playgroundToken(playgroundToken).build());
+
+        //then
+        Assertions.assertDoesNotThrow(() -> userService.updatePlaygroundToken(userId, playgroundToken));
     }
 
+    @Test
+    @DisplayName("FAIL_플레이그라운드 토큰 업데이트시 유저를 찾지 못하면 UnauthorizedException 발생")
+    void FAIL_updatePlaygroundToken() {
+        //given
+        final Long anyUserId = anyLong();
+        final UserInfo.Id userId = UserInfo.Id.builder().id(anyUserId).build();
+        final String playgroundToken = "newToken";
+
+        //when
+        when(userRepository.findUserById(anyUserId)).thenReturn(Optional.empty());
+
+        //then
+        Assertions.assertThrows(UnauthorizedException.class, () -> userService.updatePlaygroundToken(userId, playgroundToken));
+    }
+
+    /* TODO: Implement following test cases
     @Test
     void getUserProfile() {
     }
