@@ -5,6 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -177,7 +178,27 @@ class UserServiceTest {
     }
 
     @Test
-    void getUserProfilesByPlaygroundIds() {
+    @DisplayName("SUCCESS_플레이그라운드 아이디 리스트로 유저 리스트 조회")
+    void SUCCESS_getUserProfilesByPlaygroundIds() {
+        //given
+        final List<Long> playgroundIds = List.of(1L, 2L);
+        final User user1 = User.builder().id(1L).username("user1").playgroundId(1L).build();
+        final User user2 = User.builder().id(2L).username("user2").playgroundId(2L).build();
+        final List<User> users = List.of(user1, user2);
+
+        //when
+        when(userRepository.findAllByPlaygroundIdIn(playgroundIds)).thenReturn(users);
+
+        List<UserInfo.UserProfile> result = userService.getUserProfilesByPlaygroundIds(playgroundIds);
+        List<UserInfo.UserProfile> expected = List.of(
+                UserInfo.UserProfile.builder().userId(user1.getId()).name(user1.getUsername()).playgroundId(
+                        user1.getPlaygroundId()).build(),
+                UserInfo.UserProfile.builder().userId(user2.getId()).name(user2.getUsername()).playgroundId(
+                        user2.getPlaygroundId()).build()
+        );
+
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
     /* TODO: Implement following test cases
