@@ -77,6 +77,7 @@ class UserRepositoryTest {
 
 
     @Test
+    @DisplayName("SUCCESS_모든 유저의 플레이그라운드 아이디 찾기")
     void SUCCESS_findAllPlaygroundId() {
         //given
         final List<Long> playgroundIds = List.of(user1.getPlaygroundId(), user2.getPlaygroundId());
@@ -85,10 +86,13 @@ class UserRepositoryTest {
         Assertions.assertTrue(userRepository.findAllPlaygroundId().containsAll(playgroundIds));
     }
 
-    /* TODO: Implement the following test cases
     @Test
-    void findAllByIdIn() {
-    }
+    @DisplayName("SUCCESS_모든 유저의 유저 아이디 찾기")
+    void SUCCESS_findAllByIdIn() {
+        //given
+        final List<Long> userIds = List.of(user1.getId(), user2.getId());
 
-     */
+        //then
+        Assertions.assertEquals(List.of(user1, user2), userRepository.findAllByIdIn(userIds));
+    }
 }
