@@ -27,19 +27,29 @@ class UserRepositoryTest {
 
     @BeforeEach
     void beforeTest() {
-        final Long user1PlaygroundId = Long.MAX_VALUE;
-        final Long user2PlaygroundId = Long.MAX_VALUE - 1;
 
         user1 = userRepository.save(
                 User.builder()
-                        .playgroundId(user1PlaygroundId)
+                        .playgroundId(generateUniquePlaygroundId())
                         .build()
         );
         user2 = userRepository.save(
                 User.builder()
-                        .playgroundId(user2PlaygroundId)
+                        .playgroundId(generateUniquePlaygroundId())
                         .build()
         );
+    }
+
+    private Long generateUniquePlaygroundId() {
+        long playgroundId = Long.MAX_VALUE;
+
+        for (int i = 0; i < 1000; i++) {
+            if (userRepository.findUserByPlaygroundId(playgroundId).isEmpty()) {
+                break;
+            }
+            playgroundId = playgroundId - i;
+        }
+        return playgroundId;
     }
 
     @Test
