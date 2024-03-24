@@ -102,21 +102,21 @@ public class UserService {
 
     public List<UserProfile> getUserProfilesByPlaygroundIds(List<Long> playgroundIds) {
         return userRepository.findAllByPlaygroundIdIn(playgroundIds).stream().map(
-            u -> UserProfile.builder()
-                .userId(u.getId())
-                .name(u.getUsername())
-                .playgroundId(u.getPlaygroundId())
-                .build()
+                user -> UserProfile.builder()
+                        .userId(user.getId())
+                        .name(user.getUsername())
+                        .playgroundId(user.getPlaygroundId())
+                        .build()
         ).toList();
     }
 
     public List<UserProfile> getUserProfileByUserId(List<Long> userId) {
         return userRepository.findAllByIdIn(userId).stream().map(
-            u -> UserProfile.builder()
-                .userId(u.getId())
-                .name(u.getUsername())
-                .playgroundId(u.getPlaygroundId())
-                .build()
+                user -> UserProfile.builder()
+                        .userId(user.getId())
+                        .name(user.getUsername())
+                        .playgroundId(user.getPlaygroundId())
+                        .build()
         ).collect(Collectors.toList());
     }
 }
