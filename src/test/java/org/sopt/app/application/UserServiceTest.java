@@ -201,10 +201,28 @@ class UserServiceTest {
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
-    /* TODO: Implement following test cases
     @Test
-    void getUserProfileByUserId() {
-    }
+    @DisplayName("SUCCESS_유저 아이디로 유저 프로필 조회")
+    void SUCCESS_getUserProfileByUserId() {
+        //given
+        final List<Long> userIds = List.of(1L, 2L);
+        final User user1 = User.builder().id(1L).username("user1").playgroundId(1L).build();
+        final User user2 = User.builder().id(2L).username("user2").playgroundId(2L).build();
+        final List<User> users = List.of(user1, user2);
 
-     */
+        //when
+        when(userRepository.findAllByIdIn(userIds)).thenReturn(users);
+
+        List<UserInfo.UserProfile> result = userService.getUserProfileByUserId(userIds);
+        List<UserInfo.UserProfile> expected = List.of(
+                UserInfo.UserProfile.builder().userId(user1.getId()).name(user1.getUsername()).playgroundId(
+                        user1.getPlaygroundId()).build(),
+                UserInfo.UserProfile.builder().userId(user2.getId()).name(user2.getUsername()).playgroundId(
+                        user2.getPlaygroundId()).build()
+        );
+
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+
+    }
 }
