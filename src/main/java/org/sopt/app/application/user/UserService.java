@@ -1,7 +1,6 @@
 package org.sopt.app.application.user;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
@@ -117,6 +116,6 @@ public class UserService {
                         .name(user.getUsername())
                         .playgroundId(user.getPlaygroundId())
                         .build()
-        ).collect(Collectors.toList());
+        ).toList();
     }
 }
