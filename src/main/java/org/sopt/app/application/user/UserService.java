@@ -1,8 +1,6 @@
 package org.sopt.app.application.user;
 
-import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
@@ -21,36 +19,35 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final JPAQueryFactory queryFactory;
 
     @Transactional
     public UserInfo.Id loginWithUserPlaygroundId(
-        PlaygroundAuthInfo.PlaygroundMain playgroundMemberResponse
+            PlaygroundAuthInfo.PlaygroundMain playgroundMemberResponse
     ) {
         val registeredUser = userRepository.findUserByPlaygroundId(
-            playgroundMemberResponse.getId());
+                playgroundMemberResponse.getId());
 
         // 기존에 로그인/가입한 이력이 있으면
         if (registeredUser.isPresent()) {
             registeredUser.get().updatePlaygroundUserInfo(
-                playgroundMemberResponse.getName(),
-                playgroundMemberResponse.getAccessToken()
+                    playgroundMemberResponse.getName(),
+                    playgroundMemberResponse.getAccessToken()
             );
             userRepository.save(registeredUser.get());
 
             return UserInfo.Id.builder()
-                .id(registeredUser.get().getId()).build();
-        } else {
-            val newUser = this.registerNewUser(
-                playgroundMemberResponse.getName(),
-                playgroundMemberResponse.getId(),
-                playgroundMemberResponse.getAccessToken()
-            );
-            userRepository.save(newUser);
-
-            return UserInfo.Id.builder()
-                .id(newUser.getId()).build();
+                    .id(registeredUser.get().getId()).build();
         }
+
+        val newUser = userRepository.save(
+                this.registerNewUser(
+                        playgroundMemberResponse.getName(),
+                        playgroundMemberResponse.getId(),
+                        playgroundMemberResponse.getAccessToken()
+                ));
+
+        return UserInfo.Id.builder()
+                .id(newUser.getId()).build();
     }
 
     private User registerNewUser(String username, Long playgroundId, String playgroundToken) {
@@ -79,15 +76,16 @@ public class UserService {
     @Transactional
     public void updatePlaygroundToken(UserInfo.Id userId, String playgroundToken) {
         val user = userRepository.findUserById(userId.getId())
-            .orElseThrow(
-                () -> new UnauthorizedException(ErrorCode.INVALID_REFRESH_TOKEN.getMessage()));
-        val newUser = User.builder()
-            .id(user.getId())
-            .username(user.getUsername())
-            .playgroundId(user.getPlaygroundId())
-            .playgroundToken(playgroundToken)
-            .build();
-        userRepository.save(newUser);
+                .orElseThrow(
+                        () -> new UnauthorizedException(ErrorCode.INVALID_REFRESH_TOKEN.getMessage()));
+        userRepository.save(
+                User.builder()
+                        .id(user.getId())
+                        .username(user.getUsername())
+                        .playgroundId(user.getPlaygroundId())
+                        .playgroundToken(playgroundToken)
+                        .build()
+        );
     }
 
     @Transactional(readOnly = true)
@@ -103,21 +101,21 @@ public class UserService {
 
     public List<UserProfile> getUserProfilesByPlaygroundIds(List<Long> playgroundIds) {
         return userRepository.findAllByPlaygroundIdIn(playgroundIds).stream().map(
-            u -> UserProfile.builder()
-                .userId(u.getId())
-                .name(u.getUsername())
-                .playgroundId(u.getPlaygroundId())
-                .build()
+                user -> UserProfile.builder()
+                        .userId(user.getId())
+                        .name(user.getUsername())
+                        .playgroundId(user.getPlaygroundId())
+                        .build()
         ).toList();
     }
 
     public List<UserProfile> getUserProfileByUserId(List<Long> userId) {
         return userRepository.findAllByIdIn(userId).stream().map(
-            u -> UserProfile.builder()
-                .userId(u.getId())
-                .name(u.getUsername())
-                .playgroundId(u.getPlaygroundId())
-                .build()
-        ).collect(Collectors.toList());
+                user -> UserProfile.builder()
+                        .userId(user.getId())
+                        .name(user.getUsername())
+                        .playgroundId(user.getPlaygroundId())
+                        .build()
+        ).toList();
     }
 }
