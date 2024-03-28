@@ -43,7 +43,6 @@ public class RankController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    //현재 기수 랭킹 목록 조회
     @Operation(summary = "현재 기수 랭킹 목록 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "success"),
