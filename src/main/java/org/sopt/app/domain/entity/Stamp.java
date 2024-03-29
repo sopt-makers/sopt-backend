@@ -2,6 +2,7 @@ package org.sopt.app.domain.entity;
 
 
 import com.vladmihalcea.hibernate.type.array.ListArrayType;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,8 +16,8 @@ import java.util.List;
 @Entity
 @Table(name = "stamp", schema = "app_dev")
 @TypeDef(
-    name = "list-array",
-    typeClass = ListArrayType.class
+        name = "list-array",
+        typeClass = ListArrayType.class
 )
 @Getter
 @Builder
@@ -24,31 +25,33 @@ import java.util.List;
 @AllArgsConstructor
 public class Stamp extends BaseEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Column
-  private String contents;
+    @Column
+    private String contents;
 
-  @Type(type = "list-array")
-  @Column(
-      columnDefinition = "text[]"
-  )
-  private List<String> images;
+    @Type(type = "list-array")
+    @Column(
+            columnDefinition = "text[]"
+    )
+    private List<String> images;
 
-  @Column
-  private Long userId;
+    @Column
+    private Long userId;
 
-  @Column
-  private Long missionId;
+    @Column
+    private Long missionId;
 
-  //수정하기 위한 메서드 생성
-  public void changeContents(String contents){
-    this.contents = contents;
-  }
+    @Column
+    private LocalDateTime activityDate;
 
-  public void changeImages(List<String> images){
-    this.images = images;
-  }
+    public void changeContents(String contents) {
+        this.contents = contents;
+    }
+
+    public void changeImages(List<String> images) {
+        this.images = images;
+    }
 }
