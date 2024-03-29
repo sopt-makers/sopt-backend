@@ -67,7 +67,10 @@ public class RankController {
     public ResponseEntity<List<RankResponse.RankMain>> findCurrentRanksByPart(
             @Valid @ModelAttribute Part part
     ) {
-        val soptampPointList = soptampPointService.findCurrentPointListByPart();
+        // 이름 앞이 파트인 모든 유저들의 유저 아이디를 가져온다. (없을 시 에러를 던진다.)
+        val soptampUserIdList = soptampUserService.findSoptampUserByPart(part);
+        // 유저 아이디를 통해 솝탬프 포인트 리스트를 받아온다.
+        val soptampPointList = soptampPointService.findCurrentPointListByPart(soptampUserIdList);
         val result = soptampUserService.findCurrentRanks(soptampPointList);
         val response = rankResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
