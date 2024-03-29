@@ -13,7 +13,6 @@ import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.domain.enums.Part;
-import org.sopt.app.presentation.stamp.StampRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
