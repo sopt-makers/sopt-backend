@@ -31,6 +31,7 @@ public class StampService {
                 .id(entity.getId())
                 .contents(entity.getContents())
                 .images(entity.getImages())
+                .activityDate(entity.getActivityDate())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .missionId(entity.getMissionId())
@@ -50,6 +51,7 @@ public class StampService {
                 .id(newStamp.getId())
                 .contents(newStamp.getContents())
                 .images(newStamp.getImages())
+                .activityDate(newStamp.getActivityDate())
                 .createdAt(newStamp.getCreatedAt())
                 .updatedAt(newStamp.getUpdatedAt())
                 .missionId(newStamp.getMissionId())
@@ -64,6 +66,7 @@ public class StampService {
                 .contents(stampRequest.getContents())
                 .images(List.of(stampRequest.getImage()))
                 .missionId(stampRequest.getMissionId())
+                .activityDate(stampRequest.getActivityDate())
                 .userId(userId)
                 .build();
 
@@ -72,6 +75,7 @@ public class StampService {
                 .id(newStamp.getId())
                 .contents(newStamp.getContents())
                 .images(newStamp.getImages())
+                .activityDate(newStamp.getActivityDate())
                 .createdAt(newStamp.getCreatedAt())
                 .updatedAt(newStamp.getUpdatedAt())
                 .missionId(newStamp.getMissionId())
@@ -109,6 +113,9 @@ public class StampService {
         }
         if (StringUtils.hasText(editStampRequest.getImage())) {
             stamp.changeImages(List.of(editStampRequest.getImage()));
+        }
+        if (editStampRequest.getActivityDate() != null) {
+            stamp.changeActivityDate(editStampRequest.getActivityDate());
         }
         stamp.setUpdatedAt(LocalDateTime.now());
         val newStamp = stampRepository.save(stamp);
