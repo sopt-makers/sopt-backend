@@ -54,4 +54,8 @@ public class Stamp extends BaseEntity {
     public void changeImages(List<String> images) {
         this.images = images;
     }
+
+    public void changeActivityDate(LocalDateTime activityDate) {
+        this.activityDate = activityDate;
+    }
 }
