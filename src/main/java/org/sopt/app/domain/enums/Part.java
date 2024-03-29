@@ -5,7 +5,7 @@ public enum Part {
     PLAN,
     DESIGN,
     ANDROID,
-    iOS,
+    IOS,
     WEB,
     SERVER
 }
