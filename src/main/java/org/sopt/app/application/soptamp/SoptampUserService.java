@@ -11,6 +11,7 @@ import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.SoptampUser;
+import org.sopt.app.domain.enums.Part;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -140,6 +141,13 @@ public class SoptampUserService {
                     .profileMessage(user.getProfileMessage())
                     .build();
             }).collect(Collectors.toList());
+    }
+
+    public List<Long> findSoptampUserByPart(Part part) {
+        return soptampUserRepository.findAllByNicknameStartingWith(part.getPartName())
+                .stream()
+                .map(SoptampUser::getId)
+                .toList();
     }
 
     public SoptampUser findRankByNickname(String nickname) {
