@@ -16,6 +16,7 @@ public class StampInfo {
         private List<String> images;
         private Long userId;
         private Long missionId;
+        private LocalDateTime activityDate;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
     }
