@@ -46,8 +46,7 @@ class StampServiceTest {
                 .id(stamp.getId())
                 .contents(stamp.getContents())
                 .images(stamp.getImages())
-                .createdAt(stamp.getCreatedAt())
-                .updatedAt(stamp.getUpdatedAt())
+                .activityDate(stamp.getActivityDate())
                 .missionId(stamp.getMissionId())
                 .build();
         StampInfo.Stamp result = stampService.findStamp(stampUserId, stampMissionId);
@@ -204,6 +203,7 @@ class StampServiceTest {
         final Long stampId = 1L;
         final String contents = "savedContents";
         final List<String> images = List.of("savedImage");
+        final LocalDateTime activityDate = LocalDateTime.of(2023, 1, 1, 0, 0, 0);
 
         final Optional<Stamp> savedStamp = Optional.of(Stamp.builder()
                 .id(stampId)
@@ -211,6 +211,7 @@ class StampServiceTest {
                 .images(images)
                 .missionId(missionId)
                 .userId(requestUserId)
+                .activityDate(activityDate)
                 .build());
 
         Mockito.when(stampRepository.findByUserIdAndMissionId(requestUserId, missionId)).thenReturn(savedStamp);
@@ -277,11 +278,13 @@ class StampServiceTest {
         final Long requestMissionId = anyLong();
         final String requestContents = "requestContents";
         final String requestImage = "requestImage";
+        final LocalDateTime requestActivityDate = LocalDateTime.now();
 
         StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
         editStampRequest.setContents(requestContents);
         editStampRequest.setImage(requestImage);
         editStampRequest.setMissionId(requestMissionId);
+        editStampRequest.setActivityDate(requestActivityDate);
 
         //when
         Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
@@ -301,10 +304,12 @@ class StampServiceTest {
 
         final String requestBlankContents = "";
         final String requestImage = "requestImage";
+        final LocalDateTime requestActivityDate = LocalDateTime.now();
         StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
         editStampRequest.setContents(requestBlankContents);
         editStampRequest.setImage(requestImage);
         editStampRequest.setMissionId(requestMissionId);
+        editStampRequest.setActivityDate(requestActivityDate);
 
         //when
         Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
@@ -321,13 +326,15 @@ class StampServiceTest {
         // given
         final Long requestUserId = anyLong();
         final Long requestMissionId = anyLong();
-
         final String requestContents = "requestContents";
         final String requestBlankImage = "";
+        final LocalDateTime requestActivityDate = LocalDateTime.now();
+
         StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
         editStampRequest.setContents(requestContents);
         editStampRequest.setImage(requestBlankImage);
         editStampRequest.setMissionId(requestMissionId);
+        editStampRequest.setActivityDate(requestActivityDate);
 
         //when
         Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);

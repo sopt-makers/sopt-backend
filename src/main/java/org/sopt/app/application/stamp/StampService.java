@@ -162,11 +162,10 @@ public class StampService {
     }
 
     private void validateStampInfo(Stamp entity) {
-
         if (entity.getId() == null) {
             throw new BadRequestException(ErrorCode.INVALID_STAMP_ID.getMessage());
         }
-        if (StringUtils.hasText(entity.getContents())) {
+        if (!StringUtils.hasText(entity.getContents())) {
             throw new BadRequestException(ErrorCode.INVALID_STAMP_CONTENTS.getMessage());
         }
         if (entity.getImages().isEmpty()) {
@@ -175,16 +174,9 @@ public class StampService {
         if (entity.getActivityDate() == null) {
             throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE.getMessage());
         }
-        if (entity.getCreatedAt() == null) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_CREATED_AT.getMessage());
-        }
-        if (entity.getUpdatedAt() == null) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_UPDATED_AT.getMessage());
-        }
         if (entity.getMissionId() == null) {
             throw new BadRequestException(ErrorCode.INVALID_STAMP_MISSION_ID.getMessage());
         }
-
     }
 
     private Stamp convertStampImgDeprecated(
