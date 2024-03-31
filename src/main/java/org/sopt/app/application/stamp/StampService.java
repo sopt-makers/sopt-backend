@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.common.event.Events;
@@ -27,10 +28,12 @@ public class StampService {
     public StampInfo.Stamp findStamp(Long missionId, Long userId) {
         val entity = stampRepository.findByUserIdAndMissionId(userId, missionId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+        validateStampInfo(entity);
         return StampInfo.Stamp.builder()
                 .id(entity.getId())
                 .contents(entity.getContents())
                 .images(entity.getImages())
+                .activityDate(entity.getActivityDate())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .missionId(entity.getMissionId())
@@ -39,7 +42,7 @@ public class StampService {
 
     @Transactional
     public StampInfo.Stamp uploadStampDeprecated(
-            RegisterStampRequest stampRequest,
+            @Valid RegisterStampRequest stampRequest,
             List<String> imgPaths,
             Long userId,
             Long missionId) {
@@ -50,6 +53,7 @@ public class StampService {
                 .id(newStamp.getId())
                 .contents(newStamp.getContents())
                 .images(newStamp.getImages())
+                .activityDate(newStamp.getActivityDate())
                 .createdAt(newStamp.getCreatedAt())
                 .updatedAt(newStamp.getUpdatedAt())
                 .missionId(newStamp.getMissionId())
@@ -58,12 +62,13 @@ public class StampService {
 
     @Transactional
     public StampInfo.Stamp uploadStamp(
-            RegisterStampRequest stampRequest,
+            @Valid RegisterStampRequest stampRequest,
             Long userId) {
         val stamp = Stamp.builder()
                 .contents(stampRequest.getContents())
                 .images(List.of(stampRequest.getImage()))
                 .missionId(stampRequest.getMissionId())
+                .activityDate(stampRequest.getActivityDate())
                 .userId(userId)
                 .build();
 
@@ -72,6 +77,7 @@ public class StampService {
                 .id(newStamp.getId())
                 .contents(newStamp.getContents())
                 .images(newStamp.getImages())
+                .activityDate(newStamp.getActivityDate())
                 .createdAt(newStamp.getCreatedAt())
                 .updatedAt(newStamp.getUpdatedAt())
                 .missionId(newStamp.getMissionId())
@@ -80,7 +86,7 @@ public class StampService {
 
     @Transactional
     public StampInfo.Stamp editStampContentsDeprecated(
-            StampRequest.EditStampRequest editStampRequest,
+            @Valid StampRequest.EditStampRequest editStampRequest,
             Long userId,
             Long missionId) {
 
@@ -99,7 +105,7 @@ public class StampService {
 
     @Transactional
     public StampInfo.Stamp editStampContents(
-            StampRequest.EditStampRequest editStampRequest,
+            @Valid StampRequest.EditStampRequest editStampRequest,
             Long userId) {
 
         val stamp = stampRepository.findByUserIdAndMissionId(userId, editStampRequest.getMissionId())
@@ -110,6 +116,10 @@ public class StampService {
         if (StringUtils.hasText(editStampRequest.getImage())) {
             stamp.changeImages(List.of(editStampRequest.getImage()));
         }
+        if (editStampRequest.getActivityDate() == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE.getMessage());
+        }
+        stamp.changeActivityDate(editStampRequest.getActivityDate());
         stamp.setUpdatedAt(LocalDateTime.now());
         val newStamp = stampRepository.save(stamp);
         return StampInfo.Stamp.builder()
@@ -151,9 +161,26 @@ public class StampService {
         Events.raise(new StampDeletedEvent(imageUrls));
     }
 
+    private void validateStampInfo(Stamp entity) {
+        if (entity.getId() == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_ID.getMessage());
+        }
+        if (!StringUtils.hasText(entity.getContents())) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_CONTENTS.getMessage());
+        }
+        if (entity.getImages().isEmpty()) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_IMAGES.getMessage());
+        }
+        if (entity.getActivityDate() == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE.getMessage());
+        }
+        if (entity.getMissionId() == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_MISSION_ID.getMessage());
+        }
+    }
 
     private Stamp convertStampImgDeprecated(
-            RegisterStampRequest stampRequest,
+            @Valid RegisterStampRequest stampRequest,
             List<String> imgList,
             Long userId,
             Long missionId) {
