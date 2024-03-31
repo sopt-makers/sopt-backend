@@ -6,9 +6,10 @@ import static org.mockito.Mockito.when;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.auth.JwtTokenService;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.AppToken;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundMain;
@@ -24,9 +25,8 @@ import org.sopt.app.presentation.auth.AppAuthRequest.CodeRequest;
 import org.sopt.app.presentation.auth.AppAuthRequest.RefreshRequest;
 import org.sopt.app.presentation.auth.AppAuthResponse.Token;
 import org.sopt.app.presentation.auth.AppAuthResponseMapper;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class AuthFacadeTest {
 
     @Mock
@@ -36,7 +36,7 @@ public class AuthFacadeTest {
     @Mock
     private UserService userService;
     @Mock
-    private PlaygroundAuthService playgroundAuthService = Mockito.mock(PlaygroundAuthService.class);
+    private PlaygroundAuthService playgroundAuthService;
     @Mock
     private SoptampUserService soptampUserService;
     @Mock

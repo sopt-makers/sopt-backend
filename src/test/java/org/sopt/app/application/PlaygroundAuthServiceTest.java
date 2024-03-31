@@ -10,8 +10,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.MainView;
@@ -30,10 +32,9 @@ import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.interfaces.external.PlaygroundClient;
 import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
 import org.sopt.app.presentation.auth.AppAuthRequest.CodeRequest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class PlaygroundAuthServiceTest {
 
     @Mock
@@ -107,7 +108,7 @@ public class PlaygroundAuthServiceTest {
     }
 
     @Test
-    @DisplayName("FAIL_플레이그라운드 어세스 토큰 발 BadRequestException")
+    @DisplayName("FAIL_플레이그라운드 어세스 토큰 발급 BadRequestException")
     void FAIL_getPlaygroundAccessTokenBadRequestException() {
         CodeRequest codeRequest = new CodeRequest();
 

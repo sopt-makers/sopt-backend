@@ -5,9 +5,11 @@ import static org.mockito.ArgumentMatchers.any;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.UserActiveInfo;
 import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.description.DescriptionInfo;
@@ -15,9 +17,8 @@ import org.sopt.app.application.description.DescriptionInfo.MainDescription;
 import org.sopt.app.application.description.DescriptionService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.UserStatus;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class DescriptionFacadeTest {
 
     @Mock
