@@ -34,6 +34,12 @@ public enum ErrorCode {
     STAMP_NOT_FOUND("존재하지 않는 스탬프입니다."),
     DUPLICATE_STAMP("이미 해당 미션에 대한 스탬프가 존재합니다."),
     INVALID_STAMP_ACTIVITY_DATE("스탬프 활동 날짜가 존재하지 않습니다."),
+    INVALID_STAMP_CONTENTS("스탬프 내용이 존재하지 않습니다."),
+    INVALID_STAMP_IMAGES("스탬프 이미지가 존재하지 않습니다."),
+    INVALID_STAMP_MISSION_ID("스탬프 미션 ID가 존재하지 않습니다."),
+    INVALID_STAMP_ID("스탬프 ID가 존재하지 않습니다."),
+    INVALID_STAMP_CREATED_AT("스탬프 생성 날짜가 존재하지 않습니다."),
+    INVALID_STAMP_UPDATED_AT("스탬프 업데이트 날짜가 존재하지 않습니다."),
 
     // NOTIFICATION
     NOTIFICATION_NOT_FOUND("존재하지 않는 알림입니다."),

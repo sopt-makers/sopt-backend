@@ -28,6 +28,7 @@ public class StampService {
     public StampInfo.Stamp findStamp(Long missionId, Long userId) {
         val entity = stampRepository.findByUserIdAndMissionId(userId, missionId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+        validateStampInfo(entity);
         return StampInfo.Stamp.builder()
                 .id(entity.getId())
                 .contents(entity.getContents())
@@ -160,6 +161,31 @@ public class StampService {
         Events.raise(new StampDeletedEvent(imageUrls));
     }
 
+    private void validateStampInfo(Stamp entity) {
+
+        if (entity.getId() == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_ID.getMessage());
+        }
+        if (StringUtils.hasText(entity.getContents())) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_CONTENTS.getMessage());
+        }
+        if (entity.getImages().isEmpty()) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_IMAGES.getMessage());
+        }
+        if (entity.getActivityDate() == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE.getMessage());
+        }
+        if (entity.getCreatedAt() == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_CREATED_AT.getMessage());
+        }
+        if (entity.getUpdatedAt() == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_UPDATED_AT.getMessage());
+        }
+        if (entity.getMissionId() == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_MISSION_ID.getMessage());
+        }
+
+    }
 
     private Stamp convertStampImgDeprecated(
             @Valid RegisterStampRequest stampRequest,
