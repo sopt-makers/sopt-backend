@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.common.event.Events;
@@ -40,7 +41,7 @@ public class StampService {
 
     @Transactional
     public StampInfo.Stamp uploadStampDeprecated(
-            RegisterStampRequest stampRequest,
+            @Valid RegisterStampRequest stampRequest,
             List<String> imgPaths,
             Long userId,
             Long missionId) {
@@ -60,7 +61,7 @@ public class StampService {
 
     @Transactional
     public StampInfo.Stamp uploadStamp(
-            RegisterStampRequest stampRequest,
+            @Valid RegisterStampRequest stampRequest,
             Long userId) {
         val stamp = Stamp.builder()
                 .contents(stampRequest.getContents())
@@ -84,7 +85,7 @@ public class StampService {
 
     @Transactional
     public StampInfo.Stamp editStampContentsDeprecated(
-            StampRequest.EditStampRequest editStampRequest,
+            @Valid StampRequest.EditStampRequest editStampRequest,
             Long userId,
             Long missionId) {
 
@@ -103,7 +104,7 @@ public class StampService {
 
     @Transactional
     public StampInfo.Stamp editStampContents(
-            StampRequest.EditStampRequest editStampRequest,
+            @Valid StampRequest.EditStampRequest editStampRequest,
             Long userId) {
 
         val stamp = stampRepository.findByUserIdAndMissionId(userId, editStampRequest.getMissionId())
@@ -161,7 +162,7 @@ public class StampService {
 
 
     private Stamp convertStampImgDeprecated(
-            RegisterStampRequest stampRequest,
+            @Valid RegisterStampRequest stampRequest,
             List<String> imgList,
             Long userId,
             Long missionId) {
