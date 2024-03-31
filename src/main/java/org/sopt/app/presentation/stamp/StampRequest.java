@@ -56,6 +56,7 @@ public class StampRequest {
         @NotNull(message = "contents may not be null")
         private String contents;
         @Schema(description = "활동 날짜", example = "2023-03-29T18:39:42.106369")
+        @NotNull(message = "activity date may not be null")
         private LocalDateTime activityDate;
     }
 }
