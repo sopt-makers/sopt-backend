@@ -114,9 +114,10 @@ public class StampService {
         if (StringUtils.hasText(editStampRequest.getImage())) {
             stamp.changeImages(List.of(editStampRequest.getImage()));
         }
-        if (editStampRequest.getActivityDate() != null) {
-            stamp.changeActivityDate(editStampRequest.getActivityDate());
+        if (editStampRequest.getActivityDate() == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE.getMessage());
         }
+        stamp.changeActivityDate(editStampRequest.getActivityDate());
         stamp.setUpdatedAt(LocalDateTime.now());
         val newStamp = stampRepository.save(stamp);
         return StampInfo.Stamp.builder()
