@@ -9,13 +9,14 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.mission.MissionService;
+import org.sopt.app.application.soptamp.SoptampPointInfo;
 import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.application.soptamp.SoptampUserService;
-import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.enums.Part;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,18 +44,32 @@ public class RankController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
-    //현재 기수 랭킹 목록 조회
     @Operation(summary = "현재 기수 랭킹 목록 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/current")
-    public ResponseEntity<List<RankResponse.RankMain>> findCurrentRanks(
-        @AuthenticationPrincipal User user
+    public ResponseEntity<List<RankResponse.RankMain>> findCurrentRanks() {
+        val soptampPointList = soptampPointService.findCurrentPointList();
+        val result = soptampUserService.findCurrentRanks(soptampPointList);
+        val response = rankResponseMapper.of(result);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "파트 별 현재 기수 랭킹 목록 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "400", description = "part not found", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/current/part/{part}")
+    public ResponseEntity<List<RankResponse.RankMain>> findCurrentRanksByPart(
+            @PathVariable("part") Part part
     ) {
-        val soptamPointList = soptampPointService.findCurrentPointList();
-        val result = soptampUserService.findCurrentRanks(soptamPointList);
+        val soptampUserIdList = soptampUserService.findSoptampUserByPart(part);
+        val soptampPointList = soptampPointService.findCurrentPointListBySoptampUserIds(soptampUserIdList);
+        val result = soptampUserService.findCurrentRanks(soptampPointList);
         val response = rankResponseMapper.of(result);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

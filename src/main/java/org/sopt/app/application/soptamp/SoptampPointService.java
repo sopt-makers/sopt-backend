@@ -4,7 +4,6 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
-import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.domain.entity.SoptampPoint;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.interfaces.postgres.SoptampPointRepository;
@@ -31,6 +30,19 @@ public class SoptampPointService {
                     point.getPoints()
                 )
             ).toList();
+    }
+
+    public List<Point> findCurrentPointListBySoptampUserIds(List<Long> soptampUserIdList) {
+
+        return soptampPointRepository.findAllBySoptampUserIdInAndGeneration(soptampUserIdList, currentGeneration).stream()
+                .map(point ->
+                        SoptampPointInfo.Point.of(
+                                point.getId(),
+                                point.getGeneration(),
+                                point.getSoptampUserId(),
+                                point.getPoints()
+                        )
+                ).toList();
     }
 
     @Transactional
