@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectResult;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -16,15 +15,16 @@ import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.s3.S3Info;
 import org.sopt.app.application.s3.S3Service;
 import org.sopt.app.common.exception.BadRequestException;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockMultipartFile;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class S3ServiceTest {
 
     @Mock
@@ -35,20 +35,14 @@ public class S3ServiceTest {
 
     @Test
     @DisplayName("SUCCESS_업로드(DEPRECATED) 파일 리스트 null일 때")
-    void SUCCESS_uploadDeprecatedNull() throws MalformedURLException {
-        when(s3Client.putObject(any())).thenReturn(new PutObjectResult());
-        when(s3Client.getUrl(any(), any())).thenReturn(new URL("http://url.com"));
-
+    void SUCCESS_uploadDeprecatedNull() {
         List<String> result = s3Service.uploadDeprecated(null);
         Assertions.assertEquals(0, result.size());
     }
 
     @Test
     @DisplayName("SUCCESS_업로드(DEPRECATED) 파일 리스트 첫 원소 empty일 때")
-    void SUCCESS_uploadDeprecatedEmpty() throws MalformedURLException {
-        when(s3Client.putObject(any())).thenReturn(new PutObjectResult());
-        when(s3Client.getUrl(any(), any())).thenReturn(new URL("http://url.com"));
-
+    void SUCCESS_uploadDeprecatedEmpty() {
         List<String> result = s3Service.uploadDeprecated(
                 List.of(new MockMultipartFile("name", (byte[]) null))
         );
@@ -70,10 +64,7 @@ public class S3ServiceTest {
 
     @Test()
     @DisplayName("FAIL_업로드(DEPRECATED) 잘못된 파일명")
-    void FAIL_uploadDeprecatedInvalidFilename() throws IOException {
-        when(s3Client.putObject(any())).thenReturn(new PutObjectResult());
-        when(s3Client.getUrl(any(), any())).thenReturn(new URL("http://url.com"));
-
+    void FAIL_uploadDeprecatedInvalidFilename() {
         Assertions.assertThrows(BadRequestException.class, () -> {
             s3Service.uploadDeprecated(
                     List.of(new MockMultipartFile("files", "", "text/plain",
@@ -83,10 +74,7 @@ public class S3ServiceTest {
 
     @Test
     @DisplayName("FAIL_업로드(DEPRECATED) 잘못된 파일 확장자")
-    void FAIL_uploadDeprecatedInvalidExtension() throws IOException {
-        when(s3Client.putObject(any())).thenReturn(new PutObjectResult());
-        when(s3Client.getUrl(any(), any())).thenReturn(new URL("http://url.com"));
-
+    void FAIL_uploadDeprecatedInvalidExtension() {
         Assertions.assertThrows(BadRequestException.class, () -> {
             s3Service.uploadDeprecated(
                     List.of(new MockMultipartFile("files", "file.csv", "text/plain",
@@ -121,7 +109,9 @@ public class S3ServiceTest {
     void SUCCESS_deleteFiles() {
         doNothing().when(s3Client).deleteObject(any(), any());
 
-        s3Service.deleteFiles(List.of("https://url.com"), "folderName");
+        Assertions.assertDoesNotThrow(() ->
+                s3Service.deleteFiles(List.of("https://url.com"), "folderName")
+        );
     }
 
     @Test

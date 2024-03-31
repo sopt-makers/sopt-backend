@@ -2,13 +2,13 @@ package org.sopt.app.application.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.AccessLevel;
 import org.sopt.app.domain.enums.UserStatus;
 
 public class PlaygroundAuthInfo {
@@ -115,6 +115,7 @@ public class PlaygroundAuthInfo {
     @Setter
     @ToString
     public static class ActiveUserIds {
+
         @JsonProperty("memberIds")
         private List<Long> userIds;
     }
@@ -124,15 +125,18 @@ public class PlaygroundAuthInfo {
     @Builder
     @ToString
     public static class UserActiveInfo {
+
         private Long currentGeneration;
         private UserStatus status;
     }
 
     @Getter
+    @Builder
     @ToString
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class MemberProfile {
+
         @JsonProperty("memberId")
         private Long id;
         private String profileImage;
@@ -149,11 +153,13 @@ public class PlaygroundAuthInfo {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ActivityCardinalInfo {
+
         private String cardinalInfo;
 
         public String getGeneration() {
             return cardinalInfo.split(",")[0];
         }
+
         public String getPart() {
             return cardinalInfo.split(",")[1];
         }

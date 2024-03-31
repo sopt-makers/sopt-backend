@@ -4,11 +4,9 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
-import org.junit.jupiter.api.TestInstance.Lifecycle;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -18,10 +16,7 @@ import org.sopt.app.application.description.DescriptionService;
 import org.sopt.app.domain.entity.MainDescription;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.interfaces.postgres.MainDescriptionRepository;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-@TestInstance(Lifecycle.PER_CLASS)
 @ExtendWith(MockitoExtension.class)
 public class DescriptionServiceTest {
 
@@ -31,7 +26,7 @@ public class DescriptionServiceTest {
     @InjectMocks
     private DescriptionService descriptionService;
 
-    @BeforeAll
+    @BeforeEach
     private void beforeTest() {
         when(mainDescriptionRepository.findAll()).thenReturn(List.of(
                 MainDescription.builder()
