@@ -6,10 +6,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.mission.MissionService;
-import org.sopt.app.application.soptamp.SoptampPointInfo;
+import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.domain.enums.Part;
@@ -86,5 +89,31 @@ public class RankController {
         val missionList = missionService.getCompleteMission(result.getUserId());
         val response = rankResponseMapper.of(result, missionList);
         return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "파트끼리의 랭킹 목록 조회")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/part")
+    public ResponseEntity<List<PartRank>> findPartRanks() {
+        List<Part> partList = List.of(Part.PLAN, Part.DESIGN, Part.WEB, Part.IOS, Part.ANDROID, Part.SERVER);
+
+        Map<Part, Long> partPoints = partList.stream()
+                .collect(Collectors.toMap(
+                        Function.identity(),
+                        part -> soptampPointService.calculateSumOfPoints(
+                                soptampPointService.findCurrentPointListBySoptampUserIds(
+                                        soptampUserService.findSoptampUserByPart(part)
+                                )
+                        )
+                ));
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                partList.stream()
+                .map(soptampPointService.findPartRanks(partPoints)::get)
+                .toList()
+        );
     }
 }
