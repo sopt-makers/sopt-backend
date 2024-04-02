@@ -42,4 +42,12 @@ public class SoptampPointInfo {
             return new Point(id, generation, soptampUserId, points);
         }
     }
+
+    @Getter
+    @Builder
+    public static class PartRank {
+        private String part;
+        private Integer rank;
+        private Long points;
+    }
 }
