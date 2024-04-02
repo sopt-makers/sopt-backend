@@ -31,14 +31,18 @@ jobs:
       # 3) 환경변수 파일 생성
       - name: Copy application-local.yml
         run: |
-          # application-local.yml 생성
+          # application-local.yml, application-test.yml 생성
           touch ./src/main/resources/application-local.yml
+          touch ./src/test/resources/application-test.yml
           
-          # application.yaml 파일 값 입력
-          echo "${{ secrets.APPLICATION_LOCAL_YML }}" >> ./src/main/resources/application-local.yaml
+          # application-local.yml, application-test.yml 파일 값 입력
+          echo "${{ secrets.APPLICATION_LOCAL_YML }}" >> ./src/main/resources/application-local.yml
+          echo "${{ secrets.APPLICATION_LOCAL_YML }}" >> ./src/test/resources/application-test.yml
           
-          # application.yaml 파일 확인
-          cat ./src/main/resources/application-local.yaml
+          # application-local.yml, application-test.yml 파일 확인
+          cat ./src/main/resources/application-local.yml
+          cat ./src/test/resources/application-test.yml
+
         shell: bash
 
       # 이 워크플로우는 gradle build
@@ -48,5 +52,5 @@ jobs:
 
       - name: Build with Gradle
         run: |
-          ./gradlew build -x test
+          ./gradlew build
           
