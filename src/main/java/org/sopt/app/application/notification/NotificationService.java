@@ -126,6 +126,6 @@ public class NotificationService {
         val unreadNotificationList = notificationList.stream()
                 .filter(notification -> !notification.getIsRead())
                 .toList();
-        return unreadNotificationList.size() == 0;
+        return unreadNotificationList.isEmpty();
     }
 }

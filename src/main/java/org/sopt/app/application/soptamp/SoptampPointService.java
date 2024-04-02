@@ -1,11 +1,16 @@
 package org.sopt.app.application.soptamp;
 
+import java.util.EnumMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
-import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.domain.entity.SoptampPoint;
+import org.sopt.app.domain.enums.Part;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.interfaces.postgres.SoptampPointRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -31,6 +36,19 @@ public class SoptampPointService {
                     point.getPoints()
                 )
             ).toList();
+    }
+
+    public List<Point> findCurrentPointListBySoptampUserIds(List<Long> soptampUserIdList) {
+
+        return soptampPointRepository.findAllBySoptampUserIdInAndGeneration(soptampUserIdList, currentGeneration).stream()
+                .map(point ->
+                        SoptampPointInfo.Point.of(
+                                point.getId(),
+                                point.getGeneration(),
+                                point.getSoptampUserId(),
+                                point.getPoints()
+                        )
+                ).toList();
     }
 
     @Transactional
@@ -79,5 +97,36 @@ public class SoptampPointService {
             .points(0L)
             .build();
         soptampPointRepository.save(newSoptampPoint);
+    }
+
+    public Map<Part, PartRank> findPartRanks(Map<Part, Long> partPoints) {
+        return partPoints.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Entry::getKey,
+                        entry -> calculatePartRank(entry.getKey(), partPoints)
+                ));
+    }
+
+    private PartRank calculatePartRank(Part part, Map<Part, Long> partPoints) {
+        Integer rank = 1;
+
+        for (Entry<Part, Long> comparator : partPoints.entrySet()) {
+            if(partPoints.get(part) < comparator.getValue()){
+                rank++;
+            }
+        }
+
+        return PartRank.builder()
+                .part(part.getPartName())
+                .rank(rank)
+                .points(partPoints.get(part))
+                .build();
+    }
+
+
+    public Long calculateSumOfPoints(List<Point> soptampPointList) {
+        return soptampPointList.stream()
+            .map(Point::getPoints)
+            .reduce(0L, Long::sum);
     }
 }

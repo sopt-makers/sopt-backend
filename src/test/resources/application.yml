@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: app-server
+  profiles:
+    active: test
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html

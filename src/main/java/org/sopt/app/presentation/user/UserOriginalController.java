@@ -40,10 +40,9 @@ public class UserOriginalController {
     })
     @GetMapping(value = "/main")
     public ResponseEntity<UserResponse.MainView> getMainViewInfo(
-            @AuthenticationPrincipal User user,
-            @RequestHeader("Authorization") String accessToken
+            @AuthenticationPrincipal User user
     ) {
-        val response = userFacade.getMainViewInfo(user, accessToken);
+        val response = userFacade.getMainViewInfo(user);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
