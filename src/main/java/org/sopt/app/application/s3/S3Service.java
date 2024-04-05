@@ -51,6 +51,8 @@ public class S3Service {
     @Value("${cloud.aws.s3.uri}")
     private String baseURI;
 
+    private final AmazonS3 amazonS3;
+
 
     @PostConstruct
     public AmazonS3 getAmazonS3() {
@@ -69,7 +71,6 @@ public class S3Service {
 
         return multipartFiles.stream().map(file -> {
             val fileName = createFileName(file.getOriginalFilename());
-            val amazonS3 = getAmazonS3();
             val objectMetadata = new ObjectMetadata();
             objectMetadata.setContentLength(file.getSize());
             objectMetadata.setContentType(file.getContentType());
@@ -105,7 +106,6 @@ public class S3Service {
         val now = LocalDateTime.now();
         val folderURI = bucket + "/mainpage/makers-app-img/" + folderName;
         val randomFileName = UUID.randomUUID();
-        val amazonS3 = getAmazonS3();
 
         URI uri;
         try {
@@ -141,7 +141,7 @@ public class S3Service {
 
     private void deleteFile(String folderURI, String fileName) {
         try {
-            this.getAmazonS3().deleteObject(folderURI, fileName.replace(File.separatorChar, '/'));
+            amazonS3.deleteObject(folderURI, fileName.replace(File.separatorChar, '/'));
         } catch (AmazonServiceException e) {
             LoggerFactory.getLogger(S3Service.class).error(e.getErrorMessage());
         }
