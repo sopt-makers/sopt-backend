@@ -225,4 +225,10 @@ public class SoptampUserService {
                 .build();
         soptampUserRepository.save(newSoptampUser);
     }
+
+    public void initAllSoptampUserPoints() {
+        val soptampUserList = soptampUserRepository.findAll();
+        soptampUserList.forEach(SoptampUser::initTotalPoints);
+        soptampUserRepository.saveAll(soptampUserList);
+    }
 }
