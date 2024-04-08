@@ -19,22 +19,23 @@ import org.springframework.context.annotation.Import;
 @Import(QuerydslConfiguration.class)
 class UserRepositoryTest {
 
-    @Autowired
-    private UserRepository userRepository;
-
     User user1 = new User();
     User user2 = new User();
+    @Autowired
+    private UserRepository userRepository;
 
     @BeforeEach
     void beforeTest() {
 
         user1 = userRepository.save(
                 User.builder()
+                        .id(1L)
                         .playgroundId(generateUniquePlaygroundId())
                         .build()
         );
         user2 = userRepository.save(
                 User.builder()
+                        .id(2L)
                         .playgroundId(generateUniquePlaygroundId())
                         .build()
         );
@@ -82,7 +83,8 @@ class UserRepositoryTest {
         final List<Long> playgroundIds = List.of(user1.getPlaygroundId(), user2.getPlaygroundId());
 
         //then
-        Assertions.assertEquals(List.of(user1.getId(), user2.getId()), userRepository.findAllIdByPlaygroundIdIn(playgroundIds));
+        Assertions.assertEquals(List.of(user1.getId(), user2.getId()),
+                userRepository.findAllIdByPlaygroundIdIn(playgroundIds));
     }
 
 
