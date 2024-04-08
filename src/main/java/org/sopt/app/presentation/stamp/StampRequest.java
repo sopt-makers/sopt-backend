@@ -1,7 +1,6 @@
 package org.sopt.app.presentation.stamp;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import java.time.LocalDateTime;
 import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -36,9 +35,9 @@ public class StampRequest {
         @Schema(description = "스탬프 내용", example = "스탬프 찍었다!")
         @NotNull(message = "contents may not be null")
         private String contents;
-        @Schema(description = "활동 날짜", example = "2023-03-29T18:39:42.106369")
+        @Schema(description = "활동 날짜", example = "2024.04.08")
         @NotNull(message = "activity date may not be null")
-        private LocalDateTime activityDate;
+        private String activityDate;
     }
 
     @Getter
@@ -55,8 +54,8 @@ public class StampRequest {
         @Schema(description = "스탬프 내용", example = "스탬프 찍었다!")
         @NotNull(message = "contents may not be null")
         private String contents;
-        @Schema(description = "활동 날짜", example = "2023-03-29T18:39:42.106369")
+        @Schema(description = "활동 날짜", example = "2024.04.08")
         @NotNull(message = "activity date may not be null")
-        private LocalDateTime activityDate;
+        private String activityDate;
     }
 }

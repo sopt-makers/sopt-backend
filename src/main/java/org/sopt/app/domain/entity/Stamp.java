@@ -2,16 +2,19 @@ package org.sopt.app.domain.entity;
 
 
 import com.vladmihalcea.hibernate.type.array.ListArrayType;
-import java.time.LocalDateTime;
+import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-
-import javax.persistence.*;
-import java.util.List;
 
 @Entity
 @Table(name = "stamp", schema = "app_dev")
@@ -44,8 +47,8 @@ public class Stamp extends BaseEntity {
     @Column
     private Long missionId;
 
-    @Column
-    private LocalDateTime activityDate;
+    @Column(length = 10)
+    private String activityDate;
 
     public void changeContents(String contents) {
         this.contents = contents;
@@ -55,7 +58,7 @@ public class Stamp extends BaseEntity {
         this.images = images;
     }
 
-    public void changeActivityDate(LocalDateTime activityDate) {
+    public void changeActivityDate(String activityDate) {
         this.activityDate = activityDate;
     }
 }
