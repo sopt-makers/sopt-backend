@@ -203,7 +203,7 @@ class StampServiceTest {
         final Long stampId = 1L;
         final String contents = "savedContents";
         final List<String> images = List.of("savedImage");
-        final LocalDateTime activityDate = LocalDateTime.of(2023, 1, 1, 0, 0, 0);
+        final String activityDate = "2024.04.08";
 
         final Optional<Stamp> savedStamp = Optional.of(Stamp.builder()
                 .id(stampId)
@@ -219,7 +219,8 @@ class StampServiceTest {
         return savedStamp.get();
     }
 
-    private StampInfo.Stamp editStamp(Stamp oldStamp, StampRequest.EditStampRequest editStampRequest, boolean isDeprecatedEditStampContents) {
+    private StampInfo.Stamp editStamp(Stamp oldStamp, StampRequest.EditStampRequest editStampRequest,
+            boolean isDeprecatedEditStampContents) {
         if (!isDeprecatedEditStampContents && StringUtils.hasText(editStampRequest.getContents())) {
             oldStamp.changeContents(editStampRequest.getContents());
         }
@@ -278,7 +279,7 @@ class StampServiceTest {
         final Long requestMissionId = anyLong();
         final String requestContents = "requestContents";
         final String requestImage = "requestImage";
-        final LocalDateTime requestActivityDate = LocalDateTime.now();
+        final String requestActivityDate = "2024.04.08";
 
         StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
         editStampRequest.setContents(requestContents);
@@ -288,7 +289,7 @@ class StampServiceTest {
 
         //when
         Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
-        editStamp(oldStamp, editStampRequest,false);
+        editStamp(oldStamp, editStampRequest, false);
         StampInfo.Stamp result = stampService.editStampContents(editStampRequest, requestUserId);
 
         //then
@@ -304,7 +305,8 @@ class StampServiceTest {
 
         final String requestBlankContents = "";
         final String requestImage = "requestImage";
-        final LocalDateTime requestActivityDate = LocalDateTime.now();
+        final String requestActivityDate = "2024.04.08";
+
         StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
         editStampRequest.setContents(requestBlankContents);
         editStampRequest.setImage(requestImage);
@@ -328,7 +330,7 @@ class StampServiceTest {
         final Long requestMissionId = anyLong();
         final String requestContents = "requestContents";
         final String requestBlankImage = "";
-        final LocalDateTime requestActivityDate = LocalDateTime.now();
+        final String requestActivityDate = "2024.04.08";
 
         StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
         editStampRequest.setContents(requestContents);
@@ -449,7 +451,8 @@ class StampServiceTest {
         final Long anyMissionId = anyLong();
 
         //when
-        Mockito.when(stampRepository.findByUserIdAndMissionId(anyUserId, anyMissionId)).thenReturn(Optional.of(new Stamp()));
+        Mockito.when(stampRepository.findByUserIdAndMissionId(anyUserId, anyMissionId))
+                .thenReturn(Optional.of(new Stamp()));
 
         //then
         Assertions.assertThrows(BadRequestException.class, () -> {
