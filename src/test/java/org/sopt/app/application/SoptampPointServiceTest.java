@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.domain.entity.SoptampPoint;
+import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.interfaces.postgres.SoptampPointRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -179,11 +180,38 @@ class SoptampPointServiceTest {
         Assertions.assertDoesNotThrow(() -> soptampPointService.subtractPoint(anyLong(), anyInt()));
     }
 
-    /* TODO: Implement test cases for the following methods
     @Test
-    void upsertSoptampPoint() {
+    @DisplayName("SUCCESS_유저 상태가 ACTIVE일 때 솝탬프 포인트 업서트")
+    void SUCCESS_upsertSoptampPointUserStatusACTIVE() {
+        //given
+        Long anyUserId = anyLong();
+
+        //when
+        when(soptampPointRepository.findAllBySoptampUserIdAndGeneration(anyUserId, anyLong()))
+                .thenReturn(Optional.of(new SoptampPoint()));
+
+        //then
+        Assertions.assertDoesNotThrow(() -> soptampPointService.upsertSoptampPoint(UserStatus.ACTIVE, anyUserId));
     }
 
+    @Test
+    @DisplayName("SUCCESS_유저 상태가 INACTIVE일 때 업서트하지 않음")
+    void SUCCESS_upsertSoptampPointUserStatusINACTIVE() {
+        //then
+        Assertions.assertDoesNotThrow(() -> soptampPointService.upsertSoptampPoint(UserStatus.INACTIVE, 1L));
+    }
+
+    @Test
+    @DisplayName("SUCCESS_솝탬프 포인트가 Empty일 때 업서트하지 않음")
+    void SUCCESS_upsertSoptampPointNotPresent() {
+        //when
+        when(soptampPointRepository.findAllBySoptampUserIdAndGeneration(anyLong(), anyLong()))
+                .thenReturn(Optional.empty());
+        //then
+        Assertions.assertDoesNotThrow(() -> soptampPointService.upsertSoptampPoint(UserStatus.ACTIVE, 1L));
+    }
+
+    /* TODO: Implement test cases for the following methods
     @Test
     void findPartRanks() {
     }
