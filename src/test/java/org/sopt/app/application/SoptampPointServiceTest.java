@@ -125,8 +125,8 @@ class SoptampPointServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_솝탬프 포인트가 없을 때 포인트 추가")
-    void SUCCESS_addPointSoptampNotPresent() {
+    @DisplayName("SUCCESS_솝탬프 포인트가 있을 때 포인트 추가")
+    void SUCCESS_addPointSoptampIsPresent() {
         //given
         SoptampPoint soptampPoint = SoptampPoint.builder()
                 .id(1L)
@@ -144,18 +144,41 @@ class SoptampPointServiceTest {
 
     @Test
     @DisplayName("SUCCESS_솝탬프 포인트가 없으면 아무것도 안함")
-    void SUCCESS_addPoint() {
+    void SUCCESS_addPointSoptampNotPresent() {
         //when
         when(soptampPointRepository.findAllBySoptampUserIdAndGeneration(anyLong(), anyLong())).thenReturn(Optional.empty());
         //then
         Assertions.assertDoesNotThrow(() -> soptampPointService.addPoint(anyLong(), anyInt()));
     }
 
-    /* TODO: Implement test cases for the following methods
     @Test
-    void subtractPoint() {
+    @DisplayName("SUCCESS_솝탬프 포인트가 있을 때 포인트 추가")
+    void SUCCESS_subtractPointIsPresent() {
+        //given
+        SoptampPoint soptampPoint = SoptampPoint.builder()
+                .id(1L)
+                .generation(34L)
+                .soptampUserId(1L)
+                .points(100L)
+                .build();
+
+        //when
+        when(soptampPointRepository.findAllBySoptampUserIdAndGeneration(anyLong(), anyLong())).thenReturn(Optional.of(soptampPoint));
+
+        //then
+        Assertions.assertDoesNotThrow(() -> soptampPointService.subtractPoint(anyLong(), anyInt()));
     }
 
+    @Test
+    @DisplayName("SUCCESS_솝탬프 포인트가 없으면 아무것도 안함")
+    void SUCCESS_subtractPointSoptampNotPresent() {
+        //when
+        when(soptampPointRepository.findAllBySoptampUserIdAndGeneration(anyLong(), anyLong())).thenReturn(Optional.empty());
+        //then
+        Assertions.assertDoesNotThrow(() -> soptampPointService.subtractPoint(anyLong(), anyInt()));
+    }
+
+    /* TODO: Implement test cases for the following methods
     @Test
     void upsertSoptampPoint() {
     }
