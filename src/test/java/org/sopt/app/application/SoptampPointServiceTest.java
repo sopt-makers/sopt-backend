@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,9 +17,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.junit.jupiter.api.Test;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.domain.entity.SoptampPoint;
+import org.sopt.app.domain.enums.Part;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.interfaces.postgres.SoptampPointRepository;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -211,11 +214,59 @@ class SoptampPointServiceTest {
         Assertions.assertDoesNotThrow(() -> soptampPointService.upsertSoptampPoint(UserStatus.ACTIVE, 1L));
     }
 
-    /* TODO: Implement test cases for the following methods
     @Test
-    void findPartRanks() {
+    @DisplayName("SUCCESS_파트 랭킹 찾기")
+    void SUCCESS_findPartRanks() {
+        //given
+        Map<Part, Long> partPoints = Map.of(
+                Part.PLAN, 50L,
+                Part.DESIGN, 0L,
+                Part.IOS, 20L,
+                Part.ANDROID, 10L,
+                Part.WEB, 30L,
+                Part.SERVER, 40L
+        );
+
+        //when
+        Map<Part, PartRank> result = soptampPointService.findPartRanks(partPoints);
+        Map<Part, PartRank> expected = Map.of(
+                Part.PLAN, PartRank.builder()
+                        .part(Part.PLAN.getPartName())
+                        .rank(1)
+                        .points(50L)
+                        .build(),
+                Part.DESIGN, PartRank.builder()
+                        .part(Part.DESIGN.getPartName())
+                        .rank(6)
+                        .points(0L)
+                        .build(),
+                Part.IOS, PartRank.builder()
+                        .part(Part.IOS.getPartName())
+                        .rank(4)
+                        .points(20L)
+                        .build(),
+                Part.ANDROID, PartRank.builder()
+                        .part(Part.ANDROID.getPartName())
+                        .rank(5)
+                        .points(10L)
+                        .build(),
+                Part.WEB, PartRank.builder()
+                        .part(Part.WEB.getPartName())
+                        .rank(3)
+                        .points(30L)
+                        .build(),
+                Part.SERVER, PartRank.builder()
+                        .part(Part.SERVER.getPartName())
+                        .rank(2)
+                        .points(40L)
+                        .build()
+        );
+
+        //then
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
+    /* TODO: Implement test cases for the following methods
     @Test
     void calculateSumOfPoints() {
     }
