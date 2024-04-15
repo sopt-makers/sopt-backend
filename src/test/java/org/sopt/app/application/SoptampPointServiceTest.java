@@ -86,6 +86,7 @@ class SoptampPointServiceTest {
     @DisplayName("SUCCESS_유저 아이디 리스트로 현재 포인트 리스트 찾기")
     void SUCCESS_findCurrentPointListBySoptampUserIds() {
         //given
+        List<Long> soptampUserIdList = any();
         Long anyGeneration = anyLong();
         List<SoptampPoint> soptampPointList = List.of(
             SoptampPoint.builder()
@@ -103,8 +104,8 @@ class SoptampPointServiceTest {
         );
 
         //when
-        when(soptampPointRepository.findAllBySoptampUserIdInAndGeneration(any(), anyGeneration)).thenReturn(soptampPointList);
-        List<Point> result = soptampPointService.findCurrentPointListBySoptampUserIds(any());
+        when(soptampPointRepository.findAllBySoptampUserIdInAndGeneration(soptampUserIdList, anyGeneration)).thenReturn(soptampPointList);
+        List<Point> result = soptampPointService.findCurrentPointListBySoptampUserIds(soptampUserIdList);
         List<Point> expected = List.of(
                 Point.builder()
                         .id(1L)
