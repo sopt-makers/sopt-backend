@@ -2,10 +2,13 @@ package org.sopt.app.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -83,7 +86,6 @@ class SoptampPointServiceTest {
     @DisplayName("SUCCESS_유저 아이디 리스트로 현재 포인트 리스트 찾기")
     void SUCCESS_findCurrentPointListBySoptampUserIds() {
         //given
-        List<Long> soptampUserIdList = any();
         Long anyGeneration = anyLong();
         List<SoptampPoint> soptampPointList = List.of(
             SoptampPoint.builder()
@@ -101,8 +103,8 @@ class SoptampPointServiceTest {
         );
 
         //when
-        when(soptampPointRepository.findAllBySoptampUserIdInAndGeneration(soptampUserIdList, anyGeneration)).thenReturn(soptampPointList);
-        List<Point> result = soptampPointService.findCurrentPointListBySoptampUserIds(soptampUserIdList);
+        when(soptampPointRepository.findAllBySoptampUserIdInAndGeneration(any(), anyGeneration)).thenReturn(soptampPointList);
+        List<Point> result = soptampPointService.findCurrentPointListBySoptampUserIds(any());
         List<Point> expected = List.of(
                 Point.builder()
                         .id(1L)
@@ -122,11 +124,34 @@ class SoptampPointServiceTest {
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
-    /* TODO: Implement test cases for the following methods
     @Test
-    void addPoint() {
+    @DisplayName("SUCCESS_솝탬프 포인트가 없을 때 포인트 추가")
+    void SUCCESS_addPointSoptampNotPresent() {
+        //given
+        SoptampPoint soptampPoint = SoptampPoint.builder()
+                .id(1L)
+                .generation(34L)
+                .soptampUserId(1L)
+                .points(100L)
+                .build();
+
+        //when
+        when(soptampPointRepository.findAllBySoptampUserIdAndGeneration(anyLong(), anyLong())).thenReturn(Optional.of(soptampPoint));
+
+        //then
+        Assertions.assertDoesNotThrow(() -> soptampPointService.addPoint(anyLong(), anyInt()));
     }
 
+    @Test
+    @DisplayName("SUCCESS_솝탬프 포인트가 없으면 아무것도 안함")
+    void SUCCESS_addPoint() {
+        //when
+        when(soptampPointRepository.findAllBySoptampUserIdAndGeneration(anyLong(), anyLong())).thenReturn(Optional.empty());
+        //then
+        Assertions.assertDoesNotThrow(() -> soptampPointService.addPoint(anyLong(), anyInt()));
+    }
+
+    /* TODO: Implement test cases for the following methods
     @Test
     void subtractPoint() {
     }
