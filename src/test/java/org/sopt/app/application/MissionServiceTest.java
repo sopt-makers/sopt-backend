@@ -6,6 +6,8 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.mission.MissionInfo.Completeness;
+import org.sopt.app.application.mission.MissionInfo.Level;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.domain.entity.Mission;
 import org.sopt.app.domain.entity.Stamp;
@@ -128,10 +131,34 @@ class MissionServiceTest {
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
-    /* TODO: implement following test case
     @Test
-    void getMissionById() {
+    @DisplayName("SUCCESS_미션 조회")
+    void SUCCESS_getMissionById() {
+        // given
+        final Long anyMissionId = anyLong();
+        final Integer level = 1;
+
+        // when
+        when(missionRepository.findById(anyMissionId)).thenReturn(
+                Optional.of(Mission.builder().id(anyMissionId).level(level).build()));
+        Level result = missionService.getMissionById(anyMissionId);
+
+        // then
+        assertThat(result.getLevel()).isEqualTo(level);
     }
 
-    */
+    @Test
+    @DisplayName("FAIL_미션 조회")
+    void FAIL_getMissionById() {
+        // given
+        final Long anyMissionId = anyLong();
+
+        // when
+        when(missionRepository.findById(anyMissionId)).thenReturn(Optional.empty());
+
+        // then
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            missionService.getMissionById(anyMissionId);
+        });
+    }
 }
