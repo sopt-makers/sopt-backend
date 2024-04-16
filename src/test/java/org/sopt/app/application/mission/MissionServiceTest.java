@@ -86,11 +86,33 @@ class MissionServiceTest {
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
-    /* TODO: implement following test case
     @Test
-    void getCompleteMission() {
+    @DisplayName("SUCCESS_완료한 미션 조회")
+    void SUCCESS_getCompleteMission() {
+        // given
+        final Long anyUserId = anyLong();
+        final List<Stamp> stampList = List.of(
+                Stamp.builder().missionId(1L).build(),
+                Stamp.builder().missionId(2L).build()
+        );
+        final List<Long> missionIdList = List.of(1L, 2L);
+
+
+        // when
+        final List<Mission> expected = List.of(
+                Mission.builder().id(1L).build(),
+                Mission.builder().id(2L).build()
+        );
+        when(stampRepository.findAllByUserId(anyUserId)).thenReturn(stampList);
+        when(missionRepository.findMissionInOrderByLevelAndTitle(missionIdList)).thenReturn(expected);
+
+        List<Mission> result = missionService.getCompleteMission(anyUserId);
+
+        // then
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
+    /* TODO: implement following test case
     @Test
     void getIncompleteMission() {
     }
