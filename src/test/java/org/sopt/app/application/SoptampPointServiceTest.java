@@ -266,10 +266,23 @@ class SoptampPointServiceTest {
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
-    /* TODO: Implement test cases for the following methods
     @Test
-    void calculateSumOfPoints() {
-    }
+    @DisplayName("SUCCESS_파트 랭킹 계산")
+    void SUCCESS_calculateSumOfPoints() {
+        //given
+        List<Point> soptampPointList = List.of(
+                Point.builder()
+                        .points(100L)
+                        .build(),
+                Point.builder()
+                        .points(200L)
+                        .build()
+        );
 
-     */
+        //when
+        Long result = soptampPointService.calculateSumOfPoints(soptampPointList);
+
+        //then
+        assertThat(result).isEqualTo(300L);
+    }
 }
