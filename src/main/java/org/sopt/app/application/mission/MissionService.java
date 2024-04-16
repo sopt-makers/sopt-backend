@@ -69,11 +69,11 @@ public class MissionService {
 
         //전체 미션 조회하기
         val missionList = missionRepository.findAllByDisplay(true);
-        val missionIdList = missionList.stream().map(Mission::getId).collect(Collectors.toList());
+        val missionIdList = missionList.stream().map(Mission::getId).toList();
 
         //stamp에서 userId로 달성한 mission 조회하기
         val stampList = stampRepository.findAllByUserId(userId);
-        val completeMissionIdList = stampList.stream().map(Stamp::getMissionId).collect(Collectors.toList());
+        val completeMissionIdList = stampList.stream().map(Stamp::getMissionId).toList();
 
         //두 리스트 비교해서 중복값 제거
         val inCompleteIdList = missionIdList.stream()
