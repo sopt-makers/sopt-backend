@@ -1,6 +1,7 @@
 package org.sopt.app.application.mission;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
@@ -8,6 +9,7 @@ import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -16,6 +18,7 @@ import org.sopt.app.domain.entity.Mission;
 import org.sopt.app.domain.entity.Stamp;
 import org.sopt.app.interfaces.postgres.MissionRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
+import org.sopt.app.presentation.mission.MissionRequest.RegisterMissionRequest;
 
 @ExtendWith(MockitoExtension.class)
 class MissionServiceTest {
@@ -59,12 +62,31 @@ class MissionServiceTest {
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
-    /* TODO: implement following test case
 
     @Test
-    void uploadMission() {
+    @DisplayName("SUCCESS_미션 업로드")
+    void SUCCESS_uploadMission() {
+        // given
+        RegisterMissionRequest registerMissionRequest = new RegisterMissionRequest();
+        registerMissionRequest.setTitle("title");
+        registerMissionRequest.setLevel(1);
+        registerMissionRequest.setImage("image");
+
+        // when
+        Mission expected = Mission.builder()
+                .title("title")
+                .level(1)
+                .profileImage(List.of("image"))
+                .build();
+        when(missionRepository.save(any(Mission.class))).thenReturn(expected);
+
+        Mission result = missionService.uploadMission(registerMissionRequest);
+
+        // then
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
+    /* TODO: implement following test case
     @Test
     void getCompleteMission() {
     }
