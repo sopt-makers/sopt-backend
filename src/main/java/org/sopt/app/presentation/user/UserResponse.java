@@ -103,14 +103,28 @@ public class UserResponse {
     }
 
 
-
     @Getter
     @Builder
     @ToString
     public static class Generation {
+
         @Schema(description = "현재 솝트 기수", example = "33")
         private Long currentGeneration;
         @Schema(description = "활동/비활동/비회원 분기 처리", example = "ACTIVE")
         private String status;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class AppService {
+
+        @Schema(description = "앱 서비스 네임", example = "SOPTAMP/POKE")
+        private String serviceName;
+        @Schema(description = "활동 기수 유저", example = "true")
+        private Boolean activeUser;
+        @Schema(description = "비활동 기수 유저", example = "false")
+        private Boolean inactiveUser;
+
     }
 }

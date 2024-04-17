@@ -1,6 +1,5 @@
 package org.sopt.app.application.soptamp;
 
-import com.sun.xml.bind.v2.runtime.JaxBeanInfo;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,8 +11,8 @@ import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.SoptampUser;
+import org.sopt.app.domain.enums.Part;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +23,9 @@ public class SoptampUserService {
     private final SoptampUserRepository soptampUserRepository;
 
     @Transactional(readOnly = true)
-    public SoptampUserInfo.SoptampUser getSotampUserInfo(Long userId) {
+    public SoptampUserInfo.SoptampUser getSoptampUserInfo(Long userId) {
         val user = soptampUserRepository.findByUserId(userId)
-            .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
         return SoptampUserInfo.SoptampUser.builder()
                 .id(user.getId())
                 .userId(user.getUserId())
@@ -64,7 +63,8 @@ public class SoptampUserService {
     }
 
     @Transactional
-    public SoptampUserInfo.SoptampUser editProfileMessage(SoptampUserInfo.SoptampUser soptampUser, String profileMessage) {
+    public SoptampUserInfo.SoptampUser editProfileMessage(SoptampUserInfo.SoptampUser soptampUser,
+            String profileMessage) {
         val newSoptampUser = SoptampUser.builder()
                 .id(soptampUser.getId())
                 .userId(soptampUser.getUserId())
@@ -109,7 +109,7 @@ public class SoptampUserService {
 
     public List<SoptampPointInfo.Main> findCurrentRanks(List<Point> soptampPointList) {
         val soptampUserIdList = soptampPointList.stream()
-            .map(Point::getSoptampUserId).toList();
+                .map(Point::getSoptampUserId).toList();
         val userList = soptampUserRepository.findAllById(soptampUserIdList);
         return this.getCurrentRanking(userList, soptampPointList);
     }
@@ -117,43 +117,49 @@ public class SoptampUserService {
     private List<Main> getRanking(List<SoptampUser> userList) {
         val rankPoint = new AtomicInteger(1);
         return userList.stream().sorted(
-                Comparator.comparing(SoptampUser::getTotalPoints).reversed())
-            .map(user -> Main.builder()
-                .rank(rankPoint.getAndIncrement())
-                .nickname(user.getNickname())
-                .point(user.getTotalPoints())
-                .profileMessage(user.getProfileMessage())
-                .build())
-            .collect(Collectors.toList());
+                        Comparator.comparing(SoptampUser::getTotalPoints).reversed())
+                .map(user -> Main.builder()
+                        .rank(rankPoint.getAndIncrement())
+                        .nickname(user.getNickname())
+                        .point(user.getTotalPoints())
+                        .profileMessage(user.getProfileMessage())
+                        .build())
+                .collect(Collectors.toList());
     }
 
     private List<Main> getCurrentRanking(List<SoptampUser> userList, List<Point> soptampPointList) {
         val rankPoint = new AtomicInteger(1);
-        val result =  soptampPointList.stream().sorted(Comparator.comparing(Point::getPoints).reversed())
-            .map(point -> {
-                val user = userList.stream()
-                    .filter(u -> u.getId().equals(point.getSoptampUserId()))
-                    .findFirst()
-                    .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
-                return Main.builder()
-                    .rank(rankPoint.getAndIncrement())
-                    .nickname(user.getNickname())
-                    .point(point.getPoints())
-                    .profileMessage(user.getProfileMessage())
-                    .build();
-            }).collect(Collectors.toList());
-        return result;
+        return soptampPointList.stream().sorted(Comparator.comparing(Point::getPoints).reversed())
+                .map(point -> {
+                    val user = userList.stream()
+                            .filter(u -> u.getId().equals(point.getSoptampUserId()))
+                            .findFirst()
+                            .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                    return Main.builder()
+                            .rank(rankPoint.getAndIncrement())
+                            .nickname(user.getNickname())
+                            .point(point.getPoints())
+                            .profileMessage(user.getProfileMessage())
+                            .build();
+                }).collect(Collectors.toList());
+    }
+
+    public List<Long> findSoptampUserByPart(Part part) {
+        return soptampUserRepository.findAllByNicknameStartingWith(part.getPartName())
+                .stream()
+                .map(SoptampUser::getId)
+                .toList();
     }
 
     public SoptampUser findRankByNickname(String nickname) {
         return soptampUserRepository.findUserByNickname(nickname)
-            .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
     }
 
     @Transactional
     public SoptampUserInfo.SoptampUser addPoint(Long userId, Integer level) {
         val user = soptampUserRepository.findByUserId(userId)
-            .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
         val newTotalPoint = user.getTotalPoints() + level;
         val newSoptampUser = SoptampUser.builder()
                 .id(user.getId())
@@ -175,7 +181,7 @@ public class SoptampUserService {
     @Transactional
     public SoptampUserInfo.SoptampUser subtractPoint(Long userId, Integer level) {
         val user = soptampUserRepository.findByUserId(userId)
-            .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
         val newTotalPoint = user.getTotalPoints() - level;
         val newSoptampUser = SoptampUser.builder()
                 .id(user.getId())
@@ -195,8 +201,8 @@ public class SoptampUserService {
     }
 
     public SoptampUserInfo.SoptampUser findByNickname(String nickname) {
-        val soptampUser= soptampUserRepository.findUserByNickname(nickname)
-            .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+        val soptampUser = soptampUserRepository.findUserByNickname(nickname)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
         return SoptampUserInfo.SoptampUser.builder()
                 .id(soptampUser.getId())
                 .userId(soptampUser.getUserId())
@@ -209,7 +215,7 @@ public class SoptampUserService {
     @Transactional
     public void initPoint(Long userId) {
         val sopTampUser = soptampUserRepository.findByUserId(userId)
-            .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
         val newSoptampUser = SoptampUser.builder()
                 .id(sopTampUser.getId())
                 .userId(sopTampUser.getUserId())

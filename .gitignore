@@ -36,9 +36,13 @@ out/
 ### VS Code ###
 .vscode/
 
+### macOS ###
+.DS_Store
+
 ### application.yml 파일들에 대한 gitignore 처리
 application-local.yml
 application-prod.yml
+application-test.yml
 
 ### HTTP 관련
 http-client.private.env.json

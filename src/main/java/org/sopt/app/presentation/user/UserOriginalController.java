@@ -5,19 +5,17 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthService;
-import org.sopt.app.application.notification.NotificationService;
-import org.sopt.app.application.operation.OperationInfo;
-import org.sopt.app.application.operation.OperationService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.UserFacade;
+import org.sopt.app.presentation.user.UserResponse.AppService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,10 +38,9 @@ public class UserOriginalController {
     })
     @GetMapping(value = "/main")
     public ResponseEntity<UserResponse.MainView> getMainViewInfo(
-            @AuthenticationPrincipal User user,
-            @RequestHeader("Authorization") String accessToken
+            @AuthenticationPrincipal User user
     ) {
-        val response = userFacade.getMainViewInfo(user, accessToken);
+        val response = userFacade.getMainViewInfo(user);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
@@ -58,8 +55,22 @@ public class UserOriginalController {
             @AuthenticationPrincipal User user
     ) {
         val generationUser = playgroundAuthService.getPlaygroundUserActiveInfo(
-            user.getPlaygroundToken());
+                user.getPlaygroundToken());
         val response = userResponseMapper.ofGeneration(generationUser);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
+    @Operation(summary = "앱 서비스 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "400", description = "no playground, operation profile", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping(value = "/app-service")
+    public ResponseEntity<List<AppService>> getAppServiceInfo(
+            @AuthenticationPrincipal User user
+    ) {
+        val response = userFacade.getAppServiceInfo();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 }
