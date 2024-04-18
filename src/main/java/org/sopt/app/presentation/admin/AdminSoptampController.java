@@ -5,9 +5,13 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
+import lombok.val;
+import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.AdminSoptampFacade;
+import org.sopt.app.presentation.admin.AdminSoptampResponse.Rows;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,10 +29,25 @@ public class AdminSoptampController {
             @ApiResponse(responseCode = "401", description = "token error", content = @Content),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @DeleteMapping(value = "/mission")
-    public ResponseEntity deleteAllMissionAndStamp(
+    @DeleteMapping(value = "/point")
+    public ResponseEntity initAllMissionAndStampAndPoints(
+            @AuthenticationPrincipal User user
     ) {
-        adminSoptampFacade.deleteAllMissionAndStamp();
+        adminSoptampFacade.initAllMissionAndStampAndPoints(user);
         return ResponseEntity.status(HttpStatus.OK).body(null);
+    }
+
+    @Operation(summary = "활동 기수 정보 전체 초기화")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @DeleteMapping(value = "/user")
+    public ResponseEntity<AdminSoptampResponse.Rows> initCurrentGenerationInfo(
+            @AuthenticationPrincipal User user
+    ) {
+        val rows = adminSoptampFacade.initCurrentGenerationInfo(user);
+        return ResponseEntity.status(HttpStatus.OK).body(Rows.builder().rows(rows).build());
     }
 }

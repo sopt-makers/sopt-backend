@@ -9,6 +9,7 @@ import lombok.val;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.domain.entity.SoptampPoint;
+import org.sopt.app.domain.entity.SoptampUser;
 import org.sopt.app.domain.enums.Part;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.interfaces.postgres.SoptampPointRepository;
@@ -132,5 +133,20 @@ public class SoptampPointService {
 
     public void deleteAll() {
         soptampPointRepository.deleteAll();
+    }
+
+    public List<SoptampPoint> createCurrentGenerationSoptampPointList(
+            List<SoptampUser> soptampUserList
+    ) {
+        val soptampPointList = soptampUserList.stream().map(e ->
+                        SoptampPoint
+                                .builder()
+                                .generation(currentGeneration)
+                                .points(0L)
+                                .soptampUserId(e.getId())
+                                .build())
+                .collect(Collectors.toList());
+        soptampPointRepository.saveAll(soptampPointList);
+        return soptampPointList;
     }
 }

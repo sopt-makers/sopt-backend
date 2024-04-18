@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.sopt.app.domain.enums.PlaygroundPart;
 
 @Entity
 @Table(name = "soptamp_user", schema = "app_dev")
@@ -36,7 +37,18 @@ public class SoptampUser extends BaseEntity {
     @Column(name = "nickname")
     private String nickname;
 
+    @Column(name = "generation")
+    private Long generation;
+
+    @Column(name = "part")
+    private String part;
+
     public void initTotalPoints() {
         this.totalPoints = 0L;
+    }
+
+    public void updateGenerationAndPart(Long generation, PlaygroundPart part) {
+        this.generation = generation;
+        this.part = part.name();
     }
 }

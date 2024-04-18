@@ -1,5 +1,7 @@
 package org.sopt.app.application.soptamp;
 
+import static org.sopt.app.domain.enums.PlaygroundPart.findPlaygroundPart;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -214,14 +216,14 @@ public class SoptampUserService {
 
     @Transactional
     public void initPoint(Long userId) {
-        val sopTampUser = soptampUserRepository.findByUserId(userId)
+        val soptampUser = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
         val newSoptampUser = SoptampUser.builder()
-                .id(sopTampUser.getId())
-                .userId(sopTampUser.getUserId())
-                .profileMessage(sopTampUser.getProfileMessage())
+                .id(soptampUser.getId())
+                .userId(soptampUser.getUserId())
+                .profileMessage(soptampUser.getProfileMessage())
                 .totalPoints(0L)
-                .nickname(sopTampUser.getNickname())
+                .nickname(soptampUser.getNickname())
                 .build();
         soptampUserRepository.save(newSoptampUser);
     }
@@ -231,4 +233,24 @@ public class SoptampUserService {
         soptampUserList.forEach(SoptampUser::initTotalPoints);
         soptampUserRepository.saveAll(soptampUserList);
     }
+
+    public List<SoptampUser> getSoptampUserInfoList(List<Long> userIdList) {
+        return soptampUserRepository.findAllByUserIdIn(userIdList);
+    }
+
+    public List<SoptampUser> initAllCurrentGenerationSoptampUser(
+            List<SoptampUser> soptampUserList,
+            List<SoptampUserInfo.SoptampUserPlaygroundInfo> userInfoList
+    ) {
+        soptampUserList.stream().forEach(soptampUser -> {
+            val userInfo = userInfoList.stream()
+                    .filter(e -> soptampUser.getUserId().equals(e.getUserId()))
+                    .findFirst().get();
+            soptampUser.updateGenerationAndPart(userInfo.getGeneration(), findPlaygroundPart(userInfo.getPart()));
+        });
+        soptampUserRepository.saveAll(soptampUserList);
+
+        return soptampUserList;
+    }
+
 }
