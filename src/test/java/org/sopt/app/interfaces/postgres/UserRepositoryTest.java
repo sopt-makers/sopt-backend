@@ -19,10 +19,11 @@ import org.springframework.context.annotation.Import;
 @Import(QuerydslConfiguration.class)
 class UserRepositoryTest {
 
-    User user1 = new User();
-    User user2 = new User();
     @Autowired
     private UserRepository userRepository;
+
+    private User user1 = new User();
+    private User user2 = new User();
 
     @BeforeEach
     void beforeTest() {
