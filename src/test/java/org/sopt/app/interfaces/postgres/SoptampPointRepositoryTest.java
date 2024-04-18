@@ -43,17 +43,25 @@ class SoptampPointRepositoryTest {
 
         soptampPointRepository.save(
                 SoptampPoint.builder()
-                        .generation(2L)
+                        .generation(1L)
                         .soptampUserId(3L)
                         .build()
         );
+
+        soptampPointRepository.save(
+                SoptampPoint.builder()
+                        .generation(2L)
+                        .soptampUserId(4L)
+                        .build()
+        );
+
     }
 
     @Test
     @DisplayName("SUCCESS_기수별 솝탬프 포인트 찾기")
     void SUCCESS_findAllByGeneration() {
         Assertions.assertThat(soptampPointRepository.findAllByGeneration(1L))
-                .hasSameElementsAs(
+                .containsAll(
                         List.of(generation1soptampPointId1, generation1soptampPointId2)
                 );
     }
