@@ -21,25 +21,25 @@ class MissionRepositoryTest {
     @Autowired
     private MissionRepository missionRepository;
 
-    private Mission mission1;
-    private Mission mission2;
-    private Mission mission3;
+    private Mission displayedMission1;
+    private Mission displayedMission2;
+    private Mission notDisplayedMission;
 
     @BeforeEach
     void beforeTest() {
-        mission1 = missionRepository.save(
+        displayedMission1 = missionRepository.save(
                 Mission.builder()
                         .display(true)
                         .build()
         );
-        mission2 = missionRepository.save(
+        displayedMission2 = missionRepository.save(
+                Mission.builder()
+                        .display(true)
+                        .build()
+        );
+        notDisplayedMission = missionRepository.save(
                 Mission.builder()
                         .display(false)
-                        .build()
-        );
-        mission3 = missionRepository.save(
-                Mission.builder()
-                        .display(true)
                         .build()
         );
     }
@@ -49,14 +49,14 @@ class MissionRepositoryTest {
     void SUCCESS_findMissionInOrderByLevelAndTitleAndDisplayTrue() {
         // given
         List<Long> missionList = List.of(
-                mission1.getId(),
-                mission2.getId(),
-                mission3.getId()
+                displayedMission1.getId(),
+                notDisplayedMission.getId(),
+                displayedMission2.getId()
         );
 
         // when
         List<Mission> result = missionRepository.findMissionInOrderByLevelAndTitleAndDisplayTrue(missionList);
-        List<Mission> expected = List.of(mission1, mission3);
+        List<Mission> expected = List.of(displayedMission1, displayedMission2);
 
         // then
         Assertions.assertThat(result).containsExactlyElementsOf(expected);
@@ -67,23 +67,26 @@ class MissionRepositoryTest {
     void SUCCESS_findMissionInOrderByLevelAndTitle() {
         // given
         List<Long> missionList = List.of(
-                mission1.getId(),
-                mission2.getId(),
-                mission3.getId()
+                displayedMission1.getId(),
+                displayedMission2.getId(),
+                notDisplayedMission.getId()
         );
 
         // when
         List<Mission> result = missionRepository.findMissionInOrderByLevelAndTitle(missionList);
-        List<Mission> expected = List.of(mission1, mission2, mission3);
+        List<Mission> expected = List.of(displayedMission1, displayedMission2, notDisplayedMission);
 
         // then
-        Assertions.assertThat(result).containsExactlyElementsOf(expected);
+        Assertions.assertThat(result).hasSameElementsAs(expected);
     }
 
-    /* TODO: implement following test
     @Test
-    void findAllByDisplay() {
-    }
+    @DisplayName("SUCCESS_Display True인 모든 미션 리스트 조회")
+    void SUCCESS_findAllByDisplay() {
+        List<Mission> result = missionRepository.findAllByDisplay(true);
 
-    */
+        Assertions.assertThat(result)
+                .containsAll(List.of(displayedMission1, displayedMission2))
+                .doesNotContain(notDisplayedMission);
+    }
 }
