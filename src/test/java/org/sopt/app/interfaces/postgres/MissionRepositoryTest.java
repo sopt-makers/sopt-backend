@@ -37,15 +37,12 @@ class MissionRepositoryTest {
                         .display(false)
                         .build()
         );
-
         mission3 = missionRepository.save(
                 Mission.builder()
                         .display(true)
                         .build()
         );
     }
-
-
 
     @Test
     @DisplayName("SUCCESS_미션 아이디 리스트로 Display True인 미션 리스트 조회")
@@ -65,11 +62,25 @@ class MissionRepositoryTest {
         Assertions.assertThat(result).containsExactlyElementsOf(expected);
     }
 
-    /* TODO: implement following test
     @Test
-    void findMissionInOrderByLevelAndTitle() {
+    @DisplayName("SUCCESS_미션 아이디 리스트로 미션 리스트 조회")
+    void SUCCESS_findMissionInOrderByLevelAndTitle() {
+        // given
+        List<Long> missionList = List.of(
+                mission1.getId(),
+                mission2.getId(),
+                mission3.getId()
+        );
+
+        // when
+        List<Mission> result = missionRepository.findMissionInOrderByLevelAndTitle(missionList);
+        List<Mission> expected = List.of(mission1, mission2, mission3);
+
+        // then
+        Assertions.assertThat(result).containsExactlyElementsOf(expected);
     }
 
+    /* TODO: implement following test
     @Test
     void findAllByDisplay() {
     }
