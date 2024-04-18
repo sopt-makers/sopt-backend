@@ -1,6 +1,7 @@
 package org.sopt.app.interfaces.postgres;
 
 import java.util.List;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -58,11 +59,15 @@ class SoptampPointRepositoryTest {
                 );
     }
 
-    /* TODO: Implement following test
     @Test
+    @DisplayName("SUCCESS_유저 아이디와 기수로 솝탬프 포인트 리스트 찾기")
     void SUCCESS_findAllBySoptampUserIdAndGeneration() {
+        Assertions.assertThat(soptampPointRepository.findAllBySoptampUserIdAndGeneration(1L, 1L)
+                .orElseThrow().getId())
+                .isEqualTo(generation1soptampPointId1.getId());
     }
 
+    /* TODO: Implement following test
     @Test
     void SUCCESS_findAllBySoptampUserIdInAndGeneration() {
     }
