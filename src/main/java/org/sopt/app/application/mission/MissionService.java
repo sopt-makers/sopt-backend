@@ -3,7 +3,6 @@ package org.sopt.app.application.mission;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.domain.entity.Mission;
@@ -36,7 +35,7 @@ public class MissionService {
                         .build())
                 .sorted(Comparator.comparing(MissionInfo.Completeness::getLevel)
                         .thenComparing(MissionInfo.Completeness::getTitle))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Boolean isCompletedMission(Long missionId, List<Stamp> completedStamps) {
@@ -60,7 +59,7 @@ public class MissionService {
     @Transactional(readOnly = true)
     public List<Mission> getCompleteMission(Long userId) {
         val stampList = stampRepository.findAllByUserId(userId);
-        val missionIdList = stampList.stream().map(Stamp::getMissionId).collect(Collectors.toList());
+        val missionIdList = stampList.stream().map(Stamp::getMissionId).toList();
         return missionRepository.findMissionInOrderByLevelAndTitle(missionIdList);
     }
 
