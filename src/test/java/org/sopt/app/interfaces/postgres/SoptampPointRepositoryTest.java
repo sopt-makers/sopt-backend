@@ -24,7 +24,6 @@ class SoptampPointRepositoryTest {
 
     private SoptampPoint generation1soptampPointId1;
     private SoptampPoint generation1soptampPointId2;
-    private SoptampPoint generation2soptampPointId3;
 
     @BeforeEach
     void beforeTest() {
@@ -42,7 +41,7 @@ class SoptampPointRepositoryTest {
                         .build()
         );
 
-        generation2soptampPointId3 = soptampPointRepository.save(
+        soptampPointRepository.save(
                 SoptampPoint.builder()
                         .generation(2L)
                         .soptampUserId(3L)
@@ -67,9 +66,19 @@ class SoptampPointRepositoryTest {
                 .isEqualTo(generation1soptampPointId1.getId());
     }
 
-    /* TODO: Implement following test
     @Test
+    @DisplayName("SUCCESS_유저 아이디 리스트와 기수로 솝탬프 포인트 리스트 찾기")
     void SUCCESS_findAllBySoptampUserIdInAndGeneration() {
+        // given
+        List<Long> userIdList = List.of(1L, 2L);
+
+        // when
+        List<SoptampPoint> result = soptampPointRepository.findAllBySoptampUserIdInAndGeneration(userIdList, 1L);
+
+        // then
+        Assertions.assertThat(result)
+                .hasSameElementsAs(
+                        List.of(generation1soptampPointId1, generation1soptampPointId2)
+                );
     }
-    */
 }
