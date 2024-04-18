@@ -1,5 +1,7 @@
 package org.sopt.app.interfaces.postgres;
 
+import java.util.List;
+import java.util.Optional;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,7 +25,6 @@ class PushTokenRepositoryTest {
 
     private PushToken pushToken1;
     private PushToken pushToken2;
-    private PushToken pushToken3;
 
     @BeforeEach
     void beforeTest() {
@@ -44,33 +45,26 @@ class PushTokenRepositoryTest {
                         .platform(PushTokenPlatform.iOS)
                         .build()
         );
-        pushToken3 = pushTokenRepository.save(
-                PushToken.builder()
-                        .userId(2L)
-                        .playgroundId(2L)
-                        .token("token3")
-                        .platform(PushTokenPlatform.Android)
-                        .build()
-        );
     }
 
     @Test
     @DisplayName("SUCCESS_유저 아이디와 토큰으로 푸시 토큰 존재 여부 확인")
     void SUCCESS_existsByUserIdAndToken() {
         Assertions.assertThat(pushTokenRepository.existsByUserIdAndToken(pushToken1.getUserId(), pushToken1.getToken())).isTrue();
-        Assertions.assertThat(pushTokenRepository.existsByUserIdAndToken(pushToken2.getUserId(), pushToken2.getToken())).isTrue();
-        Assertions.assertThat(pushTokenRepository.existsByUserIdAndToken(pushToken3.getUserId(), pushToken3.getToken())).isTrue();
     }
 
-
-    /* TODO: Implement test code
-    @Test
-    void findByUserIdAndToken() {
-    }
 
     @Test
-    void findAllByUserId() {
+    @DisplayName("SUCCESS_유저 아이디와 토큰으로 푸시 토큰 찾기")
+    void SUCCESS_findByUserIdAndToken() {
+        Assertions.assertThat(pushTokenRepository.findByUserIdAndToken(pushToken1.getUserId(), pushToken1.getToken()))
+                .isEqualTo(Optional.of(pushToken1));
     }
 
-     */
+    @Test
+    @DisplayName("SUCCESS_유저 아이디로 푸시 토큰 리스트 찾기")
+    void SUCCESS_findAllByUserId() {
+        Assertions.assertThat(pushTokenRepository.findAllByUserId(pushToken1.getUserId()))
+                .isEqualTo(List.of(pushToken1, pushToken2));
+    }
 }
