@@ -59,7 +59,7 @@ class MissionRepositoryTest {
         List<Mission> expected = List.of(displayedMission1, displayedMission2);
 
         // then
-        Assertions.assertThat(result).containsExactlyElementsOf(expected);
+        Assertions.assertThat(result).hasSameElementsAs(expected);
     }
 
     @Test
