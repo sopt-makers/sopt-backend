@@ -22,21 +22,19 @@ class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-    private User user1 = new User();
-    private User user2 = new User();
+    private User user1;
+    private User user2;
 
     @BeforeEach
     void beforeTest() {
 
         user1 = userRepository.save(
                 User.builder()
-                        .id(1L)
                         .playgroundId(generateUniquePlaygroundId())
                         .build()
         );
         user2 = userRepository.save(
                 User.builder()
-                        .id(2L)
                         .playgroundId(generateUniquePlaygroundId())
                         .build()
         );
