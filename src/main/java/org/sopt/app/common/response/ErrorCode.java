@@ -65,6 +65,9 @@ public enum ErrorCode {
     // FRIEND
     FRIENDSHIP_NOT_FOUND("해당 친구관계는 존재하지 않습니다."),
 
+    // ADMIN
+    ADMIN_INIT_SOPTAMP_USER_FAILED("솝탬프 유저 초기화에 실패했습니다."),
+
     // S3
     PRE_SIGNED_URI_ERROR("URL을 생성할 수 없습니다.");
 

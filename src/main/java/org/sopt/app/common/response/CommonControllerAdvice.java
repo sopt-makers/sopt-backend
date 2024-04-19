@@ -24,28 +24,31 @@ public class CommonControllerAdvice {
     @ExceptionHandler(value = BaseException.class)
     public ResponseEntity onKnownException(HttpServletRequest req, BaseException baseException) {
         final Long userId = getUserId();
+        val requestMethod = req.getMethod();
         val requestUri = req.getRequestURI();
         val baseExceptionMessage = baseException.getResponseMessage();
         val baseExceptionStatusCode = baseException.getStatusCode();
         final String message = getMessage(
-            baseException, userId, requestUri, baseExceptionMessage, baseExceptionStatusCode);
+                baseException, userId, requestMethod, requestUri, baseExceptionMessage, baseExceptionStatusCode
+        );
 
         slackService.sendSlackMessage("Error", message);
 
         return new ResponseEntity<>(CommonResponse.onFailure(baseExceptionStatusCode,
-            baseExceptionMessage), null, baseExceptionStatusCode);
+                baseExceptionMessage), null, baseExceptionStatusCode);
     }
 
     @NotNull
     private String getMessage(
-        BaseException baseException, Long userId, String requestUri, String baseExceptionMessage,
-        HttpStatus baseExceptionStatusCode
+            BaseException baseException, Long userId, String requestMethod, String requestUri,
+            String baseExceptionMessage,
+            HttpStatus baseExceptionStatusCode
     ) {
         return "유저 아이디: " + userId + "\n" +
-            "요청 URI: " + requestUri + "\n" +
-            "오류 메시지: " + baseExceptionMessage + "\n" +
-            "오류 코드: " + baseExceptionStatusCode + "\n" +
-            "StackTrace" + Arrays.toString(baseException.getStackTrace());
+                "요청 URI: [" + requestMethod + "] " + requestUri + "\n" +
+                "오류 메시지: " + baseExceptionMessage + "\n" +
+                "오류 코드: " + baseExceptionStatusCode + "\n" +
+                "StackTrace" + Arrays.toString(baseException.getStackTrace());
     }
 
     private Long getUserId() {
