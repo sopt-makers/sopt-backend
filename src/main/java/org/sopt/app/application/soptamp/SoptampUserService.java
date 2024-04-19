@@ -2,6 +2,8 @@ package org.sopt.app.application.soptamp;
 
 import static org.sopt.app.domain.enums.PlaygroundPart.findPlaygroundPart;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -14,6 +16,7 @@ import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.SoptampUser;
 import org.sopt.app.domain.enums.Part;
+import org.sopt.app.domain.enums.PlaygroundPart;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -238,14 +241,36 @@ public class SoptampUserService {
             List<SoptampUser> soptampUserList,
             List<SoptampUserInfo.SoptampUserPlaygroundInfo> userInfoList
     ) {
+        val validatedSoptampUserList = validateNickname(soptampUserList);
+        validatedSoptampUserList.stream().forEach(e -> System.out.println(e));
+
         soptampUserList.stream().forEach(soptampUser -> {
             val userInfo = userInfoList.stream()
                     .filter(e -> soptampUser.getUserId().equals(e.getUserId()))
                     .findFirst().get();
-            soptampUser.updateGenerationAndPart(userInfo.getGeneration(), findPlaygroundPart(userInfo.getPart()));
+            PlaygroundPart part = findPlaygroundPart(userInfo.getPart());
+            soptampUser.updateNicknameAndGenerationAndPart(
+                    part.getSoptampNickname() + soptampUser.getNickname(),
+                    userInfo.getGeneration(),
+                    part
+            );
         });
         soptampUserRepository.saveAll(soptampUserList);
 
+        return soptampUserList;
+    }
+
+    public List<SoptampUser> validateNickname(List<SoptampUser> soptampUserList) {
+        soptampUserList = soptampUserList.stream().sorted(Comparator.comparing(SoptampUser::getNickname))
+                .collect(Collectors.toList());
+        val nicknameList = soptampUserList.stream().map(SoptampUser::getNickname).collect(Collectors.toList());
+        val uniqueNicknameList = nicknameList.stream().distinct().collect(Collectors.toList());
+
+        uniqueNicknameList.stream().forEach(nickname -> {
+            val count = Collections.frequency(nicknameList, nickname);
+            val alphabetList = Arrays.asList("ABCDEFGHIJKLMNOPQRSTUVWXYZ".substring(0, count).split(""));
+            // 동명이인 처리
+        });
         return soptampUserList;
     }
 
