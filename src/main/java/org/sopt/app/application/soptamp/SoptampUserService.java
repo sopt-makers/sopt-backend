@@ -92,16 +92,12 @@ public class SoptampUserService {
                     .userId(userId)
                     .profileMessage(null)
                     .totalPoints(0L)
-                    .nickname(generateNickname(name))
+                    .nickname(name)
                     .build();
             return soptampUserRepository.save(newSoptampUser).getId();
 
         }
         return registerUser.get().getId();
-    }
-
-    private String generateNickname(String username) {
-        return username + Math.round(Math.random() * 10000);
     }
 
     public List<Main> findRanks() {
