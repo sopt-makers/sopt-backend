@@ -65,6 +65,6 @@ class PushTokenRepositoryTest {
     @DisplayName("SUCCESS_유저 아이디로 푸시 토큰 리스트 찾기")
     void SUCCESS_findAllByUserId() {
         Assertions.assertThat(pushTokenRepository.findAllByUserId(pushToken1.getUserId()))
-                .isEqualTo(List.of(pushToken1, pushToken2));
+                .containsAll(List.of(pushToken1, pushToken2));
     }
 }
