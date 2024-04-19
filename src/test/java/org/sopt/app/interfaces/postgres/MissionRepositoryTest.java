@@ -30,16 +30,22 @@ class MissionRepositoryTest {
         displayedMission1 = missionRepository.save(
                 Mission.builder()
                         .display(true)
+                        .title("title1")
+                        .level(1)
                         .build()
         );
         displayedMission2 = missionRepository.save(
                 Mission.builder()
                         .display(true)
+                        .title("title2")
+                        .level(2)
                         .build()
         );
         notDisplayedMission = missionRepository.save(
                 Mission.builder()
                         .display(false)
+                        .title("title3")
+                        .level(3)
                         .build()
         );
     }
