@@ -145,7 +145,7 @@ public class SoptampPointService {
                                 .points(0L)
                                 .soptampUserId(e.getId())
                                 .build())
-                .collect(Collectors.toList());
+                .toList();
         soptampPointRepository.saveAll(soptampPointList);
         return soptampPointList;
     }
