@@ -2,6 +2,7 @@ package org.sopt.app.application.soptamp;
 
 import static org.sopt.app.domain.enums.PlaygroundPart.findPlaygroundPart;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
@@ -10,6 +11,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.slack.SlackService;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.common.exception.BadRequestException;
@@ -26,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SoptampUserService {
 
     private final SoptampUserRepository soptampUserRepository;
+    private final SlackService slackService;
 
     @Transactional(readOnly = true)
     public SoptampUserInfo.SoptampUser getSoptampUserInfo(Long userId) {
@@ -130,19 +133,28 @@ public class SoptampUserService {
 
     private List<Main> getCurrentRanking(List<SoptampUser> userList, List<Point> soptampPointList) {
         val rankPoint = new AtomicInteger(1);
-        return soptampPointList.stream().sorted(Comparator.comparing(Point::getPoints).reversed())
-                .map(point -> {
-                    val user = userList.stream()
-                            .filter(u -> u.getId().equals(point.getSoptampUserId()))
-                            .findFirst()
-                            .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
-                    return Main.builder()
-                            .rank(rankPoint.getAndIncrement())
-                            .nickname(user.getNickname())
-                            .point(point.getPoints())
-                            .profileMessage(user.getProfileMessage())
-                            .build();
-                }).collect(Collectors.toList());
+        List<Main> rankingList = new ArrayList<>();
+
+        soptampPointList.stream().sorted(Comparator.comparing(Point::getPoints).reversed())
+                .forEach(point -> userList.stream()
+                        .filter(u -> u.getId().equals(point.getSoptampUserId()))
+                        .findFirst()
+                        .ifPresentOrElse(
+                                u -> rankingList.add(Main.builder()
+                                        .rank(rankPoint.getAndIncrement())
+                                        .nickname(u.getNickname())
+                                        .point(point.getPoints())
+                                        .profileMessage(u.getProfileMessage())
+                                        .build()),
+                                () -> slackService.sendSlackMessage(
+                                        "Warning",
+                                        "soptamp_point에 해당하지 않는 soptamp_user가 확인되었습니다.\n"
+                                        + "soptampPointId: " + point.getId() + "\n"
+                                        + "soptampUserId: " + point.getSoptampUserId()
+                                )
+                        ));
+
+        return rankingList;
     }
 
     public List<Long> findSoptampUserByPart(Part part) {
