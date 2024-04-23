@@ -5,7 +5,6 @@ import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
@@ -18,11 +17,11 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.joda.time.LocalDateTime;
+import org.slf4j.LoggerFactory;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,12 +36,10 @@ public class S3Service {
     private final ArrayList<String> imageFileExtension = new ArrayList<>(
             List.of(".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG"));
 
-    private final AmazonS3 s3Client;
-
-    @Value("${cloud.aws.credentials.accesskey}")
+    @Value("${cloud.aws.credentials.access-key}")
     private String accessKey;
 
-    @Value("${cloud.aws.credentials.secretkey}")
+    @Value("${cloud.aws.credentials.secret-key}")
     private String secretKey;
 
     @Value("${cloud.aws.s3.bucket}")
@@ -54,13 +51,15 @@ public class S3Service {
     @Value("${cloud.aws.s3.uri}")
     private String baseURI;
 
+    private final AmazonS3 amazonS3;
+
 
     @PostConstruct
-    public AmazonS3Client amazonS3Client() {
-        val awsCredentials = new BasicAWSCredentials(accessKey, secretKey); //accessKey 와 secretKey를 이용하여 자격증명 객체를 얻는다.
-        return (AmazonS3Client) AmazonS3ClientBuilder.standard()
-                .withRegion(region) // region 설정
-                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials)) // 자격증명을 통해 S3 Client를 가져온다.
+    public AmazonS3 getAmazonS3() {
+        val awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
+        return AmazonS3ClientBuilder.standard()
+                .withRegion(region)
+                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
                 .build();
     }
 
@@ -77,24 +76,22 @@ public class S3Service {
             objectMetadata.setContentType(file.getContentType());
 
             try (InputStream inputStream = file.getInputStream()) {
-                s3Client.putObject(
+                amazonS3.putObject(
                         new PutObjectRequest(bucket + "/mainpage/makers-app", fileName, inputStream, objectMetadata)
                                 .withCannedAcl(CannedAccessControlList.PublicRead));
-                return s3Client.getUrl(bucket + "/mainpage/makers-app", fileName).toString();
+                return amazonS3.getUrl(bucket + "/mainpage/makers-app", fileName).toString();
             } catch (IOException e) {
                 throw new BadRequestException("요청이 처리 되지 않았습니다.");
             }
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
-    // 이미지파일명 중복 방지
     private String createFileName(String fileName) {
         return UUID.randomUUID().toString().concat(getFileExtension(fileName));
     }
 
-    // 파일 유효성 검사
     private String getFileExtension(String fileName) {
-        if (fileName.length() == 0) {
+        if (fileName.isEmpty()) {
             throw new BadRequestException("유효하지 않은 파일명입니다.");
         }
 
@@ -112,8 +109,9 @@ public class S3Service {
 
         URI uri;
         try {
-            uri = this.s3Client.generatePresignedUrl(folderURI,
-                    randomFileName.toString(), now.plusHours(1).toDate(), HttpMethod.PUT).toURI();
+            // TODO: EC2와 자바의 시간이 UTC와 KST로 9시간이 차이나 있어 10시간을 더함, 추후 수정 필요
+            uri = amazonS3.generatePresignedUrl(folderURI,
+                    randomFileName.toString(), now.plusHours(10).toDate(), HttpMethod.PUT).toURI();
         } catch (NullPointerException | URISyntaxException e) {
             throw new BadRequestException(ErrorCode.PRE_SIGNED_URI_ERROR.getMessage());
         }
@@ -131,21 +129,21 @@ public class S3Service {
     public void deleteFiles(List<String> fileUrls, String folderName) {
         val folderURI = bucket + "/mainpage/makers-app-img/" + folderName;
         val fileNameList = getFileNameList(fileUrls);
-        fileNameList.stream().forEach(file -> deleteFile(folderURI, file));
+        fileNameList.forEach(file -> deleteFile(folderURI, file));
     }
 
     private List<String> getFileNameList(List<String> fileUrls) {
         return fileUrls.stream().map(url -> {
             val fileNameSplit = url.split("/");
             return fileNameSplit[fileNameSplit.length - 1];
-        }).collect(Collectors.toList());
+        }).toList();
     }
 
     private void deleteFile(String folderURI, String fileName) {
         try {
-            s3Client.deleteObject(folderURI, fileName.replace(File.separatorChar, '/'));
+            amazonS3.deleteObject(folderURI, fileName.replace(File.separatorChar, '/'));
         } catch (AmazonServiceException e) {
-            System.err.println(e.getErrorMessage());
+            LoggerFactory.getLogger(S3Service.class).error(e.getErrorMessage());
         }
     }
 }
