@@ -89,5 +89,9 @@ public class MissionService {
         );
         return MissionInfo.Level.of(mission.getLevel());
     }
+
+    public void deleteAll() {
+        missionRepository.deleteAll();
+    }
 }
 

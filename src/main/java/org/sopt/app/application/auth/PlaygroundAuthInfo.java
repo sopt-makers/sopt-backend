@@ -1,7 +1,9 @@
 package org.sopt.app.application.auth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -144,7 +146,10 @@ public class PlaygroundAuthInfo {
         private List<ActivityCardinalInfo> activities;
 
         public ActivityCardinalInfo getLatestActivity() {
-            return activities.get(0);
+            return activities.stream()
+                    .sorted(Comparator.comparing(ActivityCardinalInfo::getGeneration, Comparator.reverseOrder()))
+                    .collect(Collectors.toList())
+                    .get(0);
         }
     }
 

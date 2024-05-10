@@ -197,4 +197,8 @@ public class StampService {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()))
                 .getMissionId();
     }
+
+    public void deleteAll() {
+        stampRepository.deleteAll();
+    }
 }
