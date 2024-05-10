@@ -54,8 +54,9 @@ public class SoptampPointService {
 
     @Transactional
     public void addPoint(Long soptampUserId, Integer level) {
-        val soptampPoint = soptampPointRepository.findAllBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
-        if (soptampPoint.isPresent()) {
+        val soptampPoint = soptampPointRepository.findBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
+        if(soptampPoint.isPresent()){
+
             val soptampPointEntity = soptampPoint.get();
             val newSoptampPoint = SoptampPoint.builder()
                     .id(soptampPointEntity.getId())
@@ -69,8 +70,9 @@ public class SoptampPointService {
 
     @Transactional
     public void subtractPoint(Long soptampUserId, Integer level) {
-        val soptampPoint = soptampPointRepository.findAllBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
-        if (soptampPoint.isEmpty()) {
+        val soptampPoint = soptampPointRepository.findBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
+        if(soptampPoint.isEmpty()){
+
             return;
         }
         val soptampPointEntity = soptampPoint.get();
@@ -88,13 +90,29 @@ public class SoptampPointService {
         if (status.equals(UserStatus.INACTIVE)) {
             return;
         }
-        val soptampPoint = soptampPointRepository.findAllBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
+        val soptampPoint = soptampPointRepository.findBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
         if (soptampPoint.isPresent()) {
             return;
         }
         val newSoptampPoint = SoptampPoint.builder()
                 .generation(currentGeneration)
                 .soptampUserId(soptampUserId)
+                .points(0L)
+                .build();
+        soptampPointRepository.save(newSoptampPoint);
+    }
+
+    @Transactional
+    public void initPoint(Long soptampUserId) {
+        val soptampPoint = soptampPointRepository.findBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
+        if(soptampPoint.isEmpty()){
+            return;
+        }
+        val soptampPointEntity = soptampPoint.get();
+        val newSoptampPoint = SoptampPoint.builder()
+                .id(soptampPointEntity.getId())
+                .generation(soptampPointEntity.getGeneration())
+                .soptampUserId(soptampPointEntity.getSoptampUserId())
                 .points(0L)
                 .build();
         soptampPointRepository.save(newSoptampPoint);
