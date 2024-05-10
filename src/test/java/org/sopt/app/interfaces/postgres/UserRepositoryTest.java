@@ -22,8 +22,8 @@ class UserRepositoryTest {
     @Autowired
     private UserRepository userRepository;
 
-    User user1 = new User();
-    User user2 = new User();
+    private User user1;
+    private User user2;
 
     @BeforeEach
     void beforeTest() {
@@ -82,7 +82,8 @@ class UserRepositoryTest {
         final List<Long> playgroundIds = List.of(user1.getPlaygroundId(), user2.getPlaygroundId());
 
         //then
-        Assertions.assertEquals(List.of(user1.getId(), user2.getId()), userRepository.findAllIdByPlaygroundIdIn(playgroundIds));
+        Assertions.assertEquals(List.of(user1.getId(), user2.getId()),
+                userRepository.findAllIdByPlaygroundIdIn(playgroundIds));
     }
 
 

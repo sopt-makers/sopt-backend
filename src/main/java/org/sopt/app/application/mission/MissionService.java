@@ -3,7 +3,6 @@ package org.sopt.app.application.mission;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.domain.entity.Mission;
@@ -36,7 +35,7 @@ public class MissionService {
                         .build())
                 .sorted(Comparator.comparing(MissionInfo.Completeness::getLevel)
                         .thenComparing(MissionInfo.Completeness::getTitle))
-                .collect(Collectors.toList());
+                .toList();
     }
 
     private Boolean isCompletedMission(Long missionId, List<Stamp> completedStamps) {
@@ -60,7 +59,7 @@ public class MissionService {
     @Transactional(readOnly = true)
     public List<Mission> getCompleteMission(Long userId) {
         val stampList = stampRepository.findAllByUserId(userId);
-        val missionIdList = stampList.stream().map(Stamp::getMissionId).collect(Collectors.toList());
+        val missionIdList = stampList.stream().map(Stamp::getMissionId).toList();
         return missionRepository.findMissionInOrderByLevelAndTitle(missionIdList);
     }
 
@@ -69,11 +68,11 @@ public class MissionService {
 
         //전체 미션 조회하기
         val missionList = missionRepository.findAllByDisplay(true);
-        val missionIdList = missionList.stream().map(Mission::getId).collect(Collectors.toList());
+        val missionIdList = missionList.stream().map(Mission::getId).toList();
 
         //stamp에서 userId로 달성한 mission 조회하기
         val stampList = stampRepository.findAllByUserId(userId);
-        val completeMissionIdList = stampList.stream().map(Stamp::getMissionId).collect(Collectors.toList());
+        val completeMissionIdList = stampList.stream().map(Stamp::getMissionId).toList();
 
         //두 리스트 비교해서 중복값 제거
         val inCompleteIdList = missionIdList.stream()
@@ -88,6 +87,10 @@ public class MissionService {
                 () -> new IllegalArgumentException("해당 미션을 찾을 수 없습니다.")
         );
         return MissionInfo.Level.of(mission.getLevel());
+    }
+
+    public void deleteAll() {
+        missionRepository.deleteAll();
     }
 }
 
