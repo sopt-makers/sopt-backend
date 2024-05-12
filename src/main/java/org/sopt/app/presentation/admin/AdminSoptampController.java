@@ -15,8 +15,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -26,7 +26,7 @@ public class AdminSoptampController {
 
     private final AdminSoptampFacade adminSoptampFacade;
     @Value("${makers.app.admin.password}")
-    private val adminPassword;
+    private String adminPassword;
 
     @Operation(summary = "미션/스탬프/포인트 전체 초기화")
     @ApiResponses({
@@ -37,7 +37,7 @@ public class AdminSoptampController {
     @DeleteMapping(value = "/point")
     public ResponseEntity initAllMissionAndStampAndPoints(
             @AuthenticationPrincipal User user,
-            @PathVariable(name = "password") String password
+            @RequestParam(name = "password") String password
     ) {
         validateAdmin(password);
         adminSoptampFacade.initAllMissionAndStampAndPoints();
@@ -53,7 +53,7 @@ public class AdminSoptampController {
     @DeleteMapping(value = "/user")
     public ResponseEntity<AdminSoptampResponse.Rows> initCurrentGenerationInfo(
             @AuthenticationPrincipal User user,
-            @PathVariable(name = "password") String password
+            @RequestParam(name = "password") String password
     ) {
         validateAdmin(password);
         val rows = adminSoptampFacade.initCurrentGenerationInfo(user);
