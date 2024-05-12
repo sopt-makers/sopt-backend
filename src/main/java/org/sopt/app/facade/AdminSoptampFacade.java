@@ -12,6 +12,8 @@ import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.presentation.admin.AdminSoptampResponse;
+import org.sopt.app.presentation.admin.AdminSoptampResponse.Rows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,7 +38,7 @@ public class AdminSoptampFacade {
     }
 
     @Transactional
-    public int initCurrentGenerationInfo(User user) {
+    public AdminSoptampResponse.Rows initCurrentGenerationInfo(User user) {
         validateAdminUser(user);
 
         // 플그에서 현재 기수 멤버 아이디 조회
@@ -75,11 +77,14 @@ public class AdminSoptampFacade {
         val updatedSoptampUserList = soptampUserService.initAllCurrentGenerationSoptampUser(soptampUserList,
                 userInfoList);
 
-//        // 플그 아이디로 SoptampPoint 현활기수 row 추가
-//        val currentGenerationSoptampPointList = soptampPointService.createCurrentGenerationSoptampPointList(
-//                updatedSoptampUserList);
+        // 플그 아이디로 SoptampPoint 현활기수 row 추가
+        val currentGenerationSoptampPointList = soptampPointService.createCurrentGenerationSoptampPointList(
+                updatedSoptampUserList);
 
-        return updatedSoptampUserList.size();
+        return Rows.builder()
+                .soptampUserRows(updatedSoptampUserList.size())
+                .soptampPointRows(currentGenerationSoptampPointList.size())
+                .build();
     }
 
     private void validateAdminUser(User user) {

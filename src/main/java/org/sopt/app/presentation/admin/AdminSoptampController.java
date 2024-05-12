@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.AdminSoptampFacade;
-import org.sopt.app.presentation.admin.AdminSoptampResponse.Rows;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -48,6 +47,6 @@ public class AdminSoptampController {
             @AuthenticationPrincipal User user
     ) {
         val rows = adminSoptampFacade.initCurrentGenerationInfo(user);
-        return ResponseEntity.status(HttpStatus.OK).body(Rows.builder().rows(rows).build());
+        return ResponseEntity.status(HttpStatus.OK).body(rows);
     }
 }
