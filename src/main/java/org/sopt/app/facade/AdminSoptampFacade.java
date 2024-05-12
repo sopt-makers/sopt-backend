@@ -64,6 +64,7 @@ public class AdminSoptampFacade {
                             SoptampUserPlaygroundInfo.builder()
                                     .userId(userProfile.get().getUserId())
                                     .playgroundId(userProfile.get().getPlaygroundId())
+                                    .name(userProfile.get().getName())
                                     .generation(Long.parseLong(memberProfile.getLatestActivity().getGeneration()))
                                     .part(memberProfile.getLatestActivity().getPart())
                                     .build();
@@ -74,11 +75,11 @@ public class AdminSoptampFacade {
         val updatedSoptampUserList = soptampUserService.initAllCurrentGenerationSoptampUser(soptampUserList,
                 userInfoList);
 
-        // 플그 아이디로 SoptampPoint 현활기수 row 추가
-        val currentGenerationSoptampPointList = soptampPointService.createCurrentGenerationSoptampPointList(
-                updatedSoptampUserList);
+//        // 플그 아이디로 SoptampPoint 현활기수 row 추가
+//        val currentGenerationSoptampPointList = soptampPointService.createCurrentGenerationSoptampPointList(
+//                updatedSoptampUserList);
 
-        return currentGenerationSoptampPointList.size();
+        return updatedSoptampUserList.size();
     }
 
     private void validateAdminUser(User user) {

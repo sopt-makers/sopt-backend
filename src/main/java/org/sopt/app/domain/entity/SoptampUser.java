@@ -47,8 +47,11 @@ public class SoptampUser extends BaseEntity {
         this.totalPoints = 0L;
     }
 
-    public void updateNicknameAndGenerationAndPart(String nickname, Long generation, PlaygroundPart part) {
+    public void updateNickname(String nickname) {
         this.nickname = nickname;
+    }
+
+    public void updateGenerationAndPart(Long generation, PlaygroundPart part) {
         this.generation = generation;
         this.part = part.name();
     }

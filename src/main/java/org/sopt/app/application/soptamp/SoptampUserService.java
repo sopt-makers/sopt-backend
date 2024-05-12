@@ -2,9 +2,11 @@ package org.sopt.app.application.soptamp;
 
 import static org.sopt.app.domain.enums.PlaygroundPart.findPlaygroundPart;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -242,36 +244,53 @@ public class SoptampUserService {
             List<SoptampUserInfo.SoptampUserPlaygroundInfo> userInfoList
     ) {
         val validatedSoptampUserList = validateNickname(soptampUserList);
-        validatedSoptampUserList.stream().forEach(e -> System.out.println(e));
 
-        soptampUserList.stream().forEach(soptampUser -> {
+        validatedSoptampUserList.stream().forEach(soptampUser -> {
             val userInfo = userInfoList.stream()
                     .filter(e -> soptampUser.getUserId().equals(e.getUserId()))
                     .findFirst().get();
             PlaygroundPart part = findPlaygroundPart(userInfo.getPart());
-            soptampUser.updateNicknameAndGenerationAndPart(
-                    part.getSoptampNickname() + soptampUser.getNickname(),
+            soptampUser.updateGenerationAndPart(
                     userInfo.getGeneration(),
                     part
             );
         });
-        soptampUserRepository.saveAll(soptampUserList);
+        soptampUserRepository.saveAll(validatedSoptampUserList);
 
-        return soptampUserList;
+        return validatedSoptampUserList;
     }
 
     public List<SoptampUser> validateNickname(List<SoptampUser> soptampUserList) {
+        // 닉네임 정렬
         soptampUserList = soptampUserList.stream().sorted(Comparator.comparing(SoptampUser::getNickname))
                 .collect(Collectors.toList());
+
+        // uniqueNickname map 생성
+        val nicknameMap = new HashMap<String, ArrayList<String>>();
         val nicknameList = soptampUserList.stream().map(SoptampUser::getNickname).collect(Collectors.toList());
         val uniqueNicknameList = nicknameList.stream().distinct().collect(Collectors.toList());
-
         uniqueNicknameList.stream().forEach(nickname -> {
             val count = Collections.frequency(nicknameList, nickname);
-            val alphabetList = Arrays.asList("ABCDEFGHIJKLMNOPQRSTUVWXYZ".substring(0, count).split(""));
-            // 동명이인 처리
+            if (count == 1) {
+                nicknameMap.put(nickname, new ArrayList<>(List.of()));
+            } else {
+                val alphabetList = Arrays.asList("ABCDEFGHIJKLMNOPQRSTUVWXYZ".substring(0, count).split(""));
+                val changedList = alphabetList.stream().map(alphabet -> nickname + alphabet).toList();
+                nicknameMap.put(nickname, new ArrayList<>(changedList));
+            }
         });
+
+        // soptampUser 리스트 userId 기준으로 중복 닉네임 알파벳 부여
+        soptampUserList.stream().sorted(Comparator.comparing(SoptampUser::getUserId)).forEach(soptampUser -> {
+            val validatedNicknameList = nicknameMap.get(soptampUser.getNickname());
+            if (validatedNicknameList.size() > 0) {
+                val validatedNickname = validatedNicknameList.get(0);
+                validatedNicknameList.remove(0);
+                nicknameMap.put(soptampUser.getNickname(), validatedNicknameList);
+                soptampUser.updateNickname(validatedNickname);
+            }
+        });
+
         return soptampUserList;
     }
-
 }
