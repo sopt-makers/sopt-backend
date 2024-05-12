@@ -54,7 +54,7 @@ public class SoptampPointService {
 
     @Transactional
     public void addPoint(Long soptampUserId, Integer level) {
-        val soptampPoint = soptampPointRepository.findAllBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
+        val soptampPoint = soptampPointRepository.findBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
         if (soptampPoint.isPresent()) {
             val soptampPointEntity = soptampPoint.get();
             val newSoptampPoint = SoptampPoint.builder()
@@ -69,7 +69,7 @@ public class SoptampPointService {
 
     @Transactional
     public void subtractPoint(Long soptampUserId, Integer level) {
-        val soptampPoint = soptampPointRepository.findAllBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
+        val soptampPoint = soptampPointRepository.findBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
         if (soptampPoint.isEmpty()) {
             return;
         }
