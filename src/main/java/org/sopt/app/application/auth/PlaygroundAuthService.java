@@ -33,8 +33,7 @@ public class PlaygroundAuthService {
     public PlaygroundAuthInfo.PlaygroundMain getPlaygroundInfo(String token) {
         val member = this.getPlaygroundMember(token);
         val playgroundProfile = this.getPlaygroundMemberProfile(token, member.getId());
-        val generationList = playgroundProfile.getActivities().stream()
-                .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).collect(Collectors.toList());
+        val generationList = this.getMemberGenerationList(playgroundProfile);
         member.setAccessToken(token);
         member.setStatus(this.getStatus(generationList));
         return member;
@@ -77,9 +76,7 @@ public class PlaygroundAuthService {
     public PlaygroundAuthInfo.MainView getPlaygroundUserForMainView(String accessToken, Long playgroundId) {
         val playgroundProfile = this.getPlaygroundMemberProfile(accessToken, playgroundId);
         val profileImage = playgroundProfile.getProfileImage() == null ? "" : playgroundProfile.getProfileImage();
-        val generationList = playgroundProfile.getActivities().stream()
-                .map(activity -> activity.getCardinalActivities().get(0).getGeneration())
-                .sorted(Collections.reverseOrder()).toList();
+        val generationList = this.getMemberGenerationList(playgroundProfile);
         val mainViewUser = PlaygroundAuthInfo.MainViewUser.builder()
                 .status(this.getStatus(generationList))
                 .name(playgroundProfile.getName())
@@ -107,13 +104,26 @@ public class PlaygroundAuthService {
 
     public PlaygroundAuthInfo.UserActiveInfo getPlaygroundUserActiveInfo(String accessToken, Long playgroundId) {
         val playgroundProfile = this.getPlaygroundMemberProfile(accessToken, playgroundId);
-        val generationList = playgroundProfile.getActivities().stream()
-            .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).toList();
+        val generationList = this.getMemberGenerationList(playgroundProfile);
         val userStatus = this.getStatus(generationList);
         return PlaygroundAuthInfo.UserActiveInfo.builder()
                 .status(userStatus)
                 .currentGeneration(currentGeneration)
                 .build();
+    }
+
+    private List<Long> getMemberGenerationList(PlaygroundAuthInfo.PlaygroundProfile playgroundProfile) {
+        return playgroundProfile.getActivities().stream()
+                .map(activity ->
+                        {
+                            try {
+                                return Long.parseLong(activity.getCardinalInfo().split(",")[0]);
+                            } catch (NumberFormatException e){
+                                throw new BadRequestException(ErrorCode.INVALID_PLAYGROUND_CARDINAL_INFO.getMessage());
+                            }
+                        })
+                .sorted(Collections.reverseOrder())
+                .toList();
     }
 
     // Header 생성 메서드

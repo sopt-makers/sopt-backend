@@ -62,7 +62,6 @@ public class PlaygroundAuthInfo {
     public static class PlaygroundActivity {
 
         private String cardinalInfo;
-        private List<PlaygroundCardinalActivity> cardinalActivities;
     }
 
     @Getter
