@@ -55,7 +55,7 @@ public class UserOriginalController {
             @AuthenticationPrincipal User user
     ) {
         val generationUser = playgroundAuthService.getPlaygroundUserActiveInfo(
-                user.getPlaygroundToken());
+                user.getPlaygroundToken(), user.getPlaygroundId());
         val response = userResponseMapper.ofGeneration(generationUser);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

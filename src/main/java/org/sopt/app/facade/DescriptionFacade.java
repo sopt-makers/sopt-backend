@@ -18,7 +18,7 @@ public class DescriptionFacade {
 
     @Transactional(readOnly = true)
     public MainDescription getMainDescriptionForUser(User user) {
-        val userActiveInfo = playgroundAuthService.getPlaygroundUserActiveInfo(user.getPlaygroundToken());
+        val userActiveInfo = playgroundAuthService.getPlaygroundUserActiveInfo(user.getPlaygroundToken(), user.getPlaygroundId());
         return descriptionService.getMainDescription(userActiveInfo.getStatus());
     }
 }

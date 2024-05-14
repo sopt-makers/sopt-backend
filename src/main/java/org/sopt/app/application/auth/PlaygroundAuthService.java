@@ -32,7 +32,7 @@ public class PlaygroundAuthService {
 
     public PlaygroundAuthInfo.PlaygroundMain getPlaygroundInfo(String token) {
         val member = this.getPlaygroundMember(token);
-        val playgroundProfile = this.getPlaygroundMemberProfile(token);
+        val playgroundProfile = this.getPlaygroundMemberProfile(token, member.getId());
         val generationList = playgroundProfile.getActivities().stream()
                 .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).collect(Collectors.toList());
         member.setAccessToken(token);
@@ -74,12 +74,12 @@ public class PlaygroundAuthService {
     }
     }
 
-    public PlaygroundAuthInfo.MainView getPlaygroundUserForMainView(String accessToken) {
-        val playgroundProfile = this.getPlaygroundMemberProfile(accessToken);
+    public PlaygroundAuthInfo.MainView getPlaygroundUserForMainView(String accessToken, Long playgroundId) {
+        val playgroundProfile = this.getPlaygroundMemberProfile(accessToken, playgroundId);
         val profileImage = playgroundProfile.getProfileImage() == null ? "" : playgroundProfile.getProfileImage();
         val generationList = playgroundProfile.getActivities().stream()
-                .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).collect(Collectors.toList());
-        Collections.sort(generationList, Collections.reverseOrder());
+                .map(activity -> activity.getCardinalActivities().get(0).getGeneration())
+                .sorted(Collections.reverseOrder()).toList();
         val mainViewUser = PlaygroundAuthInfo.MainViewUser.builder()
                 .status(this.getStatus(generationList))
                 .name(playgroundProfile.getName())
@@ -93,11 +93,11 @@ public class PlaygroundAuthService {
         return generationList.contains(currentGeneration) ? UserStatus.ACTIVE : UserStatus.INACTIVE;
     }
 
-    private PlaygroundAuthInfo.PlaygroundProfile getPlaygroundMemberProfile(String accessToken) {
+    private PlaygroundAuthInfo.PlaygroundProfile getPlaygroundMemberProfile(String accessToken, Long playgroundId) {
         Map<String, String> headers = createDefaultHeader();
         headers.put("Authorization", accessToken);
         try {
-            return playgroundClient.getPlaygroundMemberProfile(headers);
+            return playgroundClient.getPlaygroundMemberProfile(headers, playgroundId);
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
         } catch (ExpiredJwtException e) {
@@ -105,8 +105,8 @@ public class PlaygroundAuthService {
         }
     }
 
-    public PlaygroundAuthInfo.UserActiveInfo getPlaygroundUserActiveInfo(String accessToken) {
-        val playgroundProfile = this.getPlaygroundMemberProfile(accessToken);
+    public PlaygroundAuthInfo.UserActiveInfo getPlaygroundUserActiveInfo(String accessToken, Long playgroundId) {
+        val playgroundProfile = this.getPlaygroundMemberProfile(accessToken, playgroundId);
         val generationList = playgroundProfile.getActivities().stream()
             .map(activity -> activity.getCardinalActivities().get(0).getGeneration()).toList();
         val userStatus = this.getStatus(generationList);
