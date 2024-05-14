@@ -3,7 +3,6 @@ package org.sopt.app.application.auth;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,6 +12,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.sopt.app.domain.enums.UserStatus;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PlaygroundAuthInfo {
 
     @Getter
@@ -62,18 +62,6 @@ public class PlaygroundAuthInfo {
     public static class PlaygroundActivity {
 
         private String cardinalInfo;
-    }
-
-    @Getter
-    @Setter
-    @ToString
-    public static class PlaygroundCardinalActivity {
-
-        private Long id;
-        private Long generation;
-        private String team;
-        private String part;
-        private Boolean isProject;
     }
 
     @Getter
@@ -147,7 +135,7 @@ public class PlaygroundAuthInfo {
         public ActivityCardinalInfo getLatestActivity() {
             return activities.stream()
                     .sorted(Comparator.comparing(ActivityCardinalInfo::getGeneration, Comparator.reverseOrder()))
-                    .collect(Collectors.toList())
+                    .toList()
                     .get(0);
         }
     }
