@@ -1,6 +1,7 @@
 package org.sopt.app.application;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -62,9 +63,10 @@ public class PlaygroundAuthServiceTest {
         playgroundProfile.setName("name");
         PlaygroundMain playgroundMain = new PlaygroundMain();
         playgroundMain.setName("name");
+        playgroundMain.setId(1L);
 
         when(playgroundClient.getPlaygroundMember(any())).thenReturn(playgroundMain);
-        when(playgroundClient.getPlaygroundMemberProfile(any())).thenReturn(playgroundProfile);
+        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(playgroundProfile);
 
         PlaygroundMain result = playgroundAuthService.getPlaygroundInfo(token);
         Assertions.assertEquals(token, result.getAccessToken());
@@ -173,9 +175,9 @@ public class PlaygroundAuthServiceTest {
         MainViewUser mainViewUser = MainViewUser.builder().name("name").profileImage("profileImage").build();
         MainView mainView = MainView.builder().user(mainViewUser).build();
 
-        when(playgroundClient.getPlaygroundMemberProfile(any())).thenReturn(playgroundProfile);
+        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(playgroundProfile);
 
-        MainView result = playgroundAuthService.getPlaygroundUserForMainView(token);
+        MainView result = playgroundAuthService.getPlaygroundUserForMainView(token, 1L);
         Assertions.assertEquals(mainView.getUser().getName(), result.getUser().getName());
     }
 
@@ -193,9 +195,9 @@ public class PlaygroundAuthServiceTest {
         MainViewUser mainViewUser = MainViewUser.builder().name("name").profileImage("").build();
         MainView mainView = MainView.builder().user(mainViewUser).build();
 
-        when(playgroundClient.getPlaygroundMemberProfile(any())).thenReturn(playgroundProfile);
+        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(playgroundProfile);
 
-        MainView result = playgroundAuthService.getPlaygroundUserForMainView(token);
+        MainView result = playgroundAuthService.getPlaygroundUserForMainView(token, 1L);
         Assertions.assertEquals(mainView.getUser().getName(), result.getUser().getName());
         Assertions.assertEquals(mainView.getUser().getProfileImage(), result.getUser().getProfileImage());
     }
@@ -211,9 +213,9 @@ public class PlaygroundAuthServiceTest {
         PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = new PlaygroundProfile();
         playgroundProfile.setActivities(List.of(playgroundActivity));
 
-        when(playgroundClient.getPlaygroundMemberProfile(any())).thenReturn(playgroundProfile);
+        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(playgroundProfile);
 
-        UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token);
+        UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
         Assertions.assertEquals(UserStatus.ACTIVE, result.getStatus());
     }
 
@@ -227,9 +229,9 @@ public class PlaygroundAuthServiceTest {
         PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = new PlaygroundProfile();
         playgroundProfile.setActivities(List.of());
 
-        when(playgroundClient.getPlaygroundMemberProfile(any())).thenReturn(playgroundProfile);
+        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(playgroundProfile);
 
-        UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token);
+        UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
         Assertions.assertEquals(UserStatus.INACTIVE, result.getStatus());
     }
 
@@ -241,29 +243,29 @@ public class PlaygroundAuthServiceTest {
         PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = new PlaygroundProfile();
         playgroundProfile.setActivities(List.of());
 
-        when(playgroundClient.getPlaygroundMemberProfile(any())).thenReturn(playgroundProfile);
+        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(playgroundProfile);
 
-        UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token);
+        UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
         Assertions.assertEquals(UserStatus.INACTIVE, result.getStatus());
     }
 
     @Test
     @DisplayName("FAIL_플레이그라운드 프로필을 등록하지 않은 유저 활동 정보 조회 BadRequestException")
     void FAIL_getPlaygroundUserActiveInfoNotRegisteredBadRequestException() {
-        when(playgroundClient.getPlaygroundMemberProfile(any())).thenThrow(BadRequest.class);
+        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenThrow(BadRequest.class);
 
         Assertions.assertThrows(BadRequestException.class, () -> {
-            playgroundAuthService.getPlaygroundUserActiveInfo(token);
+            playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
         });
     }
 
     @Test
     @DisplayName("FAIL_플레이그라운드 토큰이 만료된 유저 활동 정보 조회 UnauthorizedException")
     void FAIL_getPlaygroundUserActiveInfoExpiredJwtUnauthorizedException() {
-        when(playgroundClient.getPlaygroundMemberProfile(any())).thenThrow(ExpiredJwtException.class);
+        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenThrow(ExpiredJwtException.class);
 
         Assertions.assertThrows(UnauthorizedException.class, () -> {
-            playgroundAuthService.getPlaygroundUserActiveInfo(token);
+            playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
         });
     }
 
