@@ -76,9 +76,7 @@ class PlaygroundAuthServiceTest {
     void FAIL_getPlaygroundInfoBadRequestException() {
         when(playgroundClient.getPlaygroundMember(any())).thenThrow(BadRequest.class);
 
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            playgroundAuthService.getPlaygroundInfo(token);
-        });
+        Assertions.assertThrows(BadRequestException.class, () -> playgroundAuthService.getPlaygroundInfo(token));
     }
 
     @Test
@@ -86,9 +84,7 @@ class PlaygroundAuthServiceTest {
     void FAIL_getPlaygroundInfoExpiredJwtUnauthorizedException() {
         when(playgroundClient.getPlaygroundMember(any())).thenThrow(ExpiredJwtException.class);
 
-        Assertions.assertThrows(UnauthorizedException.class, () -> {
-            playgroundAuthService.getPlaygroundInfo(token);
-        });
+        Assertions.assertThrows(UnauthorizedException.class, () -> playgroundAuthService.getPlaygroundInfo(token));
     }
 
     // getPlaygroundAccessToken
@@ -113,9 +109,8 @@ class PlaygroundAuthServiceTest {
 
         when(playgroundClient.getAccessToken(any(), any())).thenThrow(BadRequest.class);
 
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            playgroundAuthService.getPlaygroundAccessToken(codeRequest);
-        });
+        Assertions.assertThrows(BadRequestException.class,
+                () -> playgroundAuthService.getPlaygroundAccessToken(codeRequest));
     }
 
     // refreshPlaygroundToken
@@ -140,9 +135,8 @@ class PlaygroundAuthServiceTest {
 
         when(playgroundClient.refreshPlaygroundToken(any(), any())).thenThrow(BadRequest.class);
 
-        Assertions.assertThrows(UnauthorizedException.class, () -> {
-            playgroundAuthService.refreshPlaygroundToken(accessTokenRequest);
-        });
+        Assertions.assertThrows(UnauthorizedException.class,
+                () -> playgroundAuthService.refreshPlaygroundToken(accessTokenRequest));
     }
 
     @Test
@@ -152,9 +146,8 @@ class PlaygroundAuthServiceTest {
 
         when(playgroundClient.refreshPlaygroundToken(any(), any())).thenThrow(ExpiredJwtException.class);
 
-        Assertions.assertThrows(UnauthorizedException.class, () -> {
-            playgroundAuthService.refreshPlaygroundToken(accessTokenRequest);
-        });
+        Assertions.assertThrows(UnauthorizedException.class,
+                () -> playgroundAuthService.refreshPlaygroundToken(accessTokenRequest));
     }
 
     // getPlaygroundUserForMainView
@@ -243,9 +236,8 @@ class PlaygroundAuthServiceTest {
     void FAIL_getPlaygroundUserActiveInfoNotRegisteredBadRequestException() {
         when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenThrow(BadRequest.class);
 
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
-        });
+        Assertions.assertThrows(BadRequestException.class,
+                () -> playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L));
     }
 
     @Test
@@ -253,9 +245,8 @@ class PlaygroundAuthServiceTest {
     void FAIL_getPlaygroundUserActiveInfoExpiredJwtUnauthorizedException() {
         when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenThrow(ExpiredJwtException.class);
 
-        Assertions.assertThrows(UnauthorizedException.class, () -> {
-            playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
-        });
+        Assertions.assertThrows(UnauthorizedException.class,
+                () -> playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L));
     }
 
     // getPlayGroundUserIds
@@ -277,22 +268,15 @@ class PlaygroundAuthServiceTest {
     void FAIL_getPlayGroundUserIdsNotRegisteredBadRequestException() {
         when(playgroundClient.getPlaygroundUserIds(any(), any())).thenThrow(BadRequest.class);
 
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            playgroundAuthService.getPlayGroundUserIds(token);
-        });
+        Assertions.assertThrows(BadRequestException.class, () -> playgroundAuthService.getPlayGroundUserIds(token));
     }
 
     @Test
     @DisplayName("FAIL_플레이그라운드 토큰이 만료된 유저 아이디 조회 UnauthorizedException")
     void FAIL_getPlayGroundUserIdsExpiredJwtUnauthorizedException() {
-        PlaygroundAuthInfo.ActiveUserIds userIds = new ActiveUserIds();
-        userIds.setUserIds(List.of(1L));
-
         when(playgroundClient.getPlaygroundUserIds(any(), any())).thenThrow(ExpiredJwtException.class);
 
-        Assertions.assertThrows(UnauthorizedException.class, () -> {
-            playgroundAuthService.getPlayGroundUserIds(token);
-        });
+        Assertions.assertThrows(UnauthorizedException.class, () -> playgroundAuthService.getPlayGroundUserIds(token));
     }
 
     // getPlaygroundMemberProfiles
@@ -313,9 +297,8 @@ class PlaygroundAuthServiceTest {
     void FAIL_getPlaygroundMemberProfilesNotRegisteredBadRequestException() {
         when(playgroundClient.getMemberProfiles(any(), any())).thenThrow(BadRequest.class);
 
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            playgroundAuthService.getPlaygroundMemberProfiles(token, List.of());
-        });
+        Assertions.assertThrows(BadRequestException.class,
+                () -> playgroundAuthService.getPlaygroundMemberProfiles(token, List.of()));
     }
 
     @Test
@@ -323,8 +306,7 @@ class PlaygroundAuthServiceTest {
     void FAIL_getPlaygroundMemberProfilesExpiredJwtUnauthorizedException() {
         when(playgroundClient.getMemberProfiles(any(), any())).thenThrow(ExpiredJwtException.class);
 
-        Assertions.assertThrows(UnauthorizedException.class, () -> {
-            playgroundAuthService.getPlaygroundMemberProfiles(token, List.of());
-        });
+        Assertions.assertThrows(UnauthorizedException.class,
+                () -> playgroundAuthService.getPlaygroundMemberProfiles(token, List.of()));
     }
 }
