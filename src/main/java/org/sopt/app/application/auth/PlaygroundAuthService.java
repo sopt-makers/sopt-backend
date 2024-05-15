@@ -66,11 +66,9 @@ public class PlaygroundAuthService {
         headers.put("x-request-from", requestFrom);
         try {
             return playgroundClient.refreshPlaygroundToken(headers, tokenRequest);
-        } catch (BadRequest badRequest) {
+        } catch (BadRequest | ExpiredJwtException badRequest) {
             throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
-        } catch (ExpiredJwtException e) {
-        throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
-    }
+        }
     }
 
     public PlaygroundAuthInfo.MainView getPlaygroundUserForMainView(String accessToken, Long playgroundId) {
