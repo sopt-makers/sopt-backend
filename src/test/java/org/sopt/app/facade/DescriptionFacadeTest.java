@@ -21,7 +21,7 @@ import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.UserStatus;
 
 @ExtendWith(MockitoExtension.class)
-public class DescriptionFacadeTest {
+class DescriptionFacadeTest {
 
     @Mock
     private DescriptionService descriptionService;
