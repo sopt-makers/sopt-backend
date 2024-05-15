@@ -60,6 +60,7 @@ public class SoptampFacade {
     public void deleteStampAll(Long userId){
         stampService.deleteAllStamps(userId);
         soptampUserService.initPoint(userId);
+        soptampPointService.initPoint(userId);
     }
 
     @Transactional
