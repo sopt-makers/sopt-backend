@@ -1,7 +1,6 @@
 package org.sopt.app.application.auth;
 
 import io.jsonwebtoken.ExpiredJwtException;
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -15,6 +14,8 @@ import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.interfaces.external.PlaygroundClient;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
 
@@ -50,7 +51,7 @@ public class PlaygroundAuthService {
 
     private PlaygroundAuthInfo.PlaygroundMain getPlaygroundMember(String accessToken) {
         Map<String, String> headers = createDefaultHeader();
-        headers.put("Authorization", accessToken);
+        headers.put(HttpHeaders.AUTHORIZATION, accessToken);
         try {
             return playgroundClient.getPlaygroundMember(headers);
         } catch (ExpiredJwtException e) {
@@ -90,7 +91,7 @@ public class PlaygroundAuthService {
 
     private PlaygroundAuthInfo.PlaygroundProfile getPlaygroundMemberProfile(String accessToken, Long playgroundId) {
         Map<String, String> headers = createDefaultHeader();
-        headers.put("Authorization", accessToken);
+        headers.put(HttpHeaders.AUTHORIZATION, accessToken);
         try {
             return playgroundClient.getPlaygroundMemberProfile(headers, playgroundId);
         } catch (BadRequest e) {
@@ -113,25 +114,25 @@ public class PlaygroundAuthService {
     private List<Long> getMemberGenerationList(PlaygroundAuthInfo.PlaygroundProfile playgroundProfile) {
         return playgroundProfile.getActivities().stream()
                 .map(activity ->
-                        {
-                            try {
-                                return Long.parseLong(activity.getCardinalInfo().split(",")[0]);
-                            } catch (NumberFormatException e){
-                                throw new BadRequestException(ErrorCode.INVALID_PLAYGROUND_CARDINAL_INFO.getMessage());
-                            }
-                        })
+                {
+                    try {
+                        return Long.parseLong(activity.getCardinalInfo().split(",")[0]);
+                    } catch (NumberFormatException e) {
+                        throw new BadRequestException(ErrorCode.INVALID_PLAYGROUND_CARDINAL_INFO.getMessage());
+                    }
+                })
                 .sorted(Collections.reverseOrder())
                 .toList();
     }
 
     // Header 생성 메서드
     private Map<String, String> createDefaultHeader() {
-        return new HashMap<>(Map.of("content-type", "application/json;charset=UTF-8"));
+        return new HashMap<>(Map.of(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
     }
 
     public PlaygroundAuthInfo.ActiveUserIds getPlayGroundUserIds(String accessToken) {
         Map<String, String> headers = createDefaultHeader();
-        headers.put("Authorization", accessToken);
+        headers.put(HttpHeaders.AUTHORIZATION, accessToken);
         try {
             return playgroundClient.getPlaygroundUserIds(headers, currentGeneration);
         } catch (BadRequest e) {
@@ -141,14 +142,16 @@ public class PlaygroundAuthService {
         }
     }
 
-    public List<PlaygroundAuthInfo.MemberProfile> getPlaygroundMemberProfiles(String accessToken, List<Long> memberIds) {
+    public List<PlaygroundAuthInfo.MemberProfile> getPlaygroundMemberProfiles(String accessToken,
+            List<Long> memberIds) {
         Map<String, String> defaultHeader = createDefaultHeader();
-        defaultHeader.put("Authorization", accessToken);
+        defaultHeader.put(HttpHeaders.AUTHORIZATION, accessToken);
         String stringifyIds = memberIds.stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
         try {
-            return playgroundClient.getMemberProfiles(defaultHeader, URLEncoder.encode(stringifyIds, StandardCharsets.UTF_8));
+            return playgroundClient.getMemberProfiles(defaultHeader,
+                    URLEncoder.encode(stringifyIds, StandardCharsets.UTF_8));
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
         } catch (ExpiredJwtException e) {
