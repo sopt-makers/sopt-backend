@@ -62,7 +62,7 @@ class PlaygroundAuthServiceTest {
 
         // when
         when(playgroundClient.getPlaygroundMember(any())).thenReturn(playgroundMain);
-        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(playgroundProfile);
+        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
         PlaygroundMain result = playgroundAuthService.getPlaygroundInfo(token);
 
         // then
@@ -163,7 +163,7 @@ class PlaygroundAuthServiceTest {
         MainViewUser mainViewUser = MainViewUser.builder().name("name").profileImage("profileImage").build();
         MainView mainView = MainView.builder().user(mainViewUser).build();
 
-        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(playgroundProfile);
+        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         MainView result = playgroundAuthService.getPlaygroundUserForMainView(token, 1L);
         Assertions.assertEquals(mainView.getUser().getName(), result.getUser().getName());
@@ -181,7 +181,7 @@ class PlaygroundAuthServiceTest {
         MainViewUser mainViewUser = MainViewUser.builder().name("name").profileImage("").build();
         MainView mainView = MainView.builder().user(mainViewUser).build();
 
-        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(playgroundProfile);
+        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         MainView result = playgroundAuthService.getPlaygroundUserForMainView(token, 1L);
         Assertions.assertEquals(mainView.getUser().getName(), result.getUser().getName());
@@ -200,7 +200,7 @@ class PlaygroundAuthServiceTest {
         ReflectionTestUtils.setField(playgroundAuthService, "currentGeneration", 1L);
 
         // when
-        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(playgroundProfile);
+        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
         UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
 
         // then
@@ -213,7 +213,7 @@ class PlaygroundAuthServiceTest {
         PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = new PlaygroundProfile();
         playgroundProfile.setActivities(List.of());
 
-        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(playgroundProfile);
+        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
         Assertions.assertEquals(UserStatus.INACTIVE, result.getStatus());
@@ -225,7 +225,7 @@ class PlaygroundAuthServiceTest {
         PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = new PlaygroundProfile();
         playgroundProfile.setActivities(List.of());
 
-        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(playgroundProfile);
+        when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
         Assertions.assertEquals(UserStatus.INACTIVE, result.getStatus());
@@ -295,18 +295,22 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("FAIL_플레이그라운드 프로필을 등록하지 않은 유저 프로필 조회 BadRequestException")
     void FAIL_getPlaygroundMemberProfilesNotRegisteredBadRequestException() {
+        List<Long> memberIds = List.of();
+
         when(playgroundClient.getMemberProfiles(any(), any())).thenThrow(BadRequest.class);
 
         Assertions.assertThrows(BadRequestException.class,
-                () -> playgroundAuthService.getPlaygroundMemberProfiles(token, List.of()));
+                () -> playgroundAuthService.getPlaygroundMemberProfiles(token, memberIds));
     }
 
     @Test
     @DisplayName("FAIL_플레이그라운드 토큰이 만료된 유저 프로필 조회 UnauthorizedException")
     void FAIL_getPlaygroundMemberProfilesExpiredJwtUnauthorizedException() {
+        List<Long> memberIds = List.of();
+
         when(playgroundClient.getMemberProfiles(any(), any())).thenThrow(ExpiredJwtException.class);
 
         Assertions.assertThrows(UnauthorizedException.class,
-                () -> playgroundAuthService.getPlaygroundMemberProfiles(token, List.of()));
+                () -> playgroundAuthService.getPlaygroundMemberProfiles(token, memberIds));
     }
 }
