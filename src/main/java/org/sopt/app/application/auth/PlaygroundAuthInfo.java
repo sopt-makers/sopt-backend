@@ -51,6 +51,7 @@ public class PlaygroundAuthInfo {
     @ToString
     public static class PlaygroundProfile {
 
+        private Long memberId;
         private String name;
         private String profileImage;
         private List<PlaygroundActivity> activities;

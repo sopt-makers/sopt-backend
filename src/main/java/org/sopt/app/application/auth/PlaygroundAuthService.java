@@ -93,7 +93,7 @@ public class PlaygroundAuthService {
         Map<String, String> headers = createDefaultHeader();
         headers.put(HttpHeaders.AUTHORIZATION, accessToken);
         try {
-            return playgroundClient.getPlaygroundMemberProfile(headers, playgroundId);
+            return playgroundClient.getPlaygroundMemberProfile(headers, playgroundId).get(0);
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
         } catch (ExpiredJwtException e) {
