@@ -138,14 +138,26 @@ public class SoptampPointService {
     public List<SoptampPoint> createCurrentGenerationSoptampPointList(
             List<SoptampUser> soptampUserList
     ) {
-        val soptampPointList = soptampUserList.stream().map(e ->
-                        SoptampPoint
-                                .builder()
-                                .generation(currentGeneration)
-                                .points(0L)
-                                .soptampUserId(e.getId())
-                                .build())
+        val soptampUserIdList = soptampUserList.stream().map(SoptampUser::getId).toList();
+
+        val prevSoptampUserIdList = soptampPointRepository.findAllBySoptampUserIdInAndGeneration(
+                soptampUserIdList, currentGeneration
+        ).stream().map(SoptampPoint::getSoptampUserId).toList();
+
+        val newSoptampUserList = soptampUserList.stream()
+                .map(soptampUser -> prevSoptampUserIdList.contains(soptampUser.getId()) ? null : soptampUser)
+                .filter(x -> x != null)
                 .toList();
+
+        val soptampPointList = newSoptampUserList.stream().map(soptampUser ->
+                SoptampPoint
+                        .builder()
+                        .generation(currentGeneration)
+                        .points(0L)
+                        .soptampUserId(soptampUser.getId())
+                        .build()
+        ).toList();
+
         soptampPointRepository.saveAll(soptampPointList);
         return soptampPointList;
     }

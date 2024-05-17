@@ -66,6 +66,7 @@ public enum ErrorCode {
     FRIENDSHIP_NOT_FOUND("해당 친구관계는 존재하지 않습니다."),
 
     // ADMIN
+    INVALID_APP_ADMIN_PASSWORD("잘못된 앱 어드민 패스워드입니다."),
     ADMIN_INIT_SOPTAMP_USER_FAILED("솝탬프 유저 초기화에 실패했습니다."),
 
     // S3

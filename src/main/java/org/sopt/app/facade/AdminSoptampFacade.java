@@ -10,8 +10,9 @@ import org.sopt.app.application.soptamp.SoptampUserInfo.SoptampUserPlaygroundInf
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.application.user.UserService;
-import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.presentation.admin.AdminSoptampResponse;
+import org.sopt.app.presentation.admin.AdminSoptampResponse.Rows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,8 +28,7 @@ public class AdminSoptampFacade {
     private final UserService userService;
 
     @Transactional
-    public void initAllMissionAndStampAndPoints(User user) {
-        validateAdminUser(user);
+    public void initAllMissionAndStampAndPoints() {
         missionService.deleteAll();
         stampService.deleteAll();
         soptampPointService.deleteAll();
@@ -36,9 +36,7 @@ public class AdminSoptampFacade {
     }
 
     @Transactional
-    public int initCurrentGenerationInfo(User user) {
-        validateAdminUser(user);
-
+    public AdminSoptampResponse.Rows initCurrentGenerationInfo(User user) {
         // 플그에서 현재 기수 멤버 아이디 조회
         val currentGenerationPlaygroundIdList = playgroundAuthService.getPlayGroundUserIds(user.getPlaygroundToken())
                 .getUserIds();
@@ -64,6 +62,7 @@ public class AdminSoptampFacade {
                             SoptampUserPlaygroundInfo.builder()
                                     .userId(userProfile.get().getUserId())
                                     .playgroundId(userProfile.get().getPlaygroundId())
+                                    .name(userProfile.get().getName())
                                     .generation(Long.parseLong(memberProfile.getLatestActivity().getGeneration()))
                                     .part(memberProfile.getLatestActivity().getPart())
                                     .build();
@@ -78,13 +77,9 @@ public class AdminSoptampFacade {
         val currentGenerationSoptampPointList = soptampPointService.createCurrentGenerationSoptampPointList(
                 updatedSoptampUserList);
 
-        return currentGenerationSoptampPointList.size();
-    }
-
-    private void validateAdminUser(User user) {
-        // TODO: Admin User 구현 곧 할게요
-        if (!user.getUsername().equals("주어랑")) {
-            throw new BadRequestException("NONO");
-        }
+        return Rows.builder()
+                .soptampUserRows(updatedSoptampUserList.size())
+                .soptampPointRows(currentGenerationSoptampPointList.size())
+                .build();
     }
 }
