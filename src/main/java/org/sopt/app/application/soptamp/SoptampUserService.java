@@ -229,6 +229,7 @@ public class SoptampUserService {
         soptampUserRepository.save(newSoptampUser);
     }
 
+    @Transactional
     public void initAllSoptampUserPoints() {
         val soptampUserList = soptampUserRepository.findAll();
         soptampUserList.forEach(SoptampUser::initTotalPoints);
@@ -239,6 +240,7 @@ public class SoptampUserService {
         return soptampUserRepository.findAllByUserIdIn(userIdList);
     }
 
+    @Transactional
     public List<SoptampUser> initAllCurrentGenerationSoptampUser(
             List<SoptampUser> soptampUserList,
             List<SoptampUserInfo.SoptampUserPlaygroundInfo> userInfoList
@@ -260,14 +262,19 @@ public class SoptampUserService {
         return validatedSoptampUserList;
     }
 
+    @Transactional
     public List<SoptampUser> validateNickname(List<SoptampUser> soptampUserList) {
-        // 닉네임 정렬
-        soptampUserList = soptampUserList.stream().sorted(Comparator.comparing(SoptampUser::getNickname))
-                .collect(Collectors.toList());
-
         // uniqueNickname map 생성
+        val nicknameMap = generateUniqueNicknameMap(
+                soptampUserList.stream().sorted(Comparator.comparing(SoptampUser::getNickname))
+                        .map(SoptampUser::getNickname).toList());
+
+        // soptampUser 리스트 userId 기준으로 중복 닉네임 알파벳 부여
+        return updateUniqueNickname(soptampUserList, nicknameMap);
+    }
+
+    private HashMap<String, ArrayList<String>> generateUniqueNicknameMap(List<String> nicknameList) {
         val nicknameMap = new HashMap<String, ArrayList<String>>();
-        val nicknameList = soptampUserList.stream().map(SoptampUser::getNickname).collect(Collectors.toList());
         val uniqueNicknameList = nicknameList.stream().distinct().collect(Collectors.toList());
         uniqueNicknameList.stream().forEach(nickname -> {
             val count = Collections.frequency(nicknameList, nickname);
@@ -279,8 +286,13 @@ public class SoptampUserService {
                 nicknameMap.put(nickname, new ArrayList<>(changedList));
             }
         });
+        return nicknameMap;
+    }
 
-        // soptampUser 리스트 userId 기준으로 중복 닉네임 알파벳 부여
+    private List<SoptampUser> updateUniqueNickname(
+            List<SoptampUser> soptampUserList,
+            HashMap<String, ArrayList<String>> nicknameMap
+    ) {
         soptampUserList.stream().sorted(Comparator.comparing(SoptampUser::getUserId)).forEach(soptampUser -> {
             val validatedNicknameList = nicknameMap.get(soptampUser.getNickname());
             if (validatedNicknameList.size() > 0) {
@@ -290,7 +302,6 @@ public class SoptampUserService {
                 soptampUser.updateNickname(validatedNickname);
             }
         });
-
         return soptampUserList;
     }
 }
