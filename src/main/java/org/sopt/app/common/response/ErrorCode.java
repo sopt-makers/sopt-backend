@@ -19,6 +19,7 @@ public enum ErrorCode {
     // PLAYGROUND
     PLAYGROUND_USER_NOT_EXISTS("플레이그라운드 유저 정보를 가져올 수 없습니다."),
     PLAYGROUND_PROFILE_NOT_EXISTS("플레이그라운드 프로필을 등록하지 않은 유저입니다."),
+    INVALID_PLAYGROUND_CARDINAL_INFO("플레이그라운드 활동 정보가 유효하지 않습니다."),
 
     // OPERATION
     OPERATION_PROFILE_NOT_EXISTS("운영 서비스에 존재하지 않는 회원입니다."),

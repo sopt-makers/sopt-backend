@@ -18,8 +18,8 @@ public interface PlaygroundClient {
     @RequestLine("GET /internal/api/v1/members/me")
     PlaygroundAuthInfo.PlaygroundMain getPlaygroundMember(@HeaderMap Map<String, String> headers);
 
-    @RequestLine("GET /internal/api/v1/members/profile/me")
-    PlaygroundAuthInfo.PlaygroundProfile getPlaygroundMemberProfile(@HeaderMap Map<String, String> headers);
+    @RequestLine("GET /internal/api/v1/members/profile?memberIds={memberId}")
+    List<PlaygroundAuthInfo.PlaygroundProfile> getPlaygroundMemberProfile(@HeaderMap Map<String, String> headers, @Param("memberId") Long playgroundId);
 
     @RequestLine("POST /internal/api/v1/idp/auth/token")
     PlaygroundAuthInfo.RefreshedToken refreshPlaygroundToken(@HeaderMap Map<String, String> headers, AppAuthRequest.AccessTokenRequest tokenRequest);

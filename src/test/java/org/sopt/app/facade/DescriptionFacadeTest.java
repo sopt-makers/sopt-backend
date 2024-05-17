@@ -1,6 +1,8 @@
 package org.sopt.app.facade;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -19,7 +21,7 @@ import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.UserStatus;
 
 @ExtendWith(MockitoExtension.class)
-public class DescriptionFacadeTest {
+class DescriptionFacadeTest {
 
     @Mock
     private DescriptionService descriptionService;
@@ -33,14 +35,15 @@ public class DescriptionFacadeTest {
     @Test
     @DisplayName("SUCCESS_활동 유저 메인 문구 조회")
     void SUCCESS_getMainDescriptionForUserActive() {
+        User user = User.builder().playgroundId(1L).playgroundToken("token").build();
         UserStatus userStatus = UserStatus.ACTIVE;
-        Mockito.when(playgroundAuthService.getPlaygroundUserActiveInfo(any()))
+        Mockito.when(playgroundAuthService.getPlaygroundUserActiveInfo(anyString(), anyLong()))
                 .thenReturn(UserActiveInfo.builder().currentGeneration(34L).status(userStatus).build());
         Mockito.when(descriptionService.getMainDescription(userStatus))
                 .thenReturn(DescriptionInfo.MainDescription.builder().topDescription("activeTop")
                         .bottomDescription("activeBottom").build());
 
-        MainDescription result = descriptionFacade.getMainDescriptionForUser(new User());
+        MainDescription result = descriptionFacade.getMainDescriptionForUser(user);
         Assertions.assertEquals("activeTop", result.getTopDescription());
         Assertions.assertEquals("activeBottom", result.getBottomDescription());
     }
@@ -48,14 +51,15 @@ public class DescriptionFacadeTest {
     @Test
     @DisplayName("SUCCESS_비활동 유저 메인 문구 조회")
     void SUCCESS_getMainDescriptionForUserInactive() {
+        User user = User.builder().playgroundId(1L).playgroundToken("token").build();
         UserStatus userStatus = UserStatus.INACTIVE;
-        Mockito.when(playgroundAuthService.getPlaygroundUserActiveInfo(any()))
+        Mockito.when(playgroundAuthService.getPlaygroundUserActiveInfo(anyString(), anyLong()))
                 .thenReturn(UserActiveInfo.builder().currentGeneration(29L).status(userStatus).build());
         Mockito.when(descriptionService.getMainDescription(userStatus))
                 .thenReturn(DescriptionInfo.MainDescription.builder().topDescription("inactiveTop")
                         .bottomDescription("inactiveBottom").build());
 
-        MainDescription result = descriptionFacade.getMainDescriptionForUser(new User());
+        MainDescription result = descriptionFacade.getMainDescriptionForUser(user);
         Assertions.assertEquals("inactiveTop", result.getTopDescription());
         Assertions.assertEquals("inactiveBottom", result.getBottomDescription());
     }
