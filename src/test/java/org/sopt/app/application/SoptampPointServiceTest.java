@@ -12,10 +12,10 @@ import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.junit.jupiter.api.Test;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
@@ -47,18 +47,18 @@ class SoptampPointServiceTest {
         final Long anyGeneration = anyLong();
 
         List<SoptampPoint> soptampPointList = List.of(
-            SoptampPoint.builder()
-                .id(1L)
-                .generation(anyGeneration)
-                .soptampUserId(1L)
-                .points(100L)
-                .build(),
-            SoptampPoint.builder()
-                .id(2L)
-                .generation(anyGeneration)
-                .soptampUserId(2L)
-                .points(200L)
-                .build()
+                SoptampPoint.builder()
+                        .id(1L)
+                        .generation(anyGeneration)
+                        .soptampUserId(1L)
+                        .points(100L)
+                        .build(),
+                SoptampPoint.builder()
+                        .id(2L)
+                        .generation(anyGeneration)
+                        .soptampUserId(2L)
+                        .points(200L)
+                        .build()
         );
 
         //when
@@ -79,7 +79,7 @@ class SoptampPointServiceTest {
                         .points(200L)
                         .build()
 
-                );
+        );
 
         //then
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
@@ -93,22 +93,23 @@ class SoptampPointServiceTest {
         List<Long> soptampUserIdList = any();
         Long anyGeneration = anyLong();
         List<SoptampPoint> soptampPointList = List.of(
-            SoptampPoint.builder()
-                .id(1L)
-                .generation(anyGeneration)
-                .soptampUserId(1L)
-                .points(100L)
-                .build(),
-            SoptampPoint.builder()
-                .id(2L)
-                .generation(anyGeneration)
-                .soptampUserId(2L)
-                .points(200L)
-                .build()
+                SoptampPoint.builder()
+                        .id(1L)
+                        .generation(anyGeneration)
+                        .soptampUserId(1L)
+                        .points(100L)
+                        .build(),
+                SoptampPoint.builder()
+                        .id(2L)
+                        .generation(anyGeneration)
+                        .soptampUserId(2L)
+                        .points(200L)
+                        .build()
         );
 
         //when
-        when(soptampPointRepository.findAllBySoptampUserIdInAndGeneration(soptampUserIdList, anyGeneration)).thenReturn(soptampPointList);
+        when(soptampPointRepository.findAllBySoptampUserIdInAndGeneration(soptampUserIdList, anyGeneration)).thenReturn(
+                soptampPointList);
         List<Point> result = soptampPointService.findCurrentPointListBySoptampUserIds(soptampUserIdList);
         List<Point> expected = List.of(
                 Point.builder()
@@ -123,7 +124,7 @@ class SoptampPointServiceTest {
                         .soptampUserId(2L)
                         .points(200L)
                         .build()
-                );
+        );
 
         //then
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
@@ -141,7 +142,8 @@ class SoptampPointServiceTest {
                 .build();
 
         //when
-        when(soptampPointRepository.findAllBySoptampUserIdAndGeneration(anyLong(), anyLong())).thenReturn(Optional.of(soptampPoint));
+        when(soptampPointRepository.findBySoptampUserIdAndGeneration(anyLong(), anyLong())).thenReturn(
+                Optional.of(soptampPoint));
 
         //then
         Assertions.assertDoesNotThrow(() -> soptampPointService.addPoint(anyLong(), anyInt()));
@@ -151,7 +153,8 @@ class SoptampPointServiceTest {
     @DisplayName("SUCCESS_솝탬프 포인트가 없으면 아무것도 안함")
     void SUCCESS_addPointSoptampNotPresent() {
         //when
-        when(soptampPointRepository.findAllBySoptampUserIdAndGeneration(anyLong(), anyLong())).thenReturn(Optional.empty());
+        when(soptampPointRepository.findBySoptampUserIdAndGeneration(anyLong(), anyLong())).thenReturn(
+                Optional.empty());
         //then
         Assertions.assertDoesNotThrow(() -> soptampPointService.addPoint(anyLong(), anyInt()));
     }
@@ -168,7 +171,8 @@ class SoptampPointServiceTest {
                 .build();
 
         //when
-        when(soptampPointRepository.findAllBySoptampUserIdAndGeneration(anyLong(), anyLong())).thenReturn(Optional.of(soptampPoint));
+        when(soptampPointRepository.findBySoptampUserIdAndGeneration(anyLong(), anyLong())).thenReturn(
+                Optional.of(soptampPoint));
 
         //then
         Assertions.assertDoesNotThrow(() -> soptampPointService.subtractPoint(anyLong(), anyInt()));
@@ -178,7 +182,8 @@ class SoptampPointServiceTest {
     @DisplayName("SUCCESS_솝탬프 포인트가 없으면 아무것도 안함")
     void SUCCESS_subtractPointSoptampNotPresent() {
         //when
-        when(soptampPointRepository.findAllBySoptampUserIdAndGeneration(anyLong(), anyLong())).thenReturn(Optional.empty());
+        when(soptampPointRepository.findBySoptampUserIdAndGeneration(anyLong(), anyLong())).thenReturn(
+                Optional.empty());
         //then
         Assertions.assertDoesNotThrow(() -> soptampPointService.subtractPoint(anyLong(), anyInt()));
     }
@@ -190,7 +195,7 @@ class SoptampPointServiceTest {
         Long anyUserId = anyLong();
 
         //when
-        when(soptampPointRepository.findAllBySoptampUserIdAndGeneration(anyUserId, anyLong()))
+        when(soptampPointRepository.findBySoptampUserIdAndGeneration(anyUserId, anyLong()))
                 .thenReturn(Optional.of(new SoptampPoint()));
 
         //then
@@ -208,7 +213,7 @@ class SoptampPointServiceTest {
     @DisplayName("SUCCESS_솝탬프 포인트가 Empty일 때 업서트하지 않음")
     void SUCCESS_upsertSoptampPointNotPresent() {
         //when
-        when(soptampPointRepository.findAllBySoptampUserIdAndGeneration(anyLong(), anyLong()))
+        when(soptampPointRepository.findBySoptampUserIdAndGeneration(anyLong(), anyLong()))
                 .thenReturn(Optional.empty());
         //then
         Assertions.assertDoesNotThrow(() -> soptampPointService.upsertSoptampPoint(UserStatus.ACTIVE, 1L));

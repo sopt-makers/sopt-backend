@@ -68,8 +68,8 @@ class SoptampPointRepositoryTest {
     @Test
     @DisplayName("SUCCESS_유저 아이디와 기수로 솝탬프 포인트 리스트 찾기")
     void SUCCESS_findAllBySoptampUserIdAndGeneration() {
-        Assertions.assertThat(soptampPointRepository.findAllBySoptampUserIdAndGeneration(1L, 1L)
-                .orElseThrow().getId())
+        Assertions.assertThat(soptampPointRepository.findBySoptampUserIdAndGeneration(1L, 1L)
+                        .orElseThrow().getId())
                 .isEqualTo(generation1soptampPointId1.getId());
     }
 
