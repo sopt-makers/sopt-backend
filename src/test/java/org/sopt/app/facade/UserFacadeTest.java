@@ -3,6 +3,7 @@ package org.sopt.app.facade;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -50,7 +51,7 @@ class UserFacadeTest {
                 .build();
 
         //when
-        when(playgroundAuthService.getPlaygroundUserForMainView(anyString())).thenReturn(playgroundAuthInfo);
+        when(playgroundAuthService.getPlaygroundUserForMainView(anyString(), anyLong())).thenReturn(playgroundAuthInfo);
         when(notificationService.getNotificationConfirmStatus(any(User.class))).thenReturn(isNotificationConfirm);
         when(userResponseMapper.ofMainView(any(MainView.class), any(OperationInfo.MainView.class),
                 anyBoolean())).thenReturn(mainViewResponse);
@@ -63,6 +64,7 @@ class UserFacadeTest {
         UserResponse.MainView result = userFacade.getMainViewInfo(
                 User.builder()
                         .playgroundToken(anyString())
+                        .playgroundId(anyLong())
                         .build()
         );
 
