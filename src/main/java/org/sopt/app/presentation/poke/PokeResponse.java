@@ -171,7 +171,7 @@ public class PokeResponse {
 
         //TODO: dummy data 콕 찌르기 개발 이후 정상화 하기
         @Schema(description = "익명 여부", example = "true")
-        private Boolean isPrivate = true;
+        private Boolean isAnonymous = true;
 
         @Schema(description = "함께 아는 친구관계 문구", example = "제갈송현 외 1명과 친구")
         private String mutualRelationMessage;
