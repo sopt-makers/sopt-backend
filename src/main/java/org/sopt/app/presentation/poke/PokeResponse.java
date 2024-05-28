@@ -216,6 +216,7 @@ public class PokeResponse {
         //TODO: dummy data 콕 찌르기 개발 이후 정상화 하기
         @Schema(description = "익명 여부", example = "true")
         private Boolean isAnonymous = true;
+        private String anonymousName = "익명의 사자";
 
         @Schema(description = "함께 아는 친구관계 문구", example = "제갈송현 외 1명과 친구")
         private String mutualRelationMessage;
@@ -234,7 +235,9 @@ public class PokeResponse {
             return new SimplePokeProfile(
                     userId, playgroundId, profileImage, name,
                     message == null ? "" : message,
-                    generation, part, pickNum, relationName, true, mutualRelationMessage, isFirstMeet, isAlreadyPoke
+                    generation, part, pickNum, relationName,
+                    true, "익명의 사자", // TODO: 추후 변경하기
+                    mutualRelationMessage, isFirstMeet, isAlreadyPoke
             );
         }
     }
