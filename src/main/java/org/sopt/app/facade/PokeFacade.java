@@ -82,10 +82,11 @@ public class PokeFacade {
         val playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(playgroundToken, recommendUserIds);
         val userProfiles = userService.getUserProfilesByPlaygroundIds(recommendUserIds);
         val pokeHistories = pokeHistoryService.getAllPokeHistoryMap(userId);
-        return makeDummySimplePokeProfile(userProfiles, playgroundProfiles, pokeHistories, userId);
+        return makeRandomSimplePokeProfile(userProfiles, playgroundProfiles, pokeHistories, userId);
     }
 
-    private List<SimplePokeProfile> makeDummySimplePokeProfile(List<UserProfile> userProfiles,
+    private List<SimplePokeProfile> makeRandomSimplePokeProfile(
+            List<UserProfile> userProfiles,
             List<MemberProfile> playgroundProfiles,
             HashMap<Long, Boolean> pokeHistories,
             Long userId
@@ -113,7 +114,9 @@ public class PokeFacade {
                             Friendship.NON_FRIEND.getFriendshipName(),
                             NEW_FRIEND_NO_MUTUAL,
                             true,
-                            isAlreadyPoke
+                            isAlreadyPoke,
+                            false,
+                            ""
                     );
                 }
         ).toList();
@@ -165,7 +168,9 @@ public class PokeFacade {
                     val playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(
                             user.getPlaygroundToken(),
                             randomFriendsOfFriends.stream().map(UserProfile::getPlaygroundId).toList());
-                    val simpleProfiles = makeDummySimplePokeProfile(randomFriendsOfFriends, playgroundProfiles,
+                    val simpleProfiles = makeRandomSimplePokeProfile(
+                            randomFriendsOfFriends,
+                            playgroundProfiles,
                             pokeHistories,
                             user.getId()
                     );
@@ -224,7 +229,7 @@ public class PokeFacade {
 
 
     @Transactional
-    public Long pokeFriend(Long pokerUserId, Long pokedUserId, String pokeMessage) {
+    public Long pokeFriend(Long pokerUserId, Long pokedUserId, String pokeMessage, Boolean isAnonymous) {
         pokeHistoryService.checkDuplicate(pokerUserId, pokedUserId);
         pokeHistoryService.checkUserOverDailyPokeLimit(pokerUserId);
         PokeHistory newPoke = pokeService.poke(pokerUserId, pokedUserId, pokeMessage);
@@ -282,7 +287,9 @@ public class PokeFacade {
                                         : String.format(NEW_FRIEND_MANY_MUTUAL, mutualFriendNames.get(0),
                                                 mutualFriendNames.size() - 1),
                         false,
-                        isAlreadyPoke
+                        isAlreadyPoke,
+                        pokeHistory.getIsAnonymous(),
+                        friendRelationInfo.getAnonymousName()
                 )
         );
     }
@@ -364,7 +371,9 @@ public class PokeFacade {
                                 : String.format(NEW_FRIEND_MANY_MUTUAL, mutualFriendNames.get(0),
                                         mutualFriendNames.size() - 1),
                 isFirstMeet,
-                isExistPokedReplyYet
+                isExistPokedReplyYet,
+                true, // TODO: 여기가 문제다!
+                friendUserInfo.getRelation().getAnonymousName()
         );
     }
 
