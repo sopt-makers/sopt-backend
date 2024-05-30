@@ -372,7 +372,7 @@ public class PokeFacade {
                                         mutualFriendNames.size() - 1),
                 isFirstMeet,
                 isExistPokedReplyYet,
-                true, // TODO: 여기가 문제다!
+                false, // TODO: 여기가 문제다!
                 friendUserInfo.getRelation().getAnonymousName()
         );
     }
