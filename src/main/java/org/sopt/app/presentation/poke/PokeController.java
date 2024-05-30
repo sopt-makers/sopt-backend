@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.poke.FriendService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.facade.PokeFacade;
@@ -40,7 +39,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class PokeController {
 
     private final PokeFacade pokeFacade;
-    private final FriendService friendService;
 
     @GetMapping("/random-user")
     public ResponseEntity<List<PokeResponse.SimplePokeProfile>> getRandomUserForNew(
@@ -59,7 +57,7 @@ public class PokeController {
     public ResponseEntity<PokeResponse.IsNew> getPokeList(
             @AuthenticationPrincipal User user
     ) {
-        val result = friendService.getIsNewUser(user.getId());
+        val result = pokeFacade.getIsNewUser(user.getId());
         val response = PokeResponse.IsNew.of(result);
         return ResponseEntity.ok(response);
     }

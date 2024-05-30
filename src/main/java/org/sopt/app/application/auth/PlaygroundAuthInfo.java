@@ -123,8 +123,8 @@ public class PlaygroundAuthInfo {
     @Getter
     @Builder
     @ToString
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor(access = AccessLevel.PUBLIC)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class MemberProfile {
 
         @JsonProperty("memberId")
