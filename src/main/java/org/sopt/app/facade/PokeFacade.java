@@ -230,9 +230,8 @@ public class PokeFacade {
 
     @Transactional
     public Long pokeFriend(Long pokerUserId, Long pokedUserId, String pokeMessage, Boolean isAnonymous) {
-        pokeHistoryService.checkDuplicate(pokerUserId, pokedUserId);
         pokeHistoryService.checkUserOverDailyPokeLimit(pokerUserId);
-        PokeHistory newPoke = pokeService.poke(pokerUserId, pokedUserId, pokeMessage);
+        PokeHistory newPoke = pokeService.poke(pokerUserId, pokedUserId, pokeMessage, isAnonymous);
 
         applyFriendship(pokerUserId, pokedUserId);
         return newPoke.getId();
@@ -244,8 +243,7 @@ public class PokeFacade {
             friendService.applyPokeCount(pokerUserId, pokedUserId);
             return;
         }
-        boolean userNotPokeBefore = pokeHistoryService.getAllOfPokeBetween(
-                pokerUserId, pokedUserId).isEmpty();
+        boolean userNotPokeBefore = pokeHistoryService.getAllOfPokeBetween(pokerUserId, pokedUserId).isEmpty();
         if (!userNotPokeBefore) {
             friendService.registerFriendshipOf(pokerUserId, pokedUserId);
         }
@@ -344,15 +342,17 @@ public class PokeFacade {
     @Transactional(readOnly = true)
     public SimplePokeProfile getPokeHistoryProfile(User user, Long friendId, Long pokeId) {
         PokeInfo.PokeDetail pokeDetail = getPokeInfo(pokeId);
-        PokeInfo.PokedUserInfo friendUserInfo = getFriendUserInfo(
-                user, friendId);
+        PokeInfo.PokedUserInfo friendUserInfo = getFriendUserInfo(user, friendId);
 
         boolean isFirstMeet = friendUserInfo.getRelation().getPokeNum() < 2;
 
-        boolean isExistPokedReplyYet = pokeHistoryService.getAllOfPokeBetween(pokeDetail.getPokerId(),
-                        pokeDetail.getPokedId()).stream()
+        List<PokeHistory> pokeHistoryList = pokeHistoryService.getAllOfPokeBetween(
+                        pokeDetail.getPokerId(), pokeDetail.getPokedId()).stream()
+                .sorted(Comparator.comparing(PokeHistory::getCreatedAt).reversed()).toList();
+        boolean isAlreadyPoke = pokeHistoryList.stream()
                 .filter(pokeHistory -> pokeHistory.getPokerId().equals(user.getId()))
                 .anyMatch(pokeHistory -> !pokeHistory.getIsReply());
+        boolean isAnonymous = pokeHistoryList.get(0).getIsAnonymous();
 
         List<String> mutualFriendNames = friendUserInfo.getMutualFriendNames();
 
@@ -371,8 +371,8 @@ public class PokeFacade {
                                 : String.format(NEW_FRIEND_MANY_MUTUAL, mutualFriendNames.get(0),
                                         mutualFriendNames.size() - 1),
                 isFirstMeet,
-                isExistPokedReplyYet,
-                false, // TODO: 여기가 문제다!
+                isAlreadyPoke,
+                isAnonymous,
                 friendUserInfo.getRelation().getAnonymousName()
         );
     }

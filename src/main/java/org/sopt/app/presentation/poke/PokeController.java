@@ -96,12 +96,11 @@ public class PokeController {
             @PathVariable("userId") Long pokedUserId,
             @RequestBody PokeRequest.PokeMessageRequest messageRequest
     ) {
-        val pokeHistoryId = pokeFacade.pokeFriend(user.getId(), pokedUserId, messageRequest.getMessage(),
-                messageRequest.getIsAnonymous());
+        val pokeHistoryId = pokeFacade.pokeFriend(
+                user.getId(), pokedUserId, messageRequest.getMessage(), messageRequest.getIsAnonymous()
+        );
         val response = pokeFacade.getPokeHistoryProfile(user, pokedUserId, pokeHistoryId);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "친구를 찔러보세요 조회")

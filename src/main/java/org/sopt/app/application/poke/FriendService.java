@@ -4,6 +4,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
@@ -15,8 +16,6 @@ import org.sopt.app.interfaces.postgres.FriendRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -74,7 +73,9 @@ public class FriendService {
         return map;
     }
 
-    public Page<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit, Pageable pageable) {
+    public Page<Friend> findAllFriendsByFriendship(
+            Long userId, Integer lowerLimit, Integer upperLimit, Pageable pageable
+    ) {
         val map = getPokeCountMap(userId);
         val friendIds = map.entrySet().stream()
                 .filter(entry -> entry.getValue() >= lowerLimit && entry.getValue() < upperLimit)
@@ -86,13 +87,12 @@ public class FriendService {
     }
 
 
-
-
     public void registerFriendshipOf(Long userId, Long friendId) {
         Friend createdRelationUserToFriend = Friend.builder()
                 .userId(userId)
                 .friendUserId(friendId)
                 .pokeCount(1)
+                .anonymousName("") // TODO: 익명 리스트
                 .build();
         friendRepository.save(createdRelationUserToFriend);
     }
@@ -170,7 +170,9 @@ public class FriendService {
         return friends.isEmpty();
     }
 
-    public List<Long> findAllFriendIdsByUserIdRandomlyExcludeUserId(Long friendsUserId, List<Long> excludedUserId, int limitNum) {
+    public List<Long> findAllFriendIdsByUserIdRandomlyExcludeUserId(
+            Long friendsUserId, List<Long> excludedUserId, int limitNum
+    ) {
         return friendRepository.getFriendRandom(friendsUserId, excludedUserId, limitNum);
     }
 
