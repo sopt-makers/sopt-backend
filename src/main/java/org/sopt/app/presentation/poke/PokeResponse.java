@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.sopt.app.application.poke.PokeInfo.PokeDetail;
 import org.sopt.app.application.poke.PokeInfo.PokedUserInfo;
+import org.sopt.app.domain.enums.FriendRecommendType;
 
 public class PokeResponse {
 
@@ -311,6 +312,37 @@ public class PokeResponse {
                 Long userId, String profileImage, String name, Long generation, String part, Boolean isAlreadyPoked
         ) {
             return new PokeProfile(userId, profileImage, name, generation, part, isAlreadyPoked);
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class RecommendedFriendsByAllType {
+
+        private List<RecommendedFriendsByType> randomInfoList;
+
+        public static RecommendedFriendsByAllType of(
+                List<RecommendedFriendsByType> randomInfoList
+        ) {
+            return new RecommendedFriendsByAllType(randomInfoList);
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class RecommendedFriendsByType {
+
+        @Schema(description = "친구 추천 타입 ENUM", example = "MBTI")
+        private FriendRecommendType randomType;
+        @Schema(description = "친구 추천 타입 별 제목", example = "나와 MBTI가 같은 사람이에요")
+        private String randomTitle;
+        @Schema(description = "추천 친구 정보 리스트", example = "[]")
+        private List<SimplePokeProfile> userInfoList;
+
+        public static RecommendedFriendsByType of(
+                FriendRecommendType randomType, String randomTitle, List<SimplePokeProfile> userInfoList
+        ) {
+            return new RecommendedFriendsByType(randomType, randomTitle, userInfoList);
         }
     }
 }
