@@ -235,6 +235,7 @@ public class PokeFacadeTest {
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
+        when(pokeHistoryService.getAllOfPokeBetween(2L, 1L)).thenReturn(List.of(pokeHistoryInfo2));
 
         SimplePokeProfile result = pokeFacade.getMostRecentPokeMeHistory(user);
         assertEquals(simplePokeProfile, result);
@@ -442,7 +443,7 @@ public class PokeFacadeTest {
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
-        when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(
+        when(pokeHistoryService.getAllOfPokeBetween(any(), any())).thenReturn(
                 List.of(pokeHistoryInfo2, pokeHistoryInfo2PokedIsNotReply));
 
         EachRelationFriendList result = pokeFacade.getAllFriendByFriendship(user, friendship, pageable);

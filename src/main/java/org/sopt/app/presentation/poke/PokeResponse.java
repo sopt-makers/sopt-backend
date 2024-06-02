@@ -202,7 +202,7 @@ public class PokeResponse {
             return new SimplePokeProfile(
                     pokedUserInfo.getUserId(),
                     pokedUserInfo.getPlaygroundId(),
-                    pokedUserInfo.getProfileImage(),
+                    pokedUserInfo.getProfileImage() == null ? "" : pokedUserInfo.getProfileImage(),
                     pokedUserInfo.getName(),
                     pokeDetail.getMessage(),
                     pokedUserInfo.getGeneration(),
