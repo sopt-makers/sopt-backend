@@ -54,6 +54,13 @@ public class PokeHistoryService {
         return pokeHistoryRepository.findAllByIdIsInOrderByCreatedAtDesc(targetHistoryIds, pageable);
     }
 
+    public void checkDuplicate(Long pokerUserId, Long pokedUserId) {
+        val pokeHistory = pokeHistoryRepository.findAllByPokerIdAndPokedIdAndIsReplyIsFalse(pokerUserId, pokedUserId);
+        if (pokeHistory.size() >= 1) {
+            throw new BadRequestException(ErrorCode.DUPLICATE_POKE.getMessage());
+        }
+    }
+
     public void checkUserOverDailyPokeLimit(Long userId) {
         LocalDateTime startDatetime = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0));
         LocalDateTime endDatetime = LocalDateTime.of(LocalDate.now(), LocalTime.of(23, 59, 59));

@@ -3,7 +3,6 @@ package org.sopt.app.application.poke;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.event.Events;
-import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.PokeHistory;
@@ -50,11 +49,10 @@ public class PokeService {
         List<PokeHistory> latestPokeFromPokedIsReplyFalse = historyRepository.findAllByPokerIdAndPokedIdAndIsReplyIsFalse(
                 pokedUserId, pokerUserId
         );
-        if (!latestPokeFromPokedIsReplyFalse.isEmpty()) {
-            throw new BadRequestException(ErrorCode.DUPLICATE_POKE.getMessage());
-        }
 
-        latestPokeFromPokedIsReplyFalse.get(0).activateReply();
+        if (!latestPokeFromPokedIsReplyFalse.isEmpty()) {
+            latestPokeFromPokedIsReplyFalse.get(0).activateReply();
+        }
 
         PokeHistory createdPoke = PokeHistory.builder()
                 .pokerId(pokerUserId)

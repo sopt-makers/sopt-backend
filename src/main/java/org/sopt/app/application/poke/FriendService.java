@@ -10,6 +10,7 @@ import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
+import org.sopt.app.common.utils.AnonymousNameGenerator;
 import org.sopt.app.domain.entity.Friend;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.interfaces.postgres.FriendRepository;
@@ -92,7 +93,7 @@ public class FriendService {
                 .userId(userId)
                 .friendUserId(friendId)
                 .pokeCount(1)
-                .anonymousName("") // TODO: 익명 리스트
+                .anonymousName(AnonymousNameGenerator.generateRandomString())
                 .build();
         friendRepository.save(createdRelationUserToFriend);
     }
