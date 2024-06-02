@@ -15,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.poke.PokeHistoryService;
+import org.sopt.app.application.poke.PokeInfo.PokeHistoryInfo;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.domain.entity.PokeHistory;
 import org.sopt.app.interfaces.postgres.PokeHistoryRepository;
@@ -40,7 +41,7 @@ public class PokeHistoryServiceTest {
         when(pokeHistoryRepository.findAllWithFriendOrderByCreatedAtDesc(any(), any())).thenReturn(
                 List.of(pokeHistory));
 
-        List<PokeHistory> result = pokeHistoryService.getAllOfPokeBetween(1L, 2L);
+        List<PokeHistoryInfo> result = pokeHistoryService.getAllOfPokeBetween(1L, 2L);
         assertEquals(pokeHistory.getId(), result.get(0).getId());
     }
 

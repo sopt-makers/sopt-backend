@@ -8,6 +8,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.sopt.app.application.poke.PokeInfo.PokeDetail;
+import org.sopt.app.application.poke.PokeInfo.PokedUserInfo;
 
 public class PokeResponse {
 
@@ -190,6 +192,31 @@ public class PokeResponse {
         private Boolean isAnonymous;
         @Schema(description = "익명 이름", example = "익명의 그윽한 떡볶이")
         private String anonymousName;
+
+        public static SimplePokeProfile from(
+                PokedUserInfo pokedUserInfo,
+                PokeDetail pokeDetail,
+                Boolean isAlreadyPoke,
+                Boolean isAnonymous
+        ) {
+            return new SimplePokeProfile(
+                    pokedUserInfo.getUserId(),
+                    pokedUserInfo.getPlaygroundId(),
+                    pokedUserInfo.getProfileImage(),
+                    pokedUserInfo.getName(),
+                    pokeDetail.getMessage(),
+                    pokedUserInfo.getGeneration(),
+                    pokedUserInfo.getPart(),
+                    pokedUserInfo.getRelation().getPokeNum(),
+                    pokedUserInfo.getRelation().getRelationName(),
+                    pokedUserInfo.getMutualRelationMessage(),
+                    pokedUserInfo.isFirstMeet(),
+                    isAlreadyPoke,
+                    isAnonymous,
+                    pokedUserInfo.getRelation().getAnonymousName() == null ?
+                            "" : pokedUserInfo.getRelation().getAnonymousName()
+            );
+        }
 
         public static SimplePokeProfile of(
                 Long userId,
