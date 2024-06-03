@@ -1,6 +1,7 @@
 package org.sopt.app.application;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
@@ -15,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.poke.PokeHistoryService;
 import org.sopt.app.application.poke.PokeInfo.PokeHistoryInfo;
+import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.domain.entity.PokeHistory;
 import org.sopt.app.interfaces.postgres.PokeHistoryRepository;
 import org.springframework.data.domain.Page;
@@ -119,5 +121,27 @@ public class PokeHistoryServiceTest {
 
         HashMap<Long, Boolean> result = pokeHistoryService.getAllPokeHistoryMap(1L);
         assertEquals(pokeHistoryMap, result);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_찌르기 중복 체크")
+    void SUCCESS_checkDuplicate() {
+        when(pokeHistoryRepository.findAllByPokerIdAndPokedIdAndIsReplyIsFalse(any(), any())).thenReturn(
+                List.of());
+
+        pokeHistoryService.checkDuplicate(1L, 2L);
+    }
+
+    @Test
+    @DisplayName("FAIL_찌르기 중복 시 BadRequestException")
+    void FAIL_checkDuplicateBadRequestException() {
+        PokeHistory pokeHistory = PokeHistory.builder().id(1L).pokerId(2L).pokedId(1L).message("message").isReply(false)
+                .build();
+
+        when(pokeHistoryRepository.findAllByPokerIdAndPokedIdAndIsReplyIsFalse(any(), any())).thenReturn(
+                List.of(pokeHistory, pokeHistory, pokeHistory, pokeHistory, pokeHistory, pokeHistory, pokeHistory,
+                        pokeHistory, pokeHistory, pokeHistory, pokeHistory));
+
+        assertThrows(BadRequestException.class, () -> pokeHistoryService.checkDuplicate(1L, 2L));
     }
 }
