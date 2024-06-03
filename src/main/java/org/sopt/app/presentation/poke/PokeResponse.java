@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.sopt.app.application.poke.PokeInfo.PokeDetail;
 import org.sopt.app.application.poke.PokeInfo.PokedUserInfo;
+import org.sopt.app.common.utils.AnonymousImageGenerator;
 
 public class PokeResponse {
 
@@ -192,6 +193,8 @@ public class PokeResponse {
         private Boolean isAnonymous;
         @Schema(description = "익명 이름", example = "익명의 그윽한 떡볶이")
         private String anonymousName;
+        @Schema(description = "익명 사진", example = "~.png")
+        private String anonymousImage;
 
         public static SimplePokeProfile from(
                 PokedUserInfo pokedUserInfo,
@@ -214,7 +217,8 @@ public class PokeResponse {
                     isAlreadyPoke,
                     isAnonymous,
                     pokedUserInfo.getRelation().getAnonymousName() == null ?
-                            "" : pokedUserInfo.getRelation().getAnonymousName()
+                            "" : pokedUserInfo.getRelation().getAnonymousName(),
+                    AnonymousImageGenerator.getImageUrl(isAnonymous)
             );
         }
 
@@ -248,7 +252,8 @@ public class PokeResponse {
                     isFirstMeet,
                     isAlreadyPoke,
                     isAnonymous,
-                    anonymousName == null ? "" : anonymousName
+                    anonymousName == null ? "" : anonymousName,
+                    AnonymousImageGenerator.getImageUrl(isAnonymous)
             );
         }
     }

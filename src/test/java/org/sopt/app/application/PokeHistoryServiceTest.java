@@ -1,7 +1,6 @@
 package org.sopt.app.application;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.when;
@@ -16,7 +15,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.poke.PokeHistoryService;
 import org.sopt.app.application.poke.PokeInfo.PokeHistoryInfo;
-import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.domain.entity.PokeHistory;
 import org.sopt.app.interfaces.postgres.PokeHistoryRepository;
 import org.springframework.data.domain.Page;
@@ -107,31 +105,6 @@ public class PokeHistoryServiceTest {
         Page<PokeHistory> result = pokeHistoryService.getAllLatestPokeHistoryIn(List.of(1L), pageable);
         assertEquals(pokeHistoryPage.getTotalPages(), result.getTotalPages());
         assertEquals(pokeHistoryPage.getSize(), result.getSize());
-    }
-
-    @Test
-    @DisplayName("SUCCESS_유저의 일일 찌르기 횟수 체크")
-    void SUCCESS_checkUserOverDailyPokeLimit() {
-        PokeHistory pokeHistory = PokeHistory.builder().id(1L).pokerId(2L).pokedId(1L).message("message").isReply(false)
-                .build();
-
-        when(pokeHistoryRepository.findAllByPokerIdAndCreatedAtBetween(any(), any(), any())).thenReturn(
-                List.of(pokeHistory));
-
-        pokeHistoryService.checkUserOverDailyPokeLimit(1L);
-    }
-
-    @Test
-    @DisplayName("FAIL_유저의 일일 찌르기 횟수 체크 초과 시 BadRequestException")
-    void FAIL_checkUserOverDailyPokeLimitBadRequestException() {
-        PokeHistory pokeHistory = PokeHistory.builder().id(1L).pokerId(2L).pokedId(1L).message("message").isReply(false)
-                .build();
-
-        when(pokeHistoryRepository.findAllByPokerIdAndCreatedAtBetween(any(), any(), any())).thenReturn(
-                List.of(pokeHistory, pokeHistory, pokeHistory, pokeHistory, pokeHistory, pokeHistory, pokeHistory,
-                        pokeHistory, pokeHistory, pokeHistory, pokeHistory));
-
-        assertThrows(BadRequestException.class, () -> pokeHistoryService.checkUserOverDailyPokeLimit(1L));
     }
 
     @Test
