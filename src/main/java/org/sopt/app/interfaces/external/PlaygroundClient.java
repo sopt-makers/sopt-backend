@@ -39,7 +39,7 @@ public interface PlaygroundClient {
 
     @RequestLine("GET /internal/api/v1/profile")
     List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfileForSameGeneration(
-            @HeaderMap Map<String, String> headers, @Param(value = "generation") Long generation);
+            @HeaderMap Map<String, String> headers, @Param(value = "generation") Integer generation);
 
     @RequestLine("GET /api/v1/members/profile")
     List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfileForSameSojuCapacity(

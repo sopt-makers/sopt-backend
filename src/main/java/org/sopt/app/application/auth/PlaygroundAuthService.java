@@ -169,7 +169,7 @@ public class PlaygroundAuthService {
         return playgroundClient.getOwnPlaygroundProfile(requestHeader);
     }
 
-    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameGeneration(Long generation) {
+    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameGeneration(Integer generation) {
         return playgroundClient.getPlaygroundProfileForSameGeneration(createAuthorizationHeader(playgroundToken), generation);
     }
 }
