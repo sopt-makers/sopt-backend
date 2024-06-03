@@ -54,13 +54,13 @@ public class PlaygroundAuthInfo {
         private Long memberId;
         private String name;
         private String profileImage;
-        private List<PlaygroundActivity> activities;
+        private List<PlaygroundCardinalInfo> activities;
     }
 
     @Getter
     @Setter
     @ToString
-    public static class PlaygroundActivity {
+    public static class PlaygroundCardinalInfo {
 
         private String cardinalInfo;
     }
@@ -164,7 +164,7 @@ public class PlaygroundAuthInfo {
     public static class OwnPlaygroundProfile {
         private String mbti;
         private Float sojuCapacity;
-        private List<PlaygroundActivities> activities;
+        private List<PlaygroundActivity> activities;
     }
 
     @Getter
@@ -178,11 +178,11 @@ public class PlaygroundAuthInfo {
         private Float sojuCapacity;
         private String profileImage;
         private String name;
-        private List<PlaygroundActivities> activities;
+        private List<PlaygroundActivity> activities;
     }
 
     @Getter
-    public static class PlaygroundActivities {
+    public static class PlaygroundActivity {
         private String part;
         private Long generation;
     }
