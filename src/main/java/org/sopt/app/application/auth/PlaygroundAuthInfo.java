@@ -158,4 +158,32 @@ public class PlaygroundAuthInfo {
         }
     }
 
+    @Getter
+    @Builder
+    @ToString
+    public static class OwnPlaygroundProfile {
+        private String mbti;
+        private Float sojuCapacity;
+        private List<PlaygroundActivities> activities;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class PlaygroundRandomFriendProfile {
+
+        @JsonProperty("id")
+        private Long playgroundId;
+        private String mbti;
+        private Float sojuCapacity;
+        private String profileImage;
+        private String name;
+        private List<PlaygroundActivities> activities;
+    }
+
+    @Getter
+    public static class PlaygroundActivities {
+        private String part;
+        private Long generation;
+    }
 }
