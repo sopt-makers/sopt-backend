@@ -190,7 +190,7 @@ public class PokeController {
             @RequestParam(value = "size") int size
     ) {
         return ResponseEntity.ok(
-                pokeFacade.getRandomAllTypeFriends(typeList, size, user.getPlaygroundToken())
+                pokeFacade.getRandomAllTypeFriends(typeList, size, user)
         );
     }
 
