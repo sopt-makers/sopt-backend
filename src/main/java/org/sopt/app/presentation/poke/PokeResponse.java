@@ -252,6 +252,32 @@ public class PokeResponse {
                     anonymousName == null ? "" : anonymousName
             );
         }
+
+        public static SimplePokeProfile createNonFriendPokeProfile(
+                Long userId,
+                Long playgroundId,
+                String profileImage,
+                String name,
+                Integer generation,
+                String part
+        ) {
+            return new SimplePokeProfile(
+                    userId,
+                    playgroundId,
+                    profileImage,
+                    name,
+                    "",
+                    generation,
+                    part,
+                    0,
+                    "",
+                    "",
+                    true,
+                    false,
+                    false,
+                    ""
+            );
+        }
     }
 
     @Getter
