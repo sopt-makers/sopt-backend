@@ -184,6 +184,6 @@ public class PlaygroundAuthInfo {
     @Getter
     public static class PlaygroundActivity {
         private String part;
-        private Long generation;
+        private Integer generation;
     }
 }
