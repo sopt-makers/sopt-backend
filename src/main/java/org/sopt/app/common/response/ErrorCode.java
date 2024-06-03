@@ -27,6 +27,7 @@ public enum ErrorCode {
     // USER
     USER_NOT_FOUND("존재하지 않는 유저입니다."),
     DUPLICATE_NICKNAME("사용 중인 닉네임입니다."),
+    USER_GENERATION_INFO_NOT_FOUND("기수 정보를 찾을 수 없습니다."),
 
     // MISSION
     MISSION_NOT_FOUND("존재하지 않는 미션입니다."),
