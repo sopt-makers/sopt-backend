@@ -123,6 +123,7 @@ public class FriendService {
         return PokeInfo.Relationship.builder()
                 .pokeNum(totalPokeNum)
                 .relationName(decideRelationName(totalPokeNum))
+                .anonymousName(friendshipFromPokedToPoker.get().getAnonymousName())
                 .build();
     }
 
