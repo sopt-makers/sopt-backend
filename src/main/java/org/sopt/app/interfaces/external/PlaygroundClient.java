@@ -38,14 +38,14 @@ public interface PlaygroundClient {
     PlaygroundAuthInfo.OwnPlaygroundProfile getOwnPlaygroundProfile(@HeaderMap Map<String, String> headers);
 
     @RequestLine("GET /internal/api/v1/profile")
-    List<PlaygroundAuthInfo.PlaygroundRandomFriendProfile> getPlaygroundRandomFriendProfileByGeneration(
+    List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfileForSameGeneration(
             @HeaderMap Map<String, String> headers, @Param(value = "generation") Long generation);
 
     @RequestLine("GET /api/v1/members/profile")
-    List<PlaygroundAuthInfo.PlaygroundRandomFriendProfile> getPlaygroundRandomFriendProfileBySojuCapacity(
+    List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfileForSameSojuCapacity(
             @HeaderMap Map<String, String> headers, @Param(value = "sojuCapacity") Float sojuCapacity);
 
     @RequestLine("GET /api/v1/members/profile")
-    List<PlaygroundAuthInfo.PlaygroundRandomFriendProfile> getPlaygroundRandomFriendProfileByMbti(
-            @HeaderMap Map<String, String> headers, @Param(value = "mbti") String encodedIds);
+    List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfileForSameMbti(
+            @HeaderMap Map<String, String> headers, @Param(value = "mbti") String mbti);
 }

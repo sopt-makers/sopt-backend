@@ -170,7 +170,7 @@ public class PlaygroundAuthInfo {
     @Getter
     @Builder
     @ToString
-    public static class PlaygroundRandomFriendProfile {
+    public static class PlaygroundProfileOfRecommendedFriend {
 
         @JsonProperty("id")
         private Long playgroundId;
