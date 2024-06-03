@@ -8,7 +8,8 @@ import lombok.Getter;
 public enum FriendRecommendType {
     GENERATION("나와 같은 기수예요"),
     MBTI("나와 MBTI가 같은 사람이에요"),
-    SOJU_CAPACITY("나와 주량을 가지고 있어요")
+    SOJU_CAPACITY("나와 주량을 가지고 있어요"),
+    ALL("")
     ;
 
     private final String recommendTitle;
