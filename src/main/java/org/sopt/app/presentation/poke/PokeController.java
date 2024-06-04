@@ -48,10 +48,10 @@ public class PokeController {
             @RequestParam("size") int size
     ) {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2", "", 34, "서버", 1,
-                "새로운 친구", "새로운 친구", true, false);
+                "새로운 친구", "새로운 친구", true, false, false, "");
         List<SimplePokeProfile> simplePokeProfileList = List.of(simplePokeProfile, simplePokeProfile,
                 simplePokeProfile, simplePokeProfile, simplePokeProfile, simplePokeProfile);
-        
+
         if (randomType.get(0).equals("ALL")) {
             val randomInfoList = List.of(
                     RandomInfo.of("GENERATION", "나와 " + "GENERATION" + " 같은 사람들",

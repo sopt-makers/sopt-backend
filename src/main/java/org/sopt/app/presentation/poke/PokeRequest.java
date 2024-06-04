@@ -23,10 +23,6 @@ public class PokeRequest {
         @Schema(description = "익명 여부", example = "true")
         @NotNull(message = "isAnonymous may not be null")
         private Boolean isAnonymous;
-
-        @Schema(description = "찌르기 익명 여부", example = "true")
-        private Boolean isAnonymous;
-
     }
 
     @Getter
