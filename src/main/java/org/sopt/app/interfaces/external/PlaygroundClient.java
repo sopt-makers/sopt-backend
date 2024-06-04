@@ -5,7 +5,6 @@ import feign.Param;
 import feign.RequestLine;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
-import org.sopt.app.domain.enums.Mbti;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 
 import java.util.List;
@@ -38,15 +37,15 @@ public interface PlaygroundClient {
     @RequestLine("GET /internal/api/v1/members/profile/me")
     PlaygroundAuthInfo.OwnPlaygroundProfile getOwnPlaygroundProfile(@HeaderMap Map<String, String> headers);
 
-    @RequestLine("GET /internal/api/v1/profile")
+    @RequestLine("GET /api/v1/members/profile?generation={generation}")
     List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfileForSameGeneration(
             @HeaderMap Map<String, String> headers, @Param(value = "generation") Integer generation);
 
-    @RequestLine("GET /api/v1/members/profile")
+    @RequestLine("GET /api/v1/members/profile?generation={generation}&search={search}")
     List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfileForSameUniversity(
-            @HeaderMap Map<String, String> headers, @Param(value = "search") String university);
+            @HeaderMap Map<String, String> headers, @Param(value = "generation") Integer generation, @Param(value = "search") String university);
 
-    @RequestLine("GET /api/v1/members/profile")
+    @RequestLine("GET /api/v1/members/profile?generation={generation}&mbti={mbti}")
     List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfileForSameMbti(
-            @HeaderMap Map<String, String> headers, @Param(value = "mbti") Mbti mbti);
+            @HeaderMap Map<String, String> headers, @Param(value = "generation") Integer generation, @Param(value = "mbti") String mbti);
 }
