@@ -389,22 +389,26 @@ public class PokeFacade {
         List<RecommendedFriendsByType> recommendedFriendsByTypeList = new ArrayList<>();
 
         for (FriendRecommendType type : typeList) {
-            Integer latestGeneration = getLatestGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities());
+            Integer latestGeneration = getLatestGenerationByActivityCardinalInfoList(
+                    ownPlaygroundProfile.getActivities());
             switch (type) {
                 case ALL:
                     handleAllType(recommendedFriendsByTypeList, ownPlaygroundProfile, size, userId);
                     return recommendedFriendsByTypeList;
                 case GENERATION:
-                    addRecommendedFriendsListByGeneration(recommendedFriendsByTypeList, FriendRecommendType.GENERATION, size, userId, latestGeneration,
+                    addRecommendedFriendsListByGeneration(recommendedFriendsByTypeList, FriendRecommendType.GENERATION,
+                            size, userId, latestGeneration,
                             playgroundAuthService::getPlaygroundProfilesForSameGeneration);
                     break;
                 case MBTI:
-                    addRecommendedFriendsList(recommendedFriendsByTypeList, FriendRecommendType.MBTI, size, userId, latestGeneration,
+                    addRecommendedFriendsList(recommendedFriendsByTypeList, FriendRecommendType.MBTI, size, userId,
+                            latestGeneration,
                             ownPlaygroundProfile.getMbti(),
                             playgroundAuthService::getPlaygroundProfilesForSameMbtiAndGeneration);
                     break;
                 case UNIVERSITY:
-                    addRecommendedFriendsList(recommendedFriendsByTypeList, FriendRecommendType.UNIVERSITY, size, userId, latestGeneration,
+                    addRecommendedFriendsList(recommendedFriendsByTypeList, FriendRecommendType.UNIVERSITY, size,
+                            userId, latestGeneration,
                             ownPlaygroundProfile.getUniversity(),
                             playgroundAuthService::getPlaygroundProfilesForSameUniversityAndGeneration);
                     break;
@@ -420,17 +424,21 @@ public class PokeFacade {
             OwnPlaygroundProfile ownPlaygroundProfile, int size, Long userId) {
         Integer latestGeneration = getLatestGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities());
 
-        addRecommendedFriendsListByGeneration(recommendedFriendsByTypeList, FriendRecommendType.GENERATION, size, userId, latestGeneration,
+        addRecommendedFriendsListByGeneration(recommendedFriendsByTypeList, FriendRecommendType.GENERATION, size,
+                userId, latestGeneration,
                 playgroundAuthService::getPlaygroundProfilesForSameGeneration);
-        addRecommendedFriendsList(recommendedFriendsByTypeList, FriendRecommendType.MBTI, size, userId, latestGeneration,
+        addRecommendedFriendsList(recommendedFriendsByTypeList, FriendRecommendType.MBTI, size, userId,
+                latestGeneration,
                 ownPlaygroundProfile.getMbti(),
                 playgroundAuthService::getPlaygroundProfilesForSameMbtiAndGeneration);
-        addRecommendedFriendsList(recommendedFriendsByTypeList, FriendRecommendType.UNIVERSITY, size, userId, latestGeneration,
+        addRecommendedFriendsList(recommendedFriendsByTypeList, FriendRecommendType.UNIVERSITY, size, userId,
+                latestGeneration,
                 ownPlaygroundProfile.getUniversity(),
                 playgroundAuthService::getPlaygroundProfilesForSameUniversityAndGeneration);
     }
 
-    private <T> void addRecommendedFriendsListByGeneration(List<RecommendedFriendsByType> list, FriendRecommendType type, int size,
+    private <T> void addRecommendedFriendsListByGeneration(List<RecommendedFriendsByType> list,
+            FriendRecommendType type, int size,
             Long userId, T value, Function<T, List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
         List<PlaygroundProfileOfRecommendedFriend> profiles = fetchProfilesFunction.apply(value);
         validateRecommendedFriends(value, profiles, list, type, size, userId);
@@ -438,15 +446,18 @@ public class PokeFacade {
 
     private <T> void validateRecommendedFriends(T value, List<PlaygroundProfileOfRecommendedFriend> profiles,
             List<RecommendedFriendsByType> list, FriendRecommendType type, int size, Long userId) {
-        if (value != null && !profiles.isEmpty()) {
-            list.add(getRecommendedFriendsByType(type, size, userId, profiles));
+        List<SimplePokeProfile> simplePokeProfiles = excludeProfileLinkedFriends(profiles, userId);
+
+        if (value != null && !simplePokeProfiles.isEmpty()) {
+            list.add(getRecommendedFriendsByType(type, size, simplePokeProfiles));
         }
     }
 
     private <T> void addRecommendedFriendsList(List<RecommendedFriendsByType> list, FriendRecommendType type, int size,
-            Long userId, Integer generation, T value, BiFunction<Integer, T, List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
+            Long userId, Integer generation, T value,
+            BiFunction<Integer, T, List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
         List<PlaygroundProfileOfRecommendedFriend> profiles = fetchProfilesFunction.apply(generation, value);
-        validateRecommendedFriends(value , profiles, list, type, size, userId);
+        validateRecommendedFriends(value, profiles, list, type, size, userId);
     }
 
     private List<SimplePokeProfile> excludeProfileLinkedFriends(List<PlaygroundProfileOfRecommendedFriend> profiles,
@@ -471,9 +482,8 @@ public class PokeFacade {
         return profiles.stream().limit(size).toList();
     }
 
-    private RecommendedFriendsByType getRecommendedFriendsByType(FriendRecommendType type, int size, Long userId,
-            List<PlaygroundProfileOfRecommendedFriend> profiles) {
-        List<SimplePokeProfile> recommendedFriends = excludeProfileLinkedFriends(profiles, userId);
+    private RecommendedFriendsByType getRecommendedFriendsByType(FriendRecommendType type, int size,
+            List<SimplePokeProfile> recommendedFriends) {
 
         return RecommendedFriendsByType.of(
                 type,
@@ -503,13 +513,13 @@ public class PokeFacade {
                         .equals(profile.getPlaygroundId()))
                 .findFirst()
                 .map(userProfile -> SimplePokeProfile.createNonFriendPokeProfile(
-                userProfile.getUserId(),
-                profile.getPlaygroundId(),
-                profile.getProfileImage(),
-                profile.getName(),
-                lastActivity.getGeneration(), // TODO: generation을 찾은 기수때의 generation으로 변경
-                lastActivity.getPart()
-        )).orElse(null);
+                        userProfile.getUserId(),
+                        profile.getPlaygroundId(),
+                        profile.getProfileImage(),
+                        profile.getName(),
+                        lastActivity.getGeneration(), // TODO: generation을 찾은 기수때의 generation으로 변경
+                        lastActivity.getPart()
+                )).orElse(null);
 
     }
 
@@ -522,9 +532,10 @@ public class PokeFacade {
     private Integer getLatestGenerationByActivityCardinalInfoList(List<ActivityCardinalInfo> activityCardinalInfoList) {
         return Integer.parseInt(
                 activityCardinalInfoList.stream()
-                .max(Comparator.comparing(ActivityCardinalInfo::getGeneration))
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_GENERATION_INFO_NOT_FOUND.getMessage()))
-                .getGeneration());
+                        .max(Comparator.comparing(ActivityCardinalInfo::getGeneration))
+                        .orElseThrow(
+                                () -> new BadRequestException(ErrorCode.USER_GENERATION_INFO_NOT_FOUND.getMessage()))
+                        .getGeneration());
     }
 
     private PokeInfo.PokedUserInfo getFriendUserInfo(User user, Long friendUserId) {
