@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -384,58 +385,51 @@ public class PokeFacade {
     private List<RecommendedFriendsByType> getRecommendedFriendsByTypeList(List<FriendRecommendType> typeList,
             OwnPlaygroundProfile ownPlaygroundProfile, int size, Long userId) {
         List<RecommendedFriendsByType> recommendedFriendsByTypeList = new ArrayList<>();
+
         for (FriendRecommendType type : typeList) {
-            if (type == FriendRecommendType.ALL) {
-                Integer latestGeneration = getLatestActivity(ownPlaygroundProfile.getActivities()).getGeneration();
-                Mbti mbti = ownPlaygroundProfile.getMbti();
-                Float sojuCapacity = ownPlaygroundProfile.getSojuCapacity();
-
-                if (latestGeneration != null) {
-                    recommendedFriendsByTypeList.add(
-                            getRecommendedFriendsByType(FriendRecommendType.GENERATION, size, userId,
-                                    playgroundAuthService.getPlaygroundProfilesForSameGeneration(
-                                            getLatestActivity(ownPlaygroundProfile.getActivities()).getGeneration())));
-                }
-                if (mbti != null) {
-                    recommendedFriendsByTypeList.add(
-                            getRecommendedFriendsByType(FriendRecommendType.MBTI, size, userId,
-                                    playgroundAuthService.getPlaygroundProfilesForSameMbti(ownPlaygroundProfile.getMbti())));
-                }
-                if (sojuCapacity != null) {
-                    recommendedFriendsByTypeList.add(
-                            getRecommendedFriendsByType(FriendRecommendType.SOJU_CAPACITY, size, userId,
-                                    playgroundAuthService.getPlaygroundProfilesForSameSojuCapacity(
-                                            ownPlaygroundProfile.getSojuCapacity())));
-                }
-
-                return recommendedFriendsByTypeList;
-            }
-            if (type == FriendRecommendType.GENERATION) {
-                Integer latestGeneration = getLatestActivity(ownPlaygroundProfile.getActivities()).getGeneration();
-                if (latestGeneration != null) {
-                    recommendedFriendsByTypeList.add(
-                            getRecommendedFriendsByType(FriendRecommendType.GENERATION, size, userId,
-                                    playgroundAuthService.getPlaygroundProfilesForSameGeneration(latestGeneration)));
-                }
-            } else if (type == FriendRecommendType.MBTI) {
-                Mbti mbti = ownPlaygroundProfile.getMbti();
-                if (mbti != null) {
-                    recommendedFriendsByTypeList.add(
-                            getRecommendedFriendsByType(FriendRecommendType.MBTI, size, userId,
-                                    playgroundAuthService.getPlaygroundProfilesForSameMbti(mbti)));
-                }
-            } else if (type == FriendRecommendType.SOJU_CAPACITY) {
-                Float sojuCapacity = ownPlaygroundProfile.getSojuCapacity();
-                if (sojuCapacity != null) {
-                    recommendedFriendsByTypeList.add(
-                            getRecommendedFriendsByType(FriendRecommendType.SOJU_CAPACITY, size, userId,
-                                    playgroundAuthService.getPlaygroundProfilesForSameSojuCapacity(sojuCapacity)));
-                }
-            } else {
-                throw new BadRequestException(ErrorCode.INVALID_FRIEND_RECOMMEND_TYPE.getMessage());
+            switch (type) {
+                case ALL:
+                    handleAllType(recommendedFriendsByTypeList, ownPlaygroundProfile, size, userId);
+                    return recommendedFriendsByTypeList;
+                case GENERATION:
+                    addRecommendation(recommendedFriendsByTypeList, FriendRecommendType.GENERATION, size, userId,
+                            getLatestActivity(ownPlaygroundProfile.getActivities()).getGeneration(),
+                            playgroundAuthService::getPlaygroundProfilesForSameGeneration);
+                    break;
+                case MBTI:
+                    addRecommendation(recommendedFriendsByTypeList, FriendRecommendType.MBTI, size, userId,
+                            ownPlaygroundProfile.getMbti(),
+                            playgroundAuthService::getPlaygroundProfilesForSameMbti);
+                    break;
+                case SOJU_CAPACITY:
+                    addRecommendation(recommendedFriendsByTypeList, FriendRecommendType.SOJU_CAPACITY, size, userId,
+                            ownPlaygroundProfile.getSojuCapacity(),
+                            playgroundAuthService::getPlaygroundProfilesForSameSojuCapacity);
+                    break;
+                default:
+                    throw new BadRequestException(ErrorCode.INVALID_FRIEND_RECOMMEND_TYPE.getMessage());
             }
         }
         return recommendedFriendsByTypeList;
+    }
+
+    private void handleAllType(List<RecommendedFriendsByType> recommendedFriendsByTypeList, OwnPlaygroundProfile ownPlaygroundProfile, int size, Long userId) {
+        Integer latestGeneration = getLatestActivity(ownPlaygroundProfile.getActivities()).getGeneration();
+        Mbti mbti = ownPlaygroundProfile.getMbti();
+        Float sojuCapacity = ownPlaygroundProfile.getSojuCapacity();
+
+        addRecommendation(recommendedFriendsByTypeList, FriendRecommendType.GENERATION, size, userId, latestGeneration,
+                playgroundAuthService::getPlaygroundProfilesForSameGeneration);
+        addRecommendation(recommendedFriendsByTypeList, FriendRecommendType.MBTI, size, userId, mbti,
+                playgroundAuthService::getPlaygroundProfilesForSameMbti);
+        addRecommendation(recommendedFriendsByTypeList, FriendRecommendType.SOJU_CAPACITY, size, userId, sojuCapacity,
+                playgroundAuthService::getPlaygroundProfilesForSameSojuCapacity);
+    }
+
+    private <T> void addRecommendation(List<RecommendedFriendsByType> list, FriendRecommendType type, int size, Long userId, T value, Function<T, List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
+        if (value != null) {
+            list.add(getRecommendedFriendsByType(type, size, userId, fetchProfilesFunction.apply(value)));
+        }
     }
 
     private List<SimplePokeProfile> excludeProfileLinkedFriends(List<PlaygroundProfileOfRecommendedFriend> profiles,
