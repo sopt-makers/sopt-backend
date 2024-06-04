@@ -66,6 +66,7 @@ public enum ErrorCode {
 
     // FRIEND
     FRIENDSHIP_NOT_FOUND("해당 친구관계는 존재하지 않습니다."),
+    INVALID_FRIEND_RECOMMEND_TYPE("잘못된 친구 추천 유형입니다."),
 
     // ADMIN
     INVALID_APP_ADMIN_PASSWORD("잘못된 앱 어드민 패스워드입니다."),
