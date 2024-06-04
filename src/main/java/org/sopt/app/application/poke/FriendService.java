@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -188,6 +189,6 @@ public class FriendService {
                         friendRepository.findAllIfUserIdsByFriendId(userId).stream()
                 )
                 .distinct()
-                .toList();
+                .collect(Collectors.toList());
     }
 }
