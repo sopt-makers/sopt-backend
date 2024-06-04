@@ -11,7 +11,6 @@ import org.sopt.app.application.auth.PlaygroundAuthInfo.OwnPlaygroundProfile;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
-import org.sopt.app.domain.enums.Mbti;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.interfaces.external.PlaygroundClient;
 import org.sopt.app.presentation.auth.AppAuthRequest;
@@ -171,14 +170,34 @@ public class PlaygroundAuthService {
     }
 
     public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameGeneration(Integer generation) {
-        return playgroundClient.getPlaygroundProfileForSameGeneration(createAuthorizationHeader(playgroundToken), generation);
+        return playgroundClient.getPlaygroundProfileForSameGeneration(createAuthorizationHeader(playgroundToken), generation).getMembers();
     }
 
-    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameMbti(Mbti mbti) {
-        return playgroundClient.getPlaygroundProfileForSameMbti(createAuthorizationHeader(playgroundToken), mbti);
+    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameMbtiAndGeneration(Integer generation, String mbti) {
+        List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> result = new ArrayList<>();
+        final int TARGET_GENERATION_RANGE = 3;
+        for (int i = 0; i < TARGET_GENERATION_RANGE; i++) {
+            int targetGeneration = generation - i;
+            if (targetGeneration < 1) {
+                break;
+            }
+            result.addAll(playgroundClient.getPlaygroundProfileForSameMbti(createAuthorizationHeader(playgroundToken), generation ,mbti).getMembers());
+        }
+
+        return result.stream().distinct().toList();
     }
 
-    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameUniversity(String university) {
-        return playgroundClient.getPlaygroundProfileForSameUniversity(createAuthorizationHeader(playgroundToken), university);
+    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameUniversityAndGeneration(Integer generation, String university) {
+        List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> result = new ArrayList<>();
+        final int TARGET_GENERATION_RANGE = 3;
+        for (int i = 0; i < TARGET_GENERATION_RANGE; i++) {
+            int targetGeneration = generation - i;
+            if (targetGeneration < 1) {
+                break;
+            }
+            result.addAll(playgroundClient.getPlaygroundProfileForSameUniversity(createAuthorizationHeader(playgroundToken), targetGeneration, university).getMembers());
+        }
+
+        return result.stream().distinct().toList();
     }
 }
