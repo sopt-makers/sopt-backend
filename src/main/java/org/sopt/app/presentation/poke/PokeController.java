@@ -183,7 +183,7 @@ public class PokeController {
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @GetMapping("/poke/random")
+    @GetMapping("/random")
     public ResponseEntity<RecommendedFriendsByAllType> getRandomFriendsByFriendRecommendType(
             @AuthenticationPrincipal User user,
             @RequestParam(value = "randomType") List<FriendRecommendType> typeList,
