@@ -172,4 +172,12 @@ public class PlaygroundAuthService {
     public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameGeneration(Integer generation) {
         return playgroundClient.getPlaygroundProfileForSameGeneration(createAuthorizationHeader(playgroundToken), generation);
     }
+
+    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameMbti(String mbti) {
+        return playgroundClient.getPlaygroundProfileForSameMbti(createAuthorizationHeader(playgroundToken), mbti);
+    }
+
+    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameSojuCapacity(Float sojuCapacity) {
+        return playgroundClient.getPlaygroundProfileForSameSojuCapacity(createAuthorizationHeader(playgroundToken), sojuCapacity);
+    }
 }
