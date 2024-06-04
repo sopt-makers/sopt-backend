@@ -415,7 +415,8 @@ public class PokeFacade {
     }
 
 
-    private void handleAllType(List<RecommendedFriendsByType> recommendedFriendsByTypeList, OwnPlaygroundProfile ownPlaygroundProfile, int size, Long userId) {
+    private void handleAllType(List<RecommendedFriendsByType> recommendedFriendsByTypeList,
+            OwnPlaygroundProfile ownPlaygroundProfile, int size, Long userId) {
         Integer latestGeneration = getLatestActivity(ownPlaygroundProfile.getActivities()).getGeneration();
         Mbti mbti = ownPlaygroundProfile.getMbti();
         String university = ownPlaygroundProfile.getUniversity();
@@ -428,7 +429,8 @@ public class PokeFacade {
                 playgroundAuthService::getPlaygroundProfilesForSameUniversity);
     }
 
-    private <T> void addRecommendation(List<RecommendedFriendsByType> list, FriendRecommendType type, int size, Long userId, T value ,Function<T, List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
+    private <T> void addRecommendation(List<RecommendedFriendsByType> list, FriendRecommendType type, int size,
+            Long userId, T value, Function<T, List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
         if (value != null) {
             list.add(getRecommendedFriendsByType(type, size, userId, fetchProfilesFunction.apply(value)));
         }
@@ -438,11 +440,17 @@ public class PokeFacade {
             Long userId) {
         List<SimplePokeProfile> simplePokeProfiles = convertPlaygroundProfileOfRecommendedFriendToSimplePokeProfile(
                 profiles);
-        List<Long> userIdsLinkedFriends = friendService.findUserIdsLinkedFriends(userId);
+        List<Long> userIdsToBeExcluded = this.getUserIdsToBeExcluded(userId);
 
         return simplePokeProfiles.stream()
-                .filter(profile -> !userIdsLinkedFriends.contains(profile.getUserId()))
+                .filter(profile -> !userIdsToBeExcluded.contains(profile.getUserId()))
                 .toList();
+    }
+
+    private List<Long> getUserIdsToBeExcluded(Long userId) {
+        List<Long> userIdsLinkedFriends = friendService.findUserIdsLinkedFriends(userId);
+        userIdsLinkedFriends.add(userId);
+        return userIdsLinkedFriends;
     }
 
     private List<SimplePokeProfile> selectRandomFriendsOfSize(List<SimplePokeProfile> profiles, int size) {
