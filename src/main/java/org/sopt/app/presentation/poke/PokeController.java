@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.poke.FriendService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.facade.PokeFacade;
@@ -42,7 +41,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class PokeController {
 
     private final PokeFacade pokeFacade;
-    private final FriendService friendService;
 
     @GetMapping("/random")
     public ResponseEntity<RandomInfoList> getRandomByRandomTypeAndSize(
@@ -89,7 +87,7 @@ public class PokeController {
     public ResponseEntity<PokeResponse.IsNew> getPokeList(
             @AuthenticationPrincipal User user
     ) {
-        val result = friendService.getIsNewUser(user.getId());
+        val result = pokeFacade.getIsNewUser(user.getId());
         val response = PokeResponse.IsNew.of(result);
         return ResponseEntity.ok(response);
     }
@@ -128,11 +126,11 @@ public class PokeController {
             @PathVariable("userId") Long pokedUserId,
             @RequestBody PokeRequest.PokeMessageRequest messageRequest
     ) {
-        val pokeHistoryId = pokeFacade.pokeFriend(user.getId(), pokedUserId, messageRequest.getMessage());
+        val pokeHistoryId = pokeFacade.pokeFriend(
+                user.getId(), pokedUserId, messageRequest.getMessage(), messageRequest.getIsAnonymous()
+        );
         val response = pokeFacade.getPokeHistoryProfile(user, pokedUserId, pokeHistoryId);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "친구를 찔러보세요 조회")

@@ -1,20 +1,18 @@
 package org.sopt.app.application.poke;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.domain.entity.PokeHistory;
-import org.sopt.app.common.response.ErrorCode;
+import org.sopt.app.application.poke.PokeInfo.PokeHistoryInfo;
 import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
+import org.sopt.app.domain.entity.PokeHistory;
 import org.sopt.app.interfaces.postgres.PokeHistoryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Service
 @RequiredArgsConstructor
@@ -22,8 +20,13 @@ public class PokeHistoryService {
 
     private final PokeHistoryRepository pokeHistoryRepository;
 
-    public List<PokeHistory> getAllOfPokeBetween(Long userId, Long friendId) {
-        return pokeHistoryRepository.findAllWithFriendOrderByCreatedAtDesc(userId, friendId);
+    public List<PokeHistoryInfo> getAllOfPokeBetween(Long userId, Long friendId) {
+        val pokeHistoryList = pokeHistoryRepository.findAllWithFriendOrderByCreatedAtDesc(userId, friendId);
+
+        return pokeHistoryList.stream()
+                .map(pokeHistory -> PokeHistoryInfo.from(pokeHistory))
+                .sorted(Comparator.comparing(PokeHistoryInfo::getCreatedAt).reversed())
+                .toList();
     }
 
     public List<Long> getPokedFriendIds(Long userId) {
@@ -53,16 +56,6 @@ public class PokeHistoryService {
 
     public Page<PokeHistory> getAllLatestPokeHistoryIn(List<Long> targetHistoryIds, Pageable pageable) {
         return pokeHistoryRepository.findAllByIdIsInOrderByCreatedAtDesc(targetHistoryIds, pageable);
-    }
-
-    public void checkUserOverDailyPokeLimit(Long userId) {
-        LocalDateTime startDatetime = LocalDateTime.of(LocalDate.now(), LocalTime.of(0,0,0));
-        LocalDateTime endDatetime = LocalDateTime.of(LocalDate.now(), LocalTime.of(23,59,59));
-        List<PokeHistory> allByPokerIdAndCreatedAtDate = pokeHistoryRepository.findAllByPokerIdAndCreatedAtBetween(userId, startDatetime, endDatetime);
-        // TODO: Prod 배포 이전에 10 으로 변경
-        if (allByPokerIdAndCreatedAtDate.size() > 10) {
-            throw new BadRequestException(ErrorCode.OVER_DAILY_POKE_LIMIT.getMessage());
-        }
     }
 
     public void checkDuplicate(Long pokerUserId, Long pokedUserId) {

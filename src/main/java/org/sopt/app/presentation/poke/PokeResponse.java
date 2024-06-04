@@ -8,6 +8,9 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.sopt.app.application.poke.PokeInfo.PokeDetail;
+import org.sopt.app.application.poke.PokeInfo.PokedUserInfo;
+import org.sopt.app.common.utils.AnonymousImageGenerator;
 
 public class PokeResponse {
 
@@ -212,32 +215,76 @@ public class PokeResponse {
         private Integer pokeNum;
         @Schema(description = "관계 이름", example = "천생연분")
         private String relationName;
-
-        //TODO: dummy data 콕 찌르기 개발 이후 정상화 하기
-        @Schema(description = "익명 여부", example = "true")
-        private Boolean isAnonymous = true;
-        private String anonymousName = "익명의 사자";
-
         @Schema(description = "함께 아는 친구관계 문구", example = "제갈송현 외 1명과 친구")
         private String mutualRelationMessage;
-
         @Schema(description = "이전에 찌른 이력이 있는지에 대한 여부", example = "false")
         private Boolean isFirstMeet;
         @Schema(description = "이미 오늘 찔렀는지에 대한 여부", example = "true")
         private Boolean isAlreadyPoke;
+        @Schema(description = "익명 여부", example = "true")
+        private Boolean isAnonymous;
+        @Schema(description = "익명 이름", example = "익명의 그윽한 떡볶이")
+        private String anonymousName;
+        @Schema(description = "익명 사진", example = "~.png")
+        private String anonymousImage;
 
-        public static SimplePokeProfile of(
-                Long userId, Long playgroundId, String profileImage, String name, String message,
-                Integer generation, String part, Integer pickNum, String relationName,
-                String mutualRelationMessage, Boolean isFirstMeet,
-                Boolean isAlreadyPoke
+        public static SimplePokeProfile from(
+                PokedUserInfo pokedUserInfo,
+                PokeDetail pokeDetail,
+                Boolean isAlreadyPoke,
+                Boolean isAnonymous
         ) {
             return new SimplePokeProfile(
-                    userId, playgroundId, profileImage, name,
+                    pokedUserInfo.getUserId(),
+                    pokedUserInfo.getPlaygroundId(),
+                    pokedUserInfo.getProfileImage() == null ? "" : pokedUserInfo.getProfileImage(),
+                    pokedUserInfo.getName(),
+                    pokeDetail.getMessage() == null ? "" : pokeDetail.getMessage(),
+                    pokedUserInfo.getGeneration(),
+                    pokedUserInfo.getPart(),
+                    pokedUserInfo.getRelation().getPokeNum(),
+                    pokedUserInfo.getRelation().getRelationName(),
+                    pokedUserInfo.getMutualRelationMessage(),
+                    pokedUserInfo.isFirstMeet(),
+                    isAlreadyPoke,
+                    isAnonymous,
+                    isAnonymous ? pokedUserInfo.getRelation().getAnonymousName() : "",
+                    AnonymousImageGenerator.getImageUrl(isAnonymous)
+            );
+        }
+
+        public static SimplePokeProfile of(
+                Long userId,
+                Long playgroundId,
+                String profileImage,
+                String name,
+                String message,
+                Integer generation,
+                String part,
+                Integer pickNum,
+                String relationName,
+                String mutualRelationMessage,
+                Boolean isFirstMeet,
+                Boolean isAlreadyPoke,
+                Boolean isAnonymous,
+                String anonymousName
+        ) {
+            return new SimplePokeProfile(
+                    userId,
+                    playgroundId,
+                    profileImage,
+                    name,
                     message == null ? "" : message,
-                    generation, part, pickNum, relationName,
-                    true, "익명의 사자", // TODO: 추후 변경하기
-                    mutualRelationMessage, isFirstMeet, isAlreadyPoke
+                    generation,
+                    part,
+                    pickNum,
+                    relationName,
+                    mutualRelationMessage,
+                    isFirstMeet,
+                    isAlreadyPoke,
+                    isAnonymous,
+                    isAnonymous ? anonymousName : "",
+                    AnonymousImageGenerator.getImageUrl(isAnonymous)
             );
         }
     }
