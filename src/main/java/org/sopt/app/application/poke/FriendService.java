@@ -113,16 +113,19 @@ public class FriendService {
     public PokeInfo.Relationship getRelationInfo(Long pokerId, Long pokedId) {
         Optional<Friend> friendshipFromPokerToPoked = friendRepository.findByUserIdAndFriendUserId(pokerId, pokedId);
         Optional<Friend> friendshipFromPokedToPoker = friendRepository.findByUserIdAndFriendUserId(pokedId, pokerId);
+        String anonymousName = "";
         int totalPokeNum = 0;
         if (friendshipFromPokerToPoked.isPresent()) {
             totalPokeNum += friendshipFromPokerToPoked.get().getPokeCount();
         }
         if (friendshipFromPokedToPoker.isPresent()) {
             totalPokeNum += friendshipFromPokedToPoker.get().getPokeCount();
+            anonymousName = friendshipFromPokedToPoker.get().getAnonymousName();
         }
         return PokeInfo.Relationship.builder()
                 .pokeNum(totalPokeNum)
                 .relationName(decideRelationName(totalPokeNum))
+                .anonymousName(anonymousName)
                 .build();
     }
 

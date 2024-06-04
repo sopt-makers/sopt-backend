@@ -216,8 +216,7 @@ public class PokeResponse {
                     pokedUserInfo.isFirstMeet(),
                     isAlreadyPoke,
                     isAnonymous,
-                    pokedUserInfo.getRelation().getAnonymousName() == null ?
-                            "" : pokedUserInfo.getRelation().getAnonymousName(),
+                    isAnonymous ? pokedUserInfo.getRelation().getAnonymousName() : "",
                     AnonymousImageGenerator.getImageUrl(isAnonymous)
             );
         }
@@ -252,7 +251,7 @@ public class PokeResponse {
                     isFirstMeet,
                     isAlreadyPoke,
                     isAnonymous,
-                    anonymousName == null ? "" : anonymousName,
+                    isAnonymous ? anonymousName : "",
                     AnonymousImageGenerator.getImageUrl(isAnonymous)
             );
         }
