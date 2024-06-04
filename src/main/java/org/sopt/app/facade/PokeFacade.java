@@ -433,12 +433,12 @@ public class PokeFacade {
     private <T> void addRecommendedFriendsListByGeneration(List<RecommendedFriendsByType> list, FriendRecommendType type, int size,
             Long userId, T value, Function<T, List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
         List<PlaygroundProfileOfRecommendedFriend> profiles = fetchProfilesFunction.apply(value);
-        validateRecommendedFriends(value != null, profiles, list, type, size, userId);
+        validateRecommendedFriends(value, profiles, list, type, size, userId);
     }
 
-    private void validateRecommendedFriends(boolean value, List<PlaygroundProfileOfRecommendedFriend> profiles,
+    private <T> void validateRecommendedFriends(T value, List<PlaygroundProfileOfRecommendedFriend> profiles,
             List<RecommendedFriendsByType> list, FriendRecommendType type, int size, Long userId) {
-        if (value && !profiles.isEmpty()) {
+        if (value != null && !profiles.isEmpty()) {
             list.add(getRecommendedFriendsByType(type, size, userId, profiles));
         }
     }
@@ -446,7 +446,7 @@ public class PokeFacade {
     private <T> void addRecommendedFriendsList(List<RecommendedFriendsByType> list, FriendRecommendType type, int size,
             Long userId, Integer generation, T value, BiFunction<Integer, T, List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
         List<PlaygroundProfileOfRecommendedFriend> profiles = fetchProfilesFunction.apply(generation, value);
-        validateRecommendedFriends(value != null, profiles, list, type, size, userId);
+        validateRecommendedFriends(value , profiles, list, type, size, userId);
     }
 
     private List<SimplePokeProfile> excludeProfileLinkedFriends(List<PlaygroundProfileOfRecommendedFriend> profiles,
@@ -457,7 +457,7 @@ public class PokeFacade {
 
         return simplePokeProfiles.stream()
                 .filter(profile -> !userIdsToBeExcluded.contains(profile.getUserId()))
-                .toList();
+                .collect(Collectors.toList());
     }
 
     private List<Long> getUserIdsToBeExcluded(Long userId) {
@@ -490,6 +490,7 @@ public class PokeFacade {
         return sameTypeUserProfiles
                 .stream()
                 .map(profile -> createNonFriendPokeProfile(profile, userProfiles))
+                .filter(Objects::nonNull)
                 .toList();
     }
 
@@ -497,19 +498,19 @@ public class PokeFacade {
             List<UserProfile> userProfiles) {
         PlaygroundActivity lastActivity = getLatestActivity(profile.getActivities());
 
-        return SimplePokeProfile.createNonFriendPokeProfile(
-                userProfiles.stream()
-                        .filter(userProfile -> userProfile.getPlaygroundId()
-                                .equals(profile.getPlaygroundId()))
-                        .findFirst()
-                        .orElseThrow()
-                        .getUserId(),
+        return userProfiles.stream()
+                .filter(userProfile -> userProfile.getPlaygroundId()
+                        .equals(profile.getPlaygroundId()))
+                .findFirst()
+                .map(userProfile -> SimplePokeProfile.createNonFriendPokeProfile(
+                userProfile.getUserId(),
                 profile.getPlaygroundId(),
                 profile.getProfileImage(),
                 profile.getName(),
                 lastActivity.getGeneration(), // TODO: generation을 찾은 기수때의 generation으로 변경
                 lastActivity.getPart()
-        );
+        )).orElse(null);
+
     }
 
     private PlaygroundActivity getLatestActivity(List<PlaygroundActivity> activities) {
