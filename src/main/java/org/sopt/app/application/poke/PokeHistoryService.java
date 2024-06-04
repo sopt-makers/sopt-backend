@@ -1,8 +1,5 @@
 package org.sopt.app.application.poke;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -69,18 +66,7 @@ public class PokeHistoryService {
         }
     }
 
-    public void checkUserOverDailyPokeLimit(Long userId) {
-        LocalDateTime startDatetime = LocalDateTime.of(LocalDate.now(), LocalTime.of(0, 0, 0));
-        LocalDateTime endDatetime = LocalDateTime.of(LocalDate.now(), LocalTime.of(23, 59, 59));
-        List<PokeHistory> allByPokerIdAndCreatedAtDate = pokeHistoryRepository.findAllByPokerIdAndCreatedAtBetween(
-                userId, startDatetime, endDatetime
-        );
-        if (allByPokerIdAndCreatedAtDate.size() > 10) {
-            throw new BadRequestException(ErrorCode.OVER_DAILY_POKE_LIMIT.getMessage());
-        }
-    }
-
-    public Map<Long, Boolean> getAllPokeHistoryMap(Long userId) {
+    public HashMap<Long, Boolean> getAllPokeHistoryMap(Long userId) {
         val pokeHistories = pokeHistoryRepository.findAllByPokerIdAndIsReply(userId, false);
         HashMap<Long, Boolean> pokeHistoryMap = new HashMap<>();
         for (PokeHistory pokeHistory : pokeHistories) {

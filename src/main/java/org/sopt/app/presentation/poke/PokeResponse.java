@@ -11,6 +11,7 @@ import lombok.ToString;
 import org.sopt.app.application.poke.PokeInfo.PokeDetail;
 import org.sopt.app.application.poke.PokeInfo.PokedUserInfo;
 import org.sopt.app.domain.enums.FriendRecommendType;
+import org.sopt.app.common.utils.AnonymousImageGenerator;
 
 public class PokeResponse {
 
@@ -193,6 +194,8 @@ public class PokeResponse {
         private Boolean isAnonymous;
         @Schema(description = "익명 이름", example = "익명의 그윽한 떡볶이")
         private String anonymousName;
+        @Schema(description = "익명 사진", example = "~.png")
+        private String anonymousImage;
 
         public static SimplePokeProfile from(
                 PokedUserInfo pokedUserInfo,
@@ -205,7 +208,7 @@ public class PokeResponse {
                     pokedUserInfo.getPlaygroundId(),
                     pokedUserInfo.getProfileImage() == null ? "" : pokedUserInfo.getProfileImage(),
                     pokedUserInfo.getName(),
-                    pokeDetail.getMessage(),
+                    pokeDetail.getMessage() == null ? "" : pokeDetail.getMessage(),
                     pokedUserInfo.getGeneration(),
                     pokedUserInfo.getPart(),
                     pokedUserInfo.getRelation().getPokeNum(),
@@ -214,8 +217,8 @@ public class PokeResponse {
                     pokedUserInfo.isFirstMeet(),
                     isAlreadyPoke,
                     isAnonymous,
-                    pokedUserInfo.getRelation().getAnonymousName() == null ?
-                            "" : pokedUserInfo.getRelation().getAnonymousName()
+                    isAnonymous ? pokedUserInfo.getRelation().getAnonymousName() : "",
+                    AnonymousImageGenerator.getImageUrl(isAnonymous)
             );
         }
 
@@ -240,7 +243,7 @@ public class PokeResponse {
                     playgroundId,
                     profileImage,
                     name,
-                    message,
+                    message == null ? "" : message,
                     generation,
                     part,
                     pickNum,
@@ -249,7 +252,8 @@ public class PokeResponse {
                     isFirstMeet,
                     isAlreadyPoke,
                     isAnonymous,
-                    anonymousName == null ? "" : anonymousName
+                    isAnonymous ? anonymousName : "",
+                    AnonymousImageGenerator.getImageUrl(isAnonymous)
             );
         }
 
@@ -275,6 +279,7 @@ public class PokeResponse {
                     true,
                     false,
                     false,
+                    "",
                     ""
             );
         }

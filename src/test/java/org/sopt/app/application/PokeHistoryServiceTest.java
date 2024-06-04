@@ -111,31 +111,6 @@ public class PokeHistoryServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_유저의 일일 찌르기 횟수 체크")
-    void SUCCESS_checkUserOverDailyPokeLimit() {
-        PokeHistory pokeHistory = PokeHistory.builder().id(1L).pokerId(2L).pokedId(1L).message("message").isReply(false)
-                .build();
-
-        when(pokeHistoryRepository.findAllByPokerIdAndCreatedAtBetween(any(), any(), any())).thenReturn(
-                List.of(pokeHistory));
-
-        pokeHistoryService.checkUserOverDailyPokeLimit(1L);
-    }
-
-    @Test
-    @DisplayName("FAIL_유저의 일일 찌르기 횟수 체크 초과 시 BadRequestException")
-    void FAIL_checkUserOverDailyPokeLimitBadRequestException() {
-        PokeHistory pokeHistory = PokeHistory.builder().id(1L).pokerId(2L).pokedId(1L).message("message").isReply(false)
-                .build();
-
-        when(pokeHistoryRepository.findAllByPokerIdAndCreatedAtBetween(any(), any(), any())).thenReturn(
-                List.of(pokeHistory, pokeHistory, pokeHistory, pokeHistory, pokeHistory, pokeHistory, pokeHistory,
-                        pokeHistory, pokeHistory, pokeHistory, pokeHistory));
-
-        assertThrows(BadRequestException.class, () -> pokeHistoryService.checkUserOverDailyPokeLimit(1L));
-    }
-
-    @Test
     @DisplayName("SUCCESS_콕찌르기 전체 조회")
     void SUCCESS_getAllPokeHistoryMap() {
         PokeHistory pokeHistory = PokeHistory.builder().id(1L).pokerId(2L).pokedId(1L).message("message").isReply(false)
@@ -147,5 +122,27 @@ public class PokeHistoryServiceTest {
 
         Map<Long, Boolean> result = pokeHistoryService.getAllPokeHistoryMap(1L);
         assertEquals(pokeHistoryMap, result);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_찌르기 중복 체크")
+    void SUCCESS_checkDuplicate() {
+        when(pokeHistoryRepository.findAllByPokerIdAndPokedIdAndIsReplyIsFalse(any(), any())).thenReturn(
+                List.of());
+
+        pokeHistoryService.checkDuplicate(1L, 2L);
+    }
+
+    @Test
+    @DisplayName("FAIL_찌르기 중복 시 BadRequestException")
+    void FAIL_checkDuplicateBadRequestException() {
+        PokeHistory pokeHistory = PokeHistory.builder().id(1L).pokerId(2L).pokedId(1L).message("message").isReply(false)
+                .build();
+
+        when(pokeHistoryRepository.findAllByPokerIdAndPokedIdAndIsReplyIsFalse(any(), any())).thenReturn(
+                List.of(pokeHistory, pokeHistory, pokeHistory, pokeHistory, pokeHistory, pokeHistory, pokeHistory,
+                        pokeHistory, pokeHistory, pokeHistory, pokeHistory));
+
+        assertThrows(BadRequestException.class, () -> pokeHistoryService.checkDuplicate(1L, 2L));
     }
 }
