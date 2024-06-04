@@ -6,11 +6,11 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.sopt.app.domain.enums.Mbti;
 import org.sopt.app.domain.enums.UserStatus;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -157,20 +157,35 @@ public class PlaygroundAuthInfo {
         public String getPart() {
             return cardinalInfo.split(",")[1];
         }
+
     }
 
     @Getter
     @Builder
     @ToString
+    @NoArgsConstructor(access = AccessLevel.PUBLIC)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class OwnPlaygroundProfile {
-        private Mbti mbti;
+        private String mbti;
         private String university;
-        private List<PlaygroundActivity> activities;
+        private List<ActivityCardinalInfo> activities;
     }
 
     @Getter
     @Builder
     @ToString
+    @NoArgsConstructor(access = AccessLevel.PUBLIC)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    public static class PlaygroundProfileOfRecommendedFriendList {
+        private List<PlaygroundProfileOfRecommendedFriend> members;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    @NoArgsConstructor(access = AccessLevel.PUBLIC)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @EqualsAndHashCode(of = {"playgroundId"})
     public static class PlaygroundProfileOfRecommendedFriend {
 
         @JsonProperty("id")
@@ -183,6 +198,8 @@ public class PlaygroundAuthInfo {
     }
 
     @Getter
+    @NoArgsConstructor(access = AccessLevel.PUBLIC)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class PlaygroundActivity {
         private String part;
         private Integer generation;
