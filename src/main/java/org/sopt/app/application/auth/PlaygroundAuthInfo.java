@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.sopt.app.domain.enums.Mbti;
 import org.sopt.app.domain.enums.UserStatus;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -162,7 +163,7 @@ public class PlaygroundAuthInfo {
     @Builder
     @ToString
     public static class OwnPlaygroundProfile {
-        private String mbti;
+        private Mbti mbti;
         private Float sojuCapacity;
         private List<PlaygroundActivity> activities;
     }

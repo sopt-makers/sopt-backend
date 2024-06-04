@@ -5,6 +5,7 @@ import feign.Param;
 import feign.RequestLine;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
+import org.sopt.app.domain.enums.Mbti;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 
 import java.util.List;
@@ -47,5 +48,5 @@ public interface PlaygroundClient {
 
     @RequestLine("GET /api/v1/members/profile")
     List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfileForSameMbti(
-            @HeaderMap Map<String, String> headers, @Param(value = "mbti") String mbti);
+            @HeaderMap Map<String, String> headers, @Param(value = "mbti") Mbti mbti);
 }
