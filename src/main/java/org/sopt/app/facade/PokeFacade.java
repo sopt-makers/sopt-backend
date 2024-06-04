@@ -373,6 +373,7 @@ public class PokeFacade {
         );
     }
 
+    @Transactional(readOnly = true)
     public RecommendedFriendsByAllType getRecommendedFriendsByAllType(List<FriendRecommendType> typeList, int size,
             User user) {
         OwnPlaygroundProfile ownPlaygroundProfile =
@@ -401,10 +402,10 @@ public class PokeFacade {
                             ownPlaygroundProfile.getMbti(),
                             playgroundAuthService::getPlaygroundProfilesForSameMbti);
                     break;
-                case SOJU_CAPACITY:
-                    addRecommendation(recommendedFriendsByTypeList, FriendRecommendType.SOJU_CAPACITY, size, userId,
-                            ownPlaygroundProfile.getSojuCapacity(),
-                            playgroundAuthService::getPlaygroundProfilesForSameSojuCapacity);
+                case UNIVERSITY:
+                    addRecommendation(recommendedFriendsByTypeList, FriendRecommendType.UNIVERSITY, size, userId,
+                            ownPlaygroundProfile.getUniversity(),
+                            playgroundAuthService::getPlaygroundProfilesForSameUniversity);
                     break;
                 default:
                     throw new BadRequestException(ErrorCode.INVALID_FRIEND_RECOMMEND_TYPE.getMessage());
@@ -413,20 +414,21 @@ public class PokeFacade {
         return recommendedFriendsByTypeList;
     }
 
+
     private void handleAllType(List<RecommendedFriendsByType> recommendedFriendsByTypeList, OwnPlaygroundProfile ownPlaygroundProfile, int size, Long userId) {
         Integer latestGeneration = getLatestActivity(ownPlaygroundProfile.getActivities()).getGeneration();
         Mbti mbti = ownPlaygroundProfile.getMbti();
-        Float sojuCapacity = ownPlaygroundProfile.getSojuCapacity();
+        String university = ownPlaygroundProfile.getUniversity();
 
         addRecommendation(recommendedFriendsByTypeList, FriendRecommendType.GENERATION, size, userId, latestGeneration,
                 playgroundAuthService::getPlaygroundProfilesForSameGeneration);
         addRecommendation(recommendedFriendsByTypeList, FriendRecommendType.MBTI, size, userId, mbti,
                 playgroundAuthService::getPlaygroundProfilesForSameMbti);
-        addRecommendation(recommendedFriendsByTypeList, FriendRecommendType.SOJU_CAPACITY, size, userId, sojuCapacity,
-                playgroundAuthService::getPlaygroundProfilesForSameSojuCapacity);
+        addRecommendation(recommendedFriendsByTypeList, FriendRecommendType.UNIVERSITY, size, userId, university,
+                playgroundAuthService::getPlaygroundProfilesForSameUniversity);
     }
 
-    private <T> void addRecommendation(List<RecommendedFriendsByType> list, FriendRecommendType type, int size, Long userId, T value, Function<T, List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
+    private <T> void addRecommendation(List<RecommendedFriendsByType> list, FriendRecommendType type, int size, Long userId, T value ,Function<T, List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
         if (value != null) {
             list.add(getRecommendedFriendsByType(type, size, userId, fetchProfilesFunction.apply(value)));
         }
@@ -484,7 +486,7 @@ public class PokeFacade {
                 profile.getPlaygroundId(),
                 profile.getProfileImage(),
                 profile.getName(),
-                lastActivity.getGeneration(),
+                lastActivity.getGeneration(), // TODO: generation을 찾은 기수때의 generation으로 변경
                 lastActivity.getPart()
         );
     }

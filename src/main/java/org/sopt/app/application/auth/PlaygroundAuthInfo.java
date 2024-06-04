@@ -164,7 +164,7 @@ public class PlaygroundAuthInfo {
     @ToString
     public static class OwnPlaygroundProfile {
         private Mbti mbti;
-        private Float sojuCapacity;
+        private String university;
         private List<PlaygroundActivity> activities;
     }
 
@@ -176,7 +176,7 @@ public class PlaygroundAuthInfo {
         @JsonProperty("id")
         private Long playgroundId;
         private String mbti;
-        private Float sojuCapacity;
+        private String university;
         private String profileImage;
         private String name;
         private List<PlaygroundActivity> activities;

@@ -43,8 +43,8 @@ public interface PlaygroundClient {
             @HeaderMap Map<String, String> headers, @Param(value = "generation") Integer generation);
 
     @RequestLine("GET /api/v1/members/profile")
-    List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfileForSameSojuCapacity(
-            @HeaderMap Map<String, String> headers, @Param(value = "sojuCapacity") Float sojuCapacity);
+    List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfileForSameUniversity(
+            @HeaderMap Map<String, String> headers, @Param(value = "search") String university);
 
     @RequestLine("GET /api/v1/members/profile")
     List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfileForSameMbti(

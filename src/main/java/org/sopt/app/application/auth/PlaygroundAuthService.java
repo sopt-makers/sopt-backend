@@ -178,7 +178,7 @@ public class PlaygroundAuthService {
         return playgroundClient.getPlaygroundProfileForSameMbti(createAuthorizationHeader(playgroundToken), mbti);
     }
 
-    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameSojuCapacity(Float sojuCapacity) {
-        return playgroundClient.getPlaygroundProfileForSameSojuCapacity(createAuthorizationHeader(playgroundToken), sojuCapacity);
+    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameUniversity(String university) {
+        return playgroundClient.getPlaygroundProfileForSameUniversity(createAuthorizationHeader(playgroundToken), university);
     }
 }
