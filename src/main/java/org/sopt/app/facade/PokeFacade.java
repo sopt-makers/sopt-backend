@@ -431,8 +431,9 @@ public class PokeFacade {
 
     private <T> void addRecommendation(List<RecommendedFriendsByType> list, FriendRecommendType type, int size,
             Long userId, T value, Function<T, List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
-        if (value != null) {
-            list.add(getRecommendedFriendsByType(type, size, userId, fetchProfilesFunction.apply(value)));
+        List<PlaygroundProfileOfRecommendedFriend> profiles = fetchProfilesFunction.apply(value);
+        if (value != null && !profiles.isEmpty()) {
+            list.add(getRecommendedFriendsByType(type, size, userId, profiles));
         }
     }
 
