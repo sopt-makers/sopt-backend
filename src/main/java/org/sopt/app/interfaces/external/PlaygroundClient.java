@@ -34,7 +34,7 @@ public interface PlaygroundClient {
     List<PlaygroundAuthInfo.MemberProfile> getMemberProfiles(@HeaderMap Map<String, String> headers,
             @Param(value = "encodedIds") String encodedIds);
 
-    @RequestLine("GET /internal/api/v1/members/profile/me")
+    @RequestLine("GET /api/v1/members/profile/me")
     PlaygroundAuthInfo.OwnPlaygroundProfile getOwnPlaygroundProfile(@HeaderMap Map<String, String> headers);
 
     @RequestLine("GET /api/v1/members/profile?generation={generation}")
