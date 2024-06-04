@@ -36,6 +36,7 @@ import org.sopt.app.domain.entity.PokeHistory;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.FriendRecommendType;
 import org.sopt.app.domain.enums.Friendship;
+import org.sopt.app.domain.enums.Mbti;
 import org.sopt.app.presentation.poke.PokeResponse;
 import org.sopt.app.presentation.poke.PokeResponse.EachRelationFriendList;
 import org.sopt.app.presentation.poke.PokeResponse.PokeToMeHistoryList;
@@ -373,8 +374,8 @@ public class PokeFacade {
 
     public RecommendedFriendsByAllType getRecommendedFriendsByAllType(List<FriendRecommendType> typeList, int size,
             User user) {
-        OwnPlaygroundProfile ownPlaygroundProfile = playgroundAuthService.getOwnPlaygroundProfile(
-                user.getPlaygroundToken());
+        OwnPlaygroundProfile ownPlaygroundProfile =
+                playgroundAuthService.getOwnPlaygroundProfile(user.getPlaygroundToken());
 
         return RecommendedFriendsByAllType.of(
                 getRecommendedFriendsByTypeList(typeList, ownPlaygroundProfile, size, user.getId()));
@@ -385,27 +386,51 @@ public class PokeFacade {
         List<RecommendedFriendsByType> recommendedFriendsByTypeList = new ArrayList<>();
         for (FriendRecommendType type : typeList) {
             if (type == FriendRecommendType.ALL) {
-                return List.of(
-                        getRecommendedFriendsByType(FriendRecommendType.GENERATION, size, userId,
-                                this.getRecommendedFriendsByGeneration(ownPlaygroundProfile.getActivities())),
-                        getRecommendedFriendsByType(FriendRecommendType.MBTI, size, userId,
-                                this.getRecommendedFriendsByMbti(ownPlaygroundProfile.getMbti())),
-                        getRecommendedFriendsByType(FriendRecommendType.SOJU_CAPACITY, size, userId,
-                                this.getRecommendedFriendsBySojuCapacity(ownPlaygroundProfile.getSojuCapacity()))
-                );
+                Integer latestGeneration = getLatestActivity(ownPlaygroundProfile.getActivities()).getGeneration();
+                Mbti mbti = ownPlaygroundProfile.getMbti();
+                Float sojuCapacity = ownPlaygroundProfile.getSojuCapacity();
+
+                if (latestGeneration != null) {
+                    recommendedFriendsByTypeList.add(
+                            getRecommendedFriendsByType(FriendRecommendType.GENERATION, size, userId,
+                                    playgroundAuthService.getPlaygroundProfilesForSameGeneration(
+                                            getLatestActivity(ownPlaygroundProfile.getActivities()).getGeneration())));
+                }
+                if (mbti != null) {
+                    recommendedFriendsByTypeList.add(
+                            getRecommendedFriendsByType(FriendRecommendType.MBTI, size, userId,
+                                    playgroundAuthService.getPlaygroundProfilesForSameMbti(ownPlaygroundProfile.getMbti())));
+                }
+                if (sojuCapacity != null) {
+                    recommendedFriendsByTypeList.add(
+                            getRecommendedFriendsByType(FriendRecommendType.SOJU_CAPACITY, size, userId,
+                                    playgroundAuthService.getPlaygroundProfilesForSameSojuCapacity(
+                                            ownPlaygroundProfile.getSojuCapacity())));
+                }
+
+                return recommendedFriendsByTypeList;
             }
             if (type == FriendRecommendType.GENERATION) {
-                recommendedFriendsByTypeList.add(
-                        getRecommendedFriendsByType(FriendRecommendType.GENERATION, size, userId,
-                                this.getRecommendedFriendsByGeneration(ownPlaygroundProfile.getActivities())));
+                Integer latestGeneration = getLatestActivity(ownPlaygroundProfile.getActivities()).getGeneration();
+                if (latestGeneration != null) {
+                    recommendedFriendsByTypeList.add(
+                            getRecommendedFriendsByType(FriendRecommendType.GENERATION, size, userId,
+                                    playgroundAuthService.getPlaygroundProfilesForSameGeneration(latestGeneration)));
+                }
             } else if (type == FriendRecommendType.MBTI) {
-                recommendedFriendsByTypeList.add(
-                        getRecommendedFriendsByType(FriendRecommendType.MBTI, size, userId,
-                        this.getRecommendedFriendsByMbti(ownPlaygroundProfile.getMbti())));
+                Mbti mbti = ownPlaygroundProfile.getMbti();
+                if (mbti != null) {
+                    recommendedFriendsByTypeList.add(
+                            getRecommendedFriendsByType(FriendRecommendType.MBTI, size, userId,
+                                    playgroundAuthService.getPlaygroundProfilesForSameMbti(mbti)));
+                }
             } else if (type == FriendRecommendType.SOJU_CAPACITY) {
-                recommendedFriendsByTypeList.add(
-                        getRecommendedFriendsByType(FriendRecommendType.SOJU_CAPACITY, size, userId,
-                                this.getRecommendedFriendsBySojuCapacity(ownPlaygroundProfile.getSojuCapacity())));
+                Float sojuCapacity = ownPlaygroundProfile.getSojuCapacity();
+                if (sojuCapacity != null) {
+                    recommendedFriendsByTypeList.add(
+                            getRecommendedFriendsByType(FriendRecommendType.SOJU_CAPACITY, size, userId,
+                                    playgroundAuthService.getPlaygroundProfilesForSameSojuCapacity(sojuCapacity)));
+                }
             } else {
                 throw new BadRequestException(ErrorCode.INVALID_FRIEND_RECOMMEND_TYPE.getMessage());
             }
@@ -413,9 +438,13 @@ public class PokeFacade {
         return recommendedFriendsByTypeList;
     }
 
-    private List<SimplePokeProfile> excludeProfileLinkedFriends(List<SimplePokeProfile> profiles, Long userId) {
+    private List<SimplePokeProfile> excludeProfileLinkedFriends(List<PlaygroundProfileOfRecommendedFriend> profiles,
+            Long userId) {
+        List<SimplePokeProfile> simplePokeProfiles = convertPlaygroundProfileOfRecommendedFriendToSimplePokeProfile(
+                profiles);
         List<Long> userIdsLinkedFriends = friendService.findUserIdsLinkedFriends(userId);
-        return profiles.stream()
+
+        return simplePokeProfiles.stream()
                 .filter(profile -> !userIdsLinkedFriends.contains(profile.getUserId()))
                 .toList();
     }
@@ -426,49 +455,26 @@ public class PokeFacade {
     }
 
     private RecommendedFriendsByType getRecommendedFriendsByType(FriendRecommendType type, int size, Long userId,
-            List<SimplePokeProfile> profiles) {
-        List<SimplePokeProfile> excludedLinkedFriendsProfiles = excludeProfileLinkedFriends(profiles, userId);
+            List<PlaygroundProfileOfRecommendedFriend> profiles) {
+        List<SimplePokeProfile> recommendedFriends = excludeProfileLinkedFriends(profiles, userId);
 
         return RecommendedFriendsByType.of(
                 type,
                 type.getRecommendTitle(),
-                this.selectRandomFriendsOfSize(excludedLinkedFriendsProfiles, size)
+                this.selectRandomFriendsOfSize(recommendedFriends, size)
         );
     }
 
-    private List<SimplePokeProfile> getRecommendedFriendsByGeneration(List<PlaygroundActivity> activities) {
-        List<PlaygroundProfileOfRecommendedFriend> sameGenerationUserProfiles =
-                playgroundAuthService.getPlaygroundProfilesForSameGeneration(getLatestActivity(activities).getGeneration());
-        List<UserProfile> userProfiles = userService.getUserProfilesByPlaygroundIds(sameGenerationUserProfiles.stream()
+    private List<SimplePokeProfile> convertPlaygroundProfileOfRecommendedFriendToSimplePokeProfile(
+            List<PlaygroundProfileOfRecommendedFriend> sameTypeUserProfiles) {
+        List<UserProfile> userProfiles = userService.getUserProfilesByPlaygroundIds(sameTypeUserProfiles.stream()
                 .map(PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend::getPlaygroundId).toList());
 
-        return sameGenerationUserProfiles
+        return sameTypeUserProfiles
                 .stream()
                 .map(profile -> createNonFriendPokeProfile(profile, userProfiles))
                 .toList();
     }
-
-    private List<SimplePokeProfile> getRecommendedFriendsByMbti(String mbti) {
-        List<PlaygroundProfileOfRecommendedFriend> sameMbtiUserProfiles =
-                playgroundAuthService.getPlaygroundProfilesForSameMbti(mbti);
-        return getSimplePokeProfileByPlaygroundProfileOfRecommendedFriend(sameMbtiUserProfiles);
-    }
-
-    private List<SimplePokeProfile> getRecommendedFriendsBySojuCapacity(Float sojuCapacity) {
-        List<PlaygroundProfileOfRecommendedFriend> sameSojuCapacityUserProfiles =
-                playgroundAuthService.getPlaygroundProfilesForSameSojuCapacity(sojuCapacity);
-        return getSimplePokeProfileByPlaygroundProfileOfRecommendedFriend(sameSojuCapacityUserProfiles);
-    }
-
-    private List<SimplePokeProfile> getSimplePokeProfileByPlaygroundProfileOfRecommendedFriend(
-            List<PlaygroundProfileOfRecommendedFriend> playgroundProfiles) {
-        List<UserProfile> userProfiles = userService.getUserProfilesByPlaygroundIds(playgroundProfiles.stream()
-                .map(PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend::getPlaygroundId).toList());
-        return playgroundProfiles.stream()
-                .map(profile -> createNonFriendPokeProfile(profile, userProfiles))
-                .toList();
-    }
-
 
     private SimplePokeProfile createNonFriendPokeProfile(PlaygroundProfileOfRecommendedFriend profile,
             List<UserProfile> userProfiles) {
@@ -494,7 +500,6 @@ public class PokeFacade {
                 .max(Comparator.comparing(PlaygroundActivity::getGeneration))
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_GENERATION_INFO_NOT_FOUND.getMessage()));
     }
-
 
     private PokeInfo.PokedUserInfo getFriendUserInfo(User user, Long friendUserId) {
         val pokedUser = userService.getUserProfile(friendUserId);
