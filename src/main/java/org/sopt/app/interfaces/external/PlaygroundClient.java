@@ -38,14 +38,14 @@ public interface PlaygroundClient {
     PlaygroundAuthInfo.OwnPlaygroundProfile getOwnPlaygroundProfile(@HeaderMap Map<String, String> headers);
 
     @RequestLine("GET /api/v1/members/profile?generation={generation}")
-    List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfileForSameGeneration(
+    PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriendList getPlaygroundProfileForSameGeneration(
             @HeaderMap Map<String, String> headers, @Param(value = "generation") Integer generation);
 
     @RequestLine("GET /api/v1/members/profile?generation={generation}&search={search}")
-    List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfileForSameUniversity(
+    PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriendList getPlaygroundProfileForSameUniversity(
             @HeaderMap Map<String, String> headers, @Param(value = "generation") Integer generation, @Param(value = "search") String university);
 
     @RequestLine("GET /api/v1/members/profile?generation={generation}&mbti={mbti}")
-    List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfileForSameMbti(
+    PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriendList getPlaygroundProfileForSameMbti(
             @HeaderMap Map<String, String> headers, @Param(value = "generation") Integer generation, @Param(value = "mbti") String mbti);
 }
