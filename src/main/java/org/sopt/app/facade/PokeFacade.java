@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.BiFunction;
-import java.util.function.Function;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -395,8 +395,7 @@ public class PokeFacade {
                     handleAllType(recommendedFriendsByTypeList, ownPlaygroundProfile, size, userId);
                     return recommendedFriendsByTypeList;
                 case GENERATION:
-                    addRecommendedFriendsListByGeneration(recommendedFriendsByTypeList, FriendRecommendType.GENERATION,
-                            size, userId, latestGeneration,
+                    addRecommendedFriendsListByGeneration(recommendedFriendsByTypeList, size, userId, latestGeneration,
                             playgroundAuthService::getPlaygroundProfilesForSameGeneration);
                     break;
                 case MBTI:
@@ -423,24 +422,20 @@ public class PokeFacade {
             OwnPlaygroundProfile ownPlaygroundProfile, int size, Long userId) {
         Integer latestGeneration = getLatestGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities());
 
-        addRecommendedFriendsListByGeneration(recommendedFriendsByTypeList, FriendRecommendType.GENERATION, size,
-                userId, latestGeneration,
+        addRecommendedFriendsListByGeneration(recommendedFriendsByTypeList, size, userId, latestGeneration,
                 playgroundAuthService::getPlaygroundProfilesForSameGeneration);
         addRecommendedFriendsList(recommendedFriendsByTypeList, FriendRecommendType.MBTI, size, userId,
-                latestGeneration,
-                ownPlaygroundProfile.getMbti(),
+                latestGeneration, ownPlaygroundProfile.getMbti(),
                 playgroundAuthService::getPlaygroundProfilesForSameMbtiAndGeneration);
         addRecommendedFriendsList(recommendedFriendsByTypeList, FriendRecommendType.UNIVERSITY, size, userId,
-                latestGeneration,
-                ownPlaygroundProfile.getUniversity(),
+                latestGeneration, ownPlaygroundProfile.getUniversity(),
                 playgroundAuthService::getPlaygroundProfilesForSameUniversityAndGeneration);
     }
 
-    private <T> void addRecommendedFriendsListByGeneration(List<RecommendedFriendsByType> list,
-            FriendRecommendType type, int size,
-            Long userId, T value, Function<T, List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
-        List<PlaygroundProfileOfRecommendedFriend> profiles = fetchProfilesFunction.apply(value);
-        validateRecommendedFriends(value, profiles, list, type, size, userId);
+    private void addRecommendedFriendsListByGeneration(List<RecommendedFriendsByType> list, int size,
+            Long userId, Integer generation, IntFunction<List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
+        List<PlaygroundProfileOfRecommendedFriend> profiles = fetchProfilesFunction.apply(generation);
+        validateRecommendedFriends(generation, profiles, list, FriendRecommendType.GENERATION, size, userId);
     }
 
     private <T> void validateRecommendedFriends(T value, List<PlaygroundProfileOfRecommendedFriend> profiles,
