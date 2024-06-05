@@ -30,6 +30,38 @@ public class PokeResponse {
 
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class RandomInfoList {
+
+        private List<RandomInfo> randomInfoList;
+
+        public static RandomInfoList of(
+                List<RandomInfo> randomInfoList
+        ) {
+            return new RandomInfoList(randomInfoList);
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class RandomInfo {
+
+        @Schema(description = "추천 타입 ENUM", example = "MBTI")
+        private String randomType;
+        @Schema(description = "추천 타입 제목", example = "나와 MBTI가 같은 사람")
+        private String randomTitle;
+        @Schema(description = "추천 유저 리스트", example = "[]")
+        private List<SimplePokeProfile> userInfoList;
+
+        public static RandomInfo of(
+                String randomType, String randomTitle, List<SimplePokeProfile> userInfoList
+        ) {
+            return new RandomInfo(randomType, randomTitle, userInfoList);
+        }
+    }
+
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class IsNew {
 
         @Schema(description = "새로운 유저 여부", example = "true")
