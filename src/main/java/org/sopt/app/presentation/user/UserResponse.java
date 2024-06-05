@@ -58,8 +58,6 @@ public class UserResponse {
 
         @Schema(description = "유저 닉네임", example = "김앱짱")
         private String username;
-//        @Schema(description = "유저 푸시 토큰", example = "null")
-//        private String pushToken;
     }
 
     @Getter

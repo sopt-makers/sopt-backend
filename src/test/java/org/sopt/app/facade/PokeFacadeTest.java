@@ -27,6 +27,7 @@ import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.poke.FriendService;
 import org.sopt.app.application.poke.PokeHistoryService;
 import org.sopt.app.application.poke.PokeInfo.PokeDetail;
+import org.sopt.app.application.poke.PokeInfo.PokeHistoryInfo;
 import org.sopt.app.application.poke.PokeInfo.Relationship;
 import org.sopt.app.application.poke.PokeMessageService;
 import org.sopt.app.application.poke.PokeService;
@@ -74,14 +75,22 @@ public class PokeFacadeTest {
             PokeResponse.Friend.of(3L, 3L, "name2", "", List.of())
     );
     private PokeHistory pokeHistory2 = PokeHistory.builder().id(2L).pokedId(1L).pokerId(2L).isReply(false)
-            .build();
+            .isAnonymous(false).build();
     private PokeHistory pokeHistory2PokedIsNotReply = PokeHistory.builder().id(3L).pokedId(2L).pokerId(1L)
-            .isReply(false).build();
+            .isReply(false).isAnonymous(false).build();
     private PokeHistory pokeHistory2PokedIsReply = PokeHistory.builder().id(3L).pokedId(2L).pokerId(1L).isReply(true)
-            .build();
-    private PokeHistory pokeHistory3 = PokeHistory.builder().id(3L).pokedId(1L).pokerId(3L).isReply(true).build();
+            .isAnonymous(false).build();
+    private PokeHistoryInfo pokeHistoryInfo2 = PokeHistoryInfo.builder().id(2L).pokedId(1L).pokerId(2L).isReply(false)
+            .isAnonymous(false).build();
+    private PokeHistoryInfo pokeHistoryInfo2PokedIsNotReply = PokeHistoryInfo.builder().id(3L).pokedId(2L).pokerId(1L)
+            .isReply(false).isAnonymous(false).build();
+    private PokeHistoryInfo pokeHistoryInfo2PokedIsReply = PokeHistoryInfo.builder().id(3L).pokedId(2L).pokerId(1L)
+            .isReply(true)
+            .isAnonymous(false).build();
+    private PokeHistory pokeHistory3 = PokeHistory.builder().id(3L).pokedId(1L).pokerId(3L).isReply(true)
+            .isAnonymous(false).build();
     private PokeDetail pokeDetail2 = PokeDetail.builder().id(2L).pokedId(1L).pokerId(2L).message("message").build();
-    private Friend friend2 = Friend.builder().id(2L).userId(1L).friendUserId(2L).pokeCount(1).build();
+    private Friend friend2 = Friend.builder().id(2L).userId(1L).friendUserId(2L).pokeCount(1).anonymousName("").build();
     @Mock
     private PokeMessageService pokeMessageService;
     @Mock
@@ -136,7 +145,7 @@ public class PokeFacadeTest {
         List<MemberProfile> memberProfileListForNew = List.of(memberProfile);
         List<SimplePokeProfile> simplePokeProfileListForNew = List.of(
                 SimplePokeProfile.of(2L, 2L, "image", "name2", "", 34, "서버", 1,
-                        "새로운 친구", "새로운 친구", true, false));
+                        "새로운 친구", "새로운 친구", true, false, false, ""));
 
         when(playgroundAuthService.getPlayGroundUserIds("token")).thenReturn(activeUserIds);
         when(userService.getUserProfilesByPlaygroundIds(activeUserIds.getUserIds())).thenReturn(
@@ -215,7 +224,7 @@ public class PokeFacadeTest {
     @DisplayName("SUCCESS_단일 누가 나를 찔렀어요 답장 X 조회")
     void SUCCESS_getMostRecentPokeMeHistoryIsNotReply() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2",
-                "message", 34, "서버", 1, null, "name3의 친구", true, false);
+                "message", 34, "서버", 1, null, "name3의 친구", true, false, false, "");
 
         when(pokeHistoryService.getPokeMeUserIds(1L)).thenReturn(List.of(2L));
         when(pokeHistoryService.getAllLatestPokeHistoryFromTo(2L, 1L)).thenReturn(List.of(pokeHistory2));
@@ -226,6 +235,7 @@ public class PokeFacadeTest {
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
+        when(pokeHistoryService.getAllOfPokeBetween(2L, 1L)).thenReturn(List.of(pokeHistoryInfo2));
 
         SimplePokeProfile result = pokeFacade.getMostRecentPokeMeHistory(user);
         assertEquals(simplePokeProfile, result);
@@ -245,7 +255,7 @@ public class PokeFacadeTest {
     @DisplayName("SUCCESS_리스트 누가 나를 찔렀어요 조회")
     void SUCCESS_getAllPokeMeHistory() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "", "name2",
-                "message", 34, "서버", 3, null, "name3 외 1명과 친구", false, false);
+                "message", 34, "서버", 3, null, "name3 외 1명과 친구", false, false, false, "");
 
         PokeToMeHistoryList pokeToMeHistoryList = PokeToMeHistoryList.of(List.of(simplePokeProfile), 1, 1, 0);
         Page<PokeHistory> pokeHistoryPage = new PageImpl<>(List.of(pokeHistory2));
@@ -265,7 +275,7 @@ public class PokeFacadeTest {
         when(userService.getUserProfile(4L)).thenReturn(userProfile4);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
         when(pokeHistoryService.getAllOfPokeBetween(2L, 1L)).thenReturn(
-                List.of(pokeHistory2, pokeHistory2PokedIsReply));
+                List.of(pokeHistoryInfo2, pokeHistoryInfo2PokedIsReply));
 
         PokeToMeHistoryList result = pokeFacade.getAllPokeMeHistory(user, pageable);
         assertEquals(pokeToMeHistoryList.getHistory().get(0).getUserId(), result.getHistory().get(0).getUserId());
@@ -277,32 +287,32 @@ public class PokeFacadeTest {
     @Test
     @DisplayName("SUCCESS_친구 찌르기, 친구일 때")
     void SUCCESS_pokeFriendFriendEachOther() {
-        when(pokeService.poke(1L, 2L, "message")).thenReturn(pokeHistory2);
+        when(pokeService.poke(1L, 2L, "message", false)).thenReturn(pokeHistory2);
         when(friendService.isFriendEachOther(1L, 2L)).thenReturn(true);
 
-        Long result = pokeFacade.pokeFriend(1L, 2L, "message");
+        Long result = pokeFacade.pokeFriend(1L, 2L, "message", false);
         assertEquals(2L, result);
     }
 
     @Test
     @DisplayName("SUCCESS_친구 찌르기, 친구 아닐 때, 찌른 적 없을 때")
     void SUCCESS_pokeFriendNotPokeBefore() {
-        when(pokeService.poke(1L, 2L, "message")).thenReturn(pokeHistory2);
+        when(pokeService.poke(1L, 2L, "message", false)).thenReturn(pokeHistory2);
         when(friendService.isFriendEachOther(1L, 2L)).thenReturn(false);
         when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of());
 
-        Long result = pokeFacade.pokeFriend(1L, 2L, "message");
+        Long result = pokeFacade.pokeFriend(1L, 2L, "message", false);
         assertEquals(2L, result);
     }
 
     @Test
     @DisplayName("SUCCESS_친구 찌르기, 친구 아닐 때, 찌른 적 있을 때")
     void SUCCESS_pokeFriendPokeBefore() {
-        when(pokeService.poke(1L, 2L, "message")).thenReturn(pokeHistory2);
+        when(pokeService.poke(1L, 2L, "message", false)).thenReturn(pokeHistory2);
         when(friendService.isFriendEachOther(1L, 2L)).thenReturn(false);
-        when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistory2));
+        when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistoryInfo2));
 
-        Long result = pokeFacade.pokeFriend(1L, 2L, "message");
+        Long result = pokeFacade.pokeFriend(1L, 2L, "message", false);
         assertEquals(2L, result);
     }
 
@@ -310,14 +320,14 @@ public class PokeFacadeTest {
     @DisplayName("SUCCESS_친구 가져오기, 이미지 있을 때, 친구 없을 때")
     void SUCCESS_getFriendNoMutualFriend() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2",
-                "", 34, "서버", 1, null, "새로운 친구", false, false);
+                "", 34, "서버", 1, null, "새로운 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(List.of(2L, 3L));
         when(userService.getUserProfileByUserId(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L, 3L))).thenReturn(memberProfileList);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of());
-        when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistory2));
+        when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistoryInfo2));
 
         List<SimplePokeProfile> result = pokeFacade.getFriend(user);
         assertEquals(List.of(simplePokeProfile), result);
@@ -327,7 +337,7 @@ public class PokeFacadeTest {
     @DisplayName("SUCCESS_친구 가져오기, 이미지 있을 때, 친구 1명일 때")
     void SUCCESS_getFriendWithImage() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2",
-                "", 34, "서버", 1, null, "name3의 친구", false, false);
+                "", 34, "서버", 1, null, "name3의 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(List.of(2L, 3L));
         when(userService.getUserProfileByUserId(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
@@ -335,7 +345,7 @@ public class PokeFacadeTest {
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
-        when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistory2));
+        when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistoryInfo2));
 
         List<SimplePokeProfile> result = pokeFacade.getFriend(user);
         assertEquals(List.of(simplePokeProfile), result);
@@ -345,7 +355,7 @@ public class PokeFacadeTest {
     @DisplayName("SUCCESS_친구 가져오기, 이미지 없을 때, 친구 1명일 때")
     void SUCCESS_getFriendWithoutImage() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "", "name2",
-                "", 34, "서버", 1, null, "name3의 친구", false, false);
+                "", 34, "서버", 1, null, "name3의 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(List.of(2L, 3L));
         when(userService.getUserProfileByUserId(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
@@ -354,7 +364,7 @@ public class PokeFacadeTest {
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
-        when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistory2));
+        when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistoryInfo2));
 
         List<SimplePokeProfile> result = pokeFacade.getFriend(user);
         assertEquals(List.of(simplePokeProfile), result);
@@ -364,7 +374,7 @@ public class PokeFacadeTest {
     @DisplayName("SUCCESS_친구 가져오기, 이미지 없을 때, 친구 2명 이상일 때")
     void SUCCESS_getFriendWithoutImageSomeFriends() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "", "name2",
-                "", 34, "서버", 1, null, "name3 외 1명과 친구", false, false);
+                "", 34, "서버", 1, null, "name3 외 1명과 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(List.of(2L, 3L));
         when(userService.getUserProfileByUserId(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
@@ -374,7 +384,7 @@ public class PokeFacadeTest {
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L, 4L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
         when(userService.getUserProfile(4L)).thenReturn(userProfile4);
-        when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistory2));
+        when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistoryInfo2));
 
         List<SimplePokeProfile> result = pokeFacade.getFriend(user);
         assertEquals(List.of(simplePokeProfile), result);
@@ -385,10 +395,10 @@ public class PokeFacadeTest {
     @DisplayName("SUCCESS_친구 관계로 두 친구 가져오기, 친구 아닐 때")
     void SUCCESS_getTwoFriendsByFriendshipNonFriend(Friendship friendship) {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2",
-                "message", 34, "서버", 3, null, "name3의 친구", false, true);
+                "message", 34, "서버", 3, null, "name3의 친구", false, true, false, "");
 
         when(friendService.findAllFriendsByFriendship(any(), any(), any())).thenReturn(List.of(friend2));
-        when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistory2));
+        when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistoryInfo2));
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
         when(userService.getUserProfile(2L)).thenReturn(userProfile2);
         when(userService.getUserProfilesByPlaygroundIds(List.of(2L))).thenReturn(List.of(userProfile2));
@@ -397,7 +407,7 @@ public class PokeFacadeTest {
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
         when(pokeHistoryService.getAllOfPokeBetween(2L, 1L)).thenReturn(
-                List.of(pokeHistory2, pokeHistory2PokedIsNotReply));
+                List.of(pokeHistoryInfo2, pokeHistoryInfo2PokedIsNotReply));
 
         List<SimplePokeProfile> result = pokeFacade.getTwoFriendByFriendship(user, friendship);
         assertEquals(List.of(simplePokeProfile), result);
@@ -419,7 +429,7 @@ public class PokeFacadeTest {
     @DisplayName("SUCCESS_친구 관계로 모든 친구 가져오기")
     void SUCCESS_getAllFriendByFriendship(Friendship friendship) {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2",
-                "message", 34, "서버", 3, null, "name3의 친구", false, false);
+                "message", 34, "서버", 3, null, "name3의 친구", false, false, false, "");
         Pageable pageable = Pageable.ofSize(1);
         Page<Friend> friendPage = new PageImpl<>(List.of(friend2));
         EachRelationFriendList eachRelationFriendList = EachRelationFriendList.of(List.of(simplePokeProfile),
@@ -433,8 +443,8 @@ public class PokeFacadeTest {
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
-        when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(
-                List.of(pokeHistory2, pokeHistory2PokedIsNotReply));
+        when(pokeHistoryService.getAllOfPokeBetween(any(), any())).thenReturn(
+                List.of(pokeHistoryInfo2, pokeHistoryInfo2PokedIsNotReply));
 
         EachRelationFriendList result = pokeFacade.getAllFriendByFriendship(user, friendship, pageable);
         assertEquals(eachRelationFriendList.getFriendList().get(0).getUserId(),
@@ -447,7 +457,7 @@ public class PokeFacadeTest {
     @DisplayName("SUCCESS_콕찌르기 히스토리 프로필 조회, 답장 없을 때, 친구 1명일 때")
     void SUCCESS_getPokeHistoryProfileReplyAMutualFriend() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2", "message",
-                34, "서버", 3, null, "name3의 친구", false, true);
+                34, "서버", 3, null, "name3의 친구", false, true, false, "");
 
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
         when(userService.getUserProfile(2L)).thenReturn(userProfile2);
@@ -457,7 +467,7 @@ public class PokeFacadeTest {
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
         when(pokeHistoryService.getAllOfPokeBetween(2L, 1L)).thenReturn(
-                List.of(pokeHistory2, pokeHistory2PokedIsNotReply));
+                List.of(pokeHistoryInfo2, pokeHistoryInfo2PokedIsNotReply));
 
         SimplePokeProfile result = pokeFacade.getPokeHistoryProfile(user, 2L, 2L);
         assertEquals(simplePokeProfile, result);
@@ -467,7 +477,7 @@ public class PokeFacadeTest {
     @DisplayName("SUCCESS_콕찌르기 히스토리 프로필 조회, 답장 있을 때, 친구 2명 이상일 때")
     void SUCCESS_getPokeHistoryProfileNoReplySomeMutualFriends() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "", "name2",
-                "message", 34, "서버", 3, null, "name3 외 1명과 친구", false, false);
+                "message", 34, "서버", 3, null, "name3 외 1명과 친구", false, false, false, "");
 
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
         when(userService.getUserProfile(2L)).thenReturn(userProfile2);
@@ -479,7 +489,7 @@ public class PokeFacadeTest {
         when(userService.getUserProfile(4L)).thenReturn(userProfile4);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
         when(pokeHistoryService.getAllOfPokeBetween(2L, 1L)).thenReturn(
-                List.of(pokeHistory2, pokeHistory2PokedIsReply));
+                List.of(pokeHistoryInfo2, pokeHistoryInfo2PokedIsReply));
 
         SimplePokeProfile result = pokeFacade.getPokeHistoryProfile(user, 2L, 2L);
         assertEquals(simplePokeProfile, result);
@@ -489,7 +499,7 @@ public class PokeFacadeTest {
     @DisplayName("SUCCESS_콕찌르기 히스토리 프로필 조회, 답장 없을 때, 친구 없을 때")
     void SUCCESS_getPokeHistoryProfileNoReplyNoMutualFriend() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "", "name2", "message",
-                34, "서버", 3, null, "새로운 친구", false, true);
+                34, "서버", 3, null, "새로운 친구", false, true, false, "");
 
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
         when(userService.getUserProfile(2L)).thenReturn(userProfile2);
@@ -499,7 +509,7 @@ public class PokeFacadeTest {
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of());
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
         when(pokeHistoryService.getAllOfPokeBetween(2L, 1L)).thenReturn(
-                List.of(pokeHistory2, pokeHistory2PokedIsNotReply));
+                List.of(pokeHistoryInfo2, pokeHistoryInfo2PokedIsNotReply));
 
         SimplePokeProfile result = pokeFacade.getPokeHistoryProfile(user, 2L, 2L);
         assertEquals(simplePokeProfile, result);

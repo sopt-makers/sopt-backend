@@ -10,6 +10,7 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.enums.FriendRecommendType;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.facade.PokeFacade;
 import org.sopt.app.presentation.poke.PokeResponse.AllRelationFriendList;
@@ -17,6 +18,7 @@ import org.sopt.app.presentation.poke.PokeResponse.Friend;
 import org.sopt.app.presentation.poke.PokeResponse.FriendList;
 import org.sopt.app.presentation.poke.PokeResponse.PokeMessageList;
 import org.sopt.app.presentation.poke.PokeResponse.PokeToMeHistoryList;
+import org.sopt.app.presentation.poke.PokeResponse.RecommendedFriendsByAllType;
 import org.sopt.app.presentation.poke.PokeResponse.RandomInfo;
 import org.sopt.app.presentation.poke.PokeResponse.RandomInfoList;
 import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
@@ -48,10 +50,10 @@ public class PokeController {
             @RequestParam("size") int size
     ) {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2", "", 34, "서버", 1,
-                "새로운 친구", "새로운 친구", true, false);
+                "새로운 친구", "새로운 친구", true, false, false, "");
         List<SimplePokeProfile> simplePokeProfileList = List.of(simplePokeProfile, simplePokeProfile,
                 simplePokeProfile, simplePokeProfile, simplePokeProfile, simplePokeProfile);
-        
+
         if (randomType.get(0).equals("ALL")) {
             val randomInfoList = List.of(
                     RandomInfo.of("GENERATION", "나와 " + "GENERATION" + " 같은 사람들",
@@ -126,11 +128,11 @@ public class PokeController {
             @PathVariable("userId") Long pokedUserId,
             @RequestBody PokeRequest.PokeMessageRequest messageRequest
     ) {
-        val pokeHistoryId = pokeFacade.pokeFriend(user.getId(), pokedUserId, messageRequest.getMessage());
+        val pokeHistoryId = pokeFacade.pokeFriend(
+                user.getId(), pokedUserId, messageRequest.getMessage(), messageRequest.getIsAnonymous()
+        );
         val response = pokeFacade.getPokeHistoryProfile(user, pokedUserId, pokeHistoryId);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @Operation(summary = "친구를 찔러보세요 조회")
@@ -204,6 +206,22 @@ public class PokeController {
         Friendship targetFriendship = Friendship.getFriendshipByValue(type);
         val friends = pokeFacade.getAllFriendByFriendship(user, targetFriendship, pageable);
         return ResponseEntity.ok(friends);
+    }
+
+    @Operation(summary = "친구 추천 통합 API")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/random")
+    public ResponseEntity<RecommendedFriendsByAllType> getRandomFriendsByFriendRecommendType(
+            @AuthenticationPrincipal User user,
+            @RequestParam(value = "randomType") List<FriendRecommendType> typeList,
+            @RequestParam(value = "size") int size
+    ) {
+        return ResponseEntity.ok(
+                pokeFacade.getRecommendedFriendsByAllType(typeList, size, user)
+        );
     }
 
 }

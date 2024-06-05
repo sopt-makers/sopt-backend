@@ -66,7 +66,7 @@ public class PokeServiceTest {
         when(pokeHistoryRepository.findAllByPokerIdAndPokedIdAndIsReplyIsFalse(1L, 2L)).thenReturn(pokeHistoryList);
         when(pokeHistoryRepository.save(any())).thenReturn(pokeHistoryList.get(0));
 
-        PokeHistory result = pokeService.poke(2L, 1L, "message");
+        PokeHistory result = pokeService.poke(2L, 1L, "message", false);
         assertEquals(pokeHistoryList.get(0).getId(), result.getId());
     }
 
@@ -78,7 +78,7 @@ public class PokeServiceTest {
         when(userRepository.findUserById(any())).thenReturn(Optional.of(user));
         when(pokeHistoryRepository.findAllByPokerIdAndPokedIdAndIsReplyIsFalse(1L, 2L)).thenReturn(List.of());
 
-        PokeHistory result = pokeService.poke(2L, 1L, "message");
+        PokeHistory result = pokeService.poke(2L, 1L, "message", false);
         assertEquals(null, result);
     }
 
@@ -87,6 +87,6 @@ public class PokeServiceTest {
     void FAIL_pokeWithoutUserNotFoundException() {
         when(userRepository.findUserById(any())).thenReturn(Optional.ofNullable(null));
 
-        assertThrows(NotFoundException.class, () -> pokeService.poke(2L, 1L, "message"));
+        assertThrows(NotFoundException.class, () -> pokeService.poke(2L, 1L, "message", false));
     }
 }

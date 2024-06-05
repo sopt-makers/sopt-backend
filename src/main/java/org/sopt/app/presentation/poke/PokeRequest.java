@@ -20,10 +20,9 @@ public class PokeRequest {
         @Schema(description = "찌르기 메시지", example = "Message A")
         @NotNull(message = "messageId may not be null")
         private String message;
-
-        @Schema(description = "찌르기 익명 여부", example = "true")
+        @Schema(description = "익명 여부", example = "true")
+        @NotNull(message = "isAnonymous may not be null")
         private Boolean isAnonymous;
-
     }
 
     @Getter

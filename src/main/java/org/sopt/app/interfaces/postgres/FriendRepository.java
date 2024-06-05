@@ -16,15 +16,10 @@ public interface FriendRepository extends JpaRepository<Friend, Long>, FriendCus
     @Query("SELECT f.friendUserId FROM Friend f WHERE f.userId = :userId")
     List<Long> findAllOfFriendIdsByUserId(@Param("userId") Long userId);
 
+    @Query("SELECT f.userId FROM Friend f WHERE f.friendUserId = :friendId")
+    List<Long> findAllIfUserIdsByFriendId(Long friendId);
+
     List<Friend> findAllByFriendUserId(Long friendUserId);
-
-    @Query(value = "SELECT f FROM Friend f WHERE f.userId = :userId AND f.pokeCount BETWEEN :lowerLimit AND :upperLimit ORDER BY f.pokeCount")
-    List<Friend> findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(@Param("userId") Long userId, @Param("lowerLimit") Integer lowerLimit, @Param("upperLimit") Integer upperLimit);
-    @Query(value = "SELECT f FROM Friend f WHERE f.userId = :userId AND f.pokeCount BETWEEN :lowerLimit AND :upperLimit ORDER BY f.pokeCount")
-    Page<Friend> findAllByUserIdAndPokeCountBetweenOrderByPokeCountDesc(@Param("userId") Long userId, @Param("lowerLimit") Integer lowerLimit, @Param("upperLimit") Integer upperLimit, Pageable pageable);
-
-    @Query(value = "SELECT count(f) FROM Friend f WHERE f.userId = :userId AND f.pokeCount BETWEEN :lowerLimit AND :upperLimit")
-    int findSizeByUserIdAndPokeCountBetween(Long userId, Integer lowerLimit, Integer upperLimit);
 
     List<Friend> findAllByUserId(Long userId);
 

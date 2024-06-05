@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +16,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.poke.PokeHistoryService;
+import org.sopt.app.application.poke.PokeInfo.PokeHistoryInfo;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.domain.entity.PokeHistory;
 import org.sopt.app.interfaces.postgres.PokeHistoryRepository;
@@ -40,7 +42,7 @@ public class PokeHistoryServiceTest {
         when(pokeHistoryRepository.findAllWithFriendOrderByCreatedAtDesc(any(), any())).thenReturn(
                 List.of(pokeHistory));
 
-        List<PokeHistory> result = pokeHistoryService.getAllOfPokeBetween(1L, 2L);
+        List<PokeHistoryInfo> result = pokeHistoryService.getAllOfPokeBetween(1L, 2L);
         assertEquals(pokeHistory.getId(), result.get(0).getId());
     }
 
@@ -109,28 +111,17 @@ public class PokeHistoryServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_유저의 일일 찌르기 횟수 체크")
-    void SUCCESS_checkUserOverDailyPokeLimit() {
+    @DisplayName("SUCCESS_콕찌르기 전체 조회")
+    void SUCCESS_getAllPokeHistoryMap() {
         PokeHistory pokeHistory = PokeHistory.builder().id(1L).pokerId(2L).pokedId(1L).message("message").isReply(false)
                 .build();
+        HashMap<Long, Boolean> pokeHistoryMap = new HashMap<>();
+        pokeHistoryMap.put(1L, false);
 
-        when(pokeHistoryRepository.findAllByPokerIdAndCreatedAtBetween(any(), any(), any())).thenReturn(
-                List.of(pokeHistory));
+        when(pokeHistoryRepository.findAllByPokerIdAndIsReply(1L, false)).thenReturn(List.of(pokeHistory));
 
-        pokeHistoryService.checkUserOverDailyPokeLimit(1L);
-    }
-
-    @Test
-    @DisplayName("FAIL_유저의 일일 찌르기 횟수 체크 초과 시 BadRequestException")
-    void FAIL_checkUserOverDailyPokeLimitBadRequestException() {
-        PokeHistory pokeHistory = PokeHistory.builder().id(1L).pokerId(2L).pokedId(1L).message("message").isReply(false)
-                .build();
-
-        when(pokeHistoryRepository.findAllByPokerIdAndCreatedAtBetween(any(), any(), any())).thenReturn(
-                List.of(pokeHistory, pokeHistory, pokeHistory, pokeHistory, pokeHistory, pokeHistory, pokeHistory,
-                        pokeHistory, pokeHistory, pokeHistory, pokeHistory));
-
-        assertThrows(BadRequestException.class, () -> pokeHistoryService.checkUserOverDailyPokeLimit(1L));
+        Map<Long, Boolean> result = pokeHistoryService.getAllPokeHistoryMap(1L);
+        assertEquals(pokeHistoryMap, result);
     }
 
     @Test
@@ -153,19 +144,5 @@ public class PokeHistoryServiceTest {
                         pokeHistory, pokeHistory, pokeHistory, pokeHistory));
 
         assertThrows(BadRequestException.class, () -> pokeHistoryService.checkDuplicate(1L, 2L));
-    }
-
-    @Test
-    @DisplayName("SUCCESS_콕찌르기 전체 조회")
-    void SUCCESS_getAllPokeHistoryMap() {
-        PokeHistory pokeHistory = PokeHistory.builder().id(1L).pokerId(2L).pokedId(1L).message("message").isReply(false)
-                .build();
-        HashMap<Long, Boolean> pokeHistoryMap = new HashMap<>();
-        pokeHistoryMap.put(1L, false);
-
-        when(pokeHistoryRepository.findAllByPokerIdAndIsReply(1L, false)).thenReturn(List.of(pokeHistory));
-
-        HashMap<Long, Boolean> result = pokeHistoryService.getAllPokeHistoryMap(1L);
-        assertEquals(pokeHistoryMap, result);
     }
 }

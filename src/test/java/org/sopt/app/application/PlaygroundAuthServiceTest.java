@@ -18,7 +18,7 @@ import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.MainView;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.MainViewUser;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.MemberProfile;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundActivity;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundCardinalInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundMain;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.RefreshedToken;
@@ -50,10 +50,10 @@ class PlaygroundAuthServiceTest {
     void SUCCESS_getPlaygroundInfo() {
         // given
         String token = "token";
-        PlaygroundActivity playgroundActivity = new PlaygroundActivity();
-        playgroundActivity.setCardinalInfo("29,서버");
+        PlaygroundCardinalInfo playgroundCardinalInfo = new PlaygroundCardinalInfo();
+        playgroundCardinalInfo.setCardinalInfo("29,서버");
         PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = new PlaygroundProfile();
-        playgroundProfile.setActivities(List.of(playgroundActivity));
+        playgroundProfile.setActivities(List.of(playgroundCardinalInfo));
         playgroundProfile.setProfileImage("profileImage");
         playgroundProfile.setName("name");
         PlaygroundMain playgroundMain = new PlaygroundMain();
@@ -154,10 +154,10 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("SUCCESS_플레이그라운드 이미지 있는 유저 메인 뷰 조회")
     void SUCCESS_getPlaygroundUserForMainViewWithProfileImage() {
-        PlaygroundActivity playgroundActivity = new PlaygroundActivity();
-        playgroundActivity.setCardinalInfo("29,서버");
+        PlaygroundCardinalInfo playgroundCardinalInfo = new PlaygroundCardinalInfo();
+        playgroundCardinalInfo.setCardinalInfo("29,서버");
         PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = new PlaygroundProfile();
-        playgroundProfile.setActivities(List.of(playgroundActivity));
+        playgroundProfile.setActivities(List.of(playgroundCardinalInfo));
         playgroundProfile.setProfileImage("profileImage");
         playgroundProfile.setName("name");
         MainViewUser mainViewUser = MainViewUser.builder().name("name").profileImage("profileImage").build();
@@ -172,10 +172,10 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("SUCCESS_플레이그라운드 이미지 없는 유저 메인 뷰 조회")
     void SUCCESS_getPlaygroundUserForMainViewWithoutProfileImage() {
-        PlaygroundActivity playgroundActivity = new PlaygroundActivity();
-        playgroundActivity.setCardinalInfo("1,서버");
+        PlaygroundCardinalInfo playgroundCardinalInfo = new PlaygroundCardinalInfo();
+        playgroundCardinalInfo.setCardinalInfo("1,서버");
         PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = new PlaygroundProfile();
-        playgroundProfile.setActivities(List.of(playgroundActivity));
+        playgroundProfile.setActivities(List.of(playgroundCardinalInfo));
         playgroundProfile.setProfileImage(null);
         playgroundProfile.setName("name");
         MainViewUser mainViewUser = MainViewUser.builder().name("name").profileImage("").build();
@@ -193,10 +193,10 @@ class PlaygroundAuthServiceTest {
     @DisplayName("SUCCESS_플레이그라운드 활동 유저 활동 정보 조회")
     void SUCCESS_getPlaygroundUserActiveInfoActive() {
         // given
-        PlaygroundActivity playgroundActivity = new PlaygroundActivity();
-        playgroundActivity.setCardinalInfo("1,서버");
+        PlaygroundCardinalInfo playgroundCardinalInfo = new PlaygroundCardinalInfo();
+        playgroundCardinalInfo.setCardinalInfo("1,서버");
         PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = new PlaygroundProfile();
-        playgroundProfile.setActivities(List.of(playgroundActivity));
+        playgroundProfile.setActivities(List.of(playgroundCardinalInfo));
         ReflectionTestUtils.setField(playgroundAuthService, "currentGeneration", 1L);
 
         // when

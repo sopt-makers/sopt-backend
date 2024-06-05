@@ -8,6 +8,10 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.sopt.app.application.poke.PokeInfo.PokeDetail;
+import org.sopt.app.application.poke.PokeInfo.PokedUserInfo;
+import org.sopt.app.domain.enums.FriendRecommendType;
+import org.sopt.app.common.utils.AnonymousImageGenerator;
 
 public class PokeResponse {
 
@@ -212,32 +216,103 @@ public class PokeResponse {
         private Integer pokeNum;
         @Schema(description = "관계 이름", example = "천생연분")
         private String relationName;
-
-        //TODO: dummy data 콕 찌르기 개발 이후 정상화 하기
-        @Schema(description = "익명 여부", example = "true")
-        private Boolean isAnonymous = true;
-        private String anonymousName = "익명의 사자";
-
         @Schema(description = "함께 아는 친구관계 문구", example = "제갈송현 외 1명과 친구")
         private String mutualRelationMessage;
-
         @Schema(description = "이전에 찌른 이력이 있는지에 대한 여부", example = "false")
         private Boolean isFirstMeet;
         @Schema(description = "이미 오늘 찔렀는지에 대한 여부", example = "true")
         private Boolean isAlreadyPoke;
+        @Schema(description = "익명 여부", example = "true")
+        private Boolean isAnonymous;
+        @Schema(description = "익명 이름", example = "익명의 그윽한 떡볶이")
+        private String anonymousName;
+        @Schema(description = "익명 사진", example = "~.png")
+        private String anonymousImage;
 
-        public static SimplePokeProfile of(
-                Long userId, Long playgroundId, String profileImage, String name, String message,
-                Integer generation, String part, Integer pickNum, String relationName,
-                String mutualRelationMessage, Boolean isFirstMeet,
-                Boolean isAlreadyPoke
+        public static SimplePokeProfile from(
+                PokedUserInfo pokedUserInfo,
+                PokeDetail pokeDetail,
+                Boolean isAlreadyPoke,
+                Boolean isAnonymous
         ) {
             return new SimplePokeProfile(
-                    userId, playgroundId, profileImage, name,
+                    pokedUserInfo.getUserId(),
+                    pokedUserInfo.getPlaygroundId(),
+                    pokedUserInfo.getProfileImage() == null ? "" : pokedUserInfo.getProfileImage(),
+                    pokedUserInfo.getName(),
+                    pokeDetail.getMessage() == null ? "" : pokeDetail.getMessage(),
+                    pokedUserInfo.getGeneration(),
+                    pokedUserInfo.getPart(),
+                    pokedUserInfo.getRelation().getPokeNum(),
+                    pokedUserInfo.getRelation().getRelationName(),
+                    pokedUserInfo.getMutualRelationMessage(),
+                    pokedUserInfo.isFirstMeet(),
+                    isAlreadyPoke,
+                    isAnonymous,
+                    isAnonymous ? pokedUserInfo.getRelation().getAnonymousName() : "",
+                    AnonymousImageGenerator.getImageUrl(isAnonymous)
+            );
+        }
+
+        public static SimplePokeProfile of(
+                Long userId,
+                Long playgroundId,
+                String profileImage,
+                String name,
+                String message,
+                Integer generation,
+                String part,
+                Integer pickNum,
+                String relationName,
+                String mutualRelationMessage,
+                Boolean isFirstMeet,
+                Boolean isAlreadyPoke,
+                Boolean isAnonymous,
+                String anonymousName
+        ) {
+            return new SimplePokeProfile(
+                    userId,
+                    playgroundId,
+                    profileImage,
+                    name,
                     message == null ? "" : message,
-                    generation, part, pickNum, relationName,
-                    true, "익명의 사자", // TODO: 추후 변경하기
-                    mutualRelationMessage, isFirstMeet, isAlreadyPoke
+                    generation,
+                    part,
+                    pickNum,
+                    relationName,
+                    mutualRelationMessage,
+                    isFirstMeet,
+                    isAlreadyPoke,
+                    isAnonymous,
+                    isAnonymous ? anonymousName : "",
+                    AnonymousImageGenerator.getImageUrl(isAnonymous)
+            );
+        }
+
+        public static SimplePokeProfile createNonFriendPokeProfile(
+                Long userId,
+                Long playgroundId,
+                String profileImage,
+                String name,
+                Integer generation,
+                String part
+        ) {
+            return new SimplePokeProfile(
+                    userId,
+                    playgroundId,
+                    profileImage,
+                    name,
+                    "",
+                    generation,
+                    part,
+                    0,
+                    "",
+                    "",
+                    true,
+                    false,
+                    false,
+                    "",
+                    ""
             );
         }
     }
@@ -300,6 +375,37 @@ public class PokeResponse {
                 Long userId, String profileImage, String name, Long generation, String part, Boolean isAlreadyPoked
         ) {
             return new PokeProfile(userId, profileImage, name, generation, part, isAlreadyPoked);
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class RecommendedFriendsByAllType {
+
+        private List<RecommendedFriendsByType> randomInfoList;
+
+        public static RecommendedFriendsByAllType of(
+                List<RecommendedFriendsByType> randomInfoList
+        ) {
+            return new RecommendedFriendsByAllType(randomInfoList);
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class RecommendedFriendsByType {
+
+        @Schema(description = "친구 추천 타입 ENUM", example = "MBTI")
+        private FriendRecommendType randomType;
+        @Schema(description = "친구 추천 타입 별 제목", example = "나와 MBTI가 같은 사람이에요")
+        private String randomTitle;
+        @Schema(description = "추천 친구 정보 리스트", example = "[]")
+        private List<SimplePokeProfile> userInfoList;
+
+        public static RecommendedFriendsByType of(
+                FriendRecommendType randomType, String randomTitle, List<SimplePokeProfile> userInfoList
+        ) {
+            return new RecommendedFriendsByType(randomType, randomTitle, userInfoList);
         }
     }
 }
