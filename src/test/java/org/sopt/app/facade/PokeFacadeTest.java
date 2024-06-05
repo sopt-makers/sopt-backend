@@ -1,6 +1,7 @@
 package org.sopt.app.facade;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -60,43 +61,43 @@ import org.springframework.data.domain.Pageable;
 class PokeFacadeTest {
 
     private static final String MESSAGES_HEADER_FOR_POKE = "함께 보낼 메시지를 선택해주세요";
-    private Relationship relationship1 = Relationship.builder().pokeNum(1).build();
-    private Relationship relationship2 = Relationship.builder().pokeNum(3).build();
-    private PlaygroundAuthInfo.ActiveUserIds activeUserIds = new ActiveUserIds();
-    private User user = User.builder().id(1L).playgroundToken("token").build();
-    private UserProfile userProfile1 = UserProfile.builder().userId(1L).name("name1").playgroundId(1L).build();
-    private UserProfile userProfile2 = UserProfile.builder().userId(2L).name("name2").playgroundId(2L).build();
-    private UserProfile userProfile3 = UserProfile.builder().userId(3L).name("name3").playgroundId(3L).build();
-    private UserProfile userProfile4 = UserProfile.builder().userId(4L).name("name4").playgroundId(4L).build();
-    private List<UserProfile> userProfileList = List.of(userProfile2, userProfile3);
-    private List<UserProfile> userProfileListIncludingMe = List.of(userProfile1, userProfile2, userProfile3);
-    private ActivityCardinalInfo activityCardinalInfo = ActivityCardinalInfo.builder().cardinalInfo("34,서버").build();
-    private List<MemberProfile> memberProfileList = List.of(
+    private final Relationship relationship1 = Relationship.builder().pokeNum(1).build();
+    private final Relationship relationship2 = Relationship.builder().pokeNum(3).build();
+    private final PlaygroundAuthInfo.ActiveUserIds activeUserIds = new ActiveUserIds();
+    private final User user = User.builder().id(1L).playgroundToken("token").build();
+    private final UserProfile userProfile1 = UserProfile.builder().userId(1L).name("name1").playgroundId(1L).build();
+    private final UserProfile userProfile2 = UserProfile.builder().userId(2L).name("name2").playgroundId(2L).build();
+    private final UserProfile userProfile3 = UserProfile.builder().userId(3L).name("name3").playgroundId(3L).build();
+    private final UserProfile userProfile4 = UserProfile.builder().userId(4L).name("name4").playgroundId(4L).build();
+    private final List<UserProfile> userProfileList = List.of(userProfile2, userProfile3);
+    private final List<UserProfile> userProfileListIncludingMe = List.of(userProfile1, userProfile2, userProfile3);
+    private final ActivityCardinalInfo activityCardinalInfo = ActivityCardinalInfo.builder().cardinalInfo("34,서버").build();
+    private final List<MemberProfile> memberProfileList = List.of(
             new MemberProfile(2L, "image", "name2", List.of(activityCardinalInfo)),
             new MemberProfile(3L, "image", "name3", List.of(activityCardinalInfo))
     );
-    private List<MemberProfile> memberProfileListWithoutImage = List.of(
+    private final List<MemberProfile> memberProfileListWithoutImage = List.of(
             new MemberProfile(2L, null, "name2", List.of(activityCardinalInfo)),
             new MemberProfile(3L, null, "name3", List.of(activityCardinalInfo))
     );
-    private List<Long> userIdListExcludeMe = List.of(2L, 3L);
-    private List<PokeResponse.Friend> friendList = List.of(
+    private final List<Long> userIdListExcludeMe = List.of(2L, 3L);
+    private final List<PokeResponse.Friend> friendList = List.of(
             PokeResponse.Friend.of(2L, 2L, "name2", "", List.of()),
             PokeResponse.Friend.of(3L, 3L, "name2", "", List.of())
     );
-    private PokeHistory pokeHistory2 = PokeHistory.builder().id(2L).pokedId(1L).pokerId(2L).isReply(false)
+    private final PokeHistory pokeHistory2 = PokeHistory.builder().id(2L).pokedId(1L).pokerId(2L).isReply(false)
             .isAnonymous(false).build();
-    private PokeHistoryInfo pokeHistoryInfo2 = PokeHistoryInfo.builder().id(2L).pokedId(1L).pokerId(2L).isReply(false)
+    private final PokeHistoryInfo pokeHistoryInfo2 = PokeHistoryInfo.builder().id(2L).pokedId(1L).pokerId(2L).isReply(false)
             .isAnonymous(false).build();
-    private PokeHistoryInfo pokeHistoryInfo2PokedIsNotReply = PokeHistoryInfo.builder().id(3L).pokedId(2L).pokerId(1L)
+    private final PokeHistoryInfo pokeHistoryInfo2PokedIsNotReply = PokeHistoryInfo.builder().id(3L).pokedId(2L).pokerId(1L)
             .isReply(false).isAnonymous(false).build();
-    private PokeHistoryInfo pokeHistoryInfo2PokedIsReply = PokeHistoryInfo.builder().id(3L).pokedId(2L).pokerId(1L)
+    private final PokeHistoryInfo pokeHistoryInfo2PokedIsReply = PokeHistoryInfo.builder().id(3L).pokedId(2L).pokerId(1L)
             .isReply(true)
             .isAnonymous(false).build();
-    private PokeHistory pokeHistory3 = PokeHistory.builder().id(3L).pokedId(1L).pokerId(3L).isReply(true)
+    private final PokeHistory pokeHistory3 = PokeHistory.builder().id(3L).pokedId(1L).pokerId(3L).isReply(true)
             .isAnonymous(false).build();
-    private PokeDetail pokeDetail2 = PokeDetail.builder().id(2L).pokedId(1L).pokerId(2L).message("message").build();
-    private Friend friend2 = Friend.builder().id(2L).userId(1L).friendUserId(2L).pokeCount(1).anonymousName("").build();
+    private final PokeDetail pokeDetail2 = PokeDetail.builder().id(2L).pokedId(1L).pokerId(2L).message("message").build();
+    private final Friend friend2 = Friend.builder().id(2L).userId(1L).friendUserId(2L).pokeCount(1).anonymousName("").build();
     @Mock
     private PokeMessageService pokeMessageService;
     @Mock
@@ -141,7 +142,7 @@ class PokeFacadeTest {
         when(pokeMessageService.getMessagesHeaderComment(any())).thenReturn(MESSAGES_HEADER_FOR_POKE);
 
         String pokingMessageHeader = pokeFacade.getPokingMessageHeader(type);
-        assertEquals(pokingMessageHeader, MESSAGES_HEADER_FOR_POKE);
+        assertEquals(MESSAGES_HEADER_FOR_POKE, pokingMessageHeader);
     }
 
     @Test
@@ -254,7 +255,7 @@ class PokeFacadeTest {
         when(pokeHistoryService.getAllLatestPokeHistoryFromTo(3L, 1L)).thenReturn(List.of(pokeHistory3));
 
         SimplePokeProfile result = pokeFacade.getMostRecentPokeMeHistory(user);
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     @Test
