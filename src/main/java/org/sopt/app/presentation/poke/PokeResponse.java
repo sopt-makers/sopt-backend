@@ -300,7 +300,7 @@ public class PokeResponse {
             return new SimplePokeProfile(
                     userId,
                     playgroundId,
-                    profileImage,
+                    profileImage == null ? "" : profileImage,
                     name,
                     "",
                     generation,
