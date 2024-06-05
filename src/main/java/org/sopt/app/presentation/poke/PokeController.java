@@ -19,8 +19,6 @@ import org.sopt.app.presentation.poke.PokeResponse.FriendList;
 import org.sopt.app.presentation.poke.PokeResponse.PokeMessageList;
 import org.sopt.app.presentation.poke.PokeResponse.PokeToMeHistoryList;
 import org.sopt.app.presentation.poke.PokeResponse.RecommendedFriendsByAllType;
-import org.sopt.app.presentation.poke.PokeResponse.RandomInfo;
-import org.sopt.app.presentation.poke.PokeResponse.RandomInfoList;
 import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -43,34 +41,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class PokeController {
 
     private final PokeFacade pokeFacade;
-
-    @GetMapping("/random")
-    public ResponseEntity<RandomInfoList> getRandomByRandomTypeAndSize(
-            @RequestParam("randomType") List<String> randomType,
-            @RequestParam("size") int size
-    ) {
-        SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2", "", 34, "서버", 1,
-                "새로운 친구", "새로운 친구", true, false, false, "");
-        List<SimplePokeProfile> simplePokeProfileList = List.of(simplePokeProfile, simplePokeProfile,
-                simplePokeProfile, simplePokeProfile, simplePokeProfile, simplePokeProfile);
-
-        if (randomType.get(0).equals("ALL")) {
-            val randomInfoList = List.of(
-                    RandomInfo.of("GENERATION", "나와 " + "GENERATION" + " 같은 사람들",
-                            simplePokeProfileList.subList(0, size)),
-                    RandomInfo.of("MBTI", "나와 " + "MBTI" + " 같은 사람들", simplePokeProfileList.subList(0, size)),
-                    RandomInfo.of("SOJU_CAPACITY", "나와 " + "SOJU_CAPACITY" + " 같은 사람들",
-                            simplePokeProfileList.subList(0, size))
-            );
-            return ResponseEntity.ok(RandomInfoList.of(randomInfoList));
-        } else {
-            val randomInfoList = randomType.stream()
-                    .map(type -> RandomInfo.of(type, "나와 " + type + " 같은 사람들", simplePokeProfileList.subList(0, size)))
-                    .toList();
-            val result = RandomInfoList.of(randomInfoList);
-            return ResponseEntity.ok(result);
-        }
-    }
 
     @GetMapping("/random-user")
     public ResponseEntity<List<PokeResponse.SimplePokeProfile>> getRandomUserForNew(
