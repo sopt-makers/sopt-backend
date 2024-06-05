@@ -1,6 +1,7 @@
 package org.sopt.app.application;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -22,7 +23,7 @@ import org.sopt.app.interfaces.postgres.PokeHistoryRepository;
 import org.sopt.app.interfaces.postgres.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class PokeServiceTest {
+class PokeServiceTest {
 
     @Mock
     private UserRepository userRepository;
@@ -79,7 +80,7 @@ public class PokeServiceTest {
         when(pokeHistoryRepository.findAllByPokerIdAndPokedIdAndIsReplyIsFalse(1L, 2L)).thenReturn(List.of());
 
         PokeHistory result = pokeService.poke(2L, 1L, "message", false);
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     @Test

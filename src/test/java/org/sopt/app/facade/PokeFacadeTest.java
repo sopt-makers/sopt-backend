@@ -2,6 +2,7 @@ package org.sopt.app.facade;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -47,7 +48,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-public class PokeFacadeTest {
+class PokeFacadeTest {
 
     private static final String MESSAGES_HEADER_FOR_POKE = "함께 보낼 메시지를 선택해주세요";
     private Relationship relationship1 = Relationship.builder().pokeNum(1).build();
@@ -75,10 +76,6 @@ public class PokeFacadeTest {
             PokeResponse.Friend.of(3L, 3L, "name2", "", List.of())
     );
     private PokeHistory pokeHistory2 = PokeHistory.builder().id(2L).pokedId(1L).pokerId(2L).isReply(false)
-            .isAnonymous(false).build();
-    private PokeHistory pokeHistory2PokedIsNotReply = PokeHistory.builder().id(3L).pokedId(2L).pokerId(1L)
-            .isReply(false).isAnonymous(false).build();
-    private PokeHistory pokeHistory2PokedIsReply = PokeHistory.builder().id(3L).pokedId(2L).pokerId(1L).isReply(true)
             .isAnonymous(false).build();
     private PokeHistoryInfo pokeHistoryInfo2 = PokeHistoryInfo.builder().id(2L).pokedId(1L).pokerId(2L).isReply(false)
             .isAnonymous(false).build();
@@ -521,6 +518,6 @@ public class PokeFacadeTest {
         when(friendService.getIsNewUser(1L)).thenReturn(true);
 
         boolean result = pokeFacade.getIsNewUser(user.getId());
-        assertEquals(true, result);
+        assertTrue(result);
     }
 }
