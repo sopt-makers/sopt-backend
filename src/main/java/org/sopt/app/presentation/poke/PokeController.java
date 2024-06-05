@@ -10,6 +10,7 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.enums.FriendRecommendType;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.facade.PokeFacade;
 import org.sopt.app.presentation.poke.PokeResponse.AllRelationFriendList;
@@ -17,6 +18,7 @@ import org.sopt.app.presentation.poke.PokeResponse.Friend;
 import org.sopt.app.presentation.poke.PokeResponse.FriendList;
 import org.sopt.app.presentation.poke.PokeResponse.PokeMessageList;
 import org.sopt.app.presentation.poke.PokeResponse.PokeToMeHistoryList;
+import org.sopt.app.presentation.poke.PokeResponse.RecommendedFriendsByAllType;
 import org.sopt.app.presentation.poke.PokeResponse.RandomInfo;
 import org.sopt.app.presentation.poke.PokeResponse.RandomInfoList;
 import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
@@ -204,6 +206,22 @@ public class PokeController {
         Friendship targetFriendship = Friendship.getFriendshipByValue(type);
         val friends = pokeFacade.getAllFriendByFriendship(user, targetFriendship, pageable);
         return ResponseEntity.ok(friends);
+    }
+
+    @Operation(summary = "친구 추천 통합 API")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/random")
+    public ResponseEntity<RecommendedFriendsByAllType> getRandomFriendsByFriendRecommendType(
+            @AuthenticationPrincipal User user,
+            @RequestParam(value = "randomType") List<FriendRecommendType> typeList,
+            @RequestParam(value = "size") int size
+    ) {
+        return ResponseEntity.ok(
+                pokeFacade.getRecommendedFriendsByAllType(typeList, size, user)
+        );
     }
 
 }

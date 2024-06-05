@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
@@ -182,5 +184,14 @@ public class FriendService {
 
     public List<Long> findAllFriendIdsByUserId(Long userId) {
         return friendRepository.findAllOfFriendIdsByUserId(userId);
+    }
+
+    public List<Long> findUserIdsLinkedFriends(Long userId) {
+        return Stream.concat(
+                        friendRepository.findAllOfFriendIdsByUserId(userId).stream(),
+                        friendRepository.findAllIfUserIdsByFriendId(userId).stream()
+                )
+                .distinct()
+                .collect(Collectors.toList());
     }
 }
