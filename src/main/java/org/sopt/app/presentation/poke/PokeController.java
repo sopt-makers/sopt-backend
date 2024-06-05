@@ -19,8 +19,6 @@ import org.sopt.app.presentation.poke.PokeResponse.FriendList;
 import org.sopt.app.presentation.poke.PokeResponse.PokeMessageList;
 import org.sopt.app.presentation.poke.PokeResponse.PokeToMeHistoryList;
 import org.sopt.app.presentation.poke.PokeResponse.RecommendedFriendsByAllType;
-import org.sopt.app.presentation.poke.PokeResponse.RandomInfo;
-import org.sopt.app.presentation.poke.PokeResponse.RandomInfoList;
 import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
