@@ -62,4 +62,12 @@ public class PokeFixture {
                 .activities(List.of(ActivityCardinalInfo.builder().cardinalInfo(GENERATION + "," + PART).build()))
                 .build();
     }
+
+    public static OwnPlaygroundProfile createMbtiNullPlaygroundProfile() {
+        return OwnPlaygroundProfile.builder()
+                .mbti(null)
+                .university(UNIVERSITY)
+                .activities(List.of(ActivityCardinalInfo.builder().cardinalInfo(GENERATION + "," + PART).build()))
+                .build();
+    }
 }
