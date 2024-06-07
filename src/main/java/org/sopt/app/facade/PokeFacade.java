@@ -363,7 +363,9 @@ public class PokeFacade {
         boolean isAlreadyPoke = pokeHistoryList.stream()
                 .filter(pokeHistory -> pokeHistory.getPokerId().equals(user.getId()))
                 .anyMatch(pokeHistory -> !pokeHistory.getIsReply());
-        boolean isAnonymous = pokeHistoryList.get(0).getIsAnonymous();
+        boolean isAnonymous = pokeHistoryList.stream()
+                .filter(pokeHistory -> pokeHistory.getPokedId().equals(user.getId()))
+                .findFirst().map(PokeHistoryInfo::getIsAnonymous).orElse(false);
 
         return SimplePokeProfile.from(
                 friendUserInfo,
@@ -433,7 +435,8 @@ public class PokeFacade {
     }
 
     private void addRecommendedFriendsListByGeneration(List<RecommendedFriendsByType> list, int size,
-            Long userId, Integer generation, IntFunction<List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
+            Long userId, Integer generation,
+            IntFunction<List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
         List<PlaygroundProfileOfRecommendedFriend> profiles = fetchProfilesFunction.apply(generation);
         validateRecommendedFriends(generation, profiles, list, FriendRecommendType.GENERATION, size, userId);
     }
