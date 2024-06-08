@@ -47,7 +47,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-public class PokeFacadeTest {
+class PokeFacadeTest {
 
     private static final String MESSAGES_HEADER_FOR_POKE = "함께 보낼 메시지를 선택해주세요";
     private Relationship relationship1 = Relationship.builder().pokeNum(1).build();
@@ -322,9 +322,9 @@ public class PokeFacadeTest {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2",
                 "", 34, "서버", 1, null, "새로운 친구", false, false, false, "");
 
-        when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(List.of(2L, 3L));
-        when(userService.getUserProfilesByUserIds(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L, 3L))).thenReturn(memberProfileList);
+        when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
+        when(userService.getUserProfilesByUserIds(List.of(2L))).thenReturn(List.of(userProfile2, userProfile3));
+        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(memberProfileList);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of());
         when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistoryInfo2));
@@ -339,9 +339,9 @@ public class PokeFacadeTest {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2",
                 "", 34, "서버", 1, null, "name3의 친구", false, false, false, "");
 
-        when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(List.of(2L, 3L));
-        when(userService.getUserProfilesByUserIds(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L, 3L))).thenReturn(memberProfileList);
+        when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
+        when(userService.getUserProfilesByUserIds(List.of(2L))).thenReturn(List.of(userProfile2, userProfile3));
+        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(memberProfileList);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
@@ -357,9 +357,9 @@ public class PokeFacadeTest {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "", "name2",
                 "", 34, "서버", 1, null, "name3의 친구", false, false, false, "");
 
-        when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(List.of(2L, 3L));
-        when(userService.getUserProfilesByUserIds(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L, 3L))).thenReturn(
+        when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
+        when(userService.getUserProfilesByUserIds(List.of(2L))).thenReturn(List.of(userProfile2));
+        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(
                 memberProfileListWithoutImage);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
@@ -376,9 +376,9 @@ public class PokeFacadeTest {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "", "name2",
                 "", 34, "서버", 1, null, "name3 외 1명과 친구", false, false, false, "");
 
-        when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(List.of(2L, 3L));
-        when(userService.getUserProfilesByUserIds(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L, 3L))).thenReturn(
+        when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
+        when(userService.getUserProfilesByUserIds(List.of(2L))).thenReturn(List.of(userProfile2));
+        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(
                 memberProfileListWithoutImage);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L, 4L));
