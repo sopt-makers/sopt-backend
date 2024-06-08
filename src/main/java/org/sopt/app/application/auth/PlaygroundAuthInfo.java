@@ -86,6 +86,7 @@ public class PlaygroundAuthInfo {
     }
 
     @Getter
+    @Setter
     @Builder
     @ToString
     @NoArgsConstructor(access = AccessLevel.PUBLIC)
@@ -106,9 +107,10 @@ public class PlaygroundAuthInfo {
     }
 
     @Getter
+    @Setter
     @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor(access = AccessLevel.PUBLIC)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class ActivityCardinalInfo {
 
         private String cardinalInfo;
