@@ -733,6 +733,40 @@ class PokeFacadeTest {
         assertTrue(recommendedFriendTypes.containsAll(List.of(FriendRecommendType.GENERATION, FriendRecommendType.UNIVERSITY)));
     }
 
+    @Test
+    @DisplayName("SUCCESS_요구사항6_플그 아이디는 있지만 앱 아이디가 없는 유저는 추천하지 않도록 필터링")
+    void SUCCESS_getRecommendedFriendsByAllType_Requirement6() {
+        // given
+        given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(PokeFixture.createOwnPlaygroundProfile());
+        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION)).willReturn(
+                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameGenerationList(List.of(1L,2L,3L)));
+        given(playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI)).willReturn(
+                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameMbtiList(List.of(4L,5L,6L)));
+        given(playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(GENERATION, UNIVERSITY)).willReturn(
+                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameUniversityList(List.of(7L,8L,9L)));
+        given(friendService.findUserIdsLinkedFriends(anyLong())).willReturn(new ArrayList<>());
+
+        given(userService.getUserProfilesByPlaygroundIds(anyList())).willReturn(
+                PokeFixture.createUserProfileList(
+                        List.of(11L, 22L, 44L, 55L, 77L, 88L),
+                        List.of(1L, 2L, 4L, 5L, 7L, 8L)
+                )); // playgroundId가 3, 6, 9인 유저는 앱 아이디가 없음
+        User myAppUser = UserFixture.createMyAppUser();
+
+        // when
+        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        List<Long> playgroundIdByRecommendedFriendByGeneration = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.GENERATION);
+        List<Long> playgroundIdByRecommendedFriendByMbti = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.MBTI);
+        List<Long> playgroundIdByRecommendedFriendByUniversity = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.UNIVERSITY);
+        // then
+        assertEquals(2, playgroundIdByRecommendedFriendByGeneration.size());
+        assertTrue(playgroundIdByRecommendedFriendByGeneration.containsAll(List.of(1L, 2L)));
+        assertEquals(2, playgroundIdByRecommendedFriendByMbti.size());
+        assertTrue(playgroundIdByRecommendedFriendByMbti.containsAll(List.of(4L, 5L)));
+        assertEquals(2, playgroundIdByRecommendedFriendByUniversity.size());
+        assertTrue(playgroundIdByRecommendedFriendByUniversity.containsAll(List.of(7L, 8L)));
+    }
+
     private List<Long> findPlaygroundIdsInRecommendedFriendsByAllTypeByType(RecommendedFriendsByAllType recommendedFriendsByAllType, FriendRecommendType type) {
         return recommendedFriendsByAllType.getRandomInfoList().stream()
                 .filter(randomInfo -> randomInfo.getRandomType() == type)
