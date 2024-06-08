@@ -2,6 +2,7 @@ package org.sopt.app.application;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
 import io.jsonwebtoken.ExpiredJwtException;
@@ -18,6 +19,7 @@ import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.MainView;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.MainViewUser;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.MemberProfile;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundCardinalInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundMain;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
@@ -313,4 +315,48 @@ class PlaygroundAuthServiceTest {
         Assertions.assertThrows(UnauthorizedException.class,
                 () -> playgroundAuthService.getPlaygroundMemberProfiles(token, memberIds));
     }
+
+    @Test
+    @DisplayName("SUCCESS_자신의 플레이그라운드 프로필 조회")
+    void SUCCESS_getOwnPlaygroundProfile(){
+        // given & when
+        given(playgroundClient.getOwnPlaygroundProfile(any())).willReturn(new OwnPlaygroundProfile());
+
+        // then
+        Assertions.assertDoesNotThrow(() -> playgroundAuthService.getOwnPlaygroundProfile(token));
+    }
+
+    /* TODO: Implement the following methods
+    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameGeneration(Integer generation) {
+        return playgroundClient.getPlaygroundProfileForSameGeneration(createAuthorizationHeader(playgroundToken), generation).getMembers();
+    }
+
+    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameMbtiAndGeneration(Integer generation, String mbti) {
+        List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> result = new ArrayList<>();
+        final int TARGET_GENERATION_RANGE = 3;
+        for (int i = 0; i < TARGET_GENERATION_RANGE; i++) {
+            int targetGeneration = generation - i;
+            if (targetGeneration < 1) {
+                break;
+            }
+            result.addAll(playgroundClient.getPlaygroundProfileForSameMbti(createAuthorizationHeader(playgroundToken), generation ,mbti).getMembers());
+        }
+
+        return result.stream().distinct().toList();
+    }
+
+    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameUniversityAndGeneration(Integer generation, String university) {
+        List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> result = new ArrayList<>();
+        final int TARGET_GENERATION_RANGE = 3;
+        for (int i = 0; i < TARGET_GENERATION_RANGE; i++) {
+            int targetGeneration = generation - i;
+            if (targetGeneration < 1) {
+                break;
+            }
+            result.addAll(playgroundClient.getPlaygroundProfileForSameUniversity(createAuthorizationHeader(playgroundToken), targetGeneration, university).getMembers());
+        }
+
+        return result.stream().distinct().toList();
+    }
+    * */
 }
