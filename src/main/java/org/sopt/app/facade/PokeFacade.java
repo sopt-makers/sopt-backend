@@ -547,8 +547,8 @@ public class PokeFacade {
 
     private PokeInfo.PokedUserInfo getFriendUserInfo(User user, Long friendUserId) {
         val pokedUser = userService.getUserProfile(friendUserId);
-        val pokedUserProfile = userService.getUserProfile(pokedUser.getPlaygroundId());
-        val pokedUserPlaygroundProfile = (PlaygroundProfile) playgroundAuthService.getPlaygroundMemberProfiles(
+        val pokedUserProfile = userService.getUserProfilesByPlaygroundIds(List.of(pokedUser.getPlaygroundId())).get(0);
+        val pokedUserPlaygroundProfile = playgroundAuthService.getPlaygroundMemberProfiles(
                 user.getPlaygroundToken(), List.of(pokedUserProfile.getPlaygroundId())).get(0);
         val latestActivity = pokedUserPlaygroundProfile.getLatestActivity();
         val mutualFriendNames = friendService.getMutualFriendIds(user.getId(), friendUserId).stream()
