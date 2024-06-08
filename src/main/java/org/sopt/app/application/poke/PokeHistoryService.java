@@ -3,6 +3,7 @@ package org.sopt.app.application.poke;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.poke.PokeInfo.PokeHistoryInfo;
@@ -24,7 +25,7 @@ public class PokeHistoryService {
         val pokeHistoryList = pokeHistoryRepository.findAllWithFriendOrderByCreatedAtDesc(userId, friendId);
 
         return pokeHistoryList.stream()
-                .map(pokeHistory -> PokeHistoryInfo.from(pokeHistory))
+                .map(PokeHistoryInfo::from)
                 .sorted(Comparator.comparing(PokeHistoryInfo::getCreatedAt).reversed())
                 .toList();
     }
@@ -60,12 +61,12 @@ public class PokeHistoryService {
 
     public void checkDuplicate(Long pokerUserId, Long pokedUserId) {
         val pokeHistory = pokeHistoryRepository.findAllByPokerIdAndPokedIdAndIsReplyIsFalse(pokerUserId, pokedUserId);
-        if (pokeHistory.size() >= 1) {
+        if (!pokeHistory.isEmpty()) {
             throw new BadRequestException(ErrorCode.DUPLICATE_POKE.getMessage());
         }
     }
 
-    public HashMap<Long, Boolean> getAllPokeHistoryMap(Long userId) {
+    public Map<Long, Boolean> getAllPokeHistoryMap(Long userId) {
         val pokeHistories = pokeHistoryRepository.findAllByPokerIdAndIsReply(userId, false);
         HashMap<Long, Boolean> pokeHistoryMap = new HashMap<>();
         for (PokeHistory pokeHistory : pokeHistories) {

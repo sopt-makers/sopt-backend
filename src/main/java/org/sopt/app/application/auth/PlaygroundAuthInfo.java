@@ -6,6 +6,7 @@ import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -100,7 +101,8 @@ public class PlaygroundAuthInfo {
 
         public ActivityCardinalInfo getLatestActivity() {
             return activities.stream()
-                    .sorted(Comparator.comparing(PlaygroundAuthInfo.ActivityCardinalInfo::getGeneration, Comparator.reverseOrder()))
+                    .sorted(Comparator.comparing(PlaygroundAuthInfo.ActivityCardinalInfo::getGeneration,
+                            Comparator.reverseOrder()))
                     .toList()
                     .get(0);
         }
@@ -124,4 +126,51 @@ public class PlaygroundAuthInfo {
         }
     }
 
+    @Getter
+    @Builder
+    @ToString
+    @NoArgsConstructor(access = AccessLevel.PUBLIC)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    public static class OwnPlaygroundProfile {
+
+        private String mbti;
+        private String university;
+        private List<ActivityCardinalInfo> activities;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    @NoArgsConstructor(access = AccessLevel.PUBLIC)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    public static class PlaygroundProfileOfRecommendedFriendList {
+
+        private List<PlaygroundProfileOfRecommendedFriend> members;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    @NoArgsConstructor(access = AccessLevel.PUBLIC)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @EqualsAndHashCode(of = {"playgroundId"})
+    public static class PlaygroundProfileOfRecommendedFriend {
+
+        @JsonProperty("id")
+        private Long playgroundId;
+        private String mbti;
+        private String university;
+        private String profileImage;
+        private String name;
+        private List<PlaygroundActivity> activities;
+    }
+
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PUBLIC)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    public static class PlaygroundActivity {
+
+        private String part;
+        private Integer generation;
+    }
 }

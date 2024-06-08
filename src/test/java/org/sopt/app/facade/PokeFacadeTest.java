@@ -1,12 +1,18 @@
 package org.sopt.app.facade;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +29,9 @@ import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.ActivityCardinalInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.OwnPlaygroundProfile;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundActivity;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend;
 import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.poke.FriendService;
 import org.sopt.app.application.poke.PokeHistoryService;
@@ -37,10 +46,12 @@ import org.sopt.app.domain.entity.Friend;
 import org.sopt.app.domain.entity.PokeHistory;
 import org.sopt.app.domain.entity.PokeMessage;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.enums.FriendRecommendType;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.presentation.poke.PokeResponse;
 import org.sopt.app.presentation.poke.PokeResponse.EachRelationFriendList;
 import org.sopt.app.presentation.poke.PokeResponse.PokeToMeHistoryList;
+import org.sopt.app.presentation.poke.PokeResponse.RecommendedFriendsByAllType;
 import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -50,43 +61,49 @@ import org.springframework.data.domain.Pageable;
 class PokeFacadeTest {
 
     private static final String MESSAGES_HEADER_FOR_POKE = "함께 보낼 메시지를 선택해주세요";
-    private Relationship relationship1 = Relationship.builder().pokeNum(1).build();
-    private Relationship relationship2 = Relationship.builder().pokeNum(3).build();
-    private PlaygroundAuthInfo.ActiveUserIds activeUserIds = new ActiveUserIds();
-    private User user = User.builder().id(1L).playgroundToken("token").build();
-    private UserProfile userProfile1 = UserProfile.builder().userId(1L).name("name1").playgroundId(1L).build();
-    private UserProfile userProfile2 = UserProfile.builder().userId(2L).name("name2").playgroundId(2L).build();
-    private UserProfile userProfile3 = UserProfile.builder().userId(3L).name("name3").playgroundId(3L).build();
-    private UserProfile userProfile4 = UserProfile.builder().userId(4L).name("name4").playgroundId(4L).build();
-    private List<UserProfile> userProfileList = List.of(userProfile2, userProfile3);
-    private List<UserProfile> userProfileListIncludingMe = List.of(userProfile1, userProfile2, userProfile3);
-    private ActivityCardinalInfo activityCardinalInfo = ActivityCardinalInfo.builder().cardinalInfo("34,서버").build();
-    private List<PlaygroundProfile> playgroundProfileList = List.of(
+    private final Relationship relationship1 = Relationship.builder().pokeNum(1).build();
+    private final Relationship relationship2 = Relationship.builder().pokeNum(3).build();
+    private final PlaygroundAuthInfo.ActiveUserIds activeUserIds = new ActiveUserIds();
+    private final User user = User.builder().id(1L).playgroundToken("token").build();
+    private final UserProfile userProfile1 = UserProfile.builder().userId(1L).name("name1").playgroundId(1L).build();
+    private final UserProfile userProfile2 = UserProfile.builder().userId(2L).name("name2").playgroundId(2L).build();
+    private final UserProfile userProfile3 = UserProfile.builder().userId(3L).name("name3").playgroundId(3L).build();
+    private final UserProfile userProfile4 = UserProfile.builder().userId(4L).name("name4").playgroundId(4L).build();
+    private final List<UserProfile> userProfileList = List.of(userProfile2, userProfile3);
+    private final List<UserProfile> userProfileListIncludingMe = List.of(userProfile1, userProfile2, userProfile3);
+    private final ActivityCardinalInfo activityCardinalInfo = ActivityCardinalInfo.builder().cardinalInfo("34,서버")
+            .build();
+    private final List<PlaygroundProfile> playgroundProfileList = List.of(
             new PlaygroundProfile(2L, "name2", "image", List.of(activityCardinalInfo)),
             new PlaygroundProfile(3L, "name3", "image", List.of(activityCardinalInfo))
     );
-    private List<PlaygroundProfile> playgroundProfileListWithoutImage = List.of(
+    private final List<PlaygroundProfile> playgroundProfileListWithoutImage = List.of(
             new PlaygroundProfile(2L, "name2", "", List.of(activityCardinalInfo)),
             new PlaygroundProfile(3L, "name3", "", List.of(activityCardinalInfo))
     );
-    private List<Long> userIdListExcludeMe = List.of(2L, 3L);
-    private List<PokeResponse.Friend> friendList = List.of(
+    private final List<Long> userIdListExcludeMe = List.of(2L, 3L);
+    private final List<PokeResponse.Friend> friendList = List.of(
             PokeResponse.Friend.of(2L, 2L, "name2", "", List.of()),
             PokeResponse.Friend.of(3L, 3L, "name2", "", List.of())
     );
-    private PokeHistory pokeHistory2 = PokeHistory.builder().id(2L).pokedId(1L).pokerId(2L).isReply(false)
+    private final PokeHistory pokeHistory2 = PokeHistory.builder().id(2L).pokedId(1L).pokerId(2L).isReply(false)
             .isAnonymous(false).build();
-    private PokeHistoryInfo pokeHistoryInfo2 = PokeHistoryInfo.builder().id(2L).pokedId(1L).pokerId(2L).isReply(false)
+    private final PokeHistoryInfo pokeHistoryInfo2 = PokeHistoryInfo.builder().id(2L).pokedId(1L).pokerId(2L)
+            .isReply(false)
             .isAnonymous(false).build();
-    private PokeHistoryInfo pokeHistoryInfo2PokedIsNotReply = PokeHistoryInfo.builder().id(3L).pokedId(2L).pokerId(1L)
+    private final PokeHistoryInfo pokeHistoryInfo2PokedIsNotReply = PokeHistoryInfo.builder().id(3L).pokedId(2L)
+            .pokerId(1L)
             .isReply(false).isAnonymous(false).build();
-    private PokeHistoryInfo pokeHistoryInfo2PokedIsReply = PokeHistoryInfo.builder().id(3L).pokedId(2L).pokerId(1L)
+    private final PokeHistoryInfo pokeHistoryInfo2PokedIsReply = PokeHistoryInfo.builder().id(3L).pokedId(2L)
+            .pokerId(1L)
             .isReply(true)
             .isAnonymous(false).build();
-    private PokeHistory pokeHistory3 = PokeHistory.builder().id(3L).pokedId(1L).pokerId(3L).isReply(true)
+    private final PokeHistory pokeHistory3 = PokeHistory.builder().id(3L).pokedId(1L).pokerId(3L).isReply(true)
             .isAnonymous(false).build();
-    private PokeDetail pokeDetail2 = PokeDetail.builder().id(2L).pokedId(1L).pokerId(2L).message("message").build();
-    private Friend friend2 = Friend.builder().id(2L).userId(1L).friendUserId(2L).pokeCount(1).anonymousName("").build();
+    private final PokeDetail pokeDetail2 = PokeDetail.builder().id(2L).pokedId(1L).pokerId(2L).message("message")
+            .build();
+    private final Friend friend2 = Friend.builder().id(2L).userId(1L).friendUserId(2L).pokeCount(1).anonymousName("")
+            .build();
     @Mock
     private PokeMessageService pokeMessageService;
     @Mock
@@ -131,7 +148,7 @@ class PokeFacadeTest {
         when(pokeMessageService.getMessagesHeaderComment(any())).thenReturn(MESSAGES_HEADER_FOR_POKE);
 
         String pokingMessageHeader = pokeFacade.getPokingMessageHeader(type);
-        assertEquals(pokingMessageHeader, MESSAGES_HEADER_FOR_POKE);
+        assertEquals(MESSAGES_HEADER_FOR_POKE, pokingMessageHeader);
     }
 
     @Test
@@ -244,7 +261,7 @@ class PokeFacadeTest {
         when(pokeHistoryService.getAllLatestPokeHistoryFromTo(3L, 1L)).thenReturn(List.of(pokeHistory3));
 
         SimplePokeProfile result = pokeFacade.getMostRecentPokeMeHistory(user);
-        assertEquals(null, result);
+        assertNull(result);
     }
 
     @Test
@@ -511,6 +528,92 @@ class PokeFacadeTest {
         when(friendService.getIsNewUser(1L)).thenReturn(true);
 
         boolean result = pokeFacade.getIsNewUser(user.getId());
-        assertEquals(true, result);
+        assertTrue(result);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_모든 유형의 추천 친구 조회")
+    void SUCCESS_getRecommendedFriendsByAllType() {
+        // given
+        final List<FriendRecommendType> friendRecommendTypes = List.of(FriendRecommendType.ALL);
+        ActivityCardinalInfo cardinalInfo = ActivityCardinalInfo.builder().cardinalInfo("33,서버").build();
+        String mbti = "ENFP";
+        String university = "테스트대학교";
+        Integer generation = 33;
+        OwnPlaygroundProfile ownPlaygroundProfile = new OwnPlaygroundProfile(mbti, university, List.of(cardinalInfo));
+        given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(ownPlaygroundProfile);
+
+        PlaygroundActivity playgroundActivity = new PlaygroundActivity("아요", generation);
+
+        PlaygroundProfileOfRecommendedFriend recommendedFriendByGeneration1 = PlaygroundProfileOfRecommendedFriend.builder()
+                .playgroundId(1L).activities(List.of(playgroundActivity)).build();
+        PlaygroundProfileOfRecommendedFriend recommendedFriendByGeneration2 = PlaygroundProfileOfRecommendedFriend.builder()
+                .playgroundId(2L).activities(List.of(playgroundActivity)).build();
+        PlaygroundProfileOfRecommendedFriend recommendedFriendByGeneration3 = PlaygroundProfileOfRecommendedFriend.builder()
+                .playgroundId(3L).activities(List.of(playgroundActivity)).build();
+
+        PlaygroundProfileOfRecommendedFriend recommendedFriendByMbti4 = PlaygroundProfileOfRecommendedFriend.builder()
+                .mbti(mbti).playgroundId(4L).activities(List.of(playgroundActivity)).build();
+        PlaygroundProfileOfRecommendedFriend recommendedFriendByMbti5 = PlaygroundProfileOfRecommendedFriend.builder()
+                .mbti(mbti).playgroundId(5L).activities(List.of(playgroundActivity)).build();
+        PlaygroundProfileOfRecommendedFriend recommendedFriendByMbti6 = PlaygroundProfileOfRecommendedFriend.builder()
+                .mbti(mbti).playgroundId(6L).activities(List.of(playgroundActivity)).build();
+
+        PlaygroundProfileOfRecommendedFriend recommendedFriendByUniversity7 = PlaygroundProfileOfRecommendedFriend.builder()
+                .university(university).playgroundId(7L).activities(List.of(playgroundActivity)).build();
+        PlaygroundProfileOfRecommendedFriend recommendedFriendByUniversity8 = PlaygroundProfileOfRecommendedFriend.builder()
+                .university(university).playgroundId(8L).activities(List.of(playgroundActivity)).build();
+        PlaygroundProfileOfRecommendedFriend recommendedFriendByUniversity9 = PlaygroundProfileOfRecommendedFriend.builder()
+                .university(university).playgroundId(9L).activities(List.of(playgroundActivity)).build();
+
+        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(generation)).willReturn(
+                List.of(recommendedFriendByGeneration1, recommendedFriendByGeneration2,
+                        recommendedFriendByGeneration3));
+        given(playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(generation, mbti)).willReturn(
+                List.of(recommendedFriendByMbti4, recommendedFriendByMbti5, recommendedFriendByMbti6));
+        given(playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(generation,
+                university)).willReturn(List.of(recommendedFriendByUniversity7, recommendedFriendByUniversity8,
+                recommendedFriendByUniversity9));
+        given(friendService.findUserIdsLinkedFriends(anyLong())).willReturn(new ArrayList<>());
+        List<UserProfile> userProfiles = List.of(
+                UserProfile.builder().userId(11L).playgroundId(1L).build(),
+                UserProfile.builder().userId(22L).playgroundId(2L).build(),
+                UserProfile.builder().userId(33L).playgroundId(3L).build(),
+                UserProfile.builder().userId(44L).playgroundId(4L).build(),
+                UserProfile.builder().userId(55L).playgroundId(5L).build(),
+                UserProfile.builder().userId(66L).playgroundId(6L).build(),
+                UserProfile.builder().userId(77L).playgroundId(7L).build(),
+                UserProfile.builder().userId(88L).playgroundId(8L).build(),
+                UserProfile.builder().userId(99L).playgroundId(9L).build()
+        );
+        given(userService.getUserProfilesByPlaygroundIds(anyList())).willReturn(userProfiles);
+        User user1 = User.builder().playgroundId(100L).id(1000L).playgroundToken("token").build();
+
+        // when
+        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(friendRecommendTypes, 6, user1);
+        List<Long> playgroundIdByRecommendedFriendByGeneration = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(
+                result, FriendRecommendType.GENERATION);
+        List<Long> playgroundIdByRecommendedFriendByMbti = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result,
+                FriendRecommendType.MBTI);
+        List<Long> playgroundIdByRecommendedFriendByUniversity = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(
+                result, FriendRecommendType.UNIVERSITY);
+
+        // then
+        assertEquals(3, result.getRandomInfoList().size());
+        assertEquals(3, playgroundIdByRecommendedFriendByGeneration.size());
+        assertTrue(playgroundIdByRecommendedFriendByGeneration.containsAll(List.of(1L, 2L, 3L)));
+        assertEquals(3, playgroundIdByRecommendedFriendByMbti.size());
+        assertTrue(playgroundIdByRecommendedFriendByMbti.containsAll(List.of(4L, 5L, 6L)));
+        assertEquals(3, playgroundIdByRecommendedFriendByUniversity.size());
+        assertTrue(playgroundIdByRecommendedFriendByUniversity.containsAll(List.of(7L, 8L, 9L)));
+    }
+
+    private List<Long> findPlaygroundIdsInRecommendedFriendsByAllTypeByType(
+            RecommendedFriendsByAllType recommendedFriendsByAllType, FriendRecommendType type) {
+        return recommendedFriendsByAllType.getRandomInfoList().stream()
+                .filter(randomInfo -> randomInfo.getRandomType() == type)
+                .flatMap(randomInfo -> randomInfo.getUserInfoList().stream())
+                .map(SimplePokeProfile::getPlaygroundId)
+                .toList();
     }
 }

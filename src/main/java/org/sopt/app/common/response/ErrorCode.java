@@ -27,6 +27,7 @@ public enum ErrorCode {
     // USER
     USER_NOT_FOUND("존재하지 않는 유저입니다."),
     DUPLICATE_NICKNAME("사용 중인 닉네임입니다."),
+    USER_GENERATION_INFO_NOT_FOUND("기수 정보를 찾을 수 없습니다."),
 
     // MISSION
     MISSION_NOT_FOUND("존재하지 않는 미션입니다."),
@@ -65,6 +66,7 @@ public enum ErrorCode {
 
     // FRIEND
     FRIENDSHIP_NOT_FOUND("해당 친구관계는 존재하지 않습니다."),
+    INVALID_FRIEND_RECOMMEND_TYPE("잘못된 친구 추천 유형입니다."),
 
     // ADMIN
     INVALID_APP_ADMIN_PASSWORD("잘못된 앱 어드민 패스워드입니다."),

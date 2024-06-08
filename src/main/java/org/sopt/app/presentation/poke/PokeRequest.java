@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PokeRequest {
 
     @Getter
@@ -23,7 +24,6 @@ public class PokeRequest {
         @Schema(description = "익명 여부", example = "true")
         @NotNull(message = "isAnonymous may not be null")
         private Boolean isAnonymous;
-
     }
 
     @Getter
