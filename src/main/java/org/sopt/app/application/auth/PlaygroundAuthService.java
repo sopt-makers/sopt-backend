@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -142,7 +143,7 @@ public class PlaygroundAuthService {
         }
     }
 
-    public List<PlaygroundAuthInfo.MemberProfile> getPlaygroundMemberProfiles(String accessToken,
+    public List<PlaygroundProfile> getPlaygroundMemberProfiles(String accessToken,
             List<Long> memberIds) {
         Map<String, String> defaultHeader = createDefaultHeader();
         defaultHeader.put(HttpHeaders.AUTHORIZATION, accessToken);

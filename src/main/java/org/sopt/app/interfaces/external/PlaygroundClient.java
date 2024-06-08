@@ -5,6 +5,7 @@ import feign.Param;
 import feign.RequestLine;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 
 import java.util.List;
@@ -28,5 +29,5 @@ public interface PlaygroundClient {
     ActiveUserIds getPlaygroundUserIds(@HeaderMap Map<String, String> headers, @Param("generation") Long generation);
 
     @RequestLine("GET /internal/api/v1/members/profile?memberIds={encodedIds}")
-    List<PlaygroundAuthInfo.MemberProfile> getMemberProfiles(@HeaderMap Map<String, String> headers, @Param(value = "encodedIds") String encodedIds);
+    List<PlaygroundProfile> getMemberProfiles(@HeaderMap Map<String, String> headers, @Param(value = "encodedIds") String encodedIds);
 }

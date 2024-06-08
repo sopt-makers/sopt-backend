@@ -22,7 +22,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.ActivityCardinalInfo;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.MemberProfile;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.poke.FriendService;
 import org.sopt.app.application.poke.PokeHistoryService;
@@ -61,13 +61,13 @@ class PokeFacadeTest {
     private List<UserProfile> userProfileList = List.of(userProfile2, userProfile3);
     private List<UserProfile> userProfileListIncludingMe = List.of(userProfile1, userProfile2, userProfile3);
     private ActivityCardinalInfo activityCardinalInfo = ActivityCardinalInfo.builder().cardinalInfo("34,서버").build();
-    private List<MemberProfile> memberProfileList = List.of(
-            new MemberProfile(2L, "image", "name2", List.of(activityCardinalInfo)),
-            new MemberProfile(3L, "image", "name3", List.of(activityCardinalInfo))
+    private List<PlaygroundProfile> playgroundProfileList = List.of(
+            new PlaygroundProfile(2L, "image", "name2", List.of(activityCardinalInfo)),
+            new PlaygroundProfile(3L, "image", "name3", List.of(activityCardinalInfo))
     );
-    private List<MemberProfile> memberProfileListWithoutImage = List.of(
-            new MemberProfile(2L, null, "name2", List.of(activityCardinalInfo)),
-            new MemberProfile(3L, null, "name3", List.of(activityCardinalInfo))
+    private List<PlaygroundProfile> playgroundProfileListWithoutImage = List.of(
+            new PlaygroundProfile(2L, null, "name2", List.of(activityCardinalInfo)),
+            new PlaygroundProfile(3L, null, "name3", List.of(activityCardinalInfo))
     );
     private List<Long> userIdListExcludeMe = List.of(2L, 3L);
     private List<PokeResponse.Friend> friendList = List.of(
@@ -141,8 +141,8 @@ class PokeFacadeTest {
     @Test
     @DisplayName("SUCCESS_신규 유저 추천 조회")
     void SUCCESS_getRecommendUserForNew() {
-        MemberProfile memberProfile = new MemberProfile(2L, "image", "name2", List.of(activityCardinalInfo));
-        List<MemberProfile> memberProfileListForNew = List.of(memberProfile);
+        PlaygroundProfile playgroundProfile = new PlaygroundProfile(2L, "image", "name2", List.of(activityCardinalInfo));
+        List<PlaygroundProfile> playgroundProfileListForNew = List.of(playgroundProfile);
         List<SimplePokeProfile> simplePokeProfileListForNew = List.of(
                 SimplePokeProfile.of(2L, 2L, "image", "name2", "", 34, "서버", 1,
                         "새로운 친구", "새로운 친구", true, false, false, ""));
@@ -152,7 +152,7 @@ class PokeFacadeTest {
                 userProfileListIncludingMe);
         when(friendService.isFriendEachOther(1L, 2L)).thenReturn(false);
         when(friendService.isFriendEachOther(1L, 3L)).thenReturn(true);
-        when(playgroundAuthService.getPlaygroundMemberProfiles(any(), any())).thenReturn(memberProfileListForNew);
+        when(playgroundAuthService.getPlaygroundMemberProfiles(any(), any())).thenReturn(playgroundProfileListForNew);
         when(userService.getUserProfilesByPlaygroundIds(List.of(2L))).thenReturn(List.of(userProfile2));
         when(pokeHistoryService.getAllPokeHistoryMap(any())).thenReturn(new HashMap<>());
         when(friendService.getRelationInfo(any(), any())).thenReturn(relationship1);
@@ -183,11 +183,11 @@ class PokeFacadeTest {
         when(friendService.findAllFriendIdsByUserId(1L)).thenReturn(List.of(5L));
         when(userService.getUserProfile(2L)).thenReturn(userProfile2);
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(memberProfileList);
+        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(3L))).thenReturn(
-                memberProfileListWithoutImage);
+                playgroundProfileListWithoutImage);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L, 3L))).thenReturn(
-                memberProfileListWithoutImage);
+                playgroundProfileListWithoutImage);
         when(friendService.findAllFriendIdsByUserIdRandomlyExcludeUserId(any(), any(), anyInt())).thenReturn(
                 userIdListExcludeMe);
         when(userService.getUserProfilesByUserIds(userIdListExcludeMe)).thenReturn(userProfileList);
@@ -208,9 +208,9 @@ class PokeFacadeTest {
         when(friendService.findAllFriendIdsByUserId(1L)).thenReturn(List.of(5L));
         when(userService.getUserProfile(2L)).thenReturn(userProfile2);
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(memberProfileList);
+        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(3L))).thenReturn(
-                memberProfileListWithoutImage);
+                playgroundProfileListWithoutImage);
         when(friendService.findAllFriendIdsByUserIdRandomlyExcludeUserId(any(), any(), anyInt())).thenReturn(
                 List.of());
 
@@ -231,7 +231,7 @@ class PokeFacadeTest {
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
         when(userService.getUserProfile(2L)).thenReturn(userProfile2);
         when(userService.getUserProfilesByPlaygroundIds(List.of(2L))).thenReturn(List.of(userProfile2));
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(memberProfileList);
+        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
@@ -269,7 +269,7 @@ class PokeFacadeTest {
         when(userService.getUserProfile(2L)).thenReturn(userProfile2);
         when(userService.getUserProfilesByPlaygroundIds(List.of(2L))).thenReturn(List.of(userProfile2));
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(
-                memberProfileListWithoutImage);
+                playgroundProfileListWithoutImage);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L, 4L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
         when(userService.getUserProfile(4L)).thenReturn(userProfile4);
@@ -324,7 +324,7 @@ class PokeFacadeTest {
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
         when(userService.getUserProfilesByUserIds(List.of(2L))).thenReturn(List.of(userProfile2, userProfile3));
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(memberProfileList);
+        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of());
         when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistoryInfo2));
@@ -341,7 +341,7 @@ class PokeFacadeTest {
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
         when(userService.getUserProfilesByUserIds(List.of(2L))).thenReturn(List.of(userProfile2, userProfile3));
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(memberProfileList);
+        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
@@ -360,7 +360,7 @@ class PokeFacadeTest {
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
         when(userService.getUserProfilesByUserIds(List.of(2L))).thenReturn(List.of(userProfile2));
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(
-                memberProfileListWithoutImage);
+                playgroundProfileListWithoutImage);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
@@ -379,7 +379,7 @@ class PokeFacadeTest {
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
         when(userService.getUserProfilesByUserIds(List.of(2L))).thenReturn(List.of(userProfile2));
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(
-                memberProfileListWithoutImage);
+                playgroundProfileListWithoutImage);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L, 4L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
@@ -402,7 +402,7 @@ class PokeFacadeTest {
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
         when(userService.getUserProfile(2L)).thenReturn(userProfile2);
         when(userService.getUserProfilesByPlaygroundIds(List.of(2L))).thenReturn(List.of(userProfile2));
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(memberProfileList);
+        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
@@ -439,7 +439,7 @@ class PokeFacadeTest {
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
         when(userService.getUserProfile(2L)).thenReturn(userProfile2);
         when(userService.getUserProfilesByPlaygroundIds(List.of(2L))).thenReturn(List.of(userProfile2));
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(memberProfileList);
+        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
@@ -462,7 +462,7 @@ class PokeFacadeTest {
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
         when(userService.getUserProfile(2L)).thenReturn(userProfile2);
         when(userService.getUserProfilesByPlaygroundIds(List.of(2L))).thenReturn(List.of(userProfile2));
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(memberProfileList);
+        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
@@ -483,7 +483,7 @@ class PokeFacadeTest {
         when(userService.getUserProfile(2L)).thenReturn(userProfile2);
         when(userService.getUserProfilesByPlaygroundIds(List.of(2L))).thenReturn(List.of(userProfile2));
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(
-                memberProfileListWithoutImage);
+                playgroundProfileListWithoutImage);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L, 4L));
         when(userService.getUserProfile(3L)).thenReturn(userProfile3);
         when(userService.getUserProfile(4L)).thenReturn(userProfile4);
@@ -505,7 +505,7 @@ class PokeFacadeTest {
         when(userService.getUserProfile(2L)).thenReturn(userProfile2);
         when(userService.getUserProfilesByPlaygroundIds(List.of(2L))).thenReturn(List.of(userProfile2));
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(
-                memberProfileListWithoutImage);
+                playgroundProfileListWithoutImage);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of());
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
         when(pokeHistoryService.getAllOfPokeBetween(2L, 1L)).thenReturn(

@@ -47,22 +47,23 @@ public class PlaygroundAuthInfo {
     }
 
     @Getter
-    @Setter
+    @Builder
     @ToString
+    @NoArgsConstructor(access = AccessLevel.PUBLIC)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class PlaygroundProfile {
 
         private Long memberId;
         private String name;
         private String profileImage;
-        private List<PlaygroundActivity> activities;
-    }
+        private List<ActivityCardinalInfo> activities;
 
-    @Getter
-    @Setter
-    @ToString
-    public static class PlaygroundActivity {
-
-        private String cardinalInfo;
+        public ActivityCardinalInfo getLatestActivity() {
+            return activities.stream()
+                    .sorted(Comparator.comparing(PlaygroundAuthInfo.ActivityCardinalInfo::getGeneration, Comparator.reverseOrder()))
+                    .toList()
+                    .get(0);
+        }
     }
 
     @Getter
@@ -118,27 +119,6 @@ public class PlaygroundAuthInfo {
 
         private Long currentGeneration;
         private UserStatus status;
-    }
-
-    @Getter
-    @Builder
-    @ToString
-    @NoArgsConstructor(access = AccessLevel.PUBLIC)
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
-    public static class MemberProfile {
-
-        @JsonProperty("memberId")
-        private Long id;
-        private String profileImage;
-        private String name;
-        private List<ActivityCardinalInfo> activities;
-
-        public ActivityCardinalInfo getLatestActivity() {
-            return activities.stream()
-                    .sorted(Comparator.comparing(ActivityCardinalInfo::getGeneration, Comparator.reverseOrder()))
-                    .toList()
-                    .get(0);
-        }
     }
 
     @Getter

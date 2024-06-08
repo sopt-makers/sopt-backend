@@ -15,8 +15,7 @@ import java.util.Random;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.auth.PlaygroundAuthInfo;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.MemberProfile;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.poke.FriendService;
 import org.sopt.app.application.poke.PokeHistoryService;
@@ -89,7 +88,7 @@ public class PokeFacade {
 
     private List<SimplePokeProfile> makeRandomSimplePokeProfile(
             List<UserProfile> userProfiles,
-            List<MemberProfile> playgroundProfiles,
+            List<PlaygroundProfile> playgroundProfiles,
             HashMap<Long, Boolean> pokeHistories,
             Long userId
     ) {
@@ -98,7 +97,7 @@ public class PokeFacade {
                     val isAlreadyPoke = Objects.nonNull(pokeHistories.get(userProfile.getUserId()));
                     val pokeCount = friendService.getRelationInfo(userId, userProfile.getUserId()).getPokeNum();
                     val playgroundProfile = playgroundProfiles.stream()
-                            .filter(profile -> profile.getId().equals(userProfile.getPlaygroundId()))
+                            .filter(profile -> profile.getMemberId().equals(userProfile.getPlaygroundId()))
                             .findFirst()
                             .orElseThrow(() -> new RuntimeException("플레이그라운드 프로필이 없습니다."));
                     val generation = playgroundProfile.getActivities().get(0).getGeneration();
@@ -106,7 +105,7 @@ public class PokeFacade {
 
                     return SimplePokeProfile.of(
                             userProfile.getUserId(),
-                            playgroundProfile.getId(),
+                            playgroundProfile.getMemberId(),
                             playgroundProfile.getProfileImage() == null ? "" : playgroundProfile.getProfileImage(),
                             playgroundProfile.getName(),
                             "",
@@ -157,7 +156,7 @@ public class PokeFacade {
                     if (randomFriendsIds.isEmpty()) {
                         return PokeResponse.Friend.of(
                                 friendsUserId,
-                                friendProfile.getId(),
+                                friendProfile.getMemberId(),
                                 friendProfile.getName(),
                                 friendProfile.getProfileImage() == null ? "" : friendProfile.getProfileImage(),
                                 List.of()
@@ -179,7 +178,7 @@ public class PokeFacade {
 
                     return PokeResponse.Friend.of(
                             friendsUserId,
-                            friendProfile.getId(),
+                            friendProfile.getMemberId(),
                             friendProfile.getName(),
                             friendProfile.getProfileImage() == null ? "" : friendProfile.getProfileImage(),
                             simpleProfiles
@@ -254,21 +253,22 @@ public class PokeFacade {
 
     @Transactional(readOnly = true)
     public List<SimplePokeProfile> getFriend(User user) {
-        val friendId = friendService.getPokeFriendIdRandomly(user.getId());
+        Long userId = user.getId();
+        val friendId = friendService.getPokeFriendIdRandomly(userId);
 
-        val friendUserProfile = userService.getUserProfilesByUserIds(List.of(friendId)).get(0);
-        val friendPlaygroundId = friendUserProfile.getPlaygroundId();
-        val friendProfile = playgroundAuthService.getPlaygroundMemberProfiles(user.getPlaygroundToken(),
-                List.of(friendPlaygroundId)).get(0);
-        val friendRelationInfo = friendService.getRelationInfo(user.getId(), friendId);
-        val mutualFriendNames = createMutualFriendNames(user.getId(), friendId);
+        val friendUserProfile = userService.getUserProfile(friendId);
+        val friendProfile = playgroundAuthService.getPlaygroundMemberProfiles(
+                user.getPlaygroundToken(), List.of(friendUserProfile.getPlaygroundId())).get(0);
+        val friendRelationInfo = friendService.getRelationInfo(userId, friendId);
 
-        val pokeHistory = pokeHistoryService.getAllOfPokeBetween(user.getId(), friendId).get(0);
-        val isAlreadyPoke = pokeHistory.getPokerId().equals(user.getId());
+        val pokeHistory = pokeHistoryService.getAllOfPokeBetween(userId, friendId).get(0);
+        val isAlreadyPoke = pokeHistory.getPokerId().equals(userId);
+
+        boolean isAnonymous = pokeHistory.getPokedId().equals(userId) && pokeHistory.getIsAnonymous();
         return List.of(
                 SimplePokeProfile.of(
                         friendUserProfile.getUserId(),
-                        friendProfile.getId(),
+                        friendProfile.getMemberId(),
                         friendProfile.getProfileImage() == null ? "" : friendProfile.getProfileImage(),
                         friendProfile.getName(),
                         "",
@@ -276,10 +276,10 @@ public class PokeFacade {
                         friendProfile.getActivities().get(0).getPart(),
                         friendRelationInfo.getPokeNum(),
                         friendRelationInfo.getRelationName(),
-                        mutualFriendNames,
+                        createMutualFriendNames(user.getId(), friendId),
                         false,
                         isAlreadyPoke,
-                        pokeHistory.getIsAnonymous(),
+                        isAnonymous,
                         friendRelationInfo.getAnonymousName()
                 )
         );
@@ -293,7 +293,6 @@ public class PokeFacade {
         if (mutualFriendNames.isEmpty()) {
             return NEW_FRIEND_NO_MUTUAL;
         }
-
         if (mutualFriendNames.size() == 1) {
             return String.format(NEW_FRIEND_ONE_MUTUAL, mutualFriendNames.get(0));
         } else {
@@ -373,7 +372,7 @@ public class PokeFacade {
     private PokeInfo.PokedUserInfo getFriendUserInfo(User user, Long friendUserId) {
         val pokedUser = userService.getUserProfile(friendUserId);
         val pokedUserProfile = userService.getUserProfilesByPlaygroundIds(List.of(pokedUser.getPlaygroundId())).get(0);
-        val pokedUserPlaygroundProfile = (PlaygroundAuthInfo.MemberProfile) playgroundAuthService.getPlaygroundMemberProfiles(
+        val pokedUserPlaygroundProfile = (PlaygroundProfile) playgroundAuthService.getPlaygroundMemberProfiles(
                 user.getPlaygroundToken(), List.of(pokedUserProfile.getPlaygroundId())).get(0);
         val latestActivity = pokedUserPlaygroundProfile.getLatestActivity();
         val mutualFriendNames = friendService.getMutualFriendIds(user.getId(), friendUserId).stream()
@@ -385,7 +384,7 @@ public class PokeFacade {
         val relationInfo = friendService.getRelationInfo(user.getId(), friendUserId);
         return PokeInfo.PokedUserInfo.builder()
                 .userId(pokedUserProfile.getUserId())
-                .playgroundId(pokedUserPlaygroundProfile.getId())
+                .playgroundId(pokedUserPlaygroundProfile.getMemberId())
                 .name(pokedUserPlaygroundProfile.getName())
                 .profileImage(pokedUserPlaygroundProfile.getProfileImage())
                 .generation(Integer.parseInt(latestActivity.getGeneration()))
