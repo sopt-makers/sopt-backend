@@ -18,14 +18,6 @@ public class PlaygroundAuthInfo {
     @Getter
     @Builder
     @ToString
-    public static class PlaygroundAccessToken {
-
-        private String accessToken;
-    }
-
-    @Getter
-    @Builder
-    @ToString
     public static class AppToken {
 
         private String accessToken;
@@ -83,14 +75,6 @@ public class PlaygroundAuthInfo {
         private String name;
         private String profileImage;
         private List<Long> generationList;
-    }
-
-    @Getter
-    @Setter
-    @ToString
-    public static class AccessToken {
-
-        private String accessToken;
     }
 
     @Getter
