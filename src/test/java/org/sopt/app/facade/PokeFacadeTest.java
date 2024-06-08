@@ -190,7 +190,7 @@ public class PokeFacadeTest {
                 memberProfileListWithoutImage);
         when(friendService.findAllFriendIdsByUserIdRandomlyExcludeUserId(any(), any(), anyInt())).thenReturn(
                 userIdListExcludeMe);
-        when(userService.getUserProfileByUserId(userIdListExcludeMe)).thenReturn(userProfileList);
+        when(userService.getUserProfilesByUserIds(userIdListExcludeMe)).thenReturn(userProfileList);
         when(pokeHistoryService.getAllPokeHistoryMap(any())).thenReturn(new HashMap<>());
         when(friendService.getRelationInfo(any(), any())).thenReturn(relationship1);
 
@@ -323,7 +323,7 @@ public class PokeFacadeTest {
                 "", 34, "서버", 1, null, "새로운 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(List.of(2L, 3L));
-        when(userService.getUserProfileByUserId(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
+        when(userService.getUserProfilesByUserIds(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L, 3L))).thenReturn(memberProfileList);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of());
@@ -340,7 +340,7 @@ public class PokeFacadeTest {
                 "", 34, "서버", 1, null, "name3의 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(List.of(2L, 3L));
-        when(userService.getUserProfileByUserId(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
+        when(userService.getUserProfilesByUserIds(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L, 3L))).thenReturn(memberProfileList);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
@@ -358,7 +358,7 @@ public class PokeFacadeTest {
                 "", 34, "서버", 1, null, "name3의 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(List.of(2L, 3L));
-        when(userService.getUserProfileByUserId(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
+        when(userService.getUserProfilesByUserIds(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L, 3L))).thenReturn(
                 memberProfileListWithoutImage);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
@@ -377,7 +377,7 @@ public class PokeFacadeTest {
                 "", 34, "서버", 1, null, "name3 외 1명과 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(List.of(2L, 3L));
-        when(userService.getUserProfileByUserId(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
+        when(userService.getUserProfilesByUserIds(List.of(2L, 3L))).thenReturn(List.of(userProfile2, userProfile3));
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L, 3L))).thenReturn(
                 memberProfileListWithoutImage);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);

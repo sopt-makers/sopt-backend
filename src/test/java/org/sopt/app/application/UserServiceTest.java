@@ -203,7 +203,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("SUCCESS_유저 아이디로 유저 프로필 조회")
-    void SUCCESS_getUserProfileByUserId() {
+    void SUCCESS_getUserProfilesByUserIds() {
         //given
         final List<Long> userIds = List.of(1L, 2L);
         final User user1 = User.builder().id(1L).username("user1").playgroundId(1L).build();
@@ -213,7 +213,7 @@ class UserServiceTest {
         //when
         when(userRepository.findAllByIdIn(userIds)).thenReturn(users);
 
-        List<UserInfo.UserProfile> result = userService.getUserProfileByUserId(userIds);
+        List<UserInfo.UserProfile> result = userService.getUserProfilesByUserIds(userIds);
         List<UserInfo.UserProfile> expected = List.of(
                 UserInfo.UserProfile.builder().userId(user1.getId()).name(user1.getUsername()).playgroundId(
                         user1.getPlaygroundId()).build(),
