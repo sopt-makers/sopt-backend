@@ -65,8 +65,6 @@ public class PokeFacade {
     public List<PokeResponse.PokeMessage> getPokingMessages(String type) {
         val messages = pokeMessageService.pickRandomMessageByTypeOf(type);
         val fixedMessage = pokeMessageService.getFixedMessage();
-        System.out.println(messages);
-        System.out.println(fixedMessage);
         messages.add(fixedMessage);
 
         return messages.stream().map(messagesDetail ->
