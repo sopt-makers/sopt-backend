@@ -27,59 +27,6 @@ public class PlaygroundAuthInfo {
     @Getter
     @Setter
     @ToString
-    public static class PlaygroundMain {
-
-        private Long id;
-        private String name;
-        private Long generation;
-        private String profileImage;
-        private Boolean hasProfile;
-        private String accessToken;
-        private UserStatus status;
-    }
-
-    @Getter
-    @Builder
-    @ToString
-    @NoArgsConstructor(access = AccessLevel.PUBLIC)
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
-    public static class PlaygroundProfile {
-
-        private Long memberId;
-        private String name;
-        private String profileImage;
-        private List<ActivityCardinalInfo> activities;
-
-        public ActivityCardinalInfo getLatestActivity() {
-            return activities.stream()
-                    .sorted(Comparator.comparing(PlaygroundAuthInfo.ActivityCardinalInfo::getGeneration, Comparator.reverseOrder()))
-                    .toList()
-                    .get(0);
-        }
-    }
-
-    @Getter
-    @Builder
-    @ToString
-    public static class MainView {
-
-        private MainViewUser user;
-    }
-
-    @Getter
-    @Builder
-    @ToString
-    public static class MainViewUser {
-
-        private UserStatus status;
-        private String name;
-        private String profileImage;
-        private List<Long> generationList;
-    }
-
-    @Getter
-    @Setter
-    @ToString
     public static class RefreshedToken {
 
         private String accessToken;
@@ -103,6 +50,59 @@ public class PlaygroundAuthInfo {
 
         private Long currentGeneration;
         private UserStatus status;
+    }
+
+    @Getter
+    @Setter
+    @ToString
+    public static class PlaygroundMain {
+
+        private Long id;
+        private String name;
+        private Long generation;
+        private String profileImage;
+        private Boolean hasProfile;
+        private String accessToken;
+        private UserStatus status;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class MainView {
+
+        private MainViewUser user;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class MainViewUser {
+
+        private UserStatus status;
+        private String name;
+        private String profileImage;
+        private List<Long> generationList;
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    @NoArgsConstructor(access = AccessLevel.PUBLIC)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    public static class PlaygroundProfile {
+
+        private Long memberId;
+        private String name;
+        private String profileImage;
+        private List<ActivityCardinalInfo> activities;
+
+        public ActivityCardinalInfo getLatestActivity() {
+            return activities.stream()
+                    .sorted(Comparator.comparing(PlaygroundAuthInfo.ActivityCardinalInfo::getGeneration, Comparator.reverseOrder()))
+                    .toList()
+                    .get(0);
+        }
     }
 
     @Getter

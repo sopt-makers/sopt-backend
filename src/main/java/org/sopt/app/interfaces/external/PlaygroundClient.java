@@ -16,18 +16,18 @@ public interface PlaygroundClient {
     @RequestLine("POST /api/v1/idp/sso/auth")
     AppAuthRequest.AccessTokenRequest getAccessToken(@HeaderMap final Map<String, String> headers, final AppAuthRequest.CodeRequest codeRequest);
 
-    @RequestLine("GET /internal/api/v1/members/me")
-    PlaygroundAuthInfo.PlaygroundMain getPlaygroundMember(@HeaderMap Map<String, String> headers);
-
-    @RequestLine("GET /internal/api/v1/members/profile?memberIds={memberId}")
-    List<PlaygroundAuthInfo.PlaygroundProfile> getPlaygroundMemberProfile(@HeaderMap Map<String, String> headers, @Param("memberId") Long playgroundId);
-
     @RequestLine("POST /internal/api/v1/idp/auth/token")
     PlaygroundAuthInfo.RefreshedToken refreshPlaygroundToken(@HeaderMap Map<String, String> headers, AppAuthRequest.AccessTokenRequest tokenRequest);
 
     @RequestLine("GET /internal/api/v1/members/latest?generation={generation}")
     ActiveUserIds getPlaygroundUserIds(@HeaderMap Map<String, String> headers, @Param("generation") Long generation);
 
+    @RequestLine("GET /internal/api/v1/members/profile?memberIds={memberId}")
+    List<PlaygroundProfile> getPlaygroundMemberProfile(@HeaderMap Map<String, String> headers, @Param("memberId") Long playgroundId);
+
     @RequestLine("GET /internal/api/v1/members/profile?memberIds={encodedIds}")
     List<PlaygroundProfile> getMemberProfiles(@HeaderMap Map<String, String> headers, @Param(value = "encodedIds") String encodedIds);
+
+    @RequestLine("GET /internal/api/v1/members/me")
+    PlaygroundAuthInfo.PlaygroundMain getPlaygroundMember(@HeaderMap Map<String, String> headers);
 }
