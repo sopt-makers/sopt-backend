@@ -64,12 +64,12 @@ public class PokeFacade {
     @Transactional(readOnly = true)
     public List<PokeResponse.PokeMessage> getPokingMessages(String type) {
         val messages = pokeMessageService.pickRandomMessageByTypeOf(type);
-        return messages.stream()
-                .map(messagesDetail -> PokeResponse.PokeMessage.of(
-                                messagesDetail.getId(), messagesDetail.getContent()
-                        )
-                )
-                .toList();
+        val fixedMessage = pokeMessageService.getFixedMessage();
+        messages.add(fixedMessage);
+
+        return messages.stream().map(messagesDetail ->
+                PokeResponse.PokeMessage.of(messagesDetail.getId(), messagesDetail.getContent())
+        ).toList();
     }
 
     public String getPokingMessageHeader(String type) {
@@ -363,7 +363,9 @@ public class PokeFacade {
         boolean isAlreadyPoke = pokeHistoryList.stream()
                 .filter(pokeHistory -> pokeHistory.getPokerId().equals(user.getId()))
                 .anyMatch(pokeHistory -> !pokeHistory.getIsReply());
-        boolean isAnonymous = pokeHistoryList.get(0).getIsAnonymous();
+        boolean isAnonymous = pokeHistoryList.stream()
+                .filter(pokeHistory -> pokeHistory.getPokedId().equals(user.getId()))
+                .findFirst().map(PokeHistoryInfo::getIsAnonymous).orElse(false);
 
         return SimplePokeProfile.from(
                 friendUserInfo,
@@ -433,7 +435,8 @@ public class PokeFacade {
     }
 
     private void addRecommendedFriendsListByGeneration(List<RecommendedFriendsByType> list, int size,
-            Long userId, Integer generation, IntFunction<List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
+            Long userId, Integer generation,
+            IntFunction<List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
         List<PlaygroundProfileOfRecommendedFriend> profiles = fetchProfilesFunction.apply(generation);
         validateRecommendedFriends(generation, profiles, list, FriendRecommendType.GENERATION, size, userId);
     }
