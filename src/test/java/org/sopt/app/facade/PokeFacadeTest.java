@@ -28,9 +28,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.ActivityCardinalInfo;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundActivity;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend;
 import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.poke.FriendService;
@@ -48,6 +48,7 @@ import org.sopt.app.domain.entity.PokeMessage;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.FriendRecommendType;
 import org.sopt.app.domain.enums.Friendship;
+import org.sopt.app.domain.enums.PokeMessageType;
 import org.sopt.app.presentation.poke.PokeResponse;
 import org.sopt.app.presentation.poke.PokeResponse.EachRelationFriendList;
 import org.sopt.app.presentation.poke.PokeResponse.PokeToMeHistoryList;
@@ -104,6 +105,9 @@ class PokeFacadeTest {
             .build();
     private final Friend friend2 = Friend.builder().id(2L).userId(1L).friendUserId(2L).pokeCount(1).anonymousName("")
             .build();
+    private final PokeMessage fixedMessage = PokeMessage.builder().id(0L).content("콕").type(PokeMessageType.POKE_ALL)
+            .build();
+
     @Mock
     private PokeMessageService pokeMessageService;
     @Mock
@@ -129,11 +133,15 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_찌르기 메세지 조회")
     void SUCCESS_getPokingMessage(String type) {
         PokeMessage pokeMessage = PokeMessage.builder().id(1L).content("content").build();
-        List<PokeMessage> pokeMessageList = List.of(pokeMessage);
+        ArrayList<PokeMessage> pokeMessageList = new ArrayList<>();
+        pokeMessageList.add(pokeMessage);
         PokeResponse.PokeMessage pokeMessageResponse = PokeResponse.PokeMessage.of(1L, "content");
-        List<PokeResponse.PokeMessage> pokeMessageListResponse = List.of(pokeMessageResponse);
+        PokeResponse.PokeMessage fixedMessageResponse = PokeResponse.PokeMessage.of(fixedMessage.getId(),
+                fixedMessage.getContent());
+        List<PokeResponse.PokeMessage> pokeMessageListResponse = List.of(pokeMessageResponse, fixedMessageResponse);
 
         when(pokeMessageService.pickRandomMessageByTypeOf(any())).thenReturn(pokeMessageList);
+        when(pokeMessageService.getFixedMessage()).thenReturn(fixedMessage);
 
         List<PokeResponse.PokeMessage> result = pokeFacade.getPokingMessages(type);
         assertEquals(pokeMessageListResponse.size(), result.size());
