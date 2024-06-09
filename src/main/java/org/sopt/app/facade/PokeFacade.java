@@ -272,7 +272,8 @@ public class PokeFacade {
                 user.getPlaygroundToken(), List.of(friendUserProfile.getPlaygroundId())).get(0);
         val friendRelationInfo = friendService.getRelationInfo(userId, friendId);
 
-        val pokeHistoryList = pokeHistoryService.getAllOfPokeBetween(userId, friendId);
+        List<PokeHistoryInfo> pokeHistoryListIsReplyFalse = pokeHistoryService.getAllOfPokeBetween(userId, friendId);
+        List<PokeHistoryInfo> pokeHistoryListAll = pokeHistoryService.getAllPokeHistoryByUsers(userId, friendId);
 
         return List.of(
                 SimplePokeProfile.of(
@@ -287,8 +288,8 @@ public class PokeFacade {
                         friendRelationInfo.getRelationName(),
                         createMutualFriendNames(user.getId(), friendId),
                         false,
-                        getIsAlreadyPoke(pokeHistoryList, userId),
-                        getIsAnonymous(pokeHistoryList, userId),
+                        getIsAlreadyPoke(pokeHistoryListIsReplyFalse, userId),
+                        getIsAnonymous(pokeHistoryListAll, userId),
                         friendRelationInfo.getAnonymousName()
                 )
         );
