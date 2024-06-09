@@ -109,7 +109,7 @@ public class UserService {
         ).toList();
     }
 
-    public List<UserProfile> getUserProfileByUserId(List<Long> userId) {
+    public List<UserProfile> getUserProfilesByUserIds(List<Long> userId) {
         return userRepository.findAllByIdIn(userId).stream().map(
                 user -> UserProfile.builder()
                         .userId(user.getId())
