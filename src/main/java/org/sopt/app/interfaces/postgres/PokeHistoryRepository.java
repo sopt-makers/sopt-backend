@@ -1,6 +1,5 @@
 package org.sopt.app.interfaces.postgres;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import org.sopt.app.domain.entity.PokeHistory;
 import org.springframework.data.domain.Page;
@@ -13,11 +12,7 @@ public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> 
 
     List<PokeHistory> findAllByPokerIdAndPokedIdAndIsReplyIsFalse(Long pokerId, Long pokedId);
 
-    List<PokeHistory> findAllByPokerId(Long userId);
-
     List<PokeHistory> findAllByPokedId(Long userId);
-
-    List<PokeHistory> findAllByPokerIdAndCreatedAtBetween(Long userId, LocalDateTime start, LocalDateTime end);
 
     List<PokeHistory> findAllByPokerIdAndIsReply(Long userId, boolean isReply);
 

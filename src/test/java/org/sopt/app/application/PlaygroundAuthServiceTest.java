@@ -32,7 +32,6 @@ import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriendList;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.ActivityCardinalInfo;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundMain;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.RefreshedToken;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.UserActiveInfo;
 import org.sopt.app.application.auth.PlaygroundAuthService;
