@@ -375,14 +375,17 @@ public class PokeFacade {
         PokeInfo.PokeDetail pokeDetail = getPokeInfo(pokeId);
         PokeInfo.PokedUserInfo friendUserInfo = getFriendUserInfo(user, friendId);
 
-        List<PokeHistoryInfo> pokeHistoryList = pokeHistoryService.getAllOfPokeBetween(
+        List<PokeHistoryInfo> pokeHistoryListIsReplyFalse = pokeHistoryService.getAllOfPokeBetween(
                 pokeDetail.getPokerId(), pokeDetail.getPokedId());
+        List<PokeHistoryInfo> pokeHistoryListAll = pokeHistoryService.getAllPokeHistoryByUsers(
+                pokeDetail.getPokerId(), pokeDetail.getPokedId()
+        );
 
         return SimplePokeProfile.from(
                 friendUserInfo,
                 pokeDetail,
-                getIsAlreadyPoke(pokeHistoryList, user.getId()),
-                getIsAnonymous(pokeHistoryList, user.getId())
+                getIsAlreadyPoke(pokeHistoryListIsReplyFalse, user.getId()),
+                getIsAnonymous(pokeHistoryListAll, user.getId())
         );
     }
 
