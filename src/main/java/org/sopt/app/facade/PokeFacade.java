@@ -36,6 +36,7 @@ import org.sopt.app.application.user.UserService;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.PokeHistory;
+import org.sopt.app.domain.entity.PokeMessage;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.FriendRecommendType;
 import org.sopt.app.domain.enums.Friendship;
@@ -67,7 +68,7 @@ public class PokeFacade {
         val fixedMessage = pokeMessageService.getFixedMessage();
         messages.add(fixedMessage);
 
-        return messages.stream().map(messagesDetail ->
+        return messages.stream().sorted(Comparator.comparing(PokeMessage::getCreatedAt)).map(messagesDetail ->
                 PokeResponse.PokeMessage.of(messagesDetail.getId(), messagesDetail.getContent())
         ).toList();
     }
