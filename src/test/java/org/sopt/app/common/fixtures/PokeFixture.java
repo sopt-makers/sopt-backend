@@ -70,4 +70,13 @@ public class PokeFixture {
                 .activities(List.of(ActivityCardinalInfo.builder().cardinalInfo(GENERATION + "," + PART).build()))
                 .build();
     }
+
+    public static List<PlaygroundProfileOfRecommendedFriend> createSameMbtiPlaygroundProfileOfRecommendedFriend(List<Long> playgroundIds, String mbti, Integer generation) {
+        return playgroundIds.stream().map(playgroundId ->
+                PlaygroundProfileOfRecommendedFriend.builder()
+                        .playgroundId(playgroundId)
+                        .mbti(mbti)
+                        .activities(List.of(new PlaygroundActivity(PART,generation)))
+                        .build()).toList();
+    }
 }
