@@ -181,7 +181,7 @@ public class PlaygroundAuthService {
             if (targetGeneration < 1) {
                 break;
             }
-            result.addAll(playgroundClient.getPlaygroundProfileForSameMbti(createAuthorizationHeader(playgroundToken), generation ,mbti).getMembers());
+            result.addAll(playgroundClient.getPlaygroundProfileForSameMbti(createAuthorizationHeader(playgroundToken), targetGeneration ,mbti).getMembers());
         }
 
         return result.stream().distinct().toList();
