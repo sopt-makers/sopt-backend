@@ -22,7 +22,7 @@ public class PokeHistoryService {
     private final PokeHistoryRepository pokeHistoryRepository;
 
     public List<PokeHistoryInfo> getAllOfPokeBetween(Long userId, Long friendId) {
-        val pokeHistoryList = pokeHistoryRepository.findAllWithFriendOrderByCreatedAtDesc(userId, friendId);
+        val pokeHistoryList = pokeHistoryRepository.findAllWithFriendOrderByCreatedAtDescIsReplyFalse(userId, friendId);
 
         return pokeHistoryList.stream()
                 .map(PokeHistoryInfo::from)
@@ -73,5 +73,11 @@ public class PokeHistoryService {
             pokeHistoryMap.put(pokeHistory.getPokedId(), pokeHistory.getIsReply());
         }
         return pokeHistoryMap;
+    }
+
+    // isReply 여부에 관계 없이 전부 조회
+    public List<PokeHistoryInfo> getAllPokeHistoryByUsers(Long userId, Long friendUserId) {
+        val pokeHistories = pokeHistoryRepository.findAllPokeHistoryByUsers(userId, friendUserId);
+        return pokeHistories.stream().map(PokeHistoryInfo::from).toList();
     }
 }
