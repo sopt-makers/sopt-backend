@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -150,7 +151,7 @@ public class PlaygroundAuthService {
         }
     }
 
-    public List<PlaygroundAuthInfo.MemberProfile> getPlaygroundMemberProfiles(String accessToken,
+    public List<PlaygroundProfile> getPlaygroundMemberProfiles(String accessToken,
             List<Long> memberIds) {
         Map<String, String> requestHeader = createAuthorizationHeader(accessToken);
         String stringifyIds = memberIds.stream()

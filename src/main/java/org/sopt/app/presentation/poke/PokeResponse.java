@@ -20,14 +20,6 @@ public class PokeResponse {
 
     }
 
-    interface HistoryList {
-
-    }
-
-    interface MessageList {
-
-    }
-
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class RandomInfoList {
@@ -140,7 +132,7 @@ public class PokeResponse {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
-    public static class PokeToMeHistoryList implements HistoryList {
+    public static class PokeToMeHistoryList {
 
         private List<SimplePokeProfile> history;
         private int totalPageSize;
@@ -161,7 +153,7 @@ public class PokeResponse {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
-    public static class PokeMessageList implements MessageList {
+    public static class PokeMessageList {
 
         private String header;
         private List<PokeMessage> messages;

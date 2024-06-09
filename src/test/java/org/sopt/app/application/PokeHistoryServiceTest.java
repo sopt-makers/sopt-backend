@@ -25,7 +25,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-public class PokeHistoryServiceTest {
+class PokeHistoryServiceTest {
 
     @Mock
     private PokeHistoryRepository pokeHistoryRepository;
@@ -39,7 +39,7 @@ public class PokeHistoryServiceTest {
         PokeHistory pokeHistory = PokeHistory.builder().id(1L).pokerId(1L).pokedId(2L).message("message").isReply(true)
                 .build();
 
-        when(pokeHistoryRepository.findAllWithFriendOrderByCreatedAtDesc(any(), any())).thenReturn(
+        when(pokeHistoryRepository.findAllWithFriendOrderByCreatedAtDescIsReplyFalse(any(), any())).thenReturn(
                 List.of(pokeHistory));
 
         List<PokeHistoryInfo> result = pokeHistoryService.getAllOfPokeBetween(1L, 2L);

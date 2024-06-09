@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
@@ -152,7 +153,7 @@ public class FriendService {
                 .toList();
     }
 
-    public List<Long> getPokeFriendIdRandomly(Long userId) {
+    public Long getPokeFriendIdRandomly(Long userId) {
         val friendIdsPokeMe = friendRepository.findAllByFriendUserId(userId).stream()
                 .map(Friend::getUserId)
                 .toList();
@@ -163,9 +164,9 @@ public class FriendService {
             throw new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND.getMessage());
         }
 
-        Collections.shuffle(friends);
+        Random random = new Random();
 
-        return friends.subList(0, 1).stream().map(Friend::getFriendUserId).toList();
+        return friends.get(random.nextInt(friends.size())).getFriendUserId();
     }
 
     public boolean getIsNewUser(Long userId) {
