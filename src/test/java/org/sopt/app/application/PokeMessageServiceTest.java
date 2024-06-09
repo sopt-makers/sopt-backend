@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.poke.PokeMessageService;
 import org.sopt.app.domain.entity.PokeMessage;
+import org.sopt.app.domain.enums.PokeMessageType;
 import org.sopt.app.interfaces.postgres.PokeMessageRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -52,5 +53,17 @@ public class PokeMessageServiceTest {
         when(pokeMessageRepository.findAllByType(any())).thenReturn(pokeMessageList);
 
         assertEquals(pokeMessageList, pokeMessageService.pickRandomMessageByTypeOf(type));
+    }
+
+    @Test
+    void SUCCESS_getFixedMessage() {
+        PokeMessage fixedMessage = PokeMessage.builder()
+                .id(0L).content("콕 \uD83D\uDC48").type(PokeMessageType.POKE_ALL)
+                .build();
+
+        PokeMessage result = pokeMessageService.getFixedMessage();
+
+        assertEquals(fixedMessage.getId(), result.getId());
+        assertEquals(fixedMessage.getContent(), result.getContent());
     }
 }
