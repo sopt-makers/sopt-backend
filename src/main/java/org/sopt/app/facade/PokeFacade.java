@@ -272,8 +272,6 @@ public class PokeFacade {
                 user.getPlaygroundToken(), List.of(friendUserProfile.getPlaygroundId())).get(0);
         val friendRelationInfo = friendService.getRelationInfo(userId, friendId);
 
-        val pokeHistoryList = pokeHistoryService.getAllOfPokeBetween(userId, friendId);
-
         return List.of(
                 SimplePokeProfile.of(
                         friendUserProfile.getUserId(),
@@ -287,21 +285,21 @@ public class PokeFacade {
                         friendRelationInfo.getRelationName(),
                         createMutualFriendNames(user.getId(), friendId),
                         false,
-                        getIsAlreadyPoke(pokeHistoryList, userId),
-                        getIsAnonymous(pokeHistoryList, userId),
+                        getIsAlreadyPoke(userId, friendId, userId),
+                        getIsAnonymous(userId, friendId, userId),
                         friendRelationInfo.getAnonymousName()
                 )
         );
     }
 
-    private boolean getIsAlreadyPoke(List<PokeHistoryInfo> pokeHistoryList, Long userId) {
-        return pokeHistoryList.stream()
+    private boolean getIsAlreadyPoke(Long pokerId, Long pokedId, Long userId) {
+        return pokeHistoryService.getAllPokeHistoryByUsers(pokerId, pokedId).stream()
                 .filter(pokeHistory -> pokeHistory.getPokerId().equals(userId))
                 .anyMatch(pokeHistory -> !pokeHistory.getIsReply());
     }
 
-    private boolean getIsAnonymous(List<PokeHistoryInfo> pokeHistoryList, Long userId) {
-        return pokeHistoryList.stream()
+    private boolean getIsAnonymous(Long pokerId, Long pokedId, Long userId) {
+        return pokeHistoryService.getAllPokeHistoryByUsers(pokerId, pokedId).stream()
                 .filter(pokeHistory -> pokeHistory.getPokedId().equals(userId))
                 .sorted(Comparator.comparing(PokeHistoryInfo::getCreatedAt).reversed())
                 .findFirst().map(PokeHistoryInfo::getIsAnonymous).orElse(false);
@@ -375,17 +373,11 @@ public class PokeFacade {
         PokeInfo.PokeDetail pokeDetail = getPokeInfo(pokeId);
         PokeInfo.PokedUserInfo friendUserInfo = getFriendUserInfo(user, friendId);
 
-        List<PokeHistoryInfo> pokeHistoryListIsReplyFalse = pokeHistoryService.getAllOfPokeBetween(
-                pokeDetail.getPokerId(), pokeDetail.getPokedId());
-        List<PokeHistoryInfo> pokeHistoryListAll = pokeHistoryService.getAllPokeHistoryByUsers(
-                pokeDetail.getPokerId(), pokeDetail.getPokedId()
-        );
-
         return SimplePokeProfile.from(
                 friendUserInfo,
                 pokeDetail,
-                getIsAlreadyPoke(pokeHistoryListIsReplyFalse, user.getId()),
-                getIsAnonymous(pokeHistoryListAll, user.getId())
+                getIsAlreadyPoke(pokeDetail.getPokerId(), pokeDetail.getPokedId(), user.getId()),
+                getIsAnonymous(pokeDetail.getPokerId(), pokeDetail.getPokedId(), user.getId())
         );
     }
 
