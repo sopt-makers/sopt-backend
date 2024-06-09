@@ -79,4 +79,13 @@ public class PokeFixture {
                         .activities(List.of(new PlaygroundActivity(PART,generation)))
                         .build()).toList();
     }
+
+    public static List<PlaygroundProfileOfRecommendedFriend> createSameUniversityPlaygroundProfileOfRecommendedFriend(List<Long> playgroundIds, String university, Integer generation) {
+        return playgroundIds.stream().map(playgroundId ->
+                PlaygroundProfileOfRecommendedFriend.builder()
+                        .playgroundId(playgroundId)
+                        .university(university)
+                        .activities(List.of(new PlaygroundActivity(PART,generation)))
+                        .build()).toList();
+    }
 }

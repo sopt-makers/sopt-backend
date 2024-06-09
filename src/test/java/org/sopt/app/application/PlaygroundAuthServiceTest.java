@@ -1,14 +1,17 @@
 package org.sopt.app.application;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
+import static org.sopt.app.common.fixtures.PokeFixture.GENERATION;
 import static org.sopt.app.common.fixtures.PokeFixture.MBTI;
+import static org.sopt.app.common.fixtures.PokeFixture.UNIVERSITY;
 import static org.sopt.app.common.fixtures.PokeFixture.createSameMbtiPlaygroundProfileOfRecommendedFriend;
+import static org.sopt.app.common.fixtures.PokeFixture.createSameUniversityPlaygroundProfileOfRecommendedFriend;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import java.util.List;
@@ -329,7 +332,7 @@ class PlaygroundAuthServiceTest {
         given(playgroundClient.getOwnPlaygroundProfile(any())).willReturn(new OwnPlaygroundProfile());
 
         // then
-        Assertions.assertDoesNotThrow(() -> playgroundAuthService.getOwnPlaygroundProfile(token));
+        assertDoesNotThrow(() -> playgroundAuthService.getOwnPlaygroundProfile(token));
     }
 
     @Test
@@ -340,7 +343,7 @@ class PlaygroundAuthServiceTest {
                 new PlaygroundProfileOfRecommendedFriendList());
 
         // then
-        Assertions.assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundProfilesForSameGeneration(33));
+        assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION));
     }
 
     @Test
@@ -351,65 +354,71 @@ class PlaygroundAuthServiceTest {
                 new PlaygroundProfileOfRecommendedFriendList(List.of()));
 
         // then
-        Assertions.assertDoesNotThrow(
-                () -> playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(33, "MBTI"));
+        assertDoesNotThrow(
+                () -> playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI));
     }
 
     @Test
     @DisplayName("SUCCESS_같은 MBTI의 플레이그라운드 프로필 조회에서 중복된 유저가 있으면 한 명만 반환한다.")
     void SUCCESS_getPlaygroundProfilesForSameMbtiAndGenerationDuplicationUser() {
         // given & when
-        given(playgroundClient.getPlaygroundProfileForSameMbti(any(), eq(33), eq(MBTI))).willReturn(
+        given(playgroundClient.getPlaygroundProfileForSameMbti(any(), eq(GENERATION), eq(MBTI))).willReturn(
                 new PlaygroundProfileOfRecommendedFriendList(
-                        createSameMbtiPlaygroundProfileOfRecommendedFriend(List.of(1L, 2L), MBTI, 33)));
-        given(playgroundClient.getPlaygroundProfileForSameMbti(any(), eq(32), eq(MBTI))).willReturn(
+                        createSameMbtiPlaygroundProfileOfRecommendedFriend(List.of(1L, 2L), MBTI, GENERATION)));
+        given(playgroundClient.getPlaygroundProfileForSameMbti(any(), eq(GENERATION - 1), eq(MBTI))).willReturn(
                 new PlaygroundProfileOfRecommendedFriendList(
-                        createSameMbtiPlaygroundProfileOfRecommendedFriend(List.of(1L, 3L), MBTI, 32)));
-        given(playgroundClient.getPlaygroundProfileForSameMbti(any(), eq(31), eq(MBTI))).willReturn(
+                        createSameMbtiPlaygroundProfileOfRecommendedFriend(List.of(1L, 3L), MBTI, GENERATION - 1)));
+        given(playgroundClient.getPlaygroundProfileForSameMbti(any(), eq(GENERATION - 2), eq(MBTI))).willReturn(
                 new PlaygroundProfileOfRecommendedFriendList(
-                        createSameMbtiPlaygroundProfileOfRecommendedFriend(List.of(1L, 4L), MBTI, 31)));
+                        createSameMbtiPlaygroundProfileOfRecommendedFriend(List.of(1L, 4L), MBTI, GENERATION - 2)));
 
         // when
         List<PlaygroundProfileOfRecommendedFriend> playgroundProfileOfRecommendedFriendList =
-                playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(33, MBTI);
+                playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI);
         List<Long> recommendedFriendPlaygroundIds = playgroundProfileOfRecommendedFriendList.stream()
                 .map(PlaygroundProfileOfRecommendedFriend::getPlaygroundId).toList();
 
         // then
-        System.out.println(recommendedFriendPlaygroundIds);
-        assertEquals(4, recommendedFriendPlaygroundIds.size());
-        assertTrue(recommendedFriendPlaygroundIds.containsAll(List.of(1L, 2L ,3L ,4L)));
+        assertEquals(List.of(1L, 2L, 3L, 4L), recommendedFriendPlaygroundIds);
     }
 
-    /* TODO: Implement the following methods
+    @Test
+    @DisplayName("SUCCESS_같은 대학교의 플레이그라운드 프로필 조회")
+    void SUCCESS_getPlaygroundProfilesForSameUniversityAndGeneration() {
+        // given & when
+        given(playgroundClient.getPlaygroundProfileForSameUniversity(any(), any(), any())).willReturn(
+                new PlaygroundProfileOfRecommendedFriendList(List.of()));
 
-
-    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameMbtiAndGeneration(Integer generation, String mbti) {
-        List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> result = new ArrayList<>();
-        final int TARGET_GENERATION_RANGE = 3;
-        for (int i = 0; i < TARGET_GENERATION_RANGE; i++) {
-            int targetGeneration = generation - i;
-            if (targetGeneration < 1) {
-                break;
-            }
-            result.addAll(playgroundClient.getPlaygroundProfileForSameMbti(createAuthorizationHeader(playgroundToken), generation ,mbti).getMembers());
-        }
-
-        return result.stream().distinct().toList();
+        // then
+        assertDoesNotThrow(
+                () -> playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(
+                        GENERATION, UNIVERSITY));
     }
 
-    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameUniversityAndGeneration(Integer generation, String university) {
-        List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> result = new ArrayList<>();
-        final int TARGET_GENERATION_RANGE = 3;
-        for (int i = 0; i < TARGET_GENERATION_RANGE; i++) {
-            int targetGeneration = generation - i;
-            if (targetGeneration < 1) {
-                break;
-            }
-            result.addAll(playgroundClient.getPlaygroundProfileForSameUniversity(createAuthorizationHeader(playgroundToken), targetGeneration, university).getMembers());
-        }
+    @Test
+    @DisplayName("SUCCESS_같은 대학교의 플레이그라운드 프로필 조회에서 중복된 유저가 있으면 한 명만 반환한다.")
+    void SUCCESS_getPlaygroundProfilesForSameUniversityAndGenerationDuplicationUser() {
+        // given & when
+        given(playgroundClient.getPlaygroundProfileForSameUniversity(any(), eq(GENERATION), eq(UNIVERSITY))).willReturn(
+                new PlaygroundProfileOfRecommendedFriendList(
+                        createSameUniversityPlaygroundProfileOfRecommendedFriend(
+                                List.of(1L, 2L), UNIVERSITY, GENERATION)));
+        given(playgroundClient.getPlaygroundProfileForSameUniversity(any(), eq(GENERATION - 1), eq(UNIVERSITY))).willReturn(
+                new PlaygroundProfileOfRecommendedFriendList(
+                        createSameUniversityPlaygroundProfileOfRecommendedFriend(
+                                List.of(1L, 3L), UNIVERSITY, GENERATION - 1)));
+        given(playgroundClient.getPlaygroundProfileForSameUniversity(any(), eq(GENERATION - 2), eq(UNIVERSITY))).willReturn(
+                new PlaygroundProfileOfRecommendedFriendList(
+                        createSameUniversityPlaygroundProfileOfRecommendedFriend(
+                                List.of(1L, 4L), UNIVERSITY, GENERATION - 2)));
 
-        return result.stream().distinct().toList();
+        // when
+        List<PlaygroundProfileOfRecommendedFriend> playgroundProfileOfRecommendedFriendList =
+                playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(GENERATION, UNIVERSITY);
+        List<Long> recommendedFriendPlaygroundIds = playgroundProfileOfRecommendedFriendList.stream()
+                .map(PlaygroundProfileOfRecommendedFriend::getPlaygroundId).toList();
+
+        // then
+        assertEquals(List.of(1L, 2L, 3L, 4L), recommendedFriendPlaygroundIds);
     }
-    * */
 }
