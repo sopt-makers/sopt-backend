@@ -21,8 +21,8 @@ import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.ActivityCardinalInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundActivity;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend;
 import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.poke.FriendService;
 import org.sopt.app.application.poke.PokeHistoryService;
@@ -303,6 +303,7 @@ public class PokeFacade {
     private boolean getIsAnonymous(List<PokeHistoryInfo> pokeHistoryList, Long userId) {
         return pokeHistoryList.stream()
                 .filter(pokeHistory -> pokeHistory.getPokedId().equals(userId))
+                .sorted(Comparator.comparing(PokeHistoryInfo::getCreatedAt).reversed())
                 .findFirst().map(PokeHistoryInfo::getIsAnonymous).orElse(false);
     }
 
