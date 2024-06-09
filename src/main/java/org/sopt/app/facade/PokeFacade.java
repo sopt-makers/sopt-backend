@@ -272,8 +272,6 @@ public class PokeFacade {
                 user.getPlaygroundToken(), List.of(friendUserProfile.getPlaygroundId())).get(0);
         val friendRelationInfo = friendService.getRelationInfo(userId, friendId);
 
-        val pokeHistoryList = pokeHistoryService.getAllOfPokeBetween(userId, friendId);
-
         return List.of(
                 SimplePokeProfile.of(
                         friendUserProfile.getUserId(),
@@ -288,7 +286,7 @@ public class PokeFacade {
                         createMutualFriendNames(user.getId(), friendId),
                         false,
                         getIsAlreadyPoke(userId, friendId, userId),
-                        getIsAnonymous(pokeHistoryList, userId),
+                        getIsAnonymous(userId, friendId, userId),
                         friendRelationInfo.getAnonymousName()
                 )
         );
@@ -300,8 +298,8 @@ public class PokeFacade {
                 .anyMatch(pokeHistory -> !pokeHistory.getIsReply());
     }
 
-    private boolean getIsAnonymous(List<PokeHistoryInfo> pokeHistoryList, Long userId) {
-        return pokeHistoryList.stream()
+    private boolean getIsAnonymous(Long pokerId, Long pokedId, Long userId) {
+        return pokeHistoryService.getAllPokeHistoryByUsers(pokerId, pokedId).stream()
                 .filter(pokeHistory -> pokeHistory.getPokedId().equals(userId))
                 .sorted(Comparator.comparing(PokeHistoryInfo::getCreatedAt).reversed())
                 .findFirst().map(PokeHistoryInfo::getIsAnonymous).orElse(false);
@@ -375,15 +373,11 @@ public class PokeFacade {
         PokeInfo.PokeDetail pokeDetail = getPokeInfo(pokeId);
         PokeInfo.PokedUserInfo friendUserInfo = getFriendUserInfo(user, friendId);
 
-        List<PokeHistoryInfo> pokeHistoryListAll = pokeHistoryService.getAllPokeHistoryByUsers(
-                pokeDetail.getPokerId(), pokeDetail.getPokedId()
-        );
-
         return SimplePokeProfile.from(
                 friendUserInfo,
                 pokeDetail,
                 getIsAlreadyPoke(pokeDetail.getPokerId(), pokeDetail.getPokedId(), user.getId()),
-                getIsAnonymous(pokeHistoryListAll, user.getId())
+                getIsAnonymous(pokeDetail.getPokerId(), pokeDetail.getPokedId(), user.getId())
         );
     }
 
