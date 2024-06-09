@@ -64,12 +64,12 @@ public class PokeFacade {
     @Transactional(readOnly = true)
     public List<PokeResponse.PokeMessage> getPokingMessages(String type) {
         val messages = pokeMessageService.pickRandomMessageByTypeOf(type);
-        return messages.stream()
-                .map(messagesDetail -> PokeResponse.PokeMessage.of(
-                                messagesDetail.getId(), messagesDetail.getContent()
-                        )
-                )
-                .toList();
+        val fixedMessage = pokeMessageService.getFixedMessage();
+        messages.add(fixedMessage);
+
+        return messages.stream().map(messagesDetail ->
+                PokeResponse.PokeMessage.of(messagesDetail.getId(), messagesDetail.getContent())
+        ).toList();
     }
 
     public String getPokingMessageHeader(String type) {
