@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.OwnPlaygroundProfile;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -148,7 +149,7 @@ public class PlaygroundAuthService {
         }
     }
 
-    public List<PlaygroundAuthInfo.MemberProfile> getPlaygroundMemberProfiles(String accessToken,
+    public List<PlaygroundProfile> getPlaygroundMemberProfiles(String accessToken,
             List<Long> memberIds) {
         Map<String, String> requestHeader = createAuthorizationHeader(accessToken);
         String stringifyIds = memberIds.stream()
@@ -169,11 +170,14 @@ public class PlaygroundAuthService {
         return playgroundClient.getOwnPlaygroundProfile(requestHeader);
     }
 
-    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameGeneration(Integer generation) {
-        return playgroundClient.getPlaygroundProfileForSameGeneration(createAuthorizationHeader(playgroundToken), generation).getMembers();
+    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameGeneration(
+            Integer generation) {
+        return playgroundClient.getPlaygroundProfileForSameGeneration(createAuthorizationHeader(playgroundToken),
+                generation).getMembers();
     }
 
-    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameMbtiAndGeneration(Integer generation, String mbti) {
+    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameMbtiAndGeneration(
+            Integer generation, String mbti) {
         List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> result = new ArrayList<>();
         final int TARGET_GENERATION_RANGE = 3;
         for (int i = 0; i < TARGET_GENERATION_RANGE; i++) {
@@ -181,13 +185,15 @@ public class PlaygroundAuthService {
             if (targetGeneration < 1) {
                 break;
             }
-            result.addAll(playgroundClient.getPlaygroundProfileForSameMbti(createAuthorizationHeader(playgroundToken), generation ,mbti).getMembers());
+            result.addAll(playgroundClient.getPlaygroundProfileForSameMbti(createAuthorizationHeader(playgroundToken),
+                    generation, mbti).getMembers());
         }
 
         return result.stream().distinct().toList();
     }
 
-    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameUniversityAndGeneration(Integer generation, String university) {
+    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameUniversityAndGeneration(
+            Integer generation, String university) {
         List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> result = new ArrayList<>();
         final int TARGET_GENERATION_RANGE = 3;
         for (int i = 0; i < TARGET_GENERATION_RANGE; i++) {
@@ -195,7 +201,9 @@ public class PlaygroundAuthService {
             if (targetGeneration < 1) {
                 break;
             }
-            result.addAll(playgroundClient.getPlaygroundProfileForSameUniversity(createAuthorizationHeader(playgroundToken), targetGeneration, university).getMembers());
+            result.addAll(
+                    playgroundClient.getPlaygroundProfileForSameUniversity(createAuthorizationHeader(playgroundToken),
+                            targetGeneration, university).getMembers());
         }
 
         return result.stream().distinct().toList();

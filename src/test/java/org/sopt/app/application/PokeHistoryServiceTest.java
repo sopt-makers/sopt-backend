@@ -25,7 +25,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
-public class PokeHistoryServiceTest {
+class PokeHistoryServiceTest {
 
     @Mock
     private PokeHistoryRepository pokeHistoryRepository;

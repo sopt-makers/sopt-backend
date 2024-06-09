@@ -66,7 +66,7 @@ public class PokeHistoryService {
         }
     }
 
-    public HashMap<Long, Boolean> getAllPokeHistoryMap(Long userId) {
+    public Map<Long, Boolean> getAllPokeHistoryMap(Long userId) {
         val pokeHistories = pokeHistoryRepository.findAllByPokerIdAndIsReply(userId, false);
         HashMap<Long, Boolean> pokeHistoryMap = new HashMap<>();
         for (PokeHistory pokeHistory : pokeHistories) {

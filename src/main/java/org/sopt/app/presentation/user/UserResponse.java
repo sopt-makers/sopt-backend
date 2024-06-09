@@ -2,10 +2,13 @@ package org.sopt.app.presentation.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserResponse {
 
     @Getter

@@ -1,5 +1,6 @@
 package org.sopt.app.facade;
 
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -9,6 +10,7 @@ import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.application.soptamp.SoptampUserInfo.SoptampUserPlaygroundInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.stamp.StampService;
+import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.admin.AdminSoptampResponse;
@@ -50,24 +52,23 @@ public class AdminSoptampFacade {
 
         // 앱 아이디로 솝탬프 유저 정보 조회
         val soptampUserList = soptampUserService.getSoptampUserInfoList(
-                userProfileList.stream().map(e -> e.getUserId()).collect(Collectors.toList()));
+                userProfileList.stream().map(UserProfile::getUserId).collect(Collectors.toList()));
 
         // 플그 프로필 리스트와 앱 솝탬프 유저 정보 매핑
         val userInfoList = memberProfileList.stream().map(
                 memberProfile -> {
                     val userProfile = userProfileList.stream()
-                            .filter(u -> u.getPlaygroundId().equals(memberProfile.getId()))
+                            .filter(u -> u.getPlaygroundId().equals(memberProfile.getMemberId()))
                             .findFirst();
-                    return userProfile.isEmpty() ? null :
-                            SoptampUserPlaygroundInfo.builder()
-                                    .userId(userProfile.get().getUserId())
-                                    .playgroundId(userProfile.get().getPlaygroundId())
-                                    .name(userProfile.get().getName())
-                                    .generation(Long.parseLong(memberProfile.getLatestActivity().getGeneration()))
-                                    .part(memberProfile.getLatestActivity().getPart())
-                                    .build();
+                    return userProfile.map(profile -> SoptampUserPlaygroundInfo.builder()
+                            .userId(profile.getUserId())
+                            .playgroundId(profile.getPlaygroundId())
+                            .name(profile.getName())
+                            .generation(Long.parseLong(memberProfile.getLatestActivity().getGeneration()))
+                            .part(memberProfile.getLatestActivity().getPart())
+                            .build()).orElse(null);
                 }
-        ).filter(x -> x != null).collect(Collectors.toList());
+        ).filter(Objects::nonNull).toList();
 
         // 플그 파트, 기수, 점수 정보 업데이트
         val updatedSoptampUserList = soptampUserService.initAllCurrentGenerationSoptampUser(soptampUserList,

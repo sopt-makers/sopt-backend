@@ -10,7 +10,8 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface FriendRepository extends JpaRepository<Friend, Long>, FriendCustomRepository  {
+public interface FriendRepository extends JpaRepository<Friend, Long>, FriendCustomRepository {
+
     Optional<Friend> findByUserIdAndFriendUserId(Long userId, Long friendId);
 
     @Query("SELECT f.friendUserId FROM Friend f WHERE f.userId = :userId")
@@ -25,5 +26,6 @@ public interface FriendRepository extends JpaRepository<Friend, Long>, FriendCus
 
     List<Friend> findAllByUserIdAndFriendUserIdIn(Long userId, List<Long> friendIdsPokeMe);
 
-    Page<Friend> findAllByUserIdAndFriendUserIdInOrderByPokeCount(Long userId, List<Long> friendIdsPokeMe, Pageable pageable);
+    Page<Friend> findAllByUserIdAndFriendUserIdInOrderByPokeCount(Long userId, List<Long> friendIdsPokeMe,
+            Pageable pageable);
 }
