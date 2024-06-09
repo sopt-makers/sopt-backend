@@ -23,6 +23,7 @@ import org.sopt.app.application.auth.PlaygroundAuthInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundCardinalInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundMain;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriendList;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.RefreshedToken;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.UserActiveInfo;
 import org.sopt.app.application.auth.PlaygroundAuthService;
@@ -51,7 +52,6 @@ class PlaygroundAuthServiceTest {
     @DisplayName("SUCCESS_플레이그라운드 정보 조회")
     void SUCCESS_getPlaygroundInfo() {
         // given
-        String token = "token";
         PlaygroundCardinalInfo playgroundCardinalInfo = new PlaygroundCardinalInfo();
         playgroundCardinalInfo.setCardinalInfo("29,서버");
         PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = new PlaygroundProfile();
@@ -326,10 +326,18 @@ class PlaygroundAuthServiceTest {
         Assertions.assertDoesNotThrow(() -> playgroundAuthService.getOwnPlaygroundProfile(token));
     }
 
-    /* TODO: Implement the following methods
-    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameGeneration(Integer generation) {
-        return playgroundClient.getPlaygroundProfileForSameGeneration(createAuthorizationHeader(playgroundToken), generation).getMembers();
+    @Test
+    @DisplayName("SUCCESS_같은 기수의 플레이그라운드 프로필 조회")
+    void SUCCESS_getPlaygroundProfilesForSameGeneration() {
+        // given & when
+        given(playgroundClient.getPlaygroundProfileForSameGeneration(any(), any())).willReturn(new PlaygroundProfileOfRecommendedFriendList());
+
+        // then
+        Assertions.assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundProfilesForSameGeneration(33));
     }
+
+    /* TODO: Implement the following methods
+
 
     public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameMbtiAndGeneration(Integer generation, String mbti) {
         List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> result = new ArrayList<>();
