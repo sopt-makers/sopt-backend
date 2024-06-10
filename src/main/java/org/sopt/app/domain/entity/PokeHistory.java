@@ -43,6 +43,9 @@ public class PokeHistory extends BaseEntity {
     @Column(name = "is_reply")
     private Boolean isReply;
 
+    @Column(name = "is_anonymous", nullable = false)
+    private Boolean isAnonymous;
+
     public void activateReply() {
         this.isReply = true;
     }

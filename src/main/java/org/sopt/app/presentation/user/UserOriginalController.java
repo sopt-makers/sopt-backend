@@ -55,7 +55,7 @@ public class UserOriginalController {
             @AuthenticationPrincipal User user
     ) {
         val generationUser = playgroundAuthService.getPlaygroundUserActiveInfo(
-                user.getPlaygroundToken());
+                user.getPlaygroundToken(), user.getPlaygroundId());
         val response = userResponseMapper.ofGeneration(generationUser);
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
@@ -67,9 +67,7 @@ public class UserOriginalController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping(value = "/app-service")
-    public ResponseEntity<List<AppService>> getAppServiceInfo(
-            @AuthenticationPrincipal User user
-    ) {
+    public ResponseEntity<List<AppService>> getAppServiceInfo() {
         val response = userFacade.getAppServiceInfo();
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }

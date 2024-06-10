@@ -1,11 +1,10 @@
 package org.sopt.app.domain.enums;
 
+import java.util.Arrays;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
-
-import java.util.Arrays;
 
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum PokeMessageType {
@@ -18,7 +17,9 @@ public enum PokeMessageType {
 
     // 친구가 아닌 사람이 나를 찔렀을 때 필요한 답찌르기 메시지
     REPLY_NEW("replyNew"),
-    ;
+
+    // 모든 상황에서 사용하는 메시지
+    POKE_ALL("pokeAll");
 
     private final String parameter;
 

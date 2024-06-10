@@ -9,7 +9,7 @@ public interface SoptampPointRepository extends JpaRepository<SoptampPoint, Long
 
     List<SoptampPoint> findAllByGeneration(Long currentGeneration);
 
-    Optional<SoptampPoint> findAllBySoptampUserIdAndGeneration(Long soptampUserId, Long currentGeneration);
+    Optional<SoptampPoint> findBySoptampUserIdAndGeneration(Long soptampUserId, Long currentGeneration);
 
     List<SoptampPoint> findAllBySoptampUserIdInAndGeneration(List<Long> soptampUserIdList, Long currentGeneration);
 }

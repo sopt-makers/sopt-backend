@@ -19,6 +19,7 @@ public enum ErrorCode {
     // PLAYGROUND
     PLAYGROUND_USER_NOT_EXISTS("플레이그라운드 유저 정보를 가져올 수 없습니다."),
     PLAYGROUND_PROFILE_NOT_EXISTS("플레이그라운드 프로필을 등록하지 않은 유저입니다."),
+    INVALID_PLAYGROUND_CARDINAL_INFO("플레이그라운드 활동 정보가 유효하지 않습니다."),
 
     // OPERATION
     OPERATION_PROFILE_NOT_EXISTS("운영 서비스에 존재하지 않는 회원입니다."),
@@ -26,6 +27,7 @@ public enum ErrorCode {
     // USER
     USER_NOT_FOUND("존재하지 않는 유저입니다."),
     DUPLICATE_NICKNAME("사용 중인 닉네임입니다."),
+    USER_GENERATION_INFO_NOT_FOUND("기수 정보를 찾을 수 없습니다."),
 
     // MISSION
     MISSION_NOT_FOUND("존재하지 않는 미션입니다."),
@@ -64,8 +66,10 @@ public enum ErrorCode {
 
     // FRIEND
     FRIENDSHIP_NOT_FOUND("해당 친구관계는 존재하지 않습니다."),
+    INVALID_FRIEND_RECOMMEND_TYPE("잘못된 친구 추천 유형입니다."),
 
     // ADMIN
+    INVALID_APP_ADMIN_PASSWORD("잘못된 앱 어드민 패스워드입니다."),
     ADMIN_INIT_SOPTAMP_USER_FAILED("솝탬프 유저 초기화에 실패했습니다."),
 
     // S3

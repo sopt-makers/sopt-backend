@@ -1,16 +1,61 @@
 package org.sopt.app.presentation.poke;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.*;
-
-
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+import org.sopt.app.application.poke.PokeInfo.PokeDetail;
+import org.sopt.app.application.poke.PokeInfo.PokedUserInfo;
+import org.sopt.app.domain.enums.FriendRecommendType;
+import org.sopt.app.common.utils.AnonymousImageGenerator;
 
 public class PokeResponse {
+
+    // TODO 사용되지 않는 interface 책임 지우기
+    interface FriendList {
+
+    }
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class RandomInfoList {
+
+        private List<RandomInfo> randomInfoList;
+
+        public static RandomInfoList of(
+                List<RandomInfo> randomInfoList
+        ) {
+            return new RandomInfoList(randomInfoList);
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class RandomInfo {
+
+        @Schema(description = "추천 타입 ENUM", example = "MBTI")
+        private String randomType;
+        @Schema(description = "추천 타입 제목", example = "나와 MBTI가 같은 사람")
+        private String randomTitle;
+        @Schema(description = "추천 유저 리스트", example = "[]")
+        private List<SimplePokeProfile> userInfoList;
+
+        public static RandomInfo of(
+                String randomType, String randomTitle, List<SimplePokeProfile> userInfoList
+        ) {
+            return new RandomInfo(randomType, randomTitle, userInfoList);
+        }
+    }
+
 
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class IsNew {
+
         @Schema(description = "새로운 유저 여부", example = "true")
         private Boolean isNew;
 
@@ -19,19 +64,11 @@ public class PokeResponse {
         }
     }
 
-    // TODO 사용되지 않는 interface 책임 지우기
-    interface FriendList {
-    }
-    interface  HistoryList{
-    }
-    interface MessageList {
-    }
-
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
-    public static class AllRelationFriendList implements FriendList{
+    public static class AllRelationFriendList implements FriendList {
 
         @Schema(description = "대표 친한 친구 2명")
         private List<SimplePokeProfile> newFriend;
@@ -49,10 +86,10 @@ public class PokeResponse {
         private int totalSize;
 
         public static AllRelationFriendList of(
-            List<SimplePokeProfile> newFriend, int newFriendSize,
-            List<SimplePokeProfile> bestFriend, int bestFriendSize,
-            List<SimplePokeProfile> soulmate, int soulmateSize,
-            int totalSize
+                List<SimplePokeProfile> newFriend, int newFriendSize,
+                List<SimplePokeProfile> bestFriend, int bestFriendSize,
+                List<SimplePokeProfile> soulmate, int soulmateSize,
+                int totalSize
         ) {
             return new AllRelationFriendList(
                     newFriend, newFriendSize,
@@ -62,11 +99,13 @@ public class PokeResponse {
             );
         }
     }
+
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
-    public static class EachRelationFriendList implements FriendList{
+    public static class EachRelationFriendList implements FriendList {
+
         @Schema(description = "친구 리스트")
         private List<SimplePokeProfile> friendList;
         @Schema(description = "친구 수", example = "1")
@@ -93,7 +132,7 @@ public class PokeResponse {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
-    public static class PokeToMeHistoryList implements HistoryList{
+    public static class PokeToMeHistoryList {
 
         private List<SimplePokeProfile> history;
         private int totalPageSize;
@@ -114,13 +153,14 @@ public class PokeResponse {
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
-    public static class PokeMessageList implements MessageList {
+    public static class PokeMessageList {
+
         private String header;
         private List<PokeMessage> messages;
 
         public static PokeMessageList of(
-            String header,
-            List<PokeMessage> messages
+                String header,
+                List<PokeMessage> messages
         ) {
             return new PokeMessageList(header, messages);
         }
@@ -131,16 +171,16 @@ public class PokeResponse {
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @ToString
     public static class PokeMessage {
+
         private Long messageId;
         private String content;
 
         public static PokeMessage of(
-            Long id, String content
+                Long id, String content
         ) {
             return new PokeMessage(id, content);
         }
     }
-
 
 
     @Getter
@@ -168,31 +208,103 @@ public class PokeResponse {
         private Integer pokeNum;
         @Schema(description = "관계 이름", example = "천생연분")
         private String relationName;
-
-        //TODO: 건모 Align 이후 삭제
-//        @Schema(description = "함께 친구 관계인 친구들의 이름", example = "['제갈송현', '왕건모', '진동규', '차승호']")
-//        private List<String> mutual;
         @Schema(description = "함께 아는 친구관계 문구", example = "제갈송현 외 1명과 친구")
         private String mutualRelationMessage;
-
         @Schema(description = "이전에 찌른 이력이 있는지에 대한 여부", example = "false")
         private Boolean isFirstMeet;
         @Schema(description = "이미 오늘 찔렀는지에 대한 여부", example = "true")
         private Boolean isAlreadyPoke;
+        @Schema(description = "익명 여부", example = "true")
+        private Boolean isAnonymous;
+        @Schema(description = "익명 이름", example = "익명의 그윽한 떡볶이")
+        private String anonymousName;
+        @Schema(description = "익명 사진", example = "~.png")
+        private String anonymousImage;
 
-        public static SimplePokeProfile of(
-            Long userId, Long playgroundId, String profileImage, String name, String message,
-            Integer generation, String part, Integer pickNum, String relationName,
-//                , List<String> mutual
-                String mutualRelationMessage, Boolean isFirstMeet,
-            Boolean isAlreadyPoke
+        public static SimplePokeProfile from(
+                PokedUserInfo pokedUserInfo,
+                PokeDetail pokeDetail,
+                Boolean isAlreadyPoke,
+                Boolean isAnonymous
         ) {
             return new SimplePokeProfile(
-                userId, playgroundId, profileImage, name, message, generation, part, pickNum, relationName
-//                    , mutual
-                    , mutualRelationMessage
-                    , isFirstMeet,
-                isAlreadyPoke
+                    pokedUserInfo.getUserId(),
+                    pokedUserInfo.getPlaygroundId(),
+                    pokedUserInfo.getProfileImage() == null ? "" : pokedUserInfo.getProfileImage(),
+                    pokedUserInfo.getName(),
+                    pokeDetail.getMessage() == null ? "" : pokeDetail.getMessage(),
+                    pokedUserInfo.getGeneration(),
+                    pokedUserInfo.getPart(),
+                    pokedUserInfo.getRelation().getPokeNum(),
+                    pokedUserInfo.getRelation().getRelationName(),
+                    pokedUserInfo.getMutualRelationMessage(),
+                    pokedUserInfo.isFirstMeet(),
+                    isAlreadyPoke,
+                    isAnonymous,
+                    isAnonymous ? pokedUserInfo.getRelation().getAnonymousName() : "",
+                    AnonymousImageGenerator.getImageUrl(isAnonymous)
+            );
+        }
+
+        public static SimplePokeProfile of(
+                Long userId,
+                Long playgroundId,
+                String profileImage,
+                String name,
+                String message,
+                Integer generation,
+                String part,
+                Integer pickNum,
+                String relationName,
+                String mutualRelationMessage,
+                Boolean isFirstMeet,
+                Boolean isAlreadyPoke,
+                Boolean isAnonymous,
+                String anonymousName
+        ) {
+            return new SimplePokeProfile(
+                    userId,
+                    playgroundId,
+                    profileImage,
+                    name,
+                    message == null ? "" : message,
+                    generation,
+                    part,
+                    pickNum,
+                    relationName,
+                    mutualRelationMessage,
+                    isFirstMeet,
+                    isAlreadyPoke,
+                    isAnonymous,
+                    isAnonymous ? anonymousName : "",
+                    AnonymousImageGenerator.getImageUrl(isAnonymous)
+            );
+        }
+
+        public static SimplePokeProfile createNonFriendPokeProfile(
+                Long userId,
+                Long playgroundId,
+                String profileImage,
+                String name,
+                Integer generation,
+                String part
+        ) {
+            return new SimplePokeProfile(
+                    userId,
+                    playgroundId,
+                    profileImage == null ? "" : profileImage,
+                    name,
+                    "",
+                    generation,
+                    part,
+                    0,
+                    "",
+                    "",
+                    true,
+                    false,
+                    false,
+                    "",
+                    ""
             );
         }
     }
@@ -216,6 +328,7 @@ public class PokeResponse {
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Friend {
+
         @Schema(description = "친구 ID", example = "1")
         private Long friendId;
         @Schema(description = "playgroundId", example = "1")
@@ -227,7 +340,8 @@ public class PokeResponse {
         @Schema(description = "친구 프로필 리스트", example = "[{'userId': 1, 'profileImage': '...', 'name': '제갈송현', 'generation': 29, 'part': '안드로이드'}]")
         private List<SimplePokeProfile> friendList;
 
-        public static Friend of(Long friendId, Long playgroundId, String friendName, String friendProfileImage, List<SimplePokeProfile> friendList) {
+        public static Friend of(Long friendId, Long playgroundId, String friendName, String friendProfileImage,
+                List<SimplePokeProfile> friendList) {
             return new Friend(friendId, playgroundId, friendName, friendProfileImage, friendList);
         }
     }
@@ -250,9 +364,40 @@ public class PokeResponse {
         private Boolean isAlreadyPoked;
 
         public static PokeProfile of(
-            Long userId, String profileImage, String name, Long generation, String part, Boolean isAlreadyPoked
+                Long userId, String profileImage, String name, Long generation, String part, Boolean isAlreadyPoked
         ) {
             return new PokeProfile(userId, profileImage, name, generation, part, isAlreadyPoked);
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class RecommendedFriendsByAllType {
+
+        private List<RecommendedFriendsByType> randomInfoList;
+
+        public static RecommendedFriendsByAllType of(
+                List<RecommendedFriendsByType> randomInfoList
+        ) {
+            return new RecommendedFriendsByAllType(randomInfoList);
+        }
+    }
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class RecommendedFriendsByType {
+
+        @Schema(description = "친구 추천 타입 ENUM", example = "MBTI")
+        private FriendRecommendType randomType;
+        @Schema(description = "친구 추천 타입 별 제목", example = "나와 MBTI가 같은 사람이에요")
+        private String randomTitle;
+        @Schema(description = "추천 친구 정보 리스트", example = "[]")
+        private List<SimplePokeProfile> userInfoList;
+
+        public static RecommendedFriendsByType of(
+                FriendRecommendType randomType, String randomTitle, List<SimplePokeProfile> userInfoList
+        ) {
+            return new RecommendedFriendsByType(randomType, randomTitle, userInfoList);
         }
     }
 }
