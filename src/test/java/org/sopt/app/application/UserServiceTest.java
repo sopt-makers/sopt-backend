@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundMain;
 import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.application.user.UserService;
+import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
@@ -165,7 +166,7 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("FAIL_유저 프로필 조회시 유저를 찾지 못하면 UnauthorizedException 발생")
+    @DisplayName("FAIL_유저 프로필 조회시 유저를 찾지 못하면 NotFoundException 발생")
     void FAIL_getUserProfileOrElseThrow() {
         //given
         final Long anyUserId = anyLong();
@@ -174,7 +175,7 @@ class UserServiceTest {
         when(userRepository.findUserById(anyUserId)).thenReturn(Optional.empty());
 
         //then
-        Assertions.assertThrows(UnauthorizedException.class, () -> userService.getUserProfileOrElseThrow(anyUserId));
+        Assertions.assertThrows(NotFoundException.class, () -> userService.getUserProfileOrElseThrow(anyUserId));
     }
 
     @Test
