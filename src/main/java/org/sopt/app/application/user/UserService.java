@@ -99,10 +99,10 @@ public class UserService {
                         .build();
     }
 
-    public String getUserNameOrElseNull(Long userId) {
-        return userRepository.findUserById(userId)
+    public List<String> getNamesByIds(List<Long> userIds) {
+        return userRepository.findAllByIdIn(userIds).stream()
                 .map(User::getUsername)
-                .orElse(null);
+                .toList();
     }
 
     public List<UserProfile> getUserProfilesByPlaygroundIds(List<Long> playgroundIds) {

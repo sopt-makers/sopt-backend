@@ -305,10 +305,7 @@ public class PokeFacade {
     }
 
     private String createMutualFriendNames(Long userId, Long friendId) {
-        List<String> mutualFriendNames = friendService.getMutualFriendIds(userId, friendId).stream()
-                .map(userService::getUserNameOrElseNull)
-                .filter(Objects::nonNull)
-                .toList();
+        List<String> mutualFriendNames = userService.getNamesByIds(friendService.getMutualFriendIds(userId, friendId));
 
         if (mutualFriendNames.isEmpty()) {
             return NEW_FRIEND_NO_MUTUAL;
@@ -546,10 +543,7 @@ public class PokeFacade {
         val pokedUserPlaygroundProfile = playgroundAuthService.getPlaygroundMemberProfiles(
                 user.getPlaygroundToken(), List.of(pokedUserProfile.getPlaygroundId())).get(0);
         val latestActivity = pokedUserPlaygroundProfile.getLatestActivity();
-        val mutualFriendNames = friendService.getMutualFriendIds(user.getId(), friendUserId).stream()
-                .map(userService::getUserNameOrElseNull)
-                .filter(Objects::nonNull)
-                .toList();
+        val mutualFriendNames = userService.getNamesByIds(friendService.getMutualFriendIds(user.getId(), friendUserId));
         val relationInfo = friendService.getRelationInfo(user.getId(), friendUserId);
         return PokeInfo.PokedUserInfo.builder()
                 .userId(pokedUserProfile.getUserId())
