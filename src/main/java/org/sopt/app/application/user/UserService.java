@@ -89,8 +89,7 @@ public class UserService {
         );
     }
 
-    @Transactional(readOnly = true)
-    public UserProfile getUserProfile(Long userId) {
+    public UserProfile getUserProfileOrElseThrow(Long userId) {
         val user = userRepository.findUserById(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
         return UserProfile.builder()
@@ -98,6 +97,12 @@ public class UserService {
                         .name(user.getUsername())
                         .playgroundId(user.getPlaygroundId())
                         .build();
+    }
+
+    public String getUserNameOrElseNull(Long userId) {
+        return userRepository.findUserById(userId)
+                .map(User::getUsername)
+                .orElse(null);
     }
 
     public List<UserProfile> getUserProfilesByPlaygroundIds(List<Long> playgroundIds) {
