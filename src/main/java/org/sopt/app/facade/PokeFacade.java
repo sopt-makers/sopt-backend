@@ -538,6 +538,7 @@ public class PokeFacade {
     private Integer getLatestGenerationByActivityCardinalInfoList(List<ActivityCardinalInfo> activityCardinalInfoList) {
         return Integer.parseInt(
                 activityCardinalInfoList.stream()
+                        .filter(ActivityCardinalInfo::isActualGeneration)
                         .max(Comparator.comparing(ActivityCardinalInfo::getGeneration))
                         .orElseThrow(
                                 () -> new BadRequestException(ErrorCode.USER_GENERATION_INFO_NOT_FOUND.getMessage()))

@@ -124,6 +124,10 @@ public class PlaygroundAuthInfo {
         public String getPart() {
             return cardinalInfo.split(",")[1];
         }
+
+        public boolean isActualGeneration() {
+            return !cardinalInfo.endsWith(",");
+        }
     }
 
     @Getter
