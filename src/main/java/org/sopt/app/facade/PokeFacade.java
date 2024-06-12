@@ -384,18 +384,15 @@ public class PokeFacade {
         );
     }
 
-    @Transactional(readOnly = true)
     public RecommendedFriendsByAllType getRecommendedFriendsByTypeList(List<FriendRecommendType> typeList, int size,
             User user) {
-        Long userId = user.getId();
-        OwnPlaygroundProfile ownPlaygroundProfile =
-                playgroundAuthService.getOwnPlaygroundProfile(user.getPlaygroundToken());
-
         List<RecommendedFriendsByType> recommendedFriendsByTypeList = new ArrayList<>();
 
+        OwnPlaygroundProfile ownPlaygroundProfile = playgroundAuthService.getOwnPlaygroundProfile(user.getPlaygroundToken());
+        Integer latestGeneration = getLatestGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities());
+        Long userId = user.getId();
+
         for (FriendRecommendType type : typeList) {
-            Integer latestGeneration = getLatestGenerationByActivityCardinalInfoList(
-                    ownPlaygroundProfile.getActivities());
             switch (type) {
                 case ALL:
                     handleAllType(recommendedFriendsByTypeList, ownPlaygroundProfile, size, userId);
