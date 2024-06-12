@@ -21,9 +21,6 @@ public class ClientConfig {
     @Value("${makers.playground.server}")
     private String playgroundEndPoint;
 
-    @Value("${makers.operation.server}")
-    private String operationEndPoint;
-
     @Bean
     public PlaygroundClient playgroundClient() {
         return Feign.builder()
