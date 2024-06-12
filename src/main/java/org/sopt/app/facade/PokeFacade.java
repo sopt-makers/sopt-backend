@@ -13,7 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.BiFunction;
-import java.util.function.IntFunction;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -388,7 +388,8 @@ public class PokeFacade {
             User user) {
         List<RecommendedFriendsByType> recommendedFriendsByTypeList = new ArrayList<>();
 
-        OwnPlaygroundProfile ownPlaygroundProfile = playgroundAuthService.getOwnPlaygroundProfile(user.getPlaygroundToken());
+        OwnPlaygroundProfile ownPlaygroundProfile =
+                playgroundAuthService.getOwnPlaygroundProfile(user.getPlaygroundToken());
         Integer latestGeneration = getLatestGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities());
         Long userId = user.getId();
 
@@ -398,7 +399,8 @@ public class PokeFacade {
                     handleAllType(recommendedFriendsByTypeList, ownPlaygroundProfile, size, userId);
                     return RecommendedFriendsByAllType.of(recommendedFriendsByTypeList);
                 case GENERATION:
-                    addRecommendedFriendsListByGeneration(recommendedFriendsByTypeList, size, userId, latestGeneration,
+                    addRecommendedFriendsListByGeneration(recommendedFriendsByTypeList, size, userId,
+                            this.getAllGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities()),
                             playgroundAuthService::getPlaygroundProfilesForSameGeneration);
                     break;
                 case MBTI:
@@ -425,7 +427,8 @@ public class PokeFacade {
             OwnPlaygroundProfile ownPlaygroundProfile, int size, Long userId) {
         Integer latestGeneration = getLatestGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities());
 
-        addRecommendedFriendsListByGeneration(recommendedFriendsByTypeList, size, userId, latestGeneration,
+        addRecommendedFriendsListByGeneration(recommendedFriendsByTypeList, size, userId,
+                this.getAllGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities()),
                 playgroundAuthService::getPlaygroundProfilesForSameGeneration);
         addRecommendedFriendsList(recommendedFriendsByTypeList, FriendRecommendType.MBTI, size, userId,
                 latestGeneration, ownPlaygroundProfile.getMbti(),
@@ -435,13 +438,6 @@ public class PokeFacade {
                 playgroundAuthService::getPlaygroundProfilesForSameUniversityAndGeneration);
     }
 
-    private void addRecommendedFriendsListByGeneration(List<RecommendedFriendsByType> list, int size,
-            Long userId, Integer generation,
-            IntFunction<List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
-        List<PlaygroundProfileOfRecommendedFriend> profiles = fetchProfilesFunction.apply(generation);
-        validateRecommendedFriends(generation, profiles, list, FriendRecommendType.GENERATION, size, userId);
-    }
-
     private <T> void validateRecommendedFriends(T value, List<PlaygroundProfileOfRecommendedFriend> profiles,
             List<RecommendedFriendsByType> list, FriendRecommendType type, int size, Long userId) {
         List<SimplePokeProfile> simplePokeProfiles = excludeProfileLinkedFriends(profiles, userId);
@@ -449,6 +445,13 @@ public class PokeFacade {
         if (value != null && !simplePokeProfiles.isEmpty()) {
             list.add(getRecommendedFriendsByType(type, size, simplePokeProfiles));
         }
+    }
+
+    private void addRecommendedFriendsListByGeneration(List<RecommendedFriendsByType> list, int size,
+            Long userId, List<Integer> generationList,
+            Function<List<Integer> ,List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
+        List<PlaygroundProfileOfRecommendedFriend> profiles = fetchProfilesFunction.apply(generationList);
+        validateRecommendedFriends(generationList, profiles, list, FriendRecommendType.GENERATION, size, userId);
     }
 
     private <T> void addRecommendedFriendsList(List<RecommendedFriendsByType> list, FriendRecommendType type, int size,
@@ -515,7 +518,7 @@ public class PokeFacade {
                         profile.getPlaygroundId(),
                         profile.getProfileImage(),
                         profile.getName(),
-                        lastActivity.getGeneration(), // TODO: generation을 찾은 기수때의 generation으로 변경
+                        lastActivity.getGeneration(),
                         lastActivity.getPart()
                 )).orElse(null);
 
@@ -535,6 +538,14 @@ public class PokeFacade {
                         .orElseThrow(
                                 () -> new BadRequestException(ErrorCode.USER_GENERATION_INFO_NOT_FOUND.getMessage()))
                         .getGeneration());
+    }
+
+    private List<Integer> getAllGenerationByActivityCardinalInfoList(
+            List<ActivityCardinalInfo> activityCardinalInfoList) {
+        return activityCardinalInfoList.stream()
+                .filter(ActivityCardinalInfo::isActualGeneration)
+                .map(activityCardinalInfo -> Integer.parseInt(activityCardinalInfo.getGeneration()))
+                .toList();
     }
 
     private PokeInfo.PokedUserInfo getFriendUserInfo(User user, Long friendUserId) {

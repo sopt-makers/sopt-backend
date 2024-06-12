@@ -173,10 +173,18 @@ public class PlaygroundAuthService {
     }
 
     public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameGeneration(
-            Integer generation) {
-        return playgroundClient.getPlaygroundProfileForSameGeneration(createAuthorizationHeader(playgroundToken),
-                        generation).getMembers().stream()
-                .map(recommendedFriend -> recommendedFriend.getProfileOfSameGeneration(generation)).toList();
+            List<Integer> generationList) {
+        List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> result = new ArrayList<>();
+
+        for (Integer generation : generationList) {
+            result.addAll(playgroundClient.getPlaygroundProfileForSameGeneration(
+                            createAuthorizationHeader(playgroundToken), generation)
+                    .getMembers().stream()
+                    .map(profile -> profile.getProfileOfSameGeneration(generation)).toList()
+            );
+        }
+
+        return result.stream().distinct().toList();
     }
 
     private List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForGenerationRange(
