@@ -340,10 +340,10 @@ class PlaygroundAuthServiceTest {
     void SUCCESS_getPlaygroundProfilesForSameGeneration() {
         // given & when
         given(playgroundClient.getPlaygroundProfileForSameGeneration(any(), any())).willReturn(
-                new PlaygroundProfileOfRecommendedFriendList());
+                PlaygroundProfileOfRecommendedFriendList.builder().members(List.of()).build());
 
         // then
-        assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION));
+        assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundProfilesForSameGeneration(List.of(GENERATION)));
     }
 
     @Test

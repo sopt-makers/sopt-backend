@@ -543,7 +543,7 @@ class PokeFacadeTest {
     void SUCCESS_getRecommendedFriendsByAllType() {
         // given
         given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION)).willReturn(PokeFixture.createPlaygroundProfileOfRecommendedFriendSameGenerationList(List.of(1L,2L,3L)));
+        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(List.of(GENERATION))).willReturn(PokeFixture.createPlaygroundProfileOfRecommendedFriendSameGenerationList(List.of(1L,2L,3L)));
         given(playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI)).willReturn(PokeFixture.createPlaygroundProfileOfRecommendedFriendSameMbtiList(List.of(4L,5L,6L)));
         given(playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(GENERATION, UNIVERSITY)).willReturn(PokeFixture.createPlaygroundProfileOfRecommendedFriendSameUniversityList(List.of(7L,8L,9L)));
         given(friendService.findUserIdsLinkedFriends(anyLong())).willReturn(new ArrayList<>());
@@ -555,7 +555,7 @@ class PokeFacadeTest {
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
         List<Long> playgroundIdByRecommendedFriendByGeneration = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.GENERATION);
         List<Long> playgroundIdByRecommendedFriendByMbti = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.MBTI);
         List<Long> playgroundIdByRecommendedFriendByUniversity = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.UNIVERSITY);
@@ -575,7 +575,7 @@ class PokeFacadeTest {
     void SUCCESS_getRecommendedFriendsByAllType_Requirement1() {
         // given
         given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION)).willReturn(List.of());
+        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(List.of(GENERATION))).willReturn(List.of());
         given(playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI)).willReturn(
                 PokeFixture.createPlaygroundProfileOfRecommendedFriendSameMbtiList(List.of(4L,5L,6L)));
         given(playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(GENERATION, UNIVERSITY)).willReturn(List.of());
@@ -589,7 +589,7 @@ class PokeFacadeTest {
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
 
         // then
         assertTrue(result.getRandomInfoList().isEmpty());
@@ -600,7 +600,7 @@ class PokeFacadeTest {
     void SUCCESS_getRecommendedFriendsByAllType_Requirement2() {
         // given
         given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION)).willReturn(
+        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(List.of(GENERATION))).willReturn(
                 PokeFixture.createPlaygroundProfileOfRecommendedFriendSameGenerationList(List.of(myPlaygroundId,1L,2L,3L)));
         given(playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI)).willReturn(
                 PokeFixture.createPlaygroundProfileOfRecommendedFriendSameMbtiList(List.of(myPlaygroundId,4L,5L,6L)));
@@ -617,7 +617,7 @@ class PokeFacadeTest {
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
         List<Long> playgroundIdByRecommendedFriendByGeneration = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.GENERATION);
         List<Long> playgroundIdByRecommendedFriendByMbti = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.MBTI);
         List<Long> playgroundIdByRecommendedFriendByUniversity = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.UNIVERSITY);
@@ -637,7 +637,7 @@ class PokeFacadeTest {
     void SUCCESS_getRecommendedFriendsByAllType_Requirement3() {
         // given
         given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION)).willReturn(
+        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(List.of(GENERATION))).willReturn(
                 PokeFixture.createPlaygroundProfileOfRecommendedFriendSameGenerationList(List.of(myPlaygroundId,1L,2L,3L)));
         given(playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI)).willReturn(
                 PokeFixture.createPlaygroundProfileOfRecommendedFriendSameMbtiList(List.of(myPlaygroundId,4L,5L,6L)));
@@ -654,7 +654,7 @@ class PokeFacadeTest {
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
         List<Long> playgroundIdByRecommendedFriendByGeneration = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.GENERATION);
         List<Long> playgroundIdByRecommendedFriendByMbti = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.MBTI);
         List<Long> playgroundIdByRecommendedFriendByUniversity = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.UNIVERSITY);
@@ -674,7 +674,7 @@ class PokeFacadeTest {
     void SUCCESS_getRecommendedFriendsByAllType_Requirement4() {
         // given
         given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION)).willReturn(
+        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(List.of(GENERATION))).willReturn(
                 PokeFixture.createPlaygroundProfileOfRecommendedFriendSameGenerationList(List.of(1L,2L,3L)));
         given(playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI)).willReturn(
                 PokeFixture.createPlaygroundProfileOfRecommendedFriendSameMbtiList(List.of(4L,5L,6L)));
@@ -690,7 +690,7 @@ class PokeFacadeTest {
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
         List<Long> playgroundIdByRecommendedFriendByGeneration = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.GENERATION);
         List<Long> playgroundIdByRecommendedFriendByMbti = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.MBTI);
         List<Long> playgroundIdByRecommendedFriendByUniversity = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.UNIVERSITY);
@@ -710,7 +710,7 @@ class PokeFacadeTest {
     void SUCCESS_getRecommendedFriendsByAllType_Requirement5() {
         // given
         given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(PokeFixture.createMbtiNullPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION)).willReturn(
+        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(List.of(GENERATION))).willReturn(
                 PokeFixture.createPlaygroundProfileOfRecommendedFriendSameGenerationList(List.of(1L,2L,3L)));
         given(playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(GENERATION, UNIVERSITY)).willReturn(
                 PokeFixture.createPlaygroundProfileOfRecommendedFriendSameUniversityList(List.of(7L,8L,9L)));
@@ -724,7 +724,7 @@ class PokeFacadeTest {
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
 
         // then
         List<FriendRecommendType> recommendedFriendTypes = result.getRandomInfoList().stream()
@@ -738,7 +738,7 @@ class PokeFacadeTest {
     void SUCCESS_getRecommendedFriendsByAllType_Requirement6() {
         // given
         given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION)).willReturn(
+        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(List.of(GENERATION))).willReturn(
                 PokeFixture.createPlaygroundProfileOfRecommendedFriendSameGenerationList(List.of(1L,2L,3L)));
         given(playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI)).willReturn(
                 PokeFixture.createPlaygroundProfileOfRecommendedFriendSameMbtiList(List.of(4L,5L,6L)));
@@ -754,7 +754,7 @@ class PokeFacadeTest {
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
         List<Long> playgroundIdByRecommendedFriendByGeneration = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.GENERATION);
         List<Long> playgroundIdByRecommendedFriendByMbti = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.MBTI);
         List<Long> playgroundIdByRecommendedFriendByUniversity = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.UNIVERSITY);
