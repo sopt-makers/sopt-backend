@@ -116,7 +116,7 @@ public class PokeFacade {
                     return SimplePokeProfile.of(
                             userProfile.getUserId(),
                             playgroundProfile.getMemberId(),
-                            playgroundProfile.getProfileImage() == null ? "" : playgroundProfile.getProfileImage(),
+                            playgroundProfile.getProfileImage(),
                             playgroundProfile.getName(),
                             "",
                             Integer.parseInt(generation),
@@ -145,13 +145,7 @@ public class PokeFacade {
     @Transactional(readOnly = true)
     public List<PokeResponse.Friend> getRecommendFriendsOfUsersFriend(User user) {
         val randomFriendsUserIds = friendService.findAllFriendIdsByUserIdRandomly(user.getId(), 2);
-
-        val hasPokeMeBeforeUserIds = pokeHistoryService.getPokeFriendIds(user.getId());
-        val friendUserIds = friendService.findAllFriendIdsByUserId(user.getId());
-
-        val excludedUserIds = new ArrayList<>(hasPokeMeBeforeUserIds);
-        excludedUserIds.addAll(friendUserIds);
-        excludedUserIds.add(user.getId());
+        val excludedUserIds = this.getExcludedUserIds(user.getId());
 
         return randomFriendsUserIds.stream().map(
                 friendsUserId -> {
@@ -168,7 +162,7 @@ public class PokeFacade {
                                 friendsUserId,
                                 friendProfile.getMemberId(),
                                 friendProfile.getName(),
-                                friendProfile.getProfileImage() == null ? "" : friendProfile.getProfileImage(),
+                                friendProfile.getProfileImage(),
                                 List.of()
                         );
                     }
@@ -190,23 +184,34 @@ public class PokeFacade {
                             friendsUserId,
                             friendProfile.getMemberId(),
                             friendProfile.getName(),
-                            friendProfile.getProfileImage() == null ? "" : friendProfile.getProfileImage(),
+                            friendProfile.getProfileImage(),
                             simpleProfiles
                     );
                 }
         ).toList();
     }
 
+    private List<Long> getExcludedUserIds(Long userId) {
+        List<Long> hasPokeMeBeforeUserIds = pokeHistoryService.getPokeFriendIds(userId);
+        List<Long> friendUserIds = friendService.findAllFriendIdsByUserId(userId);
+
+        List<Long> excludedUserIds = new ArrayList<>(hasPokeMeBeforeUserIds);
+        excludedUserIds.addAll(friendUserIds);
+        excludedUserIds.add(userId);
+
+        return excludedUserIds;
+    }
+
     @Transactional(readOnly = true)
     public SimplePokeProfile getMostRecentPokeMeHistory(User user) {
         List<Long> pokeMeUserIds = pokeHistoryService.getPokeMeUserIds(user.getId());
         Optional<PokeHistory> mostRecentPokeMeHistory = pokeMeUserIds.stream()
+                .filter(userService::isUserExist)
                 .map(pokeMeUserId ->
                         pokeHistoryService.getAllLatestPokeHistoryFromTo(pokeMeUserId, user.getId()).get(0)
                 )
-                .sorted(Comparator.comparing(PokeHistory::getCreatedAt).reversed())
                 .filter(pokeHistory -> !pokeHistory.getIsReply())
-                .findFirst();
+                .max(Comparator.comparing(PokeHistory::getCreatedAt));
         return mostRecentPokeMeHistory
                 .map(pokeHistory -> getPokeHistoryProfile(
                         user, pokeHistory.getPokerId(), pokeHistory.getId()))
@@ -218,6 +223,7 @@ public class PokeFacade {
     public PokeToMeHistoryList getAllPokeMeHistory(User user, Pageable pageable) {
         List<Long> pokeMeUserIds = pokeHistoryService.getPokeMeUserIds(user.getId());
         List<Long> latestHistoryIds = pokeMeUserIds.stream()
+                .filter(userService::isUserExist)
                 .map(pokeMeUserId ->
                         pokeHistoryService.getAllLatestPokeHistoryFromTo(pokeMeUserId, user.getId())
                                 .get(0).getId()
@@ -275,7 +281,7 @@ public class PokeFacade {
                 SimplePokeProfile.of(
                         friendUserProfile.getUserId(),
                         friendProfile.getMemberId(),
-                        friendProfile.getProfileImage() == null ? "" : friendProfile.getProfileImage(),
+                        friendProfile.getProfileImage(),
                         friendProfile.getName(),
                         "",
                         Integer.parseInt(friendProfile.getActivities().get(0).getGeneration()),
@@ -300,8 +306,8 @@ public class PokeFacade {
     private boolean getIsAnonymous(Long pokerId, Long pokedId, Long userId) {
         return pokeHistoryService.getAllPokeHistoryByUsers(pokerId, pokedId).stream()
                 .filter(pokeHistory -> pokeHistory.getPokedId().equals(userId))
-                .sorted(Comparator.comparing(PokeHistoryInfo::getCreatedAt).reversed())
-                .findFirst().map(PokeHistoryInfo::getIsAnonymous).orElse(false);
+                .max(Comparator.comparing(PokeHistoryInfo::getCreatedAt))
+                .map(PokeHistoryInfo::getIsAnonymous).orElse(false);
     }
 
     private String createMutualFriendNames(Long userId, Long friendId) {
@@ -345,6 +351,7 @@ public class PokeFacade {
         val friends = friendService.findAllFriendsByFriendship(
                 user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit(), pageable);
         List<SimplePokeProfile> allOfPokeWithFriends = friends.getContent().stream()
+                .filter(friend -> userService.isUserExist(friend.getFriendUserId()))
                 .map(friend -> {
                     List<PokeHistoryInfo> allOfPokeFromTo = pokeHistoryService.getAllOfPokeBetween(
                             friend.getUserId(),
