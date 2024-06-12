@@ -116,7 +116,7 @@ public class PokeFacade {
                     return SimplePokeProfile.of(
                             userProfile.getUserId(),
                             playgroundProfile.getMemberId(),
-                            playgroundProfile.getProfileImage() == null ? "" : playgroundProfile.getProfileImage(),
+                            playgroundProfile.getProfileImage(),
                             playgroundProfile.getName(),
                             "",
                             Integer.parseInt(generation),
@@ -145,13 +145,7 @@ public class PokeFacade {
     @Transactional(readOnly = true)
     public List<PokeResponse.Friend> getRecommendFriendsOfUsersFriend(User user) {
         val randomFriendsUserIds = friendService.findAllFriendIdsByUserIdRandomly(user.getId(), 2);
-
-        val hasPokeMeBeforeUserIds = pokeHistoryService.getPokeFriendIds(user.getId());
-        val friendUserIds = friendService.findAllFriendIdsByUserId(user.getId());
-
-        val excludedUserIds = new ArrayList<>(hasPokeMeBeforeUserIds);
-        excludedUserIds.addAll(friendUserIds);
-        excludedUserIds.add(user.getId());
+        val excludedUserIds = this.getExcludedUserIds(user.getId());
 
         return randomFriendsUserIds.stream().map(
                 friendsUserId -> {
@@ -168,7 +162,7 @@ public class PokeFacade {
                                 friendsUserId,
                                 friendProfile.getMemberId(),
                                 friendProfile.getName(),
-                                friendProfile.getProfileImage() == null ? "" : friendProfile.getProfileImage(),
+                                friendProfile.getProfileImage(),
                                 List.of()
                         );
                     }
@@ -190,11 +184,22 @@ public class PokeFacade {
                             friendsUserId,
                             friendProfile.getMemberId(),
                             friendProfile.getName(),
-                            friendProfile.getProfileImage() == null ? "" : friendProfile.getProfileImage(),
+                            friendProfile.getProfileImage(),
                             simpleProfiles
                     );
                 }
         ).toList();
+    }
+
+    private List<Long> getExcludedUserIds(Long userId) {
+        List<Long> hasPokeMeBeforeUserIds = pokeHistoryService.getPokeFriendIds(userId);
+        List<Long> friendUserIds = friendService.findAllFriendIdsByUserId(userId);
+
+        List<Long> excludedUserIds = new ArrayList<>(hasPokeMeBeforeUserIds);
+        excludedUserIds.addAll(friendUserIds);
+        excludedUserIds.add(userId);
+
+        return excludedUserIds;
     }
 
     @Transactional(readOnly = true)
@@ -276,7 +281,7 @@ public class PokeFacade {
                 SimplePokeProfile.of(
                         friendUserProfile.getUserId(),
                         friendProfile.getMemberId(),
-                        friendProfile.getProfileImage() == null ? "" : friendProfile.getProfileImage(),
+                        friendProfile.getProfileImage(),
                         friendProfile.getName(),
                         "",
                         Integer.parseInt(friendProfile.getActivities().get(0).getGeneration()),
