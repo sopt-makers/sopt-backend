@@ -1,8 +1,17 @@
 package org.sopt.app.application;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
+import static org.sopt.app.common.fixtures.PokeFixture.GENERATION;
+import static org.sopt.app.common.fixtures.PokeFixture.MBTI;
+import static org.sopt.app.common.fixtures.PokeFixture.UNIVERSITY;
+import static org.sopt.app.common.fixtures.PokeFixture.createSameMbtiPlaygroundProfileOfRecommendedFriend;
+import static org.sopt.app.common.fixtures.PokeFixture.createSameUniversityPlaygroundProfileOfRecommendedFriend;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import java.util.List;
@@ -17,10 +26,12 @@ import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.MainView;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.MainViewUser;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.MemberProfile;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundActivity;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundMain;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriendList;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.ActivityCardinalInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.RefreshedToken;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.UserActiveInfo;
 import org.sopt.app.application.auth.PlaygroundAuthService;
@@ -50,10 +61,10 @@ class PlaygroundAuthServiceTest {
     void SUCCESS_getPlaygroundInfo() {
         // given
         String token = "token";
-        PlaygroundActivity playgroundActivity = new PlaygroundActivity();
-        playgroundActivity.setCardinalInfo("29,서버");
+        ActivityCardinalInfo activityCardinalInfo = new ActivityCardinalInfo();
+        activityCardinalInfo.setCardinalInfo("29,서버");
         PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = new PlaygroundProfile();
-        playgroundProfile.setActivities(List.of(playgroundActivity));
+        playgroundProfile.setActivities(List.of(activityCardinalInfo));
         playgroundProfile.setProfileImage("profileImage");
         playgroundProfile.setName("name");
         PlaygroundMain playgroundMain = new PlaygroundMain();
@@ -66,9 +77,9 @@ class PlaygroundAuthServiceTest {
         PlaygroundMain result = playgroundAuthService.getPlaygroundInfo(token);
 
         // then
-        Assertions.assertEquals(token, result.getAccessToken());
-        Assertions.assertEquals(playgroundMain.getName(), result.getName());
-        Assertions.assertEquals(UserStatus.INACTIVE, result.getStatus());
+        assertEquals(token, result.getAccessToken());
+        assertEquals(playgroundMain.getName(), result.getName());
+        assertEquals(UserStatus.INACTIVE, result.getStatus());
     }
 
     @Test
@@ -99,7 +110,7 @@ class PlaygroundAuthServiceTest {
         when(playgroundClient.getAccessToken(any(), any())).thenReturn(accessTokenRequest);
 
         AccessTokenRequest result = playgroundAuthService.getPlaygroundAccessToken(codeRequest);
-        Assertions.assertEquals(accessTokenRequest.getAccessToken(), result.getAccessToken());
+        assertEquals(accessTokenRequest.getAccessToken(), result.getAccessToken());
     }
 
     @Test
@@ -125,7 +136,7 @@ class PlaygroundAuthServiceTest {
         when(playgroundClient.refreshPlaygroundToken(any(), any())).thenReturn(refreshedToken);
 
         RefreshedToken result = playgroundAuthService.refreshPlaygroundToken(accessTokenRequest);
-        Assertions.assertEquals(refreshedToken.getAccessToken(), result.getAccessToken());
+        assertEquals(refreshedToken.getAccessToken(), result.getAccessToken());
     }
 
     @Test
@@ -154,10 +165,10 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("SUCCESS_플레이그라운드 이미지 있는 유저 메인 뷰 조회")
     void SUCCESS_getPlaygroundUserForMainViewWithProfileImage() {
-        PlaygroundActivity playgroundActivity = new PlaygroundActivity();
-        playgroundActivity.setCardinalInfo("29,서버");
+        ActivityCardinalInfo activityCardinalInfo = new ActivityCardinalInfo();
+        activityCardinalInfo.setCardinalInfo("29,서버");
         PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = new PlaygroundProfile();
-        playgroundProfile.setActivities(List.of(playgroundActivity));
+        playgroundProfile.setActivities(List.of(activityCardinalInfo));
         playgroundProfile.setProfileImage("profileImage");
         playgroundProfile.setName("name");
         MainViewUser mainViewUser = MainViewUser.builder().name("name").profileImage("profileImage").build();
@@ -166,16 +177,16 @@ class PlaygroundAuthServiceTest {
         when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         MainView result = playgroundAuthService.getPlaygroundUserForMainView(token, 1L);
-        Assertions.assertEquals(mainView.getUser().getName(), result.getUser().getName());
+        assertEquals(mainView.getUser().getName(), result.getUser().getName());
     }
 
     @Test
     @DisplayName("SUCCESS_플레이그라운드 이미지 없는 유저 메인 뷰 조회")
     void SUCCESS_getPlaygroundUserForMainViewWithoutProfileImage() {
-        PlaygroundActivity playgroundActivity = new PlaygroundActivity();
-        playgroundActivity.setCardinalInfo("1,서버");
+        ActivityCardinalInfo activityCardinalInfo = new ActivityCardinalInfo();
+        activityCardinalInfo.setCardinalInfo("1,서버");
         PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = new PlaygroundProfile();
-        playgroundProfile.setActivities(List.of(playgroundActivity));
+        playgroundProfile.setActivities(List.of(activityCardinalInfo));
         playgroundProfile.setProfileImage(null);
         playgroundProfile.setName("name");
         MainViewUser mainViewUser = MainViewUser.builder().name("name").profileImage("").build();
@@ -184,8 +195,8 @@ class PlaygroundAuthServiceTest {
         when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         MainView result = playgroundAuthService.getPlaygroundUserForMainView(token, 1L);
-        Assertions.assertEquals(mainView.getUser().getName(), result.getUser().getName());
-        Assertions.assertEquals(mainView.getUser().getProfileImage(), result.getUser().getProfileImage());
+        assertEquals(mainView.getUser().getName(), result.getUser().getName());
+        assertEquals(mainView.getUser().getProfileImage(), result.getUser().getProfileImage());
     }
 
     // getPlaygroundUserActiveInfo
@@ -193,10 +204,10 @@ class PlaygroundAuthServiceTest {
     @DisplayName("SUCCESS_플레이그라운드 활동 유저 활동 정보 조회")
     void SUCCESS_getPlaygroundUserActiveInfoActive() {
         // given
-        PlaygroundActivity playgroundActivity = new PlaygroundActivity();
-        playgroundActivity.setCardinalInfo("1,서버");
+        ActivityCardinalInfo activityCardinalInfo = new ActivityCardinalInfo();
+        activityCardinalInfo.setCardinalInfo("1,서버");
         PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = new PlaygroundProfile();
-        playgroundProfile.setActivities(List.of(playgroundActivity));
+        playgroundProfile.setActivities(List.of(activityCardinalInfo));
         ReflectionTestUtils.setField(playgroundAuthService, "currentGeneration", 1L);
 
         // when
@@ -204,7 +215,7 @@ class PlaygroundAuthServiceTest {
         UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
 
         // then
-        Assertions.assertEquals(UserStatus.ACTIVE, result.getStatus());
+        assertEquals(UserStatus.ACTIVE, result.getStatus());
     }
 
     @Test
@@ -216,7 +227,7 @@ class PlaygroundAuthServiceTest {
         when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
-        Assertions.assertEquals(UserStatus.INACTIVE, result.getStatus());
+        assertEquals(UserStatus.INACTIVE, result.getStatus());
     }
 
     @Test
@@ -228,7 +239,7 @@ class PlaygroundAuthServiceTest {
         when(playgroundClient.getPlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
-        Assertions.assertEquals(UserStatus.INACTIVE, result.getStatus());
+        assertEquals(UserStatus.INACTIVE, result.getStatus());
     }
 
     @Test
@@ -259,8 +270,8 @@ class PlaygroundAuthServiceTest {
         when(playgroundClient.getPlaygroundUserIds(any(), any())).thenReturn(userIds);
 
         ActiveUserIds result = playgroundAuthService.getPlayGroundUserIds(token);
-        Assertions.assertEquals(1, result.getUserIds().size());
-        Assertions.assertEquals(1L, result.getUserIds().get(0));
+        assertEquals(1, result.getUserIds().size());
+        assertEquals(1L, result.getUserIds().get(0));
     }
 
     @Test
@@ -283,11 +294,11 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("SUCCESS_플레이그라운드 멤버 프로필 조회")
     void SUCCESS_getPlaygroundMemberProfiles() {
-        PlaygroundAuthInfo.MemberProfile memberProfile = MemberProfile.builder().name("name").build();
+        PlaygroundProfile playgroundProfile = PlaygroundProfile.builder().name("name").build();
 
-        when(playgroundClient.getMemberProfiles(any(), any())).thenReturn(List.of(memberProfile));
+        when(playgroundClient.getMemberProfiles(any(), any())).thenReturn(List.of(playgroundProfile));
 
-        List<MemberProfile> result = playgroundAuthService.getPlaygroundMemberProfiles(token, List.of());
+        List<PlaygroundProfile> result = playgroundAuthService.getPlaygroundMemberProfiles(token, List.of());
         Assertions.assertEquals(1, result.size());
         Assertions.assertEquals("name", result.get(0).getName());
     }
@@ -312,5 +323,102 @@ class PlaygroundAuthServiceTest {
 
         Assertions.assertThrows(UnauthorizedException.class,
                 () -> playgroundAuthService.getPlaygroundMemberProfiles(token, memberIds));
+    }
+
+    @Test
+    @DisplayName("SUCCESS_자신의 플레이그라운드 프로필 조회")
+    void SUCCESS_getOwnPlaygroundProfile() {
+        // given & when
+        given(playgroundClient.getOwnPlaygroundProfile(any())).willReturn(new OwnPlaygroundProfile());
+
+        // then
+        assertDoesNotThrow(() -> playgroundAuthService.getOwnPlaygroundProfile(token));
+    }
+
+    @Test
+    @DisplayName("SUCCESS_같은 기수의 플레이그라운드 프로필 조회")
+    void SUCCESS_getPlaygroundProfilesForSameGeneration() {
+        // given & when
+        given(playgroundClient.getPlaygroundProfileForSameGeneration(any(), any())).willReturn(
+                new PlaygroundProfileOfRecommendedFriendList());
+
+        // then
+        assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION));
+    }
+
+    @Test
+    @DisplayName("SUCCESS_같은 MBTI의 플레이그라운드 프로필 조회")
+    void SUCCESS_getPlaygroundProfilesForSameMbtiAndGeneration() {
+        // given & when
+        given(playgroundClient.getPlaygroundProfileForSameMbti(any(), any(), any())).willReturn(
+                new PlaygroundProfileOfRecommendedFriendList(List.of()));
+
+        // then
+        assertDoesNotThrow(
+                () -> playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI));
+    }
+
+    @Test
+    @DisplayName("SUCCESS_같은 MBTI의 플레이그라운드 프로필 조회에서 중복된 유저가 있으면 한 명만 반환한다.")
+    void SUCCESS_getPlaygroundProfilesForSameMbtiAndGenerationDuplicationUser() {
+        // given & when
+        given(playgroundClient.getPlaygroundProfileForSameMbti(any(), eq(GENERATION), eq(MBTI))).willReturn(
+                new PlaygroundProfileOfRecommendedFriendList(
+                        createSameMbtiPlaygroundProfileOfRecommendedFriend(List.of(1L, 2L), MBTI, GENERATION)));
+        given(playgroundClient.getPlaygroundProfileForSameMbti(any(), eq(GENERATION - 1), eq(MBTI))).willReturn(
+                new PlaygroundProfileOfRecommendedFriendList(
+                        createSameMbtiPlaygroundProfileOfRecommendedFriend(List.of(1L, 3L), MBTI, GENERATION - 1)));
+        given(playgroundClient.getPlaygroundProfileForSameMbti(any(), eq(GENERATION - 2), eq(MBTI))).willReturn(
+                new PlaygroundProfileOfRecommendedFriendList(
+                        createSameMbtiPlaygroundProfileOfRecommendedFriend(List.of(1L, 4L), MBTI, GENERATION - 2)));
+
+        // when
+        List<PlaygroundProfileOfRecommendedFriend> playgroundProfileOfRecommendedFriendList =
+                playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI);
+        List<Long> recommendedFriendPlaygroundIds = playgroundProfileOfRecommendedFriendList.stream()
+                .map(PlaygroundProfileOfRecommendedFriend::getPlaygroundId).toList();
+
+        // then
+        assertEquals(List.of(1L, 2L, 3L, 4L), recommendedFriendPlaygroundIds);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_같은 대학교의 플레이그라운드 프로필 조회")
+    void SUCCESS_getPlaygroundProfilesForSameUniversityAndGeneration() {
+        // given & when
+        given(playgroundClient.getPlaygroundProfileForSameUniversity(any(), any(), any())).willReturn(
+                new PlaygroundProfileOfRecommendedFriendList(List.of()));
+
+        // then
+        assertDoesNotThrow(
+                () -> playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(
+                        GENERATION, UNIVERSITY));
+    }
+
+    @Test
+    @DisplayName("SUCCESS_같은 대학교의 플레이그라운드 프로필 조회에서 중복된 유저가 있으면 한 명만 반환한다.")
+    void SUCCESS_getPlaygroundProfilesForSameUniversityAndGenerationDuplicationUser() {
+        // given & when
+        given(playgroundClient.getPlaygroundProfileForSameUniversity(any(), eq(GENERATION), eq(UNIVERSITY))).willReturn(
+                new PlaygroundProfileOfRecommendedFriendList(
+                        createSameUniversityPlaygroundProfileOfRecommendedFriend(
+                                List.of(1L, 2L), UNIVERSITY, GENERATION)));
+        given(playgroundClient.getPlaygroundProfileForSameUniversity(any(), eq(GENERATION - 1), eq(UNIVERSITY))).willReturn(
+                new PlaygroundProfileOfRecommendedFriendList(
+                        createSameUniversityPlaygroundProfileOfRecommendedFriend(
+                                List.of(1L, 3L), UNIVERSITY, GENERATION - 1)));
+        given(playgroundClient.getPlaygroundProfileForSameUniversity(any(), eq(GENERATION - 2), eq(UNIVERSITY))).willReturn(
+                new PlaygroundProfileOfRecommendedFriendList(
+                        createSameUniversityPlaygroundProfileOfRecommendedFriend(
+                                List.of(1L, 4L), UNIVERSITY, GENERATION - 2)));
+
+        // when
+        List<PlaygroundProfileOfRecommendedFriend> playgroundProfileOfRecommendedFriendList =
+                playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(GENERATION, UNIVERSITY);
+        List<Long> recommendedFriendPlaygroundIds = playgroundProfileOfRecommendedFriendList.stream()
+                .map(PlaygroundProfileOfRecommendedFriend::getPlaygroundId).toList();
+
+        // then
+        assertEquals(List.of(1L, 2L, 3L, 4L), recommendedFriendPlaygroundIds);
     }
 }
