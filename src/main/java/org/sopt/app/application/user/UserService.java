@@ -124,4 +124,8 @@ public class UserService {
                         .build()
         ).toList();
     }
+
+    public boolean isUserExist(Long userId) {
+        return userRepository.existsById(userId);
+    }
 }
