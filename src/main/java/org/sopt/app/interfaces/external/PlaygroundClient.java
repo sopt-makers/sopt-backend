@@ -25,11 +25,11 @@ public interface PlaygroundClient {
     ActiveUserIds getPlaygroundUserIds(@HeaderMap Map<String, String> headers, @Param("generation") Long generation);
 
     @RequestLine("GET /internal/api/v1/members/profile?memberIds={memberId}")
-    List<PlaygroundProfile> getPlaygroundMemberProfile(@HeaderMap Map<String, String> headers,
+    List<PlaygroundProfile> getSinglePlaygroundMemberProfile(@HeaderMap Map<String, String> headers,
             @Param("memberId") Long playgroundId);
 
     @RequestLine("GET /internal/api/v1/members/profile?memberIds={encodedIds}")
-    List<PlaygroundProfile> getMemberProfiles(@HeaderMap Map<String, String> headers,
+    List<PlaygroundProfile> getPlaygroundMemberProfiles(@HeaderMap Map<String, String> headers,
             @Param(value = "encodedIds") String encodedIds);
 
     @RequestLine("GET /internal/api/v1/members/me")

@@ -97,7 +97,7 @@ public class PlaygroundAuthService {
     private PlaygroundAuthInfo.PlaygroundProfile getPlaygroundMemberProfile(String accessToken, Long playgroundId) {
         Map<String, String> headers = createAuthorizationHeader(accessToken);
         try {
-            return playgroundClient.getPlaygroundMemberProfile(headers, playgroundId).get(0);
+            return playgroundClient.getSinglePlaygroundMemberProfile(headers, playgroundId).get(0);
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
         } catch (ExpiredJwtException e) {
@@ -158,7 +158,7 @@ public class PlaygroundAuthService {
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
         try {
-            return playgroundClient.getMemberProfiles(requestHeader,
+            return playgroundClient.getPlaygroundMemberProfiles(requestHeader,
                     URLEncoder.encode(stringifyIds, StandardCharsets.UTF_8));
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
