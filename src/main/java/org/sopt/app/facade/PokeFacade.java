@@ -385,17 +385,12 @@ public class PokeFacade {
     }
 
     @Transactional(readOnly = true)
-    public RecommendedFriendsByAllType getRecommendedFriendsByAllType(List<FriendRecommendType> typeList, int size,
+    public RecommendedFriendsByAllType getRecommendedFriendsByTypeList(List<FriendRecommendType> typeList, int size,
             User user) {
+        Long userId = user.getId();
         OwnPlaygroundProfile ownPlaygroundProfile =
                 playgroundAuthService.getOwnPlaygroundProfile(user.getPlaygroundToken());
 
-        return RecommendedFriendsByAllType.of(
-                getRecommendedFriendsByTypeList(typeList, ownPlaygroundProfile, size, user.getId()));
-    }
-
-    private List<RecommendedFriendsByType> getRecommendedFriendsByTypeList(List<FriendRecommendType> typeList,
-            OwnPlaygroundProfile ownPlaygroundProfile, int size, Long userId) {
         List<RecommendedFriendsByType> recommendedFriendsByTypeList = new ArrayList<>();
 
         for (FriendRecommendType type : typeList) {
@@ -404,7 +399,7 @@ public class PokeFacade {
             switch (type) {
                 case ALL:
                     handleAllType(recommendedFriendsByTypeList, ownPlaygroundProfile, size, userId);
-                    return recommendedFriendsByTypeList;
+                    return RecommendedFriendsByAllType.of(recommendedFriendsByTypeList);
                 case GENERATION:
                     addRecommendedFriendsListByGeneration(recommendedFriendsByTypeList, size, userId, latestGeneration,
                             playgroundAuthService::getPlaygroundProfilesForSameGeneration);
@@ -425,7 +420,7 @@ public class PokeFacade {
                     throw new BadRequestException(ErrorCode.INVALID_FRIEND_RECOMMEND_TYPE.getMessage());
             }
         }
-        return recommendedFriendsByTypeList;
+        return RecommendedFriendsByAllType.of(recommendedFriendsByTypeList);
     }
 
 
