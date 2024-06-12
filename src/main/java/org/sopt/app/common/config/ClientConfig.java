@@ -11,7 +11,6 @@ import feign.jackson.JacksonDecoder;
 import feign.jackson.JacksonEncoder;
 import feign.okhttp.OkHttpClient;
 import feign.slf4j.Slf4jLogger;
-import org.sopt.app.interfaces.external.OperationClient;
 import org.sopt.app.interfaces.external.PlaygroundClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -37,17 +36,6 @@ public class ClientConfig {
                 .target(PlaygroundClient.class, playgroundEndPoint);
     }
 
-    @Bean
-    public OperationClient operationClient() {
-        return Feign.builder()
-                .retryer(retryer())
-                .client(okHttpClient())
-                .encoder(encoder())
-                .decoder(decoder())
-                .logger(new Slf4jLogger(OperationClient.class))
-                .logLevel(feignLoggerLevel())
-                .target(OperationClient.class, operationEndPoint);
-    }
     @Bean
     public Retryer retryer() {
         return Retryer.NEVER_RETRY;
