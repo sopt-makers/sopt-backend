@@ -175,7 +175,8 @@ public class PlaygroundAuthService {
     public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameGeneration(
             Integer generation) {
         return playgroundClient.getPlaygroundProfileForSameGeneration(createAuthorizationHeader(playgroundToken),
-                generation).getMembers();
+                        generation).getMembers().stream()
+                .map(recommendedFriend -> recommendedFriend.getProfileOfSameGeneration(generation)).toList();
     }
 
     private List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForGenerationRange(

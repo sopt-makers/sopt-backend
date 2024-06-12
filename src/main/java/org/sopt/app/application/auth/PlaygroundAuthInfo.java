@@ -167,6 +167,13 @@ public class PlaygroundAuthInfo {
         private String profileImage;
         private String name;
         private List<PlaygroundActivity> activities;
+
+        public PlaygroundProfileOfRecommendedFriend getProfileOfSameGeneration(Integer generation) {
+            this.activities = activities.stream()
+                    .filter(activity -> activity.getGeneration().equals(generation))
+                    .toList();
+            return this;
+        }
     }
 
     @Getter
