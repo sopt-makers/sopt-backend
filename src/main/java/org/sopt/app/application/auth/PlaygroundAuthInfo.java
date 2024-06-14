@@ -91,7 +91,7 @@ public class PlaygroundAuthInfo {
     @Getter
     @Builder
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class PlaygroundProfile {
 
         private Long memberId;
@@ -109,9 +109,8 @@ public class PlaygroundAuthInfo {
     }
 
     @Getter
-    @Builder
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class ActivityCardinalInfo {
 
         private String cardinalInfo;
@@ -131,7 +130,7 @@ public class PlaygroundAuthInfo {
 
     @Getter
     @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @NoArgsConstructor(access = AccessLevel.PUBLIC)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class OwnPlaygroundProfile {
 
@@ -174,7 +173,7 @@ public class PlaygroundAuthInfo {
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class PlaygroundActivity {
 
         private String part;

@@ -36,8 +36,7 @@ class UserServiceTest {
     void SUCCESS_loginWithUserPlaygroundIdWithNoRegisteredUser() {
         //given
         final Long anyUserId = anyLong();
-        PlaygroundMain playgroundMemberResponse = new PlaygroundMain();
-        playgroundMemberResponse.setId(anyUserId);
+        PlaygroundMain playgroundMemberResponse = PlaygroundMain.builder().id(anyUserId).build();
 
         //when
         when(userRepository.findUserByPlaygroundId(anyUserId)).thenReturn(Optional.empty());
@@ -55,8 +54,7 @@ class UserServiceTest {
     void SUCCESS_loginWithUserPlaygroundIdWithRegisteredUser() {
         //given
         final Long anyUserId = anyLong();
-        PlaygroundMain playgroundMemberResponse = new PlaygroundMain();
-        playgroundMemberResponse.setId(anyUserId);
+        PlaygroundMain playgroundMemberResponse = PlaygroundMain.builder().id(anyUserId).build();
 
         User registeredUser = User.builder().id(anyUserId).build();
 

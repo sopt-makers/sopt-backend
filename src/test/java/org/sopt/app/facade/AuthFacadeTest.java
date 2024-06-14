@@ -52,11 +52,8 @@ public class AuthFacadeTest {
         codeRequest.setCode("code");
         AccessTokenRequest accessTokenRequest = new AccessTokenRequest();
         accessTokenRequest.setAccessToken("accessToken");
-        RefreshedToken refreshedToken = new RefreshedToken();
-        refreshedToken.setAccessToken("refreshedToken");
-        PlaygroundMain playgroundMain = new PlaygroundMain();
-        playgroundMain.setName("name");
-        playgroundMain.setStatus(UserStatus.ACTIVE);
+        RefreshedToken refreshedToken = RefreshedToken.builder().accessToken("refreshedToken").build();
+        PlaygroundMain playgroundMain = PlaygroundMain.builder().name("name").status(UserStatus.ACTIVE).build();
         Id userId = Id.builder().id(21L).build();
         Long soptampUserId = 5L;
         AppToken appToken = AppToken.builder().accessToken("appAccessToken").refreshToken("appRefreshToken").build();
@@ -88,11 +85,8 @@ public class AuthFacadeTest {
         refreshRequest.setRefreshToken("refreshToken");
         AccessTokenRequest accessTokenRequest = new AccessTokenRequest();
         accessTokenRequest.setAccessToken("accessToken");
-        RefreshedToken refreshedToken = new RefreshedToken();
-        refreshedToken.setAccessToken("refreshedToken");
-        PlaygroundMain playgroundMain = new PlaygroundMain();
-        playgroundMain.setAccessToken("accessToken");
-        playgroundMain.setStatus(UserStatus.ACTIVE);
+        RefreshedToken refreshedToken = RefreshedToken.builder().accessToken("refreshedToken").build();
+        PlaygroundMain playgroundMain = PlaygroundMain.builder().accessToken("accessToken").status(UserStatus.ACTIVE).build();
         Id userId = Id.builder().id(21L).build();
         AppToken newAppToken = AppToken.builder().accessToken("newAppAccessToken").refreshToken("newAppRefreshToken")
                 .build();
