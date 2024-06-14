@@ -180,7 +180,7 @@ public class PlaygroundAuthService {
 
         return playgroundClient.getPlaygroundUserIdsForSameRecommendType(
                 createAuthorizationHeader(playgroundToken),
-                RecommendFriendRequest.getRecommendFriendRequestByGeneration(generationList)
+                RecommendFriendRequest.createRecommendFriendRequestByGeneration(generationList)
         ).getUserIds();
     }
 
