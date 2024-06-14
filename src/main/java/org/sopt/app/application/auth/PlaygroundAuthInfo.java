@@ -18,7 +18,6 @@ public class PlaygroundAuthInfo {
 
     @Getter
     @Builder
-    @ToString
     public static class AppToken {
 
         private String accessToken;
@@ -26,8 +25,9 @@ public class PlaygroundAuthInfo {
     }
 
     @Getter
-    @Setter
-    @ToString
+    @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class RefreshedToken {
 
         private String accessToken;
@@ -35,8 +35,9 @@ public class PlaygroundAuthInfo {
     }
 
     @Getter
-    @Setter
-    @ToString
+    @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ActiveUserIds {
 
         @JsonProperty("memberIds")
@@ -44,9 +45,7 @@ public class PlaygroundAuthInfo {
     }
 
     @Getter
-    @Setter
     @Builder
-    @ToString
     public static class UserActiveInfo {
 
         private Long currentGeneration;
@@ -54,8 +53,9 @@ public class PlaygroundAuthInfo {
     }
 
     @Getter
-    @Setter
-    @ToString
+    @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class PlaygroundMain {
 
         private Long id;
@@ -63,7 +63,9 @@ public class PlaygroundAuthInfo {
         private Long generation;
         private String profileImage;
         private Boolean hasProfile;
+        @Setter
         private String accessToken;
+        @Setter
         private UserStatus status;
     }
 
@@ -87,11 +89,9 @@ public class PlaygroundAuthInfo {
     }
 
     @Getter
-    @Setter
     @Builder
-    @ToString
-    @NoArgsConstructor(access = AccessLevel.PUBLIC)
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class PlaygroundProfile {
 
         private Long memberId;
@@ -109,10 +109,9 @@ public class PlaygroundAuthInfo {
     }
 
     @Getter
-    @Setter
     @Builder
-    @NoArgsConstructor(access = AccessLevel.PUBLIC)
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class ActivityCardinalInfo {
 
         private String cardinalInfo;
@@ -132,9 +131,8 @@ public class PlaygroundAuthInfo {
 
     @Getter
     @Builder
-    @ToString
-    @NoArgsConstructor(access = AccessLevel.PUBLIC)
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class OwnPlaygroundProfile {
 
         private String mbti;
@@ -144,9 +142,8 @@ public class PlaygroundAuthInfo {
 
     @Getter
     @Builder
-    @ToString
-    @NoArgsConstructor(access = AccessLevel.PUBLIC)
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class PlaygroundProfileOfRecommendedFriendList {
 
         private List<PlaygroundProfileOfRecommendedFriend> members;
@@ -154,9 +151,8 @@ public class PlaygroundAuthInfo {
 
     @Getter
     @Builder
-    @ToString
-    @NoArgsConstructor(access = AccessLevel.PUBLIC)
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     @EqualsAndHashCode(of = {"playgroundId"})
     public static class PlaygroundProfileOfRecommendedFriend {
 
@@ -177,8 +173,8 @@ public class PlaygroundAuthInfo {
     }
 
     @Getter
-    @NoArgsConstructor(access = AccessLevel.PUBLIC)
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class PlaygroundActivity {
 
         private String part;
@@ -186,13 +182,15 @@ public class PlaygroundAuthInfo {
     }
 
     @Builder
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class RecommendFriendRequest {
 
         private List<Integer> generations;
         private List<RecommendFriendFilter> filters;
 
-        public static RecommendFriendRequest getRecommendFriendRequestByGeneration(List<Integer> generations) {
+        public static RecommendFriendRequest createRecommendFriendRequestByGeneration(List<Integer> generations) {
             return RecommendFriendRequest.builder()
                     .generations(generations)
                     .filters(List.of())
@@ -200,7 +198,9 @@ public class PlaygroundAuthInfo {
         }
     }
 
+    @Getter
     @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class RecommendFriendFilter {
 
@@ -210,8 +210,8 @@ public class PlaygroundAuthInfo {
 
     @Getter
     @Builder
-    @NoArgsConstructor(access = AccessLevel.PUBLIC)
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class PlaygroundUserIds {
         private List<Long> userIds;
     }
