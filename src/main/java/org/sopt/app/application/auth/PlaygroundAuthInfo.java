@@ -101,7 +101,7 @@ public class PlaygroundAuthInfo {
 
         public ActivityCardinalInfo getLatestActivity() {
             return activities.stream()
-                    .sorted(Comparator.comparing(PlaygroundAuthInfo.ActivityCardinalInfo::getGeneration,
+                    .sorted(Comparator.comparing(activity -> Integer.parseInt(activity.getGeneration()),
                             Comparator.reverseOrder()))
                     .toList()
                     .get(0);
