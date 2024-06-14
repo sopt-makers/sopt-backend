@@ -190,7 +190,7 @@ public class PokeController {
             @RequestParam(value = "size") int size
     ) {
         return ResponseEntity.ok(
-                pokeFacade.getRecommendedFriendsByAllType(typeList, size, user)
+                pokeFacade.getRecommendedFriendsByTypeList(typeList, size, user)
         );
     }
 
