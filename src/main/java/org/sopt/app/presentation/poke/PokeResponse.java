@@ -265,7 +265,7 @@ public class PokeResponse {
             return new SimplePokeProfile(
                     userId,
                     playgroundId,
-                    profileImage,
+                    profileImage == null ? "" : profileImage,
                     name,
                     message == null ? "" : message,
                     generation,
@@ -342,7 +342,7 @@ public class PokeResponse {
 
         public static Friend of(Long friendId, Long playgroundId, String friendName, String friendProfileImage,
                 List<SimplePokeProfile> friendList) {
-            return new Friend(friendId, playgroundId, friendName, friendProfileImage, friendList);
+            return new Friend(friendId, playgroundId, friendName, friendProfileImage == null ? "" : friendProfileImage, friendList);
         }
     }
 
@@ -366,7 +366,7 @@ public class PokeResponse {
         public static PokeProfile of(
                 Long userId, String profileImage, String name, Long generation, String part, Boolean isAlreadyPoked
         ) {
-            return new PokeProfile(userId, profileImage, name, generation, part, isAlreadyPoked);
+            return new PokeProfile(userId, profileImage == null ? "" : profileImage, name, generation, part, isAlreadyPoked);
         }
     }
 

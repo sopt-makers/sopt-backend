@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.application.user.UserInfo.UserProfile;
+import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.User;
@@ -88,15 +89,20 @@ public class UserService {
         );
     }
 
-    @Transactional(readOnly = true)
-    public UserProfile getUserProfile(Long userId) {
+    public UserProfile getUserProfileOrElseThrow(Long userId) {
         val user = userRepository.findUserById(userId)
-                .orElseThrow(() -> new UnauthorizedException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
         return UserProfile.builder()
                         .userId(user.getId())
                         .name(user.getUsername())
                         .playgroundId(user.getPlaygroundId())
                         .build();
+    }
+
+    public List<String> getNamesByIds(List<Long> userIds) {
+        return userRepository.findAllByIdIn(userIds).stream()
+                .map(User::getUsername)
+                .toList();
     }
 
     public List<UserProfile> getUserProfilesByPlaygroundIds(List<Long> playgroundIds) {
@@ -117,5 +123,9 @@ public class UserService {
                         .playgroundId(user.getPlaygroundId())
                         .build()
         ).toList();
+    }
+
+    public boolean isUserExist(Long userId) {
+        return userRepository.existsById(userId);
     }
 }

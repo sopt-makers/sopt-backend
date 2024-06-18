@@ -1,16 +1,20 @@
 package org.sopt.app.application.auth;
 
+import static org.sopt.app.domain.enums.FriendRecommendType.MBTI;
+import static org.sopt.app.domain.enums.FriendRecommendType.UNIVERSITY;
+
 import io.jsonwebtoken.ExpiredJwtException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.function.IntFunction;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.OwnPlaygroundProfile;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.RecommendFriendFilter;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.RecommendFriendRequest;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -97,7 +101,7 @@ public class PlaygroundAuthService {
     private PlaygroundAuthInfo.PlaygroundProfile getPlaygroundMemberProfile(String accessToken, Long playgroundId) {
         Map<String, String> headers = createAuthorizationHeader(accessToken);
         try {
-            return playgroundClient.getPlaygroundMemberProfile(headers, playgroundId).get(0);
+            return playgroundClient.getSinglePlaygroundMemberProfile(headers, playgroundId).get(0);
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
         } catch (ExpiredJwtException e) {
@@ -158,7 +162,7 @@ public class PlaygroundAuthService {
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
         try {
-            return playgroundClient.getMemberProfiles(requestHeader,
+            return playgroundClient.getPlaygroundMemberProfiles(requestHeader,
                     URLEncoder.encode(stringifyIds, StandardCharsets.UTF_8));
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
@@ -172,38 +176,39 @@ public class PlaygroundAuthService {
         return playgroundClient.getOwnPlaygroundProfile(requestHeader);
     }
 
-    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameGeneration(
-            Integer generation) {
-        return playgroundClient.getPlaygroundProfileForSameGeneration(createAuthorizationHeader(playgroundToken),
-                generation).getMembers();
+    public List<Long> getPlaygroundIdsForSameGeneration(List<Integer> generationList) {
+
+        return playgroundClient.getPlaygroundUserIdsForSameRecommendType(
+                createAuthorizationHeader(playgroundToken),
+                RecommendFriendRequest.createRecommendFriendRequestByGeneration(generationList)
+        ).getUserIds();
     }
 
-    private List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForGenerationRange(
-            Integer generation, IntFunction<List<PlaygroundProfileOfRecommendedFriend>> fetchProfilesFunction) {
-        List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> result = new ArrayList<>();
-        final int TARGET_GENERATION_RANGE = 3;
-        for (int i = 0; i < TARGET_GENERATION_RANGE; i++) {
-            int targetGeneration = generation - i;
-            if (targetGeneration < 1) {
-                break;
-            }
-            result.addAll(fetchProfilesFunction.apply(targetGeneration));
-        }
-
-        return result.stream().distinct().toList();
+    private List<Integer> getGenerationListByLatestGenerationForRange(Integer latestGeneration) {
+        return IntStream.rangeClosed(0, 3)
+                .mapToObj(i -> latestGeneration - i)
+                .collect(Collectors.toList());
     }
 
-    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameMbtiAndGeneration(
-            Integer generation, String mbti) {
-        return getPlaygroundProfilesForGenerationRange(generation, targetGeneration ->
-                playgroundClient.getPlaygroundProfileForSameMbti(createAuthorizationHeader(playgroundToken),
-                        targetGeneration, mbti).getMembers());
+    public List<Long> getPlaygroundIdsForSameMbti(Integer latestGeneration, String mbti) {
+        RecommendFriendRequest request = RecommendFriendRequest.builder()
+                .generations(getGenerationListByLatestGenerationForRange(latestGeneration))
+                .filters(List.of(RecommendFriendFilter.builder().key(String.valueOf(MBTI)).value(mbti).build()))
+                .build();
+        return playgroundClient.getPlaygroundUserIdsForSameRecommendType(
+                createAuthorizationHeader(playgroundToken),
+                request
+        ).getUserIds();
     }
 
-    public List<PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend> getPlaygroundProfilesForSameUniversityAndGeneration(
-            Integer generation, String university) {
-        return getPlaygroundProfilesForGenerationRange(generation, targetGeneration ->
-                playgroundClient.getPlaygroundProfileForSameUniversity(createAuthorizationHeader(playgroundToken),
-                        targetGeneration, university).getMembers());
+    public List<Long> getPlaygroundIdsForSameUniversity(Integer latestGeneration, String university) {
+        RecommendFriendRequest request = RecommendFriendRequest.builder()
+                .generations(getGenerationListByLatestGenerationForRange(latestGeneration))
+                .filters(List.of(RecommendFriendFilter.builder().key(String.valueOf(UNIVERSITY)).value(university).build()))
+                .build();
+        return playgroundClient.getPlaygroundUserIdsForSameRecommendType(
+                createAuthorizationHeader(playgroundToken),
+                request
+        ).getUserIds();
     }
 }

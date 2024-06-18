@@ -1,10 +1,12 @@
 package org.sopt.app.application.operation;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class OperationInfo {
 
     @Getter
@@ -14,24 +16,5 @@ public class OperationInfo {
 
         private String announcement;
         private Double attendanceScore;
-    }
-
-
-    @Getter
-    @Setter
-    @ToString
-    public static class ScoreResponse {
-
-        private Boolean success;
-        private String message;
-        private Score data;
-    }
-
-    @Getter
-    @Setter
-    @ToString
-    public static class Score {
-
-        private Double score;
     }
 }

@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import static org.sopt.app.common.fixtures.PokeFixture.GENERATION;
 import static org.sopt.app.common.fixtures.PokeFixture.MBTI;
 import static org.sopt.app.common.fixtures.PokeFixture.UNIVERSITY;
+import static org.sopt.app.common.fixtures.UserFixture.dummyPlaygroundToken;
 import static org.sopt.app.common.fixtures.UserFixture.myPlaygroundId;
 import static org.sopt.app.common.fixtures.UserFixture.myAppUserId;
 
@@ -70,16 +71,14 @@ class PokeFacadeTest {
     private static final String MESSAGES_HEADER_FOR_POKE = "함께 보낼 메시지를 선택해주세요";
     private final Relationship relationship1 = Relationship.builder().pokeNum(1).build();
     private final Relationship relationship2 = Relationship.builder().pokeNum(3).build();
-    private final PlaygroundAuthInfo.ActiveUserIds activeUserIds = new ActiveUserIds();
+    private final PlaygroundAuthInfo.ActiveUserIds activeUserIds = ActiveUserIds.builder().userIds(List.of(1L, 2L, 3L)).build();
     private final User user = User.builder().id(1L).playgroundToken("token").build();
     private final UserProfile userProfile1 = UserProfile.builder().userId(1L).name("name1").playgroundId(1L).build();
     private final UserProfile userProfile2 = UserProfile.builder().userId(2L).name("name2").playgroundId(2L).build();
     private final UserProfile userProfile3 = UserProfile.builder().userId(3L).name("name3").playgroundId(3L).build();
-    private final UserProfile userProfile4 = UserProfile.builder().userId(4L).name("name4").playgroundId(4L).build();
     private final List<UserProfile> userProfileList = List.of(userProfile2, userProfile3);
     private final List<UserProfile> userProfileListIncludingMe = List.of(userProfile1, userProfile2, userProfile3);
-    private final ActivityCardinalInfo activityCardinalInfo = ActivityCardinalInfo.builder().cardinalInfo("34,서버")
-            .build();
+    private final ActivityCardinalInfo activityCardinalInfo = new ActivityCardinalInfo("34,서버");
     private final List<PlaygroundProfile> playgroundProfileList = List.of(
             new PlaygroundProfile(2L, "name2", "image", List.of(activityCardinalInfo)),
             new PlaygroundProfile(3L, "name3", "image", List.of(activityCardinalInfo))
@@ -128,11 +127,6 @@ class PokeFacadeTest {
     private PokeService pokeService;
     @InjectMocks
     private PokeFacade pokeFacade;
-
-    @BeforeEach
-    public void beforeTest() {
-        activeUserIds.setUserIds(List.of(1L, 2L, 3L));
-    }
 
     @ParameterizedTest
     @ValueSource(strings = {"pokeSomeone", "pokeFriend", "replyNew"})
@@ -209,8 +203,8 @@ class PokeFacadeTest {
         when(friendService.findAllFriendIdsByUserIdRandomly(1L, 2)).thenReturn(List.of(2L, 3L));
         when(pokeHistoryService.getPokeFriendIds(1L)).thenReturn(List.of(4L));
         when(friendService.findAllFriendIdsByUserId(1L)).thenReturn(List.of(5L));
-        when(userService.getUserProfile(2L)).thenReturn(userProfile2);
-        when(userService.getUserProfile(3L)).thenReturn(userProfile3);
+        when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
+        when(userService.getUserProfileOrElseThrow(3L)).thenReturn(userProfile3);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(3L))).thenReturn(
                 playgroundProfileListWithoutImage);
@@ -234,8 +228,8 @@ class PokeFacadeTest {
         when(friendService.findAllFriendIdsByUserIdRandomly(1L, 2)).thenReturn(List.of(2L, 3L));
         when(pokeHistoryService.getPokeFriendIds(1L)).thenReturn(List.of(4L));
         when(friendService.findAllFriendIdsByUserId(1L)).thenReturn(List.of(5L));
-        when(userService.getUserProfile(2L)).thenReturn(userProfile2);
-        when(userService.getUserProfile(3L)).thenReturn(userProfile3);
+        when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
+        when(userService.getUserProfileOrElseThrow(3L)).thenReturn(userProfile3);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(3L))).thenReturn(
                 playgroundProfileListWithoutImage);
@@ -254,13 +248,15 @@ class PokeFacadeTest {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2",
                 "message", 34, "서버", 1, null, "name3의 친구", true, false, false, "");
 
+
         when(pokeHistoryService.getPokeMeUserIds(1L)).thenReturn(List.of(2L));
         when(pokeHistoryService.getAllLatestPokeHistoryFromTo(2L, 1L)).thenReturn(List.of(pokeHistory2));
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
-        when(userService.getUserProfile(2L)).thenReturn(userProfile2);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
-        when(userService.getUserProfile(3L)).thenReturn(userProfile3);
+        when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
+        when(userService.isUserExist(anyLong())).thenReturn(true);
+        when(userService.getNamesByIds(List.of(3L))).thenReturn(List.of("name3"));
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(userService.getUserProfilesByPlaygroundIds(anyList())).thenReturn(userProfileList);
 
@@ -272,7 +268,6 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_단일 누가 나를 찔렀어요 답장 O 조회")
     void SUCCESS_getMostRecentPokeMeHistoryIsReply() {
         when(pokeHistoryService.getPokeMeUserIds(1L)).thenReturn(List.of(3L));
-        when(pokeHistoryService.getAllLatestPokeHistoryFromTo(3L, 1L)).thenReturn(List.of(pokeHistory3));
 
         SimplePokeProfile result = pokeFacade.getMostRecentPokeMeHistory(user);
         assertNull(result);
@@ -293,12 +288,12 @@ class PokeFacadeTest {
         when(pokeHistoryService.getAllLatestPokeHistoryIn(List.of(2L), pageable)).thenReturn(pokeHistoryPage);
 
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
-        when(userService.getUserProfile(2L)).thenReturn(userProfile2);
+        when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(
                 playgroundProfileListWithoutImage);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L, 4L));
-        when(userService.getUserProfile(3L)).thenReturn(userProfile3);
-        when(userService.getUserProfile(4L)).thenReturn(userProfile4);
+        when(userService.isUserExist(anyLong())).thenReturn(true);
+        when(userService.getNamesByIds(List.of(3L,4L))).thenReturn(List.of("name3", "name4"));
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
         when(userService.getUserProfilesByPlaygroundIds(anyList())).thenReturn(userProfileList);
 
@@ -348,7 +343,7 @@ class PokeFacadeTest {
                 "", 34, "서버", 1, null, "새로운 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
-        when(userService.getUserProfile(2L)).thenReturn(userProfile2);
+        when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of());
@@ -364,11 +359,11 @@ class PokeFacadeTest {
                 "", 34, "서버", 1, null, "name3의 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
-        when(userService.getUserProfile(2L)).thenReturn(userProfile2);
+        when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
-        when(userService.getUserProfile(3L)).thenReturn(userProfile3);
+        when(userService.getNamesByIds(List.of(3L))).thenReturn(List.of("name3"));
 
         List<SimplePokeProfile> result = pokeFacade.getFriend(user);
         assertEquals(List.of(simplePokeProfile), result);
@@ -381,12 +376,12 @@ class PokeFacadeTest {
                 "", 34, "서버", 1, null, "name3의 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
-        when(userService.getUserProfile(2L)).thenReturn(userProfile2);
+        when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(
                 playgroundProfileListWithoutImage);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
-        when(userService.getUserProfile(3L)).thenReturn(userProfile3);
+        when(userService.getNamesByIds(List.of(3L))).thenReturn(List.of("name3"));
 
         List<SimplePokeProfile> result = pokeFacade.getFriend(user);
         assertEquals(List.of(simplePokeProfile), result);
@@ -399,13 +394,12 @@ class PokeFacadeTest {
                 "", 34, "서버", 1, null, "name3 외 1명과 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
-        when(userService.getUserProfile(2L)).thenReturn(userProfile2);
+        when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(
                 playgroundProfileListWithoutImage);
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship1);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L, 4L));
-        when(userService.getUserProfile(3L)).thenReturn(userProfile3);
-        when(userService.getUserProfile(4L)).thenReturn(userProfile4);
+        when(userService.getNamesByIds(List.of(3L,4L))).thenReturn(List.of("name3", "name4"));
 
         List<SimplePokeProfile> result = pokeFacade.getFriend(user);
         assertEquals(List.of(simplePokeProfile), result);
@@ -421,10 +415,10 @@ class PokeFacadeTest {
         when(friendService.findAllFriendsByFriendship(any(), any(), any())).thenReturn(List.of(friend2));
         when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistoryInfo2));
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
-        when(userService.getUserProfile(2L)).thenReturn(userProfile2);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
-        when(userService.getUserProfile(3L)).thenReturn(userProfile3);
+        when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
+        when(userService.getNamesByIds(List.of(3L))).thenReturn(List.of("name3"));
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
         when(userService.getUserProfilesByPlaygroundIds(anyList())).thenReturn(userProfileList);
         when(pokeHistoryService.getAllPokeHistoryByUsers(anyLong(), anyLong())).thenReturn(List.of(pokeHistoryInfo2));
@@ -457,14 +451,15 @@ class PokeFacadeTest {
 
         when(friendService.findAllFriendsByFriendship(anyLong(), anyInt(), anyInt(), any())).thenReturn(friendPage);
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
-        when(userService.getUserProfile(2L)).thenReturn(userProfile2);
+        when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
-        when(userService.getUserProfile(3L)).thenReturn(userProfile3);
+        when(userService.getNamesByIds(List.of(3L))).thenReturn(List.of("name3"));
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
         when(pokeHistoryService.getAllOfPokeBetween(any(), any())).thenReturn(
                 List.of(pokeHistoryInfo2, pokeHistoryInfo2PokedIsNotReply));
         when(userService.getUserProfilesByPlaygroundIds(anyList())).thenReturn(userProfileList);
+        when(userService.isUserExist(anyLong())).thenReturn(true);
 
         EachRelationFriendList result = pokeFacade.getAllFriendByFriendship(user, friendship, pageable);
         assertEquals(eachRelationFriendList.getFriendList().get(0).getUserId(),
@@ -480,10 +475,10 @@ class PokeFacadeTest {
                 34, "서버", 3, null, "name3의 친구", false, false, false, "");
 
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
-        when(userService.getUserProfile(2L)).thenReturn(userProfile2);
+        when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L));
-        when(userService.getUserProfile(3L)).thenReturn(userProfile3);
+        when(userService.getNamesByIds(List.of(3L))).thenReturn(List.of("name3"));
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
         when(userService.getUserProfilesByPlaygroundIds(anyList())).thenReturn(userProfileList);
 
@@ -498,12 +493,11 @@ class PokeFacadeTest {
                 "message", 34, "서버", 3, null, "name3 외 1명과 친구", false, false, false, "");
 
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
-        when(userService.getUserProfile(2L)).thenReturn(userProfile2);
+        when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(
                 playgroundProfileListWithoutImage);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of(3L, 4L));
-        when(userService.getUserProfile(3L)).thenReturn(userProfile3);
-        when(userService.getUserProfile(4L)).thenReturn(userProfile4);
+        when(userService.getNamesByIds(List.of(3L,4L))).thenReturn(List.of("name3", "name4"));
         when(friendService.getRelationInfo(1L, 2L)).thenReturn(relationship2);
         when(userService.getUserProfilesByPlaygroundIds(anyList())).thenReturn(userProfileList);
 
@@ -518,7 +512,7 @@ class PokeFacadeTest {
                 34, "서버", 3, null, "새로운 친구", false, false, false, "");
 
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
-        when(userService.getUserProfile(2L)).thenReturn(userProfile2);
+        when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
         when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(
                 playgroundProfileListWithoutImage);
         when(friendService.getMutualFriendIds(1L, 2L)).thenReturn(List.of());
@@ -542,45 +536,68 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_모든 유형의 추천 친구 조회")
     void SUCCESS_getRecommendedFriendsByAllType() {
         // given
-        given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION)).willReturn(PokeFixture.createPlaygroundProfileOfRecommendedFriendSameGenerationList(List.of(1L,2L,3L)));
-        given(playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI)).willReturn(PokeFixture.createPlaygroundProfileOfRecommendedFriendSameMbtiList(List.of(4L,5L,6L)));
-        given(playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(GENERATION, UNIVERSITY)).willReturn(PokeFixture.createPlaygroundProfileOfRecommendedFriendSameUniversityList(List.of(7L,8L,9L)));
+        final List<Long> sameGenerationPlaygroundIds = List.of(1L);
+        final List<Long> sameMbtiPlaygroundIds = List.of(2L);
+        final List<Long> sameUniversityPlaygroundIds = List.of(3L);
+
+        given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
+                .willReturn(PokeFixture.createOwnPlaygroundProfile());
         given(friendService.findUserIdsLinkedFriends(anyLong())).willReturn(new ArrayList<>());
-        given(userService.getUserProfilesByPlaygroundIds(anyList())).willReturn(
-                PokeFixture.createUserProfileList(
-                List.of(11L, 22L, 33L, 44L, 55L, 66L, 77L, 88L, 99L),
-                List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L)
-        ));
+
+        given(playgroundAuthService.getPlaygroundIdsForSameGeneration(List.of(GENERATION)))
+                .willReturn(sameGenerationPlaygroundIds);
+        given(playgroundAuthService.getPlaygroundIdsForSameMbti(GENERATION, MBTI))
+                .willReturn(sameMbtiPlaygroundIds);
+        given(playgroundAuthService.getPlaygroundIdsForSameUniversity(GENERATION, UNIVERSITY))
+                .willReturn(sameUniversityPlaygroundIds);
+
+
+        given(userService.getUserProfilesByPlaygroundIds(sameGenerationPlaygroundIds)).willReturn(
+                PokeFixture.createUserProfileList(List.of(11L), sameGenerationPlaygroundIds));
+        given(userService.getUserProfilesByPlaygroundIds(sameMbtiPlaygroundIds)).willReturn(
+                PokeFixture.createUserProfileList(List.of(22L), sameMbtiPlaygroundIds));
+        given(userService.getUserProfilesByPlaygroundIds(sameUniversityPlaygroundIds)).willReturn(
+                PokeFixture.createUserProfileList(List.of(33L), sameUniversityPlaygroundIds));
+
+        given(playgroundAuthService.getPlaygroundMemberProfiles(dummyPlaygroundToken, sameGenerationPlaygroundIds))
+                .willReturn(PokeFixture.createPlaygroundProfileList(sameGenerationPlaygroundIds));
+        given(playgroundAuthService.getPlaygroundMemberProfiles(dummyPlaygroundToken, sameMbtiPlaygroundIds))
+                .willReturn(PokeFixture.createPlaygroundProfileList(sameMbtiPlaygroundIds));
+        given(playgroundAuthService.getPlaygroundMemberProfiles(dummyPlaygroundToken, sameUniversityPlaygroundIds))
+                .willReturn(PokeFixture.createPlaygroundProfileList(sameUniversityPlaygroundIds));
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(List.of(FriendRecommendType.ALL), 6, myAppUser);
-        List<Long> playgroundIdByRecommendedFriendByGeneration = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.GENERATION);
-        List<Long> playgroundIdByRecommendedFriendByMbti = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.MBTI);
-        List<Long> playgroundIdByRecommendedFriendByUniversity = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.UNIVERSITY);
+        RecommendedFriendsByAllType result =
+                pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        List<Long> playgroundIdByRecommendedFriendByGeneration =
+                findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.GENERATION);
+        List<Long> playgroundIdByRecommendedFriendByMbti =
+                findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.MBTI);
+        List<Long> playgroundIdByRecommendedFriendByUniversity =
+                findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.UNIVERSITY);
 
         // then
         assertEquals(3, result.getRandomInfoList().size());
-        assertEquals(3, playgroundIdByRecommendedFriendByGeneration.size());
-        assertTrue(playgroundIdByRecommendedFriendByGeneration.containsAll(List.of(1L, 2L, 3L)));
-        assertEquals(3, playgroundIdByRecommendedFriendByMbti.size());
-        assertTrue(playgroundIdByRecommendedFriendByMbti.containsAll(List.of(4L, 5L, 6L)));
-        assertEquals(3, playgroundIdByRecommendedFriendByUniversity.size());
-        assertTrue(playgroundIdByRecommendedFriendByUniversity.containsAll(List.of(7L, 8L, 9L)));
+        assertEquals(List.of(1L), playgroundIdByRecommendedFriendByGeneration);
+        assertEquals(List.of(2L), playgroundIdByRecommendedFriendByMbti);
+        assertEquals(List.of(3L), playgroundIdByRecommendedFriendByUniversity);
     }
 
     @Test
     @DisplayName("SUCCESS_요구사항1_추천할 친구가 없다면 객체를 반환하지 않음")
     void SUCCESS_getRecommendedFriendsByAllType_Requirement1() {
         // given
-        given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION)).willReturn(List.of());
-        given(playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI)).willReturn(
-                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameMbtiList(List.of(4L,5L,6L)));
-        given(playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(GENERATION, UNIVERSITY)).willReturn(List.of());
-        given(friendService.findUserIdsLinkedFriends(anyLong())).willReturn(new ArrayList<>(Arrays.asList(44L, 55L, 66L)));
-        // 추천 친구가 있어도 이미 친구인 친구라서 제외되어 추천 친구가 0명이 되어도 객체를 반환하지 않아야 한다.
+        given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
+                .willReturn(PokeFixture.createOwnPlaygroundProfile());
+        given(playgroundAuthService.getPlaygroundIdsForSameGeneration(List.of(GENERATION))).willReturn(List.of());
+        given(playgroundAuthService.getPlaygroundIdsForSameMbti(GENERATION, MBTI))
+                .willReturn(List.of(4L,5L,6L));
+        given(playgroundAuthService.getPlaygroundIdsForSameUniversity(GENERATION, UNIVERSITY)).willReturn(List.of());
+        given(friendService.findUserIdsLinkedFriends(anyLong()))
+                .willReturn(new ArrayList<>(Arrays.asList(44L, 55L, 66L)));
+
+        // 추천 친구가 있어도 이미 친구인 프로필이라서 제외되어 추천 친구가 0명이 되면 객체를 반환하지 않아야 한다.
         given(userService.getUserProfilesByPlaygroundIds(anyList())).willReturn(
                 PokeFixture.createUserProfileList(
                         List.of(11L, 22L, 33L, 44L, 55L, 66L, 77L, 88L, 99L),
@@ -589,7 +606,7 @@ class PokeFacadeTest {
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
 
         // then
         assertTrue(result.getRandomInfoList().isEmpty());
@@ -599,172 +616,128 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_요구사항2_자기 자신은 추천 친구에서 제외되어야 함")
     void SUCCESS_getRecommendedFriendsByAllType_Requirement2() {
         // given
-        given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION)).willReturn(
-                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameGenerationList(List.of(myPlaygroundId,1L,2L,3L)));
-        given(playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI)).willReturn(
-                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameMbtiList(List.of(myPlaygroundId,4L,5L,6L)));
-        given(playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(GENERATION, UNIVERSITY)).willReturn(
-                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameUniversityList(List.of(myPlaygroundId,7L,8L,9L)));
+        given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
+                .willReturn(PokeFixture.createOwnPlaygroundProfile());
+        given(playgroundAuthService.getPlaygroundIdsForSameGeneration(List.of(GENERATION)))
+                .willReturn(List.of(myPlaygroundId));
+        given(playgroundAuthService.getPlaygroundIdsForSameMbti(GENERATION, MBTI))
+                .willReturn(List.of(myPlaygroundId));
+        given(playgroundAuthService.getPlaygroundIdsForSameUniversity(GENERATION, UNIVERSITY))
+                .willReturn(List.of(myPlaygroundId));
         given(friendService.findUserIdsLinkedFriends(anyLong())).willReturn(new ArrayList<>());
 
         // 모든 유형의 추천 친구 조회 시 자기 자신이 포함되어 있음
         given(userService.getUserProfilesByPlaygroundIds(anyList())).willReturn(
                 PokeFixture.createUserProfileList(
-                        List.of(11L, 22L, 33L, 44L, 55L, 66L, 77L, 88L, 99L, myAppUserId),
-                        List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, myPlaygroundId)
+                        List.of(myAppUserId),
+                        List.of(myPlaygroundId)
                 ));
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(List.of(FriendRecommendType.ALL), 6, myAppUser);
-        List<Long> playgroundIdByRecommendedFriendByGeneration = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.GENERATION);
-        List<Long> playgroundIdByRecommendedFriendByMbti = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.MBTI);
-        List<Long> playgroundIdByRecommendedFriendByUniversity = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.UNIVERSITY);
+        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
 
         // then
-        assertEquals(3, result.getRandomInfoList().size());
-        assertEquals(3, playgroundIdByRecommendedFriendByGeneration.size());
-        assertTrue(playgroundIdByRecommendedFriendByGeneration.containsAll(List.of(1L, 2L, 3L)));
-        assertEquals(3, playgroundIdByRecommendedFriendByMbti.size());
-        assertTrue(playgroundIdByRecommendedFriendByMbti.containsAll(List.of(4L, 5L, 6L)));
-        assertEquals(3, playgroundIdByRecommendedFriendByUniversity.size());
-        assertTrue(playgroundIdByRecommendedFriendByUniversity.containsAll(List.of(7L, 8L, 9L)));
+        assertTrue(result.getRandomInfoList().isEmpty());
     }
 
     @Test
-    @DisplayName("SUCCESS_요구사항3_자기 자신은 추천 친구에서 제외되어야 함")
+    @DisplayName("SUCCESS_요구사항3_플그 아이디는 있지만 앱 아이디가 없는 유저는 추천하지 않도록 필터링")
     void SUCCESS_getRecommendedFriendsByAllType_Requirement3() {
         // given
-        given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION)).willReturn(
-                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameGenerationList(List.of(myPlaygroundId,1L,2L,3L)));
-        given(playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI)).willReturn(
-                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameMbtiList(List.of(myPlaygroundId,4L,5L,6L)));
-        given(playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(GENERATION, UNIVERSITY)).willReturn(
-                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameUniversityList(List.of(myPlaygroundId,7L,8L,9L)));
+        given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
+                .willReturn(PokeFixture.createOwnPlaygroundProfile());
+        given(playgroundAuthService.getPlaygroundIdsForSameGeneration(List.of(GENERATION)))
+                .willReturn(List.of(1L));
+        given(playgroundAuthService.getPlaygroundIdsForSameMbti(GENERATION, MBTI))
+                .willReturn(List.of(2L));
+        given(playgroundAuthService.getPlaygroundIdsForSameUniversity(GENERATION, UNIVERSITY))
+                .willReturn(List.of(3L));
         given(friendService.findUserIdsLinkedFriends(anyLong())).willReturn(new ArrayList<>());
 
-        // 모든 유형의 추천 친구 조회 시 자기 자신이 포함되어 있음
         given(userService.getUserProfilesByPlaygroundIds(anyList())).willReturn(
                 PokeFixture.createUserProfileList(
-                        List.of(11L, 22L, 33L, 44L, 55L, 66L, 77L, 88L, 99L, myAppUserId),
-                        List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, myPlaygroundId)
-                ));
+                        List.of(44L, 55L, 66L, 77L, 88L),
+                        List.of(4L, 5L, 6L, 7L, 8L)
+                )); // playgroundId가 1, 2, 3인 유저는 앱 아이디가 없음
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(List.of(FriendRecommendType.ALL), 6, myAppUser);
-        List<Long> playgroundIdByRecommendedFriendByGeneration = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.GENERATION);
-        List<Long> playgroundIdByRecommendedFriendByMbti = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.MBTI);
-        List<Long> playgroundIdByRecommendedFriendByUniversity = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.UNIVERSITY);
+        RecommendedFriendsByAllType result =
+                pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
 
         // then
-        assertEquals(3, result.getRandomInfoList().size());
-        assertEquals(3, playgroundIdByRecommendedFriendByGeneration.size());
-        assertTrue(playgroundIdByRecommendedFriendByGeneration.containsAll(List.of(1L, 2L, 3L)));
-        assertEquals(3, playgroundIdByRecommendedFriendByMbti.size());
-        assertTrue(playgroundIdByRecommendedFriendByMbti.containsAll(List.of(4L, 5L, 6L)));
-        assertEquals(3, playgroundIdByRecommendedFriendByUniversity.size());
-        assertTrue(playgroundIdByRecommendedFriendByUniversity.containsAll(List.of(7L, 8L, 9L)));
+        assertTrue(result.getRandomInfoList().isEmpty());
     }
 
     @Test
     @DisplayName("SUCCESS_요구사항4_이미 친구인 유저는 추천 친구에서 제외함 ")
     void SUCCESS_getRecommendedFriendsByAllType_Requirement4() {
         // given
-        given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION)).willReturn(
-                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameGenerationList(List.of(1L,2L,3L)));
-        given(playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI)).willReturn(
-                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameMbtiList(List.of(4L,5L,6L)));
-        given(playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(GENERATION, UNIVERSITY)).willReturn(
-                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameUniversityList(List.of(7L,8L,9L)));
-        given(friendService.findUserIdsLinkedFriends(anyLong())).willReturn(new ArrayList<>(Arrays.asList(33L, 66L, 99L)));
+        given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
+                .willReturn(PokeFixture.createOwnPlaygroundProfile());
+        given(playgroundAuthService.getPlaygroundIdsForSameGeneration(List.of(GENERATION)))
+                .willReturn(List.of(1L));
+        given(playgroundAuthService.getPlaygroundIdsForSameMbti(GENERATION, MBTI))
+                .willReturn(List.of(2L));
+        given(playgroundAuthService.getPlaygroundIdsForSameUniversity(GENERATION, UNIVERSITY))
+                .willReturn(List.of(3L));
+        given(friendService.findUserIdsLinkedFriends(anyLong()))
+                .willReturn(new ArrayList<>(Arrays.asList(11L, 22L, 33L)));
 
         given(userService.getUserProfilesByPlaygroundIds(anyList())).willReturn(
                 PokeFixture.createUserProfileList(
-                        List.of(11L, 22L, 33L, 44L, 55L, 66L, 77L, 88L, 99L),
-                        List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L)
+                        List.of(11L, 22L, 33L),
+                        List.of(1L, 2L, 3L)
                 ));
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(List.of(FriendRecommendType.ALL), 6, myAppUser);
-        List<Long> playgroundIdByRecommendedFriendByGeneration = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.GENERATION);
-        List<Long> playgroundIdByRecommendedFriendByMbti = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.MBTI);
-        List<Long> playgroundIdByRecommendedFriendByUniversity = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.UNIVERSITY);
+        RecommendedFriendsByAllType result =
+                pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
+
 
         // then
-        assertEquals(3, result.getRandomInfoList().size());
-        assertEquals(2, playgroundIdByRecommendedFriendByGeneration.size());
-        assertTrue(playgroundIdByRecommendedFriendByGeneration.containsAll(List.of(1L, 2L)));
-        assertEquals(2, playgroundIdByRecommendedFriendByMbti.size());
-        assertTrue(playgroundIdByRecommendedFriendByMbti.containsAll(List.of(4L, 5L)));
-        assertEquals(2, playgroundIdByRecommendedFriendByUniversity.size());
-        assertTrue(playgroundIdByRecommendedFriendByUniversity.containsAll(List.of(7L, 8L)));
+        assertTrue(result.getRandomInfoList().isEmpty());
     }
 
     @Test
     @DisplayName("SUCCESS_요구사항5_자신의 유형 값이 null이면 객체를 반환하지 않음")
     void SUCCESS_getRecommendedFriendsByAllType_Requirement5() {
         // given
-        given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(PokeFixture.createMbtiNullPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION)).willReturn(
-                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameGenerationList(List.of(1L,2L,3L)));
-        given(playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(GENERATION, UNIVERSITY)).willReturn(
-                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameUniversityList(List.of(7L,8L,9L)));
-        given(friendService.findUserIdsLinkedFriends(anyLong())).willReturn(new ArrayList<>(Arrays.asList(33L, 66L, 99L)));
+        final List<Long> sameGenerationPlaygroundIds = List.of(1L);
+        final List<Long> sameMbtiPlaygroundIds = List.of(2L);
 
-        given(userService.getUserProfilesByPlaygroundIds(anyList())).willReturn(
-                PokeFixture.createUserProfileList(
-                        List.of(11L, 22L, 33L, 44L, 55L, 66L, 77L, 88L, 99L),
-                        List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L)
-                ));
+        given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
+                .willReturn(PokeFixture.createMbtiNullPlaygroundProfile());
+        given(playgroundAuthService.getPlaygroundIdsForSameGeneration(List.of(GENERATION)))
+                .willReturn(List.of(1L));
+        given(playgroundAuthService.getPlaygroundIdsForSameUniversity(GENERATION, UNIVERSITY))
+                .willReturn(List.of(2L));
+        given(friendService.findUserIdsLinkedFriends(anyLong()))
+                .willReturn(new ArrayList<>(Arrays.asList(33L, 66L, 99L)));
+
+        given(userService.getUserProfilesByPlaygroundIds(sameGenerationPlaygroundIds)).willReturn(
+                PokeFixture.createUserProfileList(List.of(11L), sameGenerationPlaygroundIds));
+        given(userService.getUserProfilesByPlaygroundIds(sameMbtiPlaygroundIds)).willReturn(
+                PokeFixture.createUserProfileList(List.of(22L), sameMbtiPlaygroundIds));
+
+
+        given(playgroundAuthService.getPlaygroundMemberProfiles(dummyPlaygroundToken, sameGenerationPlaygroundIds))
+                .willReturn(PokeFixture.createPlaygroundProfileList(sameGenerationPlaygroundIds));
+        given(playgroundAuthService.getPlaygroundMemberProfiles(dummyPlaygroundToken, sameMbtiPlaygroundIds))
+                .willReturn(PokeFixture.createPlaygroundProfileList(sameMbtiPlaygroundIds));
+
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
 
         // then
         List<FriendRecommendType> recommendedFriendTypes = result.getRandomInfoList().stream()
                 .map(RecommendedFriendsByType::getRandomType)
                 .toList();
         assertTrue(recommendedFriendTypes.containsAll(List.of(FriendRecommendType.GENERATION, FriendRecommendType.UNIVERSITY)));
-    }
-
-    @Test
-    @DisplayName("SUCCESS_요구사항6_플그 아이디는 있지만 앱 아이디가 없는 유저는 추천하지 않도록 필터링")
-    void SUCCESS_getRecommendedFriendsByAllType_Requirement6() {
-        // given
-        given(playgroundAuthService.getOwnPlaygroundProfile(anyString())).willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundProfilesForSameGeneration(GENERATION)).willReturn(
-                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameGenerationList(List.of(1L,2L,3L)));
-        given(playgroundAuthService.getPlaygroundProfilesForSameMbtiAndGeneration(GENERATION, MBTI)).willReturn(
-                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameMbtiList(List.of(4L,5L,6L)));
-        given(playgroundAuthService.getPlaygroundProfilesForSameUniversityAndGeneration(GENERATION, UNIVERSITY)).willReturn(
-                PokeFixture.createPlaygroundProfileOfRecommendedFriendSameUniversityList(List.of(7L,8L,9L)));
-        given(friendService.findUserIdsLinkedFriends(anyLong())).willReturn(new ArrayList<>());
-
-        given(userService.getUserProfilesByPlaygroundIds(anyList())).willReturn(
-                PokeFixture.createUserProfileList(
-                        List.of(11L, 22L, 44L, 55L, 77L, 88L),
-                        List.of(1L, 2L, 4L, 5L, 7L, 8L)
-                )); // playgroundId가 3, 6, 9인 유저는 앱 아이디가 없음
-        User myAppUser = UserFixture.createMyAppUser();
-
-        // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByAllType(List.of(FriendRecommendType.ALL), 6, myAppUser);
-        List<Long> playgroundIdByRecommendedFriendByGeneration = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.GENERATION);
-        List<Long> playgroundIdByRecommendedFriendByMbti = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.MBTI);
-        List<Long> playgroundIdByRecommendedFriendByUniversity = findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.UNIVERSITY);
-        // then
-        assertEquals(2, playgroundIdByRecommendedFriendByGeneration.size());
-        assertTrue(playgroundIdByRecommendedFriendByGeneration.containsAll(List.of(1L, 2L)));
-        assertEquals(2, playgroundIdByRecommendedFriendByMbti.size());
-        assertTrue(playgroundIdByRecommendedFriendByMbti.containsAll(List.of(4L, 5L)));
-        assertEquals(2, playgroundIdByRecommendedFriendByUniversity.size());
-        assertTrue(playgroundIdByRecommendedFriendByUniversity.containsAll(List.of(7L, 8L)));
     }
 
     private List<Long> findPlaygroundIdsInRecommendedFriendsByAllTypeByType(RecommendedFriendsByAllType recommendedFriendsByAllType, FriendRecommendType type) {
