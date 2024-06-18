@@ -54,7 +54,7 @@ class SoptampFacadeTest {
         // given
         final StampInfo.Stamp stampInfo = SoptampFixture.getStampInfo();
         given(soptampUserService.findByNickname(NICKNAME)).willReturn(SoptampFixture.getUserInfo());
-        given(stampService.findStamp(MISSION_ID, SOPTAMP_USER_ID)).willReturn(stampInfo);
+        given(stampService.findStamp(MISSION_ID, USER_ID)).willReturn(stampInfo);
 
         // when
         StampInfo.Stamp result = soptampFacade.getStampInfo(MISSION_ID, NICKNAME);
@@ -72,7 +72,7 @@ class SoptampFacadeTest {
         final StampRequest.RegisterStampRequest registerStampRequest = SoptampFixture.getRegisterStampRequest();
         given(stampService.uploadStamp(registerStampRequest, SOPTAMP_USER_ID)).willReturn(uploadedStamp);
         given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
-        given(soptampUserService.addPoint(USER_ID, MISSION_LEVEL)).willReturn(SoptampFixture.getUserInfo());
+        given(soptampUserService.addPoint(SOPTAMP_USER_ID, MISSION_LEVEL)).willReturn(SoptampFixture.getUserInfo());
 
         // when
         StampInfo.Stamp result = soptampFacade.uploadStamp(SOPTAMP_USER_ID, registerStampRequest);
