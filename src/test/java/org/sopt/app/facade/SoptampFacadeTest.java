@@ -24,6 +24,7 @@ import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.common.fixtures.SoptampFixture;
 import org.sopt.app.presentation.stamp.StampRequest;
+import org.sopt.app.presentation.stamp.StampRequest.EditStampRequest;
 
 @ExtendWith(MockitoExtension.class)
 class SoptampFacadeTest {
@@ -94,11 +95,23 @@ class SoptampFacadeTest {
         assertEquals(uploadedStamp, result);
     }
 
-    /* TODO: 아래 메서드 구현
     @Test
-    void editStamp() {
+    @DisplayName("SUCCESS_스탬프 수정하기")
+    void SUCCESS_editStamp() {
+        // given
+        final StampInfo.Stamp editedStamp = SoptampFixture.getStampInfo();
+        final EditStampRequest editStampRequest = SoptampFixture.getEditStampRequest();
+        given(stampService.editStampContentsDeprecated(editStampRequest, USER_ID, MISSION_ID)).willReturn(editedStamp);
+        given(s3Service.uploadDeprecated(MULTIPART_FILE_LIST)).willReturn(SoptampFixture.STAMP_IMG_PATHS);
+
+        // when
+        StampInfo.Stamp result = soptampFacade.editStamp(editStampRequest, USER_ID, MISSION_ID, MULTIPART_FILE_LIST);
+
+        // then
+        assertEquals(editedStamp, result);
     }
 
+    /* TODO: 아래 메서드 구현
     @Test
     void deleteStamp() {
     }
