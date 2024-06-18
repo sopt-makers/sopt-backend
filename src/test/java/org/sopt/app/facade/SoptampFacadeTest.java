@@ -162,9 +162,18 @@ class SoptampFacadeTest {
         then(soptampUserService).should().editNickname(soptampUser, NICKNAME);
     }
 
-    /* TODO: 아래 메서드 구현
     @Test
-    void editSoptampUserProfileMessage() {
+    @DisplayName("SUCCESS_솝탬프 유저 프로필 메시지 수정하기")
+    void SUCCESS_editSoptampUserProfileMessage() {
+        // given
+        final SoptampUser soptampUser = SoptampFixture.getUserInfo();
+        final String newProfileMessage = "new message";
+        given(soptampUserService.getSoptampUserInfo(USER_ID)).willReturn(soptampUser);
+
+        // when
+        soptampFacade.editSoptampUserProfileMessage(USER_ID, newProfileMessage);
+
+        // then
+        then(soptampUserService).should().editProfileMessage(soptampUser, newProfileMessage);
     }
-    */
 }
