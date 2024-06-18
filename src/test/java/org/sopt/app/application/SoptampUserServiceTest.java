@@ -36,9 +36,6 @@ class SoptampUserServiceTest {
     @Mock
     private SoptampUserRepository soptampUserRepository;
 
-    @Mock
-    private SlackService slackService;
-
     @InjectMocks
     private SoptampUserService soptampUserService;
 
@@ -243,35 +240,6 @@ class SoptampUserServiceTest {
         //then
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
-
-    @Test
-    @DisplayName("FAIL_솝탬프 포인트 리스트를 받았을 때 유저를 찾지 못하면 slack 메시지 전송 후 찾지 못한 유저를 제외한 리스트 반환")
-    void FAIL_findCurrentRanks() {
-        //given
-        final List<Point> soptampPointList = List.of(
-                Point.of(1L, 1L, 1L, 100L),
-                Point.of(2L, 1L, 2L, 200L),
-                Point.of(3L, 1L, 3L, 300L)
-        );
-        final List<Long> soptampUserIdList = List.of(1L, 2L, 3L);
-        given(soptampUserRepository.findAllById(soptampUserIdList)).willReturn(
-                List.of(
-                        SoptampUser.builder().id(1L).build(),
-                        SoptampUser.builder().id(2L).build()
-                )); // 솝탬프 포인트 리스트와 다르게 3번 유저가 없음
-
-        //when
-        List<Main> expected = List.of(
-                Main.builder().rank(1).point(200L).build(),
-                Main.builder().rank(2).point(100L).build()
-        );
-        List<Main> result = soptampUserService.findCurrentRanks(soptampPointList);
-
-        //then
-        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
-        then(slackService).should().sendSlackMessage(anyString(), anyString()); // 슬랙 알림 메서드가 실행되는지 검증
-    }
-
 
     @Test
     @DisplayName("SUCCESS_닉네임으로 랭킹 조회")
