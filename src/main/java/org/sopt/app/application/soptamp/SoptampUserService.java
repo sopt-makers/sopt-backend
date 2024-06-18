@@ -137,14 +137,14 @@ public class SoptampUserService {
 
         soptampPointList.stream().sorted(Comparator.comparing(Point::getPoints).reversed())
                 .forEach(point -> userList.stream()
-                        .filter(u -> u.getId().equals(point.getSoptampUserId()))
-                        .findFirst()
+                        .filter(user -> user.getId().equals(point.getSoptampUserId()))
+                        .findAny()
                         .ifPresentOrElse(
-                                u -> rankingList.add(Main.builder()
+                                user -> rankingList.add(Main.builder()
                                         .rank(rankPoint.getAndIncrement())
-                                        .nickname(u.getNickname())
+                                        .nickname(user.getNickname())
                                         .point(point.getPoints())
-                                        .profileMessage(u.getProfileMessage())
+                                        .profileMessage(user.getProfileMessage())
                                         .build()),
                                 () -> SlackService.sendSlackMessage(
                                         "Warning",
