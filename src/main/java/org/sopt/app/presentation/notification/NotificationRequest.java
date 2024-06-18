@@ -11,12 +11,12 @@ import org.sopt.app.domain.enums.NotificationType;
 
 import java.util.List;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class NotificationRequest {
 
     @Getter
-    @Setter
-    @NoArgsConstructor
-    @ToString
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class RegisterNotificationRequest {
 
         @Schema(description = "알림 대상 유저 플레이그라운드 ID 리스트", example = "['1', '2']")

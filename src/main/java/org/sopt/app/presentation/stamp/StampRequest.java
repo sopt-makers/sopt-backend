@@ -2,15 +2,17 @@ package org.sopt.app.presentation.stamp;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StampRequest {
 
     @Getter
-    @Setter
-    @ToString
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class FindStampRequest {
 
         @Schema(description = "미션 아이디", example = "1")
@@ -22,8 +24,8 @@ public class StampRequest {
     }
 
     @Getter
-    @Setter
-    @ToString
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class RegisterStampRequest {
 
         @Schema(description = "미션 아이디", example = "1")
@@ -41,8 +43,8 @@ public class StampRequest {
     }
 
     @Getter
-    @Setter
-    @ToString
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class EditStampRequest {
 
         @Schema(description = "미션 아이디", example = "1")

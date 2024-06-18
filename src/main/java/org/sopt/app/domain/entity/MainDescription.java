@@ -10,12 +10,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Entity
 @Table(name = "main_description", schema = "app_dev")
 @Getter
-@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

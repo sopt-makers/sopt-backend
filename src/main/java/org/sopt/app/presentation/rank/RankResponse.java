@@ -2,15 +2,17 @@ package org.sopt.app.presentation.rank;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RankResponse {
 
     @Getter
-    @Setter
-    @ToString
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class RankMain {
 
         @Schema(description = "유저 랭킹 순위", example = "1")
@@ -24,8 +26,8 @@ public class RankResponse {
     }
 
     @Getter
-    @Setter
-    @ToString
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Detail {
 
         @Schema(description = "유저 닉네임", example = "김앱짱")
@@ -37,8 +39,8 @@ public class RankResponse {
     }
 
     @Getter
-    @Setter
-    @ToString
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class RankMission {
 
         @Schema(description = "미션 아이디", example = "1")
