@@ -72,10 +72,7 @@ class MissionServiceTest {
     @DisplayName("SUCCESS_미션 업로드")
     void SUCCESS_uploadMission() {
         // given
-        RegisterMissionRequest registerMissionRequest = new RegisterMissionRequest();
-        registerMissionRequest.setTitle("title");
-        registerMissionRequest.setLevel(1);
-        registerMissionRequest.setImage("image");
+        RegisterMissionRequest registerMissionRequest = new RegisterMissionRequest("image", "title", 1);
 
         // when
         Mission expected = Mission.builder()

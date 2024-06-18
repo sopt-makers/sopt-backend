@@ -100,7 +100,7 @@ class PokeHistoryServiceTest {
     void SUCCESS_getAllLatestPokeHistoryIn() {
         PokeHistory pokeHistory = PokeHistory.builder().id(1L).pokerId(2L).pokedId(1L).message("message").isReply(false)
                 .build();
-        Page pokeHistoryPage = new PageImpl<>(List.of(pokeHistory));
+        Page<PokeHistory> pokeHistoryPage = new PageImpl<>(List.of(pokeHistory));
         Pageable pageable = Pageable.ofSize(1);
 
         when(pokeHistoryRepository.findAllByIdIsInOrderByCreatedAtDesc(any(), any())).thenReturn(pokeHistoryPage);
