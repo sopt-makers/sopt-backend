@@ -3,8 +3,12 @@ package org.sopt.app.facade;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
+import static org.sopt.app.common.fixtures.SoptampFixture.MISSION_ID;
+import static org.sopt.app.common.fixtures.SoptampFixture.NICKNAME;
+import static org.sopt.app.common.fixtures.SoptampFixture.USER_ID;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,6 +23,7 @@ import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampService;
+import org.sopt.app.common.fixtures.SoptampFixture;
 
 @ExtendWith(MockitoExtension.class)
 class SoptampFacadeTest {
@@ -42,16 +47,12 @@ class SoptampFacadeTest {
     @DisplayName("SUCCESS_스탬프 조회하기")
     void SUCCESS_getStampInfo() {
         // given
-        final Long missionId = 1L;
-        final Long userId = 1L;
-        final String nickname = "anyNickname";
-        final SoptampUserInfo.SoptampUser userInfo = SoptampUserInfo.SoptampUser.builder().userId(userId).nickname(nickname).build();
-        final StampInfo.Stamp stampInfo = StampInfo.Stamp.builder().missionId(missionId).build();
-        given(soptampUserService.findByNickname(nickname)).willReturn(userInfo);
-        given(stampService.findStamp(missionId, userId)).willReturn(stampInfo);
+        final StampInfo.Stamp stampInfo = SoptampFixture.getStampInfo();
+        given(soptampUserService.findByNickname(NICKNAME)).willReturn(SoptampFixture.getUserInfo());
+        given(stampService.findStamp(MISSION_ID, USER_ID)).willReturn(stampInfo);
 
         // when
-        StampInfo.Stamp result = soptampFacade.getStampInfo(missionId, nickname);
+        StampInfo.Stamp result = soptampFacade.getStampInfo(MISSION_ID, NICKNAME);
 
         // then
         assertThat(result).usingRecursiveComparison().isEqualTo(stampInfo);
