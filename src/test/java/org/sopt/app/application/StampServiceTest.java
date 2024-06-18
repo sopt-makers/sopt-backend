@@ -3,6 +3,11 @@ package org.sopt.app.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.sopt.app.common.fixtures.SoptampFixture.MISSION_ID;
+import static org.sopt.app.common.fixtures.SoptampFixture.STAMP_CONTENTS;
+import static org.sopt.app.common.fixtures.SoptampFixture.STAMP_IMG_PATHS;
+import static org.sopt.app.common.fixtures.SoptampFixture.USER_ID;
+import static org.sopt.app.common.fixtures.SoptampFixture.getEditStampRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.fixtures.SoptampFixture;
 import org.sopt.app.domain.entity.Stamp;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.presentation.stamp.StampRequest;
@@ -76,20 +82,15 @@ class StampServiceTest {
     @DisplayName("SUCCESS_스탬프가 request에서 보낸 내용의 이미지와 내용으로 등록되었는지 확인")
     void SUCCESS_uploadStampDeprecated() {
         // given
-        final Long requestUserId = 1L;
-        final Long requestMissionId = 1L;
-        final String requestContents = "requestContents";
-        final List<String> imgPaths = List.of("requestImage1", "requestImage2");
 
-        RegisterStampRequest stampRequest = new RegisterStampRequest();
-        stampRequest.setContents(requestContents);
+        RegisterStampRequest stampRequest = SoptampFixture.getRegisterStampRequest();
 
         Stamp stamp = Stamp.builder()
                 .id(1L)
-                .contents(stampRequest.getContents())
-                .images(imgPaths)
-                .missionId(requestMissionId)
-                .userId(requestUserId)
+                .contents(STAMP_CONTENTS)
+                .images(STAMP_IMG_PATHS)
+                .missionId(MISSION_ID)
+                .userId(USER_ID)
                 .build();
 
         //when
@@ -105,7 +106,7 @@ class StampServiceTest {
                 .updatedAt(newStamp.getUpdatedAt())
                 .build();
         StampInfo.Stamp result = stampService.uploadStampDeprecated(
-                stampRequest, imgPaths, requestUserId, requestMissionId);
+                stampRequest, STAMP_IMG_PATHS, USER_ID, MISSION_ID);
 
         //then
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
@@ -115,21 +116,13 @@ class StampServiceTest {
     @DisplayName("SUCCESS_스탬프가 request에서 보낸 내용의 이미지와 내용으로 등록되었는지 확인")
     void SUCCESS_uploadStamp() {
         // given
-        final Long requestUserId = 1L;
-        final Long requestMissionId = 1L;
-        final String requestContents = "requestContents";
-        final String requestImage = "requestImage";
-
-        RegisterStampRequest stampRequest = new RegisterStampRequest();
-        stampRequest.setContents(requestContents);
-        stampRequest.setImage(requestImage);
-        stampRequest.setMissionId(requestMissionId);
+        RegisterStampRequest stampRequest = SoptampFixture.getRegisterStampRequest();
 
         Stamp stamp = Stamp.builder()
                 .contents(stampRequest.getContents())
                 .images(List.of(stampRequest.getImage()))
                 .missionId(stampRequest.getMissionId())
-                .userId(requestUserId)
+                .userId(USER_ID)
                 .build();
 
         //when
@@ -144,7 +137,7 @@ class StampServiceTest {
                 .updatedAt(newStamp.getUpdatedAt())
                 .build();
 
-        StampInfo.Stamp result = stampService.uploadStamp(stampRequest, requestUserId);
+        StampInfo.Stamp result = stampService.uploadStamp(stampRequest, USER_ID);
 
         //then
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
@@ -154,21 +147,12 @@ class StampServiceTest {
     @DisplayName("SUCCESS_request에서 보낸 내용의 이미지와 내용의 스탬프 DTO를 잘 반환하는지 확인_DEPRECATED")
     void SUCCESS_editStampContentsDeprecated() {
         // given
-        final Long requestUserId = anyLong();
-        final Long requestMissionId = anyLong();
-        final String requestContents = "requestContents";
-        final String requestImage = "requestImage";
-
-        StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
-        editStampRequest.setContents(requestContents);
-        editStampRequest.setImage(requestImage);
-        editStampRequest.setMissionId(requestMissionId);
+        StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequest();
 
         //when
-        Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
+        Stamp oldStamp = getSavedStamp(MISSION_ID, USER_ID);
         StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, true);
-        StampInfo.Stamp result = stampService.editStampContentsDeprecated(editStampRequest, requestUserId,
-                requestMissionId);
+        StampInfo.Stamp result = stampService.editStampContentsDeprecated(editStampRequest, USER_ID, MISSION_ID);
 
         //then
         Assertions.assertEquals(expected.getId(), result.getId());
@@ -178,22 +162,13 @@ class StampServiceTest {
     @DisplayName("SUCCESS_request의 contents가 빈 문자열이면 contents를 변경하지 않음_DEPRECATED")
     void SUCCESS_editStampContentsDeprecatedNoChangeContents() {
         // given
-        final Long requestUserId = anyLong();
-        final Long requestMissionId = anyLong();
-
-        final String requestBlankContents = "";
-        final String requestImage = "requestImage";
-        StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
-        editStampRequest.setContents(requestBlankContents);
-        editStampRequest.setImage(requestImage);
-        editStampRequest.setMissionId(requestMissionId);
+        StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequest();
 
         //when
-        Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
+        Stamp oldStamp = getSavedStamp(MISSION_ID, USER_ID);
         editStamp(oldStamp, editStampRequest, true);
 
-        StampInfo.Stamp result = stampService.editStampContentsDeprecated(editStampRequest, requestUserId,
-                requestMissionId);
+        StampInfo.Stamp result = stampService.editStampContentsDeprecated(editStampRequest, USER_ID, MISSION_ID);
 
         //then
         Assertions.assertEquals(oldStamp.getId(), result.getId());
@@ -203,7 +178,7 @@ class StampServiceTest {
         final Long stampId = 1L;
         final String contents = "savedContents";
         final List<String> images = List.of("savedImage");
-        final String activityDate = "2024.04.08";
+        final String activityDate = "2000.01.01";
 
         final Optional<Stamp> savedStamp = Optional.of(Stamp.builder()
                 .id(stampId)
@@ -256,41 +231,28 @@ class StampServiceTest {
     @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생_DEPRECATED")
     void FAIL_editStampContentsDeprecated() {
         //given
-        final Long requestUserId = anyLong();
-        final Long requestMissionId = anyLong();
-        final StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
+        final StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequest();
 
         //when
-        Mockito.when(stampRepository.findByUserIdAndMissionId(requestUserId, requestMissionId))
+        Mockito.when(stampRepository.findByUserIdAndMissionId(anyLong(), anyLong()))
                 .thenReturn(Optional.empty());
 
         //then
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            stampService.editStampContentsDeprecated(editStampRequest, requestUserId, requestMissionId);
-        });
+        Assertions.assertThrows(BadRequestException.class,
+                () -> stampService.editStampContentsDeprecated(editStampRequest, USER_ID, MISSION_ID));
     }
 
 
     @Test
     @DisplayName("SUCCESS_request에서 보낸 내용의 이미지와 내용의 스탬프 DTO를 잘 반환하는지 확인")
     void SUCCESS_editStampContents() {
-// given
-        final Long requestUserId = anyLong();
-        final Long requestMissionId = anyLong();
-        final String requestContents = "requestContents";
-        final String requestImage = "requestImage";
-        final String requestActivityDate = "2024.04.08";
-
-        StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
-        editStampRequest.setContents(requestContents);
-        editStampRequest.setImage(requestImage);
-        editStampRequest.setMissionId(requestMissionId);
-        editStampRequest.setActivityDate(requestActivityDate);
+        // given
+        StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequest();
 
         //when
-        Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
+        Stamp oldStamp = getSavedStamp(MISSION_ID, USER_ID);
         editStamp(oldStamp, editStampRequest, false);
-        StampInfo.Stamp result = stampService.editStampContents(editStampRequest, requestUserId);
+        StampInfo.Stamp result = stampService.editStampContents(editStampRequest, USER_ID);
 
         //then
         Assertions.assertEquals(oldStamp.getId(), result.getId());
@@ -300,23 +262,12 @@ class StampServiceTest {
     @DisplayName("SUCCESS_SUCCESS_request의 contents가 빈 문자열이면 contents를 변경하지 않음")
     void SUCCESS_editStampContentsNoContents() {
         // given
-        final Long requestUserId = anyLong();
-        final Long requestMissionId = anyLong();
-
-        final String requestBlankContents = "";
-        final String requestImage = "requestImage";
-        final String requestActivityDate = "2024.04.08";
-
-        StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
-        editStampRequest.setContents(requestBlankContents);
-        editStampRequest.setImage(requestImage);
-        editStampRequest.setMissionId(requestMissionId);
-        editStampRequest.setActivityDate(requestActivityDate);
+        StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequest();
 
         //when
-        Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
+        Stamp oldStamp = getSavedStamp(MISSION_ID, USER_ID);
         StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, false);
-        StampInfo.Stamp result = stampService.editStampContents(editStampRequest, requestUserId);
+        StampInfo.Stamp result = stampService.editStampContents(editStampRequest, USER_ID);
 
         //then
         Assertions.assertEquals(expected.getId(), result.getId());
@@ -326,22 +277,12 @@ class StampServiceTest {
     @DisplayName("SUCCESS_SUCCESS_request의 image가 빈 문자열이면 image를 변경하지 않음")
     void SUCCESS_editStampContentsNoImage() {
         // given
-        final Long requestUserId = anyLong();
-        final Long requestMissionId = anyLong();
-        final String requestContents = "requestContents";
-        final String requestBlankImage = "";
-        final String requestActivityDate = "2024.04.08";
-
-        StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
-        editStampRequest.setContents(requestContents);
-        editStampRequest.setImage(requestBlankImage);
-        editStampRequest.setMissionId(requestMissionId);
-        editStampRequest.setActivityDate(requestActivityDate);
+        StampRequest.EditStampRequest editStampRequest = getEditStampRequest();
 
         //when
-        Stamp oldStamp = getSavedStamp(requestMissionId, requestUserId);
+        Stamp oldStamp = getSavedStamp(MISSION_ID, USER_ID);
         editStamp(oldStamp, editStampRequest, false);
-        StampInfo.Stamp result = stampService.editStampContents(editStampRequest, requestUserId);
+        StampInfo.Stamp result = stampService.editStampContents(editStampRequest, USER_ID);
 
         //then
         Assertions.assertEquals(oldStamp.getId(), result.getId());
@@ -353,8 +294,7 @@ class StampServiceTest {
         //given
         final Long requestUserId = anyLong();
         final Long requestMissionId = anyLong();
-        final StampRequest.EditStampRequest editStampRequest = new StampRequest.EditStampRequest();
-        editStampRequest.setMissionId(requestMissionId);
+        final StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequest();
 
         //when
         Mockito.when(stampRepository.findByUserIdAndMissionId(requestUserId, requestMissionId))
