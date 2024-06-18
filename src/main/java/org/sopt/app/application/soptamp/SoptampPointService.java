@@ -1,6 +1,5 @@
 package org.sopt.app.application.soptamp;
 
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -10,6 +9,7 @@ import lombok.val;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.domain.entity.SoptampPoint;
+import org.sopt.app.domain.entity.SoptampUser;
 import org.sopt.app.domain.enums.Part;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.interfaces.postgres.SoptampPointRepository;
@@ -28,19 +28,20 @@ public class SoptampPointService {
 
     public List<Point> findCurrentPointList() {
         return soptampPointRepository.findAllByGeneration(currentGeneration).stream()
-            .map(point ->
-                SoptampPointInfo.Point.of(
-                    point.getId(),
-                    point.getGeneration(),
-                    point.getSoptampUserId(),
-                    point.getPoints()
-                )
-            ).toList();
+                .map(point ->
+                        SoptampPointInfo.Point.of(
+                                point.getId(),
+                                point.getGeneration(),
+                                point.getSoptampUserId(),
+                                point.getPoints()
+                        )
+                ).toList();
     }
 
     public List<Point> findCurrentPointListBySoptampUserIds(List<Long> soptampUserIdList) {
 
-        return soptampPointRepository.findAllBySoptampUserIdInAndGeneration(soptampUserIdList, currentGeneration).stream()
+        return soptampPointRepository.findAllBySoptampUserIdInAndGeneration(soptampUserIdList, currentGeneration)
+                .stream()
                 .map(point ->
                         SoptampPointInfo.Point.of(
                                 point.getId(),
@@ -53,32 +54,32 @@ public class SoptampPointService {
 
     @Transactional
     public void addPoint(Long soptampUserId, Integer level) {
-        val soptampPoint = soptampPointRepository.findAllBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
-        if(soptampPoint.isPresent()){
+        val soptampPoint = soptampPointRepository.findBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
+        if (soptampPoint.isPresent()) {
             val soptampPointEntity = soptampPoint.get();
             val newSoptampPoint = SoptampPoint.builder()
-                .id(soptampPointEntity.getId())
-                .generation(soptampPointEntity.getGeneration())
-                .soptampUserId(soptampPointEntity.getSoptampUserId())
-                .points(soptampPointEntity.getPoints() + level)
-                .build();
+                    .id(soptampPointEntity.getId())
+                    .generation(soptampPointEntity.getGeneration())
+                    .soptampUserId(soptampPointEntity.getSoptampUserId())
+                    .points(soptampPointEntity.getPoints() + level)
+                    .build();
             soptampPointRepository.save(newSoptampPoint);
         }
     }
 
     @Transactional
     public void subtractPoint(Long soptampUserId, Integer level) {
-        val soptampPoint = soptampPointRepository.findAllBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
-        if(soptampPoint.isEmpty()){
+        val soptampPoint = soptampPointRepository.findBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
+        if (soptampPoint.isEmpty()) {
             return;
         }
         val soptampPointEntity = soptampPoint.get();
         val newSoptampPoint = SoptampPoint.builder()
-            .id(soptampPointEntity.getId())
-            .generation(soptampPointEntity.getGeneration())
-            .soptampUserId(soptampPointEntity.getSoptampUserId())
-            .points(soptampPointEntity.getPoints() - level)
-            .build();
+                .id(soptampPointEntity.getId())
+                .generation(soptampPointEntity.getGeneration())
+                .soptampUserId(soptampPointEntity.getSoptampUserId())
+                .points(soptampPointEntity.getPoints() - level)
+                .build();
         soptampPointRepository.save(newSoptampPoint);
     }
 
@@ -87,15 +88,32 @@ public class SoptampPointService {
         if (status.equals(UserStatus.INACTIVE)) {
             return;
         }
-        val soptampPoint = soptampPointRepository.findAllBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
+        val soptampPoint = soptampPointRepository.findBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
         if (soptampPoint.isPresent()) {
             return;
         }
         val newSoptampPoint = SoptampPoint.builder()
-            .generation(currentGeneration)
-            .soptampUserId(soptampUserId)
-            .points(0L)
-            .build();
+                .generation(currentGeneration)
+                .soptampUserId(soptampUserId)
+                .points(0L)
+                .build();
+        soptampPointRepository.save(newSoptampPoint);
+    }
+
+    @Transactional
+    public void initPoint(Long soptampUserId) {
+        val soptampPoint = soptampPointRepository.findBySoptampUserIdAndGeneration(soptampUserId, currentGeneration);
+        if(soptampPoint.isEmpty()){
+            return;
+        }
+        val soptampPointEntity = soptampPoint.get();
+        val newSoptampPoint = SoptampPoint.builder()
+                .id(soptampPointEntity.getId())
+                .generation(soptampPointEntity.getGeneration())
+                .soptampUserId(soptampPointEntity.getSoptampUserId())
+                .points(0L)
+                .build();
+
         soptampPointRepository.save(newSoptampPoint);
     }
 
@@ -111,7 +129,7 @@ public class SoptampPointService {
         Integer rank = 1;
 
         for (Entry<Part, Long> comparator : partPoints.entrySet()) {
-            if(partPoints.get(part) < comparator.getValue()){
+            if (partPoints.get(part) < comparator.getValue()) {
                 rank++;
             }
         }
@@ -126,7 +144,38 @@ public class SoptampPointService {
 
     public Long calculateSumOfPoints(List<Point> soptampPointList) {
         return soptampPointList.stream()
-            .map(Point::getPoints)
-            .reduce(0L, Long::sum);
+                .map(Point::getPoints)
+                .reduce(0L, Long::sum);
+    }
+
+    public void deleteAll() {
+        soptampPointRepository.deleteAll();
+    }
+
+    public List<SoptampPoint> createCurrentGenerationSoptampPointList(
+            List<SoptampUser> soptampUserList
+    ) {
+        val soptampUserIdList = soptampUserList.stream().map(SoptampUser::getId).toList();
+
+        val prevSoptampUserIdList = soptampPointRepository.findAllBySoptampUserIdInAndGeneration(
+                soptampUserIdList, currentGeneration
+        ).stream().map(SoptampPoint::getSoptampUserId).toList();
+
+        val newSoptampUserList = soptampUserList.stream()
+                .map(soptampUser -> prevSoptampUserIdList.contains(soptampUser.getId()) ? null : soptampUser)
+                .filter(x -> x != null)
+                .toList();
+
+        val soptampPointList = newSoptampUserList.stream().map(soptampUser ->
+                SoptampPoint
+                        .builder()
+                        .generation(currentGeneration)
+                        .points(0L)
+                        .soptampUserId(soptampUser.getId())
+                        .build()
+        ).toList();
+
+        soptampPointRepository.saveAll(soptampPointList);
+        return soptampPointList;
     }
 }

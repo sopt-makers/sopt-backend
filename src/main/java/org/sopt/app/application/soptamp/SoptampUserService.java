@@ -1,6 +1,12 @@
 package org.sopt.app.application.soptamp;
 
+import static org.sopt.app.domain.enums.PlaygroundPart.findPlaygroundPart;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -12,6 +18,7 @@ import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.SoptampUser;
 import org.sopt.app.domain.enums.Part;
+import org.sopt.app.domain.enums.PlaygroundPart;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,16 +97,12 @@ public class SoptampUserService {
                     .userId(userId)
                     .profileMessage(null)
                     .totalPoints(0L)
-                    .nickname(generateNickname(name))
+                    .nickname(name)
                     .build();
             return soptampUserRepository.save(newSoptampUser).getId();
 
         }
         return registerUser.get().getId();
-    }
-
-    private String generateNickname(String username) {
-        return username + Math.round(Math.random() * 10000);
     }
 
     public List<Main> findRanks() {
@@ -214,15 +217,91 @@ public class SoptampUserService {
 
     @Transactional
     public void initPoint(Long userId) {
-        val sopTampUser = soptampUserRepository.findByUserId(userId)
+        val soptampUser = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
         val newSoptampUser = SoptampUser.builder()
-                .id(sopTampUser.getId())
-                .userId(sopTampUser.getUserId())
-                .profileMessage(sopTampUser.getProfileMessage())
+                .id(soptampUser.getId())
+                .userId(soptampUser.getUserId())
+                .profileMessage(soptampUser.getProfileMessage())
                 .totalPoints(0L)
-                .nickname(sopTampUser.getNickname())
+                .nickname(soptampUser.getNickname())
                 .build();
         soptampUserRepository.save(newSoptampUser);
+    }
+
+    @Transactional
+    public void initAllSoptampUserPoints() {
+        val soptampUserList = soptampUserRepository.findAll();
+        soptampUserList.forEach(SoptampUser::initTotalPoints);
+        soptampUserRepository.saveAll(soptampUserList);
+    }
+
+    public List<SoptampUser> getSoptampUserInfoList(List<Long> userIdList) {
+        return soptampUserRepository.findAllByUserIdIn(userIdList);
+    }
+
+    @Transactional
+    public List<SoptampUser> initAllCurrentGenerationSoptampUser(
+            List<SoptampUser> soptampUserList,
+            List<SoptampUserInfo.SoptampUserPlaygroundInfo> userInfoList
+    ) {
+        val validatedSoptampUserList = validateNickname(soptampUserList);
+
+        validatedSoptampUserList.stream().forEach(soptampUser -> {
+            val userInfo = userInfoList.stream()
+                    .filter(e -> soptampUser.getUserId().equals(e.getUserId()))
+                    .findFirst().get();
+            PlaygroundPart part = findPlaygroundPart(userInfo.getPart());
+            soptampUser.updateGenerationAndPart(
+                    userInfo.getGeneration(),
+                    part
+            );
+        });
+        soptampUserRepository.saveAll(validatedSoptampUserList);
+
+        return validatedSoptampUserList;
+    }
+
+    @Transactional
+    public List<SoptampUser> validateNickname(List<SoptampUser> soptampUserList) {
+        // uniqueNickname map 생성
+        val nicknameMap = generateUniqueNicknameMap(
+                soptampUserList.stream().sorted(Comparator.comparing(SoptampUser::getNickname))
+                        .map(SoptampUser::getNickname).toList());
+
+        // soptampUser 리스트 userId 기준으로 중복 닉네임 알파벳 부여
+        return updateUniqueNickname(soptampUserList, nicknameMap);
+    }
+
+    private HashMap<String, ArrayList<String>> generateUniqueNicknameMap(List<String> nicknameList) {
+        val nicknameMap = new HashMap<String, ArrayList<String>>();
+        val uniqueNicknameList = nicknameList.stream().distinct().collect(Collectors.toList());
+        uniqueNicknameList.stream().forEach(nickname -> {
+            val count = Collections.frequency(nicknameList, nickname);
+            if (count == 1) {
+                nicknameMap.put(nickname, new ArrayList<>(List.of()));
+            } else {
+                val alphabetList = Arrays.asList("ABCDEFGHIJKLMNOPQRSTUVWXYZ".substring(0, count).split(""));
+                val changedList = alphabetList.stream().map(alphabet -> nickname + alphabet).toList();
+                nicknameMap.put(nickname, new ArrayList<>(changedList));
+            }
+        });
+        return nicknameMap;
+    }
+
+    private List<SoptampUser> updateUniqueNickname(
+            List<SoptampUser> soptampUserList,
+            HashMap<String, ArrayList<String>> nicknameMap
+    ) {
+        soptampUserList.stream().sorted(Comparator.comparing(SoptampUser::getUserId)).forEach(soptampUser -> {
+            val validatedNicknameList = nicknameMap.get(soptampUser.getNickname());
+            if (validatedNicknameList.size() > 0) {
+                val validatedNickname = validatedNicknameList.get(0);
+                validatedNicknameList.remove(0);
+                nicknameMap.put(soptampUser.getNickname(), validatedNicknameList);
+                soptampUser.updateNickname(validatedNickname);
+            }
+        });
+        return soptampUserList;
     }
 }

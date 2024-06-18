@@ -17,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundMain;
 import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.application.user.UserService;
+import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
@@ -35,8 +36,7 @@ class UserServiceTest {
     void SUCCESS_loginWithUserPlaygroundIdWithNoRegisteredUser() {
         //given
         final Long anyUserId = anyLong();
-        PlaygroundMain playgroundMemberResponse = new PlaygroundMain();
-        playgroundMemberResponse.setId(anyUserId);
+        PlaygroundMain playgroundMemberResponse = PlaygroundMain.builder().id(anyUserId).build();
 
         //when
         when(userRepository.findUserByPlaygroundId(anyUserId)).thenReturn(Optional.empty());
@@ -54,8 +54,7 @@ class UserServiceTest {
     void SUCCESS_loginWithUserPlaygroundIdWithRegisteredUser() {
         //given
         final Long anyUserId = anyLong();
-        PlaygroundMain playgroundMemberResponse = new PlaygroundMain();
-        playgroundMemberResponse.setId(anyUserId);
+        PlaygroundMain playgroundMemberResponse = PlaygroundMain.builder().id(anyUserId).build();
 
         User registeredUser = User.builder().id(anyUserId).build();
 
@@ -144,7 +143,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("SUCCESS_유저 프로필 조회")
-    void SUCCESS_getUserProfile() {
+    void SUCCESS_getUserProfileOrElseThrow() {
         //given
         final Long anyUserId = anyLong();
         final String username = "username";
@@ -156,7 +155,7 @@ class UserServiceTest {
         //when
         when(userRepository.findUserById(anyUserId)).thenReturn(Optional.of(user));
 
-        UserInfo.UserProfile result = userService.getUserProfile(anyUserId);
+        UserInfo.UserProfile result = userService.getUserProfileOrElseThrow(anyUserId);
         UserInfo.UserProfile expected = UserInfo.UserProfile.builder().userId(anyUserId).name(username)
                 .playgroundId(playgroundId).build();
 
@@ -165,8 +164,8 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("FAIL_유저 프로필 조회시 유저를 찾지 못하면 UnauthorizedException 발생")
-    void FAIL_getUserProfile() {
+    @DisplayName("FAIL_유저 프로필 조회시 유저를 찾지 못하면 NotFoundException 발생")
+    void FAIL_getUserProfileOrElseThrow() {
         //given
         final Long anyUserId = anyLong();
 
@@ -174,12 +173,12 @@ class UserServiceTest {
         when(userRepository.findUserById(anyUserId)).thenReturn(Optional.empty());
 
         //then
-        Assertions.assertThrows(UnauthorizedException.class, () -> userService.getUserProfile(anyUserId));
+        Assertions.assertThrows(NotFoundException.class, () -> userService.getUserProfileOrElseThrow(anyUserId));
     }
 
     @Test
     @DisplayName("SUCCESS_플레이그라운드 아이디 리스트로 유저 리스트 조회")
-    void SUCCESS_getUserProfilesByPlaygroundIds() {
+    void SUCCESS_getUserProfilesByPlaygroundIdsOrElseThrow() {
         //given
         final List<Long> playgroundIds = List.of(1L, 2L);
         final User user1 = User.builder().id(1L).username("user1").playgroundId(1L).build();
@@ -203,7 +202,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("SUCCESS_유저 아이디로 유저 프로필 조회")
-    void SUCCESS_getUserProfileByUserId() {
+    void SUCCESS_getUserProfilesByUserIdsOrElseThrow() {
         //given
         final List<Long> userIds = List.of(1L, 2L);
         final User user1 = User.builder().id(1L).username("user1").playgroundId(1L).build();
@@ -213,7 +212,7 @@ class UserServiceTest {
         //when
         when(userRepository.findAllByIdIn(userIds)).thenReturn(users);
 
-        List<UserInfo.UserProfile> result = userService.getUserProfileByUserId(userIds);
+        List<UserInfo.UserProfile> result = userService.getUserProfilesByUserIds(userIds);
         List<UserInfo.UserProfile> expected = List.of(
                 UserInfo.UserProfile.builder().userId(user1.getId()).name(user1.getUsername()).playgroundId(
                         user1.getPlaygroundId()).build(),
