@@ -1,6 +1,5 @@
 package org.sopt.app.application.stamp;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -96,10 +95,8 @@ public class StampService {
             stamp.changeContents(editStampRequest.getContents());
         }
 
-        stamp.setUpdatedAt(LocalDateTime.now());
-        val newStamp = stampRepository.save(stamp);
         return StampInfo.Stamp.builder()
-                .id(newStamp.getId())
+                .id(stamp.getId())
                 .build();
     }
 
@@ -120,10 +117,8 @@ public class StampService {
             throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE.getMessage());
         }
         stamp.changeActivityDate(editStampRequest.getActivityDate());
-        stamp.setUpdatedAt(LocalDateTime.now());
-        val newStamp = stampRepository.save(stamp);
         return StampInfo.Stamp.builder()
-                .id(newStamp.getId())
+                .id(stamp.getId())
                 .build();
     }
 
@@ -132,7 +127,6 @@ public class StampService {
         val oldStamp = stampRepository.findById(stamp.getId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
         oldStamp.changeImages(imgPaths);
-        stampRepository.save(oldStamp);
     }
 
     @Transactional(readOnly = true)
