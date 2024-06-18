@@ -6,10 +6,10 @@ import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.presentation.stamp.StampRequest.EditStampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
 
-
 public class SoptampFixture {
 
     public static final Long MISSION_ID = 1L;
+    public static final Integer MISSION_LEVEL = 1;
     public static final Long USER_ID = 10L;
     public static final Long SOPTAMP_USER_ID = 100L;
     public static final String NICKNAME = "nickname";
@@ -23,7 +23,14 @@ public class SoptampFixture {
     }
 
     public static StampInfo.Stamp getStampInfo() {
-        return StampInfo.Stamp.builder().id(SOPTAMP_USER_ID).userId(USER_ID).missionId(MISSION_ID).build();
+        return StampInfo.Stamp.builder()
+                .id(SOPTAMP_USER_ID)
+                .contents(STAMP_CONTENTS)
+                .userId(USER_ID)
+                .missionId(MISSION_ID)
+                .images(STAMP_IMG_PATHS)
+                .activityDate(STAMP_ACTIVITY_DATE)
+                .build();
     }
 
     public static RegisterStampRequest getRegisterStampRequest() {

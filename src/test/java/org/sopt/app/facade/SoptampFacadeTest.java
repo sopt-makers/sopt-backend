@@ -1,12 +1,9 @@
 package org.sopt.app.facade;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
 import static org.sopt.app.common.fixtures.SoptampFixture.MISSION_ID;
+import static org.sopt.app.common.fixtures.SoptampFixture.MISSION_LEVEL;
 import static org.sopt.app.common.fixtures.SoptampFixture.NICKNAME;
 import static org.sopt.app.common.fixtures.SoptampFixture.USER_ID;
 
@@ -16,14 +13,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sopt.app.application.mission.MissionInfo;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.s3.S3Service;
 import org.sopt.app.application.soptamp.SoptampPointService;
-import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.common.fixtures.SoptampFixture;
+import org.sopt.app.presentation.stamp.StampRequest;
 
 @ExtendWith(MockitoExtension.class)
 class SoptampFacadeTest {
@@ -55,14 +53,28 @@ class SoptampFacadeTest {
         StampInfo.Stamp result = soptampFacade.getStampInfo(MISSION_ID, NICKNAME);
 
         // then
-        assertThat(result).usingRecursiveComparison().isEqualTo(stampInfo);
+        assertEquals(stampInfo, result);
+    }
+
+
+    @Test
+    @DisplayName("SUCCESS_스탬프 업로드하기")
+    void SUCCESS_uploadStamp() {
+        // given
+        final StampInfo.Stamp uploadedStamp = SoptampFixture.getStampInfo();
+        final StampRequest.RegisterStampRequest registerStampRequest = SoptampFixture.getRegisterStampRequest();
+        given(stampService.uploadStamp(registerStampRequest, USER_ID)).willReturn(uploadedStamp);
+        given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
+        given(soptampUserService.addPoint(USER_ID, MISSION_LEVEL)).willReturn(SoptampFixture.getUserInfo());
+
+        // when
+        StampInfo.Stamp result = soptampFacade.uploadStamp(USER_ID, registerStampRequest);
+
+        // then
+        assertEquals(uploadedStamp, result);
     }
 
     /* TODO: 아래 메서드 구현
-    @Test
-    void uploadStamp() {
-    }
-
     @Test
     void uploadStampDeprecated() {
     }
@@ -79,7 +91,6 @@ class SoptampFacadeTest {
     void deleteStampAll() {
     }
 
-    /* TODO: UserController 테스트 코드 작성하며 작성
     @Test
     void editSoptampUserNickname() {
     }
