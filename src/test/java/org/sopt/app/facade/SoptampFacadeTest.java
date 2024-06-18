@@ -133,14 +133,21 @@ class SoptampFacadeTest {
         // then
         then(soptampPointService).should().subtractPoint(SOPTAMP_USER_ID, MISSION_LEVEL);
         then(stampService).should().deleteStampById(STAMP_ID);
+    }
 
+    @Test
+    @DisplayName("SUCCESS_모든 스탬프 삭제하기")
+    void SUCCESS_deleteStampAll() {
+        // given & when
+        soptampFacade.deleteStampAll(SOPTAMP_USER_ID);
+
+        // then
+        then(stampService).should().deleteAllStamps(SOPTAMP_USER_ID);
+        then(soptampUserService).should().initPoint(SOPTAMP_USER_ID);
+        then(soptampPointService).should().initPoint(SOPTAMP_USER_ID);
     }
 
     /* TODO: 아래 메서드 구현
-    @Test
-    void deleteStampAll() {
-    }
-
     @Test
     void editSoptampUserNickname() {
     }
