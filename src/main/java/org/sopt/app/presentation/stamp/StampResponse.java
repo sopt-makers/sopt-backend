@@ -3,15 +3,17 @@ package org.sopt.app.presentation.stamp;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StampResponse {
 
     @Getter
-    @Setter
-    @ToString
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class StampMain {
 
         @Schema(description = "스탬프 아이디", example = "1")
@@ -31,8 +33,8 @@ public class StampResponse {
     }
 
     @Getter
-    @Setter
-    @ToString
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class StampId {
 
         @Schema(description = "스탬프 아이디", example = "1")

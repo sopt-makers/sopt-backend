@@ -48,18 +48,14 @@ public class AuthFacadeTest {
     @Test
     @DisplayName("SUCCESS_인증 회원 플그로 로그인")
     void SUCCESS_loginWithPlaygroundActive() {
-        CodeRequest codeRequest = new CodeRequest();
-        codeRequest.setCode("code");
-        AccessTokenRequest accessTokenRequest = new AccessTokenRequest();
-        accessTokenRequest.setAccessToken("accessToken");
+        CodeRequest codeRequest = new CodeRequest("code");
+        AccessTokenRequest accessTokenRequest = new AccessTokenRequest("accessToken");
         RefreshedToken refreshedToken = RefreshedToken.builder().accessToken("refreshedToken").build();
         PlaygroundMain playgroundMain = PlaygroundMain.builder().name("name").status(UserStatus.ACTIVE).build();
         Id userId = Id.builder().id(21L).build();
         Long soptampUserId = 5L;
         AppToken appToken = AppToken.builder().accessToken("appAccessToken").refreshToken("appRefreshToken").build();
-        Token token = new Token();
-        token.setAccessToken("appAccessToken");
-        token.setRefreshToken("appRefreshToken");
+        Token token = new Token("appAccessToken", "appRefreshToken", null, null);
 
         when(playgroundAuthService.getPlaygroundAccessToken(codeRequest)).thenReturn(accessTokenRequest);
         when(playgroundAuthService.refreshPlaygroundToken(accessTokenRequest)).thenReturn(refreshedToken);
@@ -81,18 +77,14 @@ public class AuthFacadeTest {
     @Test
     @DisplayName("SUCCESS_인증 회원 토큰 리프레시")
     void SUCCESS_getRefreshToken() {
-        RefreshRequest refreshRequest = new RefreshRequest();
-        refreshRequest.setRefreshToken("refreshToken");
-        AccessTokenRequest accessTokenRequest = new AccessTokenRequest();
-        accessTokenRequest.setAccessToken("accessToken");
+        RefreshRequest refreshRequest = new RefreshRequest("refreshToken");
+        AccessTokenRequest accessTokenRequest = new AccessTokenRequest("accessToken");
         RefreshedToken refreshedToken = RefreshedToken.builder().accessToken("refreshedToken").build();
         PlaygroundMain playgroundMain = PlaygroundMain.builder().accessToken("accessToken").status(UserStatus.ACTIVE).build();
         Id userId = Id.builder().id(21L).build();
         AppToken newAppToken = AppToken.builder().accessToken("newAppAccessToken").refreshToken("newAppRefreshToken")
                 .build();
-        Token token = new Token();
-        token.setAccessToken("newAppAccessToken");
-        token.setRefreshToken("newAppRefreshToken");
+        Token token = new Token("newAppAccessToken", "newAppRefreshToken", null, null);
 
         when(jwtTokenService.getUserIdFromJwtToken(refreshRequest.getRefreshToken())).thenReturn(userId);
         when(userService.getPlaygroundToken(userId)).thenReturn(accessTokenRequest);

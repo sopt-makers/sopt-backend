@@ -102,10 +102,8 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("SUCCESS_플레이그라운드 어세스 토큰 발급")
     void SUCCESS_getPlaygroundAccessToken() {
-        CodeRequest codeRequest = new CodeRequest();
-        codeRequest.setCode("code");
-        AccessTokenRequest accessTokenRequest = new AccessTokenRequest();
-        accessTokenRequest.setAccessToken("accessToken");
+        CodeRequest codeRequest = new CodeRequest("code");
+        AccessTokenRequest accessTokenRequest = new AccessTokenRequest("accessToken");
 
         when(playgroundClient.getAccessToken(any(), any())).thenReturn(accessTokenRequest);
 
@@ -116,7 +114,7 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("FAIL_플레이그라운드 어세스 토큰 발급 BadRequestException")
     void FAIL_getPlaygroundAccessTokenBadRequestException() {
-        CodeRequest codeRequest = new CodeRequest();
+        CodeRequest codeRequest = new CodeRequest("code");
 
         when(playgroundClient.getAccessToken(any(), any())).thenThrow(BadRequest.class);
 
@@ -128,8 +126,7 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("SUCCESS_플레이그라운드 토큰 리프레시")
     void SUCCESS_refreshPlaygroundToken() {
-        AccessTokenRequest accessTokenRequest = new AccessTokenRequest();
-        accessTokenRequest.setAccessToken("accessToken");
+        AccessTokenRequest accessTokenRequest = new AccessTokenRequest("accessToken");
         RefreshedToken refreshedToken = RefreshedToken.builder().accessToken("refreshedToken").build();
 
         when(playgroundClient.refreshPlaygroundToken(any(), any())).thenReturn(refreshedToken);
@@ -141,7 +138,7 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("FAIL_플레이그라운드 토큰 리프레시 UnauthorizedException")
     void FAIL_refreshPlaygroundTokenUnauthorizedException() {
-        AccessTokenRequest accessTokenRequest = new AccessTokenRequest();
+        AccessTokenRequest accessTokenRequest = new AccessTokenRequest("accessToken");
 
         when(playgroundClient.refreshPlaygroundToken(any(), any())).thenThrow(BadRequest.class);
 
@@ -152,7 +149,7 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("FAIL_플레이그라운드 토큰 리프레시 UnauthorizedException")
     void FAIL_refreshPlaygroundTokenExpiredJwtUnauthorizedException() {
-        AccessTokenRequest accessTokenRequest = new AccessTokenRequest();
+        AccessTokenRequest accessTokenRequest = new AccessTokenRequest("accessToken");
 
         when(playgroundClient.refreshPlaygroundToken(any(), any())).thenThrow(ExpiredJwtException.class);
 
