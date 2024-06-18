@@ -4,7 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.sopt.app.common.fixtures.SoptampFixture.MISSION_ID;
 import static org.sopt.app.common.fixtures.SoptampFixture.MISSION_LEVEL;
+import static org.sopt.app.common.fixtures.SoptampFixture.MULTIPART_FILE_LIST;
 import static org.sopt.app.common.fixtures.SoptampFixture.NICKNAME;
+import static org.sopt.app.common.fixtures.SoptampFixture.STAMP_IMG_PATHS;
 import static org.sopt.app.common.fixtures.SoptampFixture.USER_ID;
 
 import org.junit.jupiter.api.DisplayName;
@@ -74,11 +76,25 @@ class SoptampFacadeTest {
         assertEquals(uploadedStamp, result);
     }
 
-    /* TODO: 아래 메서드 구현
     @Test
+    @DisplayName("SUCCESS_스탬프 업로드하기(이전 버전)")
     void uploadStampDeprecated() {
+        // given
+        final StampInfo.Stamp uploadedStamp = SoptampFixture.getStampInfo();
+        final StampRequest.RegisterStampRequest registerStampRequest = SoptampFixture.getRegisterStampRequest();
+        given(s3Service.uploadDeprecated(MULTIPART_FILE_LIST)).willReturn(SoptampFixture.STAMP_IMG_PATHS);
+        given(stampService.uploadStampDeprecated(registerStampRequest, STAMP_IMG_PATHS, USER_ID, MISSION_ID)).willReturn(uploadedStamp);
+        given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
+        given(soptampUserService.addPoint(USER_ID, MISSION_LEVEL)).willReturn(SoptampFixture.getUserInfo());
+
+        // when
+        StampInfo.Stamp result = soptampFacade.uploadStampDeprecated(USER_ID, MISSION_ID, registerStampRequest, MULTIPART_FILE_LIST);
+
+        // then
+        assertEquals(uploadedStamp, result);
     }
 
+    /* TODO: 아래 메서드 구현
     @Test
     void editStamp() {
     }

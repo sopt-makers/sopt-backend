@@ -5,6 +5,7 @@ import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.presentation.stamp.StampRequest.EditStampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 public class SoptampFixture {
 
@@ -17,6 +18,7 @@ public class SoptampFixture {
     public static final String STAMP_IMAGE = "stamp image";
     public static final List<String> STAMP_IMG_PATHS = List.of("image");
     public static final String STAMP_ACTIVITY_DATE = "2024.04.08";
+    public static final List<MultipartFile> MULTIPART_FILE_LIST = List.of();
 
     public static SoptampUserInfo.SoptampUser getUserInfo() {
         return SoptampUserInfo.SoptampUser.builder().id(SOPTAMP_USER_ID).userId(USER_ID).nickname(NICKNAME).build();
