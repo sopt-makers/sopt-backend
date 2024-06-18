@@ -6,12 +6,12 @@ import lombok.*;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PushTokenRequest {
 
     @Getter
-    // Builder 로 하면 Jackson 라이브러리에서 자동 RequestBody Mapping을 못해줍니다.
-    @Setter
-    @ToString
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class EditRequest {
 
         @Schema(description = "접속 기기 플랫폼", example = "Android")
@@ -24,8 +24,8 @@ public class PushTokenRequest {
     }
 
     @Getter
-    @Setter
-    @ToString
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class DeleteRequest {
 
         @Schema(description = "접속 기기 플랫폼", example = "Android")
@@ -40,8 +40,7 @@ public class PushTokenRequest {
 
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @ToString
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class PushTokenManageRequest {
 
         @Schema(description = "유저 아이디", example = "['1']")
@@ -51,9 +50,5 @@ public class PushTokenRequest {
         @Schema(description = "푸시 토큰", example = "asdfasdf")
         @NotNull(message = "push token may not be null")
         private String deviceToken;
-
-        public static PushTokenManageRequest of(List<String> userIds, String deviceToken) {
-            return new PushTokenManageRequest(userIds, deviceToken);
-        }
     }
 }
