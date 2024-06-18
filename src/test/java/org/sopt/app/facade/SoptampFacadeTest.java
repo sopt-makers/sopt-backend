@@ -2,10 +2,13 @@ package org.sopt.app.facade;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.sopt.app.common.fixtures.SoptampFixture.MISSION_ID;
 import static org.sopt.app.common.fixtures.SoptampFixture.MISSION_LEVEL;
 import static org.sopt.app.common.fixtures.SoptampFixture.MULTIPART_FILE_LIST;
 import static org.sopt.app.common.fixtures.SoptampFixture.NICKNAME;
+import static org.sopt.app.common.fixtures.SoptampFixture.SOPTAMP_USER_ID;
+import static org.sopt.app.common.fixtures.SoptampFixture.STAMP_ID;
 import static org.sopt.app.common.fixtures.SoptampFixture.STAMP_IMG_PATHS;
 import static org.sopt.app.common.fixtures.SoptampFixture.USER_ID;
 
@@ -50,7 +53,7 @@ class SoptampFacadeTest {
         // given
         final StampInfo.Stamp stampInfo = SoptampFixture.getStampInfo();
         given(soptampUserService.findByNickname(NICKNAME)).willReturn(SoptampFixture.getUserInfo());
-        given(stampService.findStamp(MISSION_ID, USER_ID)).willReturn(stampInfo);
+        given(stampService.findStamp(MISSION_ID, SOPTAMP_USER_ID)).willReturn(stampInfo);
 
         // when
         StampInfo.Stamp result = soptampFacade.getStampInfo(MISSION_ID, NICKNAME);
@@ -66,12 +69,12 @@ class SoptampFacadeTest {
         // given
         final StampInfo.Stamp uploadedStamp = SoptampFixture.getStampInfo();
         final StampRequest.RegisterStampRequest registerStampRequest = SoptampFixture.getRegisterStampRequest();
-        given(stampService.uploadStamp(registerStampRequest, USER_ID)).willReturn(uploadedStamp);
+        given(stampService.uploadStamp(registerStampRequest, SOPTAMP_USER_ID)).willReturn(uploadedStamp);
         given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
         given(soptampUserService.addPoint(USER_ID, MISSION_LEVEL)).willReturn(SoptampFixture.getUserInfo());
 
         // when
-        StampInfo.Stamp result = soptampFacade.uploadStamp(USER_ID, registerStampRequest);
+        StampInfo.Stamp result = soptampFacade.uploadStamp(SOPTAMP_USER_ID, registerStampRequest);
 
         // then
         assertEquals(uploadedStamp, result);
@@ -84,12 +87,14 @@ class SoptampFacadeTest {
         final StampInfo.Stamp uploadedStamp = SoptampFixture.getStampInfo();
         final StampRequest.RegisterStampRequest registerStampRequest = SoptampFixture.getRegisterStampRequest();
         given(s3Service.uploadDeprecated(MULTIPART_FILE_LIST)).willReturn(SoptampFixture.STAMP_IMG_PATHS);
-        given(stampService.uploadStampDeprecated(registerStampRequest, STAMP_IMG_PATHS, USER_ID, MISSION_ID)).willReturn(uploadedStamp);
+        given(stampService.uploadStampDeprecated(registerStampRequest, STAMP_IMG_PATHS, SOPTAMP_USER_ID, MISSION_ID))
+                .willReturn(uploadedStamp);
         given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
-        given(soptampUserService.addPoint(USER_ID, MISSION_LEVEL)).willReturn(SoptampFixture.getUserInfo());
+        given(soptampUserService.addPoint(SOPTAMP_USER_ID, MISSION_LEVEL)).willReturn(SoptampFixture.getUserInfo());
 
         // when
-        StampInfo.Stamp result = soptampFacade.uploadStampDeprecated(USER_ID, MISSION_ID, registerStampRequest, MULTIPART_FILE_LIST);
+        StampInfo.Stamp result = soptampFacade.uploadStampDeprecated(
+                SOPTAMP_USER_ID, MISSION_ID, registerStampRequest, MULTIPART_FILE_LIST);
 
         // then
         assertEquals(uploadedStamp, result);
@@ -101,21 +106,37 @@ class SoptampFacadeTest {
         // given
         final StampInfo.Stamp editedStamp = SoptampFixture.getStampInfo();
         final EditStampRequest editStampRequest = SoptampFixture.getEditStampRequest();
-        given(stampService.editStampContentsDeprecated(editStampRequest, USER_ID, MISSION_ID)).willReturn(editedStamp);
+        given(stampService.editStampContentsDeprecated(editStampRequest, SOPTAMP_USER_ID, MISSION_ID))
+                .willReturn(editedStamp);
         given(s3Service.uploadDeprecated(MULTIPART_FILE_LIST)).willReturn(SoptampFixture.STAMP_IMG_PATHS);
 
         // when
-        StampInfo.Stamp result = soptampFacade.editStamp(editStampRequest, USER_ID, MISSION_ID, MULTIPART_FILE_LIST);
+        StampInfo.Stamp result =
+                soptampFacade.editStamp(editStampRequest, SOPTAMP_USER_ID, MISSION_ID, MULTIPART_FILE_LIST);
 
         // then
         assertEquals(editedStamp, result);
     }
 
-    /* TODO: 아래 메서드 구현
     @Test
-    void deleteStamp() {
+    @DisplayName("SUCCESS_스탬프 삭제하기")
+    void SUCCESS_deleteStamp() {
+        // given
+        given(stampService.getMissionIdByStampId(STAMP_ID)).willReturn(MISSION_ID);
+        given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
+        given(soptampUserService.subtractPoint(SOPTAMP_USER_ID, MISSION_LEVEL))
+                .willReturn(SoptampFixture.getUserInfo());
+
+        // when
+        soptampFacade.deleteStamp(SOPTAMP_USER_ID, STAMP_ID);
+
+        // then
+        then(soptampPointService).should().subtractPoint(SOPTAMP_USER_ID, MISSION_LEVEL);
+        then(stampService).should().deleteStampById(STAMP_ID);
+
     }
 
+    /* TODO: 아래 메서드 구현
     @Test
     void deleteStampAll() {
     }

@@ -9,11 +9,17 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class SoptampFixture {
 
-    public static final Long MISSION_ID = 1L;
-    public static final Integer MISSION_LEVEL = 1;
+    /* User */
     public static final Long USER_ID = 10L;
     public static final Long SOPTAMP_USER_ID = 100L;
     public static final String NICKNAME = "nickname";
+
+    /* Mission */
+    public static final Long MISSION_ID = 1L;
+    public static final Integer MISSION_LEVEL = 1;
+
+    /* Stamp */
+    public static final Long STAMP_ID = 11L;
     public static final String STAMP_CONTENTS = "stamp contents";
     public static final String STAMP_IMAGE = "stamp image";
     public static final List<String> STAMP_IMG_PATHS = List.of("image");
@@ -26,9 +32,9 @@ public class SoptampFixture {
 
     public static StampInfo.Stamp getStampInfo() {
         return StampInfo.Stamp.builder()
-                .id(SOPTAMP_USER_ID)
+                .id(STAMP_ID)
                 .contents(STAMP_CONTENTS)
-                .userId(USER_ID)
+                .userId(SOPTAMP_USER_ID)
                 .missionId(MISSION_ID)
                 .images(STAMP_IMG_PATHS)
                 .activityDate(STAMP_ACTIVITY_DATE)
