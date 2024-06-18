@@ -22,6 +22,7 @@ import org.sopt.app.application.mission.MissionInfo;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.s3.S3Service;
 import org.sopt.app.application.soptamp.SoptampPointService;
+import org.sopt.app.application.soptamp.SoptampUserInfo.SoptampUser;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampService;
@@ -147,11 +148,21 @@ class SoptampFacadeTest {
         then(soptampPointService).should().initPoint(SOPTAMP_USER_ID);
     }
 
-    /* TODO: 아래 메서드 구현
     @Test
-    void editSoptampUserNickname() {
+    @DisplayName("SUCCESS_솝탬프 유저 닉네임 수정하기")
+    void SUCCESS_editSoptampUserNickname() {
+        // given
+        final SoptampUser soptampUser = SoptampFixture.getUserInfo();
+        given(soptampUserService.getSoptampUserInfo(USER_ID)).willReturn(soptampUser);
+
+        // when
+        soptampFacade.editSoptampUserNickname(USER_ID, NICKNAME);
+
+        // then
+        then(soptampUserService).should().editNickname(soptampUser, NICKNAME);
     }
 
+    /* TODO: 아래 메서드 구현
     @Test
     void editSoptampUserProfileMessage() {
     }
