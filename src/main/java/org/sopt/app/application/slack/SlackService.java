@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 public class SlackService {
 
     @Value("${webhook.slack.url}")
-    private String SLACK_WEBHOOK_URL;
+    private static String SLACK_WEBHOOK_URL;
 
-    private final Slack slackClient = Slack.getInstance();
+    private static final Slack slackClient = Slack.getInstance();
 
-    public void sendSlackMessage(String title, String message) {
+    public static void sendSlackMessage(String title, String message) {
         try{
             slackClient.send(SLACK_WEBHOOK_URL, Payload.builder()
                     .text(title)

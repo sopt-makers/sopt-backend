@@ -29,7 +29,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class SoptampUserService {
 
     private final SoptampUserRepository soptampUserRepository;
-    private final SlackService slackService;
 
     @Transactional(readOnly = true)
     public SoptampUserInfo.SoptampUser getSoptampUserInfo(Long userId) {
@@ -147,7 +146,7 @@ public class SoptampUserService {
                                         .point(point.getPoints())
                                         .profileMessage(u.getProfileMessage())
                                         .build()),
-                                () -> slackService.sendSlackMessage(
+                                () -> SlackService.sendSlackMessage(
                                         "Warning",
                                         "soptamp_point에 해당하지 않는 soptamp_user가 확인되었습니다.\n"
                                         + "soptampPointId: " + point.getId() + "\n"
