@@ -242,6 +242,35 @@ class SoptampUserServiceTest {
     }
 
     @Test
+    @DisplayName("SUCCESS_솝탬프 포인트 해당하는 유저가 없다면 슬랙 알림을 보내기")
+    void SUCCESS_findCurrentRanks_Requirement1() {
+        //given
+        List<Point> soptampPointList = List.of(
+                Point.of(1L, 1L, 1L, 100L),
+                Point.of(2L, 1L, 2L, 200L),
+                Point.of(3L, 1L, 3L, 300L)
+        );
+
+        given(soptampUserRepository.findAllById(List.of(1L, 2L, 3L))).willReturn(
+                List.of(
+                        SoptampUser.builder().id(1L).build(),
+                        SoptampUser.builder().id(2L).build()
+                        // 3번 유저가 존재하지 않음
+                ));
+
+        //when
+        List<Main> result = soptampUserService.findCurrentRanks(soptampPointList);
+
+        //then
+        List<Main> expected = List.of(
+                Main.builder().rank(1).point(200L).build(),
+                Main.builder().rank(2).point(100L).build()
+        );
+
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+    }
+
+    @Test
     @DisplayName("SUCCESS_닉네임으로 랭킹 조회")
     void SUCCESS_findRankByNickname() {
         // given
