@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,10 +15,13 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.BDDMockito;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sopt.app.application.slack.SlackService;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.application.soptamp.SoptampUserInfo;
@@ -209,14 +214,13 @@ class SoptampUserServiceTest {
     @DisplayName("SUCCESS_솝탬프 포인트 리스트를 받아 랭크를 조회")
     void SUCCESS_findCurrentRanks() {
         //given
-        List<Point> soptampPointList = Stream.of(
+        List<Point> soptampPointList = List.of(
                 Point.of(1L, 1L, 1L, 100L),
                 Point.of(2L, 1L, 2L, 200L),
                 Point.of(3L, 1L, 3L, 300L)
-        ).collect(Collectors.toList());
+        );
 
-        List<Long> soptampUserIdList = soptampPointList.stream()
-                .map(Point::getSoptampUserId).toList();
+        List<Long> soptampUserIdList = List.of(1L, 2L, 3L);
 
         //when
         List<Main> expected = List.of(
@@ -238,28 +242,33 @@ class SoptampUserServiceTest {
     }
 
     @Test
-    @DisplayName("FAIL_솝탬프 포인트 리스트를 받았을 때 유저를 찾지 못하면 BadRequestException 발생")
-    void FAIL_findCurrentRanks() {
+    @DisplayName("SUCCESS_솝탬프 포인트 해당하는 유저가 없다면 슬랙 알림을 보내기")
+    void SUCCESS_findCurrentRanks_Requirement1() {
         //given
-        List<Point> soptampPointList = Stream.of(
+        List<Point> soptampPointList = List.of(
                 Point.of(1L, 1L, 1L, 100L),
                 Point.of(2L, 1L, 2L, 200L),
                 Point.of(3L, 1L, 3L, 300L)
-        ).collect(Collectors.toList());
+        );
 
-        List<Long> soptampUserIdList = soptampPointList.stream()
-                .map(Point::getSoptampUserId).toList();
+        given(soptampUserRepository.findAllById(List.of(1L, 2L, 3L))).willReturn(
+                List.of(
+                        SoptampUser.builder().id(1L).build(),
+                        SoptampUser.builder().id(2L).build()
+                        // 3번 유저가 존재하지 않음
+                ));
 
         //when
-
-        Mockito.when(soptampUserRepository.findAllById(soptampUserIdList)).thenReturn(List.of());
+        List<Main> result = soptampUserService.findCurrentRanks(soptampPointList);
 
         //then
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            soptampUserService.findCurrentRanks(soptampPointList);
-        });
-    }
+        List<Main> expected = List.of(
+                Main.builder().rank(1).point(200L).build(),
+                Main.builder().rank(2).point(100L).build()
+        );
 
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+    }
 
     @Test
     @DisplayName("SUCCESS_닉네임으로 랭킹 조회")
