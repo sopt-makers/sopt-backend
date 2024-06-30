@@ -45,12 +45,9 @@ public class PlaygroundProfileInfo {
         private UserStatus status;
     }
 
-    @Getter
-    @Builder
-    @ToString
-    public static class MainView {
-
-        private MainViewUser user;
+    public record MainView(
+            MainViewUser user
+    ) {
     }
 
     @Getter

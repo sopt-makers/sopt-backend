@@ -77,7 +77,7 @@ public class PokeFacade {
             Long userId
     ) {
         val playgroundUserIds = playgroundAuthService.getPlayGroundUserIds(playgroundToken);
-        val notFriendUserPlaygroundIds = userService.getUserProfilesByPlaygroundIds(playgroundUserIds.getUserIds())
+        val notFriendUserPlaygroundIds = userService.getUserProfilesByPlaygroundIds(playgroundUserIds.userIds())
                 .stream()
                 .filter(userProfile -> !userId.equals(userProfile.getUserId()) && !friendService.isFriendEachOther(
                         userId, userProfile.getUserId()))

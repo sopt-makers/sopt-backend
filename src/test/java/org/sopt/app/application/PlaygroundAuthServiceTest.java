@@ -24,13 +24,12 @@ import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActiveUserIds;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.MainView;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.MainViewUser;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundMain;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundUserIds;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.UserActiveInfo;
 import org.sopt.app.application.auth.PlaygroundAuthService;
+import org.sopt.app.application.auth.dto.RecommendedFriendInfo.PlaygroundUserIds;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.domain.enums.UserStatus;
@@ -161,12 +160,12 @@ class PlaygroundAuthServiceTest {
                 .name("name")
                 .build();
         MainViewUser mainViewUser = MainViewUser.builder().name("name").profileImage("profileImage").build();
-        MainView mainView = MainView.builder().user(mainViewUser).build();
+        MainView mainView = new MainView(mainViewUser);
 
         when(playgroundClient.getSinglePlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         MainView result = playgroundAuthService.getPlaygroundUserForMainView(token, 1L);
-        assertEquals(mainView.getUser().getName(), result.getUser().getName());
+        assertEquals(mainView.user().getName(), result.user().getName());
     }
 
     @Test
@@ -178,14 +177,16 @@ class PlaygroundAuthServiceTest {
                 .profileImage(null)
                 .name("name")
                 .build();
-        MainViewUser mainViewUser = MainViewUser.builder().name("name").profileImage("").build();
-        MainView mainView = MainView.builder().user(mainViewUser).build();
+        MainView mainView = new MainView(MainViewUser.builder()
+                .name("name")
+                .profileImage("")
+                .generationList(List.of(1L))
+                .build());
 
         when(playgroundClient.getSinglePlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         MainView result = playgroundAuthService.getPlaygroundUserForMainView(token, 1L);
-        assertEquals(mainView.getUser().getName(), result.getUser().getName());
-        assertEquals(mainView.getUser().getProfileImage(), result.getUser().getProfileImage());
+        assertEquals(mainView, result);
     }
 
     // getPlaygroundUserActiveInfo
@@ -315,7 +316,6 @@ class PlaygroundAuthServiceTest {
     @DisplayName("SUCCESS_자신의 플레이그라운드 프로필 조회")
     void SUCCESS_getOwnPlaygroundProfile() {
         // given & when
-        given(playgroundClient.getOwnPlaygroundProfile(any())).willReturn(new OwnPlaygroundProfile());
 
         // then
         assertDoesNotThrow(() -> playgroundAuthService.getOwnPlaygroundProfile(token));
@@ -327,7 +327,7 @@ class PlaygroundAuthServiceTest {
         // given & when
 
         given(playgroundClient.getPlaygroundUserIdsForSameRecommendType(any(), any()))
-                .willReturn(PlaygroundUserIds.builder().build());
+                .willReturn(new PlaygroundUserIds(List.of()));
 
         // then
         assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundIdsForSameGeneration(List.of(GENERATION)));
@@ -338,7 +338,7 @@ class PlaygroundAuthServiceTest {
     void SUCCESS_getPlaygroundProfilesForSameMbtiAndGeneration() {
         // given & when
         given(playgroundClient.getPlaygroundUserIdsForSameRecommendType(any(), any()))
-                .willReturn(PlaygroundUserIds.builder().build());
+                .willReturn(new PlaygroundUserIds(List.of()));
 
         // then
         assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundIdsForSameMbti(GENERATION, MBTI));
@@ -349,7 +349,7 @@ class PlaygroundAuthServiceTest {
     void SUCCESS_getPlaygroundProfilesForSameUniversityAndGeneration() {
         // given & when
         given(playgroundClient.getPlaygroundUserIdsForSameRecommendType(any(), any()))
-                .willReturn(PlaygroundUserIds.builder().build());
+                .willReturn(new PlaygroundUserIds(List.of()));
 
         // then
         assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundIdsForSameUniversity(GENERATION, UNIVERSITY));

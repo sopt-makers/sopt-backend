@@ -41,7 +41,7 @@ class UserFacadeTest {
     void getMainViewInfo() {
         // given
         final boolean isNotificationConfirm = true;
-        final PlaygroundProfileInfo.MainView playgroundAuthInfo = PlaygroundProfileInfo.MainView.builder().build();
+        final PlaygroundProfileInfo.MainView playgroundAuthInfo = new MainView(null);
         final UserResponse.Playground playground = UserResponse.Playground.builder().build();
         final UserResponse.Operation operation = Operation.builder().build();
         final UserResponse.MainView mainViewResponse = UserResponse.MainView.builder()
