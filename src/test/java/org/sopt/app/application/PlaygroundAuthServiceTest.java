@@ -4,14 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 import static org.sopt.app.common.fixtures.PokeFixture.GENERATION;
 import static org.sopt.app.common.fixtures.PokeFixture.MBTI;
 import static org.sopt.app.common.fixtures.PokeFixture.UNIVERSITY;
-import static org.sopt.app.common.fixtures.PokeFixture.createSameMbtiPlaygroundProfileOfRecommendedFriend;
-import static org.sopt.app.common.fixtures.PokeFixture.createSameUniversityPlaygroundProfileOfRecommendedFriend;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import java.util.List;
@@ -22,20 +19,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sopt.app.application.auth.PlaygroundAuthInfo;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.MainView;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.MainViewUser;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.OwnPlaygroundProfile;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundMain;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriend;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfileOfRecommendedFriendList;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.ActivityCardinalInfo;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundUserIds;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.RecommendFriendRequest;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.RefreshedToken;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.UserActiveInfo;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActiveUserIds;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.MainView;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.MainViewUser;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundMain;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundUserIds;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.RefreshedToken;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.UserActiveInfo;
 import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
@@ -64,7 +58,7 @@ class PlaygroundAuthServiceTest {
         // given
         String token = "token";
         ActivityCardinalInfo activityCardinalInfo = new ActivityCardinalInfo("29,서버");
-        PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = PlaygroundProfile.builder()
+        PlaygroundProfileInfo.PlaygroundProfile playgroundProfile = PlaygroundProfile.builder()
                 .activities(List.of(activityCardinalInfo))
                 .profileImage("profileImage")
                 .name("name")
@@ -162,7 +156,7 @@ class PlaygroundAuthServiceTest {
     @DisplayName("SUCCESS_플레이그라운드 이미지 있는 유저 메인 뷰 조회")
     void SUCCESS_getPlaygroundUserForMainViewWithProfileImage() {
         ActivityCardinalInfo activityCardinalInfo = new ActivityCardinalInfo("29,서버");
-        PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = PlaygroundProfile.builder()
+        PlaygroundProfileInfo.PlaygroundProfile playgroundProfile = PlaygroundProfile.builder()
                 .activities(List.of(activityCardinalInfo))
                 .profileImage("profileImage")
                 .name("name")
@@ -180,7 +174,7 @@ class PlaygroundAuthServiceTest {
     @DisplayName("SUCCESS_플레이그라운드 이미지 없는 유저 메인 뷰 조회")
     void SUCCESS_getPlaygroundUserForMainViewWithoutProfileImage() {
         ActivityCardinalInfo activityCardinalInfo = new ActivityCardinalInfo("1,서버");
-        PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = PlaygroundProfile.builder()
+        PlaygroundProfileInfo.PlaygroundProfile playgroundProfile = PlaygroundProfile.builder()
                 .activities(List.of(activityCardinalInfo))
                 .profileImage(null)
                 .name("name")
@@ -201,7 +195,7 @@ class PlaygroundAuthServiceTest {
     void SUCCESS_getPlaygroundUserActiveInfoActive() {
         // given
         ActivityCardinalInfo activityCardinalInfo = new ActivityCardinalInfo("1,서버");
-        PlaygroundAuthInfo.PlaygroundProfile playgroundProfile =
+        PlaygroundProfileInfo.PlaygroundProfile playgroundProfile =
                 PlaygroundProfile.builder().activities(List.of(activityCardinalInfo)).build();
         ReflectionTestUtils.setField(playgroundAuthService, "currentGeneration", 1L);
 
@@ -216,7 +210,7 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("SUCCESS_플레이그라운드 비활동 유저 활동 정보 조회")
     void SUCCESS_getPlaygroundUserActiveInfoInactive() {
-        PlaygroundAuthInfo.PlaygroundProfile playgroundProfile = PlaygroundProfile.builder().activities(List.of()).build();
+        PlaygroundProfileInfo.PlaygroundProfile playgroundProfile = PlaygroundProfile.builder().activities(List.of()).build();
 
         when(playgroundClient.getSinglePlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
@@ -227,7 +221,7 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("SUCCESS_플레이그라운드 엠티 유저 활동 정보 조회")
     void SUCCESS_getPlaygroundUserActiveInfoEmptyList() {
-        PlaygroundAuthInfo.PlaygroundProfile playgroundProfile =
+        PlaygroundProfileInfo.PlaygroundProfile playgroundProfile =
                 PlaygroundProfile.builder().activities(List.of()).build();
 
         when(playgroundClient.getSinglePlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
@@ -258,7 +252,7 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("SUCCESS_플레이그라운드 유저 아이디 조회")
     void SUCCESS_getPlayGroundUserIds() {
-        PlaygroundAuthInfo.ActiveUserIds userIds = ActiveUserIds.builder().userIds(List.of(1L)).build();
+        PlaygroundProfileInfo.ActiveUserIds userIds = ActiveUserIds.builder().userIds(List.of(1L)).build();
 
         when(playgroundClient.getPlaygroundUserIds(any(), any())).thenReturn(userIds);
 

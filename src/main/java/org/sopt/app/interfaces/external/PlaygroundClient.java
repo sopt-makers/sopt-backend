@@ -3,11 +3,11 @@ package org.sopt.app.interfaces.external;
 import feign.HeaderMap;
 import feign.Param;
 import feign.RequestLine;
-import org.sopt.app.application.auth.PlaygroundAuthInfo;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundUserIds;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.RecommendFriendRequest;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActiveUserIds;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundUserIds;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.RecommendFriendRequest;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 
 import java.util.List;
@@ -21,7 +21,7 @@ public interface PlaygroundClient {
             final AppAuthRequest.CodeRequest codeRequest);
 
     @RequestLine("POST /internal/api/v1/idp/auth/token")
-    PlaygroundAuthInfo.RefreshedToken refreshPlaygroundToken(@HeaderMap Map<String, String> headers,
+    PlaygroundProfileInfo.RefreshedToken refreshPlaygroundToken(@HeaderMap Map<String, String> headers,
             AppAuthRequest.AccessTokenRequest tokenRequest);
 
     @RequestLine("GET /internal/api/v1/members/latest?generation={generation}")
@@ -36,10 +36,10 @@ public interface PlaygroundClient {
             @Param(value = "encodedIds") String encodedIds);
 
     @RequestLine("GET /internal/api/v1/members/me")
-    PlaygroundAuthInfo.PlaygroundMain getPlaygroundMember(@HeaderMap Map<String, String> headers);
+    PlaygroundProfileInfo.PlaygroundMain getPlaygroundMember(@HeaderMap Map<String, String> headers);
 
     @RequestLine("GET /api/v1/members/profile/me")
-    PlaygroundAuthInfo.OwnPlaygroundProfile getOwnPlaygroundProfile(@HeaderMap Map<String, String> headers);
+    PlaygroundProfileInfo.OwnPlaygroundProfile getOwnPlaygroundProfile(@HeaderMap Map<String, String> headers);
 
     @RequestLine("POST /internal/api/v1/members/profile/recommend")
     PlaygroundUserIds getPlaygroundUserIdsForSameRecommendType(

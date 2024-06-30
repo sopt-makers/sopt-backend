@@ -1,4 +1,4 @@
-package org.sopt.app.application.auth;
+package org.sopt.app.application.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Comparator;
@@ -14,7 +14,7 @@ import lombok.ToString;
 import org.sopt.app.domain.enums.UserStatus;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class PlaygroundAuthInfo {
+public class PlaygroundProfileInfo {
 
     @Getter
     @Builder
@@ -162,6 +162,13 @@ public class PlaygroundAuthInfo {
         private String profileImage;
         private String name;
         private List<PlaygroundActivity> activities;
+
+        public PlaygroundProfileOfRecommendedFriend getProfileOfSameGeneration(Integer generation) {
+            this.activities = activities.stream()
+                    .filter(activity -> activity.getGeneration().equals(generation))
+                    .toList();
+            return this;
+        }
     }
 
     @Getter

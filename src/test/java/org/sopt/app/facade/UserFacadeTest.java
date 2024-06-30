@@ -13,8 +13,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sopt.app.application.auth.PlaygroundAuthInfo;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.MainView;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.MainView;
 import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.application.operation.OperationInfo;
@@ -41,7 +41,7 @@ class UserFacadeTest {
     void getMainViewInfo() {
         // given
         final boolean isNotificationConfirm = true;
-        final PlaygroundAuthInfo.MainView playgroundAuthInfo = PlaygroundAuthInfo.MainView.builder().build();
+        final PlaygroundProfileInfo.MainView playgroundAuthInfo = PlaygroundProfileInfo.MainView.builder().build();
         final UserResponse.Playground playground = UserResponse.Playground.builder().build();
         final UserResponse.Operation operation = Operation.builder().build();
         final UserResponse.MainView mainViewResponse = UserResponse.MainView.builder()
