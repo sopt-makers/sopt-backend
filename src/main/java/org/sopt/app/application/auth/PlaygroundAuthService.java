@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
@@ -71,7 +72,7 @@ public class PlaygroundAuthService {
         }
     }
 
-    public PlaygroundProfileInfo.RefreshedToken refreshPlaygroundToken(AppAuthRequest.AccessTokenRequest tokenRequest) {
+    public RefreshedToken refreshPlaygroundToken(AppAuthRequest.AccessTokenRequest tokenRequest) {
         Map<String, String> headers = createDefaultHeader();
         headers.put("x-api-key", apiKey);
         headers.put("x-request-from", requestFrom);
@@ -114,10 +115,7 @@ public class PlaygroundAuthService {
         val playgroundProfile = this.getPlaygroundMemberProfile(accessToken, playgroundId);
         val generationList = this.getMemberGenerationList(playgroundProfile);
         val userStatus = this.getStatus(generationList);
-        return PlaygroundProfileInfo.UserActiveInfo.builder()
-                .status(userStatus)
-                .currentGeneration(currentGeneration)
-                .build();
+        return new PlaygroundProfileInfo.UserActiveInfo(currentGeneration, userStatus);
     }
 
     private List<Long> getMemberGenerationList(PlaygroundProfileInfo.PlaygroundProfile playgroundProfile) {

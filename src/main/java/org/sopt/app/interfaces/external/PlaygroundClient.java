@@ -3,6 +3,7 @@ package org.sopt.app.interfaces.external;
 import feign.HeaderMap;
 import feign.Param;
 import feign.RequestLine;
+import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActiveUserIds;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
@@ -21,7 +22,7 @@ public interface PlaygroundClient {
             final AppAuthRequest.CodeRequest codeRequest);
 
     @RequestLine("POST /internal/api/v1/idp/auth/token")
-    PlaygroundProfileInfo.RefreshedToken refreshPlaygroundToken(@HeaderMap Map<String, String> headers,
+    RefreshedToken refreshPlaygroundToken(@HeaderMap Map<String, String> headers,
             AppAuthRequest.AccessTokenRequest tokenRequest);
 
     @RequestLine("GET /internal/api/v1/members/latest?generation={generation}")

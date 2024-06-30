@@ -19,6 +19,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActiveUserIds;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.MainView;
@@ -28,7 +29,6 @@ import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundMain;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundUserIds;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.RefreshedToken;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.UserActiveInfo;
 import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.common.exception.BadRequestException;
@@ -257,8 +257,8 @@ class PlaygroundAuthServiceTest {
         when(playgroundClient.getPlaygroundUserIds(any(), any())).thenReturn(userIds);
 
         ActiveUserIds result = playgroundAuthService.getPlayGroundUserIds(token);
-        assertEquals(1, result.getUserIds().size());
-        assertEquals(1L, result.getUserIds().get(0));
+        assertEquals(1, result.userIds().size());
+        assertEquals(1L, result.userIds().get(0));
     }
 
     @Test
