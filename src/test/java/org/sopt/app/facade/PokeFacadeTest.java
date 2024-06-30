@@ -70,7 +70,7 @@ class PokeFacadeTest {
     private static final String MESSAGES_HEADER_FOR_POKE = "함께 보낼 메시지를 선택해주세요";
     private final Relationship relationship1 = Relationship.builder().pokeNum(1).build();
     private final Relationship relationship2 = Relationship.builder().pokeNum(3).build();
-    private final PlaygroundProfileInfo.ActiveUserIds activeUserIds = ActiveUserIds.builder().userIds(List.of(1L, 2L, 3L)).build();
+    private final PlaygroundProfileInfo.ActiveUserIds activeUserIds = new ActiveUserIds(List.of(1L, 2L, 3L));
     private final User user = User.builder().id(1L).playgroundToken("token").build();
     private final UserProfile userProfile1 = UserProfile.builder().userId(1L).name("name1").playgroundId(1L).build();
     private final UserProfile userProfile2 = UserProfile.builder().userId(2L).name("name2").playgroundId(2L).build();
@@ -169,7 +169,7 @@ class PokeFacadeTest {
                         "새로운 친구", "새로운 친구", true, false, false, ""));
 
         when(playgroundAuthService.getPlayGroundUserIds("token")).thenReturn(activeUserIds);
-        when(userService.getUserProfilesByPlaygroundIds(activeUserIds.getUserIds())).thenReturn(
+        when(userService.getUserProfilesByPlaygroundIds(activeUserIds.userIds())).thenReturn(
                 userProfileListIncludingMe);
         when(friendService.isFriendEachOther(1L, 2L)).thenReturn(false);
         when(friendService.isFriendEachOther(1L, 3L)).thenReturn(true);

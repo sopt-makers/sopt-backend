@@ -56,7 +56,6 @@ class PlaygroundAuthServiceTest {
     @DisplayName("SUCCESS_플레이그라운드 정보 조회")
     void SUCCESS_getPlaygroundInfo() {
         // given
-        String token = "token";
         ActivityCardinalInfo activityCardinalInfo = new ActivityCardinalInfo("29,서버");
         PlaygroundProfileInfo.PlaygroundProfile playgroundProfile = PlaygroundProfile.builder()
                 .activities(List.of(activityCardinalInfo))
@@ -204,7 +203,7 @@ class PlaygroundAuthServiceTest {
         UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
 
         // then
-        assertEquals(UserStatus.ACTIVE, result.getStatus());
+        assertEquals(UserStatus.ACTIVE, result.status());
     }
 
     @Test
@@ -215,7 +214,7 @@ class PlaygroundAuthServiceTest {
         when(playgroundClient.getSinglePlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
-        assertEquals(UserStatus.INACTIVE, result.getStatus());
+        assertEquals(UserStatus.INACTIVE, result.status());
     }
 
     @Test
@@ -227,7 +226,7 @@ class PlaygroundAuthServiceTest {
         when(playgroundClient.getSinglePlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
-        assertEquals(UserStatus.INACTIVE, result.getStatus());
+        assertEquals(UserStatus.INACTIVE, result.status());
     }
 
     @Test
@@ -252,7 +251,7 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("SUCCESS_플레이그라운드 유저 아이디 조회")
     void SUCCESS_getPlayGroundUserIds() {
-        PlaygroundProfileInfo.ActiveUserIds userIds = ActiveUserIds.builder().userIds(List.of(1L)).build();
+        PlaygroundProfileInfo.ActiveUserIds userIds = new ActiveUserIds(List.of(1L));
 
         when(playgroundClient.getPlaygroundUserIds(any(), any())).thenReturn(userIds);
 

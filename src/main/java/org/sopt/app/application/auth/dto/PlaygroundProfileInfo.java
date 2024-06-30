@@ -156,23 +156,6 @@ public class PlaygroundProfileInfo {
         private Integer generation;
     }
 
-    @Builder
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class RecommendFriendRequest {
-
-        private List<Integer> generations;
-        private List<RecommendFriendFilter> filters;
-
-        public static RecommendFriendRequest createRecommendFriendRequestByGeneration(List<Integer> generations) {
-            return RecommendFriendRequest.builder()
-                    .generations(generations)
-                    .filters(List.of())
-                    .build();
-        }
-    }
-
     @Getter
     @Builder
     @NoArgsConstructor(access = AccessLevel.PRIVATE)

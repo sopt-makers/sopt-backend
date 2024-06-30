@@ -16,7 +16,7 @@ import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.RecommendFriendFilter;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.RecommendFriendRequest;
+import org.sopt.app.application.auth.dto.RecommendFriendRequest;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -190,24 +190,24 @@ public class PlaygroundAuthService {
     }
 
     public List<Long> getPlaygroundIdsForSameMbti(Integer latestGeneration, String mbti) {
-        RecommendFriendRequest request = RecommendFriendRequest.builder()
-                .generations(getGenerationListByLatestGenerationForRange(latestGeneration))
-                .filters(List.of(RecommendFriendFilter.builder().key(String.valueOf(MBTI)).value(mbti).build()))
-                .build();
+        List<Integer> targetGenerations = getGenerationListByLatestGenerationForRange(latestGeneration);
+        List<RecommendFriendFilter> filters =
+                List.of(RecommendFriendFilter.builder().key(String.valueOf(MBTI)).value(mbti).build());
+
         return playgroundClient.getPlaygroundUserIdsForSameRecommendType(
                 createAuthorizationHeader(playgroundToken),
-                request
+                new RecommendFriendRequest(targetGenerations, filters)
         ).getUserIds();
     }
 
     public List<Long> getPlaygroundIdsForSameUniversity(Integer latestGeneration, String university) {
-        RecommendFriendRequest request = RecommendFriendRequest.builder()
-                .generations(getGenerationListByLatestGenerationForRange(latestGeneration))
-                .filters(List.of(RecommendFriendFilter.builder().key(String.valueOf(UNIVERSITY)).value(university).build()))
-                .build();
+        List<Integer> targetGenerations = getGenerationListByLatestGenerationForRange(latestGeneration);
+        List<RecommendFriendFilter> filters =
+                List.of(RecommendFriendFilter.builder().key(String.valueOf(UNIVERSITY)).value(university).build());
+
         return playgroundClient.getPlaygroundUserIdsForSameRecommendType(
                 createAuthorizationHeader(playgroundToken),
-                request
+                new RecommendFriendRequest(targetGenerations, filters)
         ).getUserIds();
     }
 }
