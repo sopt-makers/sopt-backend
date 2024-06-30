@@ -15,8 +15,8 @@ import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.RecommendFriendFilter;
 import org.sopt.app.application.auth.dto.RecommendFriendRequest;
+import org.sopt.app.application.auth.dto.RecommendedFriendInfo.RecommendFriendFilter;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -180,7 +180,7 @@ public class PlaygroundAuthService {
         return playgroundClient.getPlaygroundUserIdsForSameRecommendType(
                 createAuthorizationHeader(playgroundToken),
                 RecommendFriendRequest.createRecommendFriendRequestByGeneration(generationList)
-        ).getUserIds();
+        ).userIds();
     }
 
     private List<Integer> getGenerationListByLatestGenerationForRange(Integer latestGeneration) {
@@ -197,7 +197,7 @@ public class PlaygroundAuthService {
         return playgroundClient.getPlaygroundUserIdsForSameRecommendType(
                 createAuthorizationHeader(playgroundToken),
                 new RecommendFriendRequest(targetGenerations, filters)
-        ).getUserIds();
+        ).userIds();
     }
 
     public List<Long> getPlaygroundIdsForSameUniversity(Integer latestGeneration, String university) {
@@ -208,6 +208,6 @@ public class PlaygroundAuthService {
         return playgroundClient.getPlaygroundUserIdsForSameRecommendType(
                 createAuthorizationHeader(playgroundToken),
                 new RecommendFriendRequest(targetGenerations, filters)
-        ).getUserIds();
+        ).userIds();
     }
 }

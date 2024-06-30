@@ -7,8 +7,8 @@ import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActiveUserIds;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundUserIds;
 import org.sopt.app.application.auth.dto.RecommendFriendRequest;
+import org.sopt.app.application.auth.dto.RecommendedFriendInfo.PlaygroundUserIds;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 
 import java.util.List;

@@ -138,13 +138,6 @@ public class PlaygroundProfileInfo {
         private String profileImage;
         private String name;
         private List<PlaygroundActivity> activities;
-
-        public PlaygroundProfileOfRecommendedFriend getProfileOfSameGeneration(Integer generation) {
-            this.activities = activities.stream()
-                    .filter(activity -> activity.getGeneration().equals(generation))
-                    .toList();
-            return this;
-        }
     }
 
     @Getter
@@ -154,24 +147,6 @@ public class PlaygroundProfileInfo {
 
         private String part;
         private Integer generation;
-    }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class RecommendFriendFilter {
-
-        private String key;
-        private String value;
-    }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class PlaygroundUserIds {
-        private List<Long> userIds;
     }
 
 }
