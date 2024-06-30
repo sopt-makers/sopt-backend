@@ -12,7 +12,10 @@ import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
+import org.sopt.app.application.auth.dto.PlaygroundPostInfo.PlaygroundPost;
+import org.sopt.app.application.auth.dto.PlaygroundPostInfo.PlaygroundPostResponse;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.MainView;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.dto.RecommendFriendRequest;
@@ -42,6 +45,9 @@ public class PlaygroundAuthService {
     private String requestFrom;
     @Value("${makers.playground.access-token}")
     private String playgroundToken;
+    @Value("${makers.playground.web-page}")
+    private String playgroundWebPageUrl;
+
 
     public PlaygroundProfileInfo.PlaygroundMain getPlaygroundInfo(String token) {
         val member = this.getPlaygroundMember(token);
@@ -93,7 +99,7 @@ public class PlaygroundAuthService {
                 .profileImage(profileImage)
                 .generationList(generationList)
                 .build();
-        return PlaygroundProfileInfo.MainView.builder().user(mainViewUser).build();
+        return new MainView(mainViewUser);
     }
 
     private UserStatus getStatus(List<Long> generationList) {
@@ -209,5 +215,19 @@ public class PlaygroundAuthService {
                 createAuthorizationHeader(playgroundToken),
                 new RecommendFriendRequest(targetGenerations, filters)
         ).userIds();
+    }
+
+    public PlaygroundPost getPlaygroundHotPost(String playgroundToken) {
+        // PlaygroundPostResponse postInfo = playgroundClient.getPlaygroundHotPost(createAuthorizationHeader(playgroundToken));
+        PlaygroundPostResponse postInfo = new PlaygroundPostResponse(1L, "title", "content");
+        return PlaygroundPost.builder()
+                .title(postInfo.title())
+                .content(postInfo.content())
+                .url(convertPlaygroundWebPageUrl(postInfo.postId()))
+                .build();
+    }
+
+    private String convertPlaygroundWebPageUrl(Long postId) {
+        return playgroundWebPageUrl + "/?feed=" + postId;
     }
 }
