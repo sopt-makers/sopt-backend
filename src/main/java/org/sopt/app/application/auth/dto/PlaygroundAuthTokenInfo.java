@@ -11,6 +11,7 @@ public class PlaygroundAuthTokenInfo {
 
     @Getter
     @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class AppToken {
 
         private String accessToken;
