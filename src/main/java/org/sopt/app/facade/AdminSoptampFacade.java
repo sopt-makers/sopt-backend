@@ -64,7 +64,7 @@ public class AdminSoptampFacade {
                             .userId(profile.getUserId())
                             .playgroundId(profile.getPlaygroundId())
                             .name(profile.getName())
-                            .generation(Long.parseLong(memberProfile.getLatestActivity().getGeneration()))
+                            .generation(memberProfile.getLatestActivity().getGeneration())
                             .part(memberProfile.getLatestActivity().getPart())
                             .build()).orElse(null);
                 }

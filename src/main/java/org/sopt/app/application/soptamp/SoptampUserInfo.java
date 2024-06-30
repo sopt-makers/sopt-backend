@@ -30,7 +30,7 @@ public class SoptampUserInfo {
         private Long userId;
         private Long playgroundId;
         private String name;
-        private Long generation;
+        private Integer generation;
         private String part;
     }
 

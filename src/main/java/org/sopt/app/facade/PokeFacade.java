@@ -117,7 +117,7 @@ public class PokeFacade {
                             playgroundProfile.getProfileImage(),
                             playgroundProfile.getName(),
                             "",
-                            Integer.parseInt(generation),
+                            generation,
                             part,
                             pokeCount,
                             Friendship.NON_FRIEND.getFriendshipName(),
@@ -282,7 +282,7 @@ public class PokeFacade {
                         friendProfile.getProfileImage(),
                         friendProfile.getName(),
                         "",
-                        Integer.parseInt(friendProfile.getActivities().get(0).getGeneration()),
+                        friendProfile.getActivities().get(0).getGeneration(),
                         friendProfile.getActivities().get(0).getPart(),
                         friendRelationInfo.getPokeNum(),
                         friendRelationInfo.getRelationName(),
@@ -544,26 +544,25 @@ public class PokeFacade {
                         profile.getMemberId(),
                         profile.getProfileImage(),
                         profile.getName(),
-                        Integer.parseInt(profile.getLatestActivity().getGeneration()),
+                        profile.getLatestActivity().getGeneration(),
                         profile.getLatestActivity().getPart()
                 )).toList();
     }
 
     private Integer getLatestGenerationByActivityCardinalInfoList(List<ActivityCardinalInfo> activityCardinalInfoList) {
-        return Integer.parseInt(
-                activityCardinalInfoList.stream()
+        return activityCardinalInfoList.stream()
                         .filter(ActivityCardinalInfo::isActualGeneration)
                         .max(Comparator.comparing(ActivityCardinalInfo::getGeneration))
                         .orElseThrow(
                                 () -> new BadRequestException(ErrorCode.USER_GENERATION_INFO_NOT_FOUND.getMessage()))
-                        .getGeneration());
+                        .getGeneration();
     }
 
     private List<Integer> getAllGenerationByActivityCardinalInfoList(
             List<ActivityCardinalInfo> activityCardinalInfoList) {
         return activityCardinalInfoList.stream()
                 .filter(ActivityCardinalInfo::isActualGeneration)
-                .map(activityCardinalInfo -> Integer.parseInt(activityCardinalInfo.getGeneration()))
+                .map(ActivityCardinalInfo::getGeneration)
                 .toList();
     }
 
@@ -580,7 +579,7 @@ public class PokeFacade {
                 .playgroundId(pokedUserPlaygroundProfile.getMemberId())
                 .name(pokedUserPlaygroundProfile.getName())
                 .profileImage(pokedUserPlaygroundProfile.getProfileImage())
-                .generation(Integer.parseInt(latestActivity.getGeneration()))
+                .generation(latestActivity.getGeneration())
                 .part(latestActivity.getPart())
                 .relation(relationInfo)
                 .mutualFriendNames(mutualFriendNames)
