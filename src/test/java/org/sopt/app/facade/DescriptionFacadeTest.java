@@ -1,6 +1,5 @@
 package org.sopt.app.facade;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 
@@ -38,7 +37,7 @@ class DescriptionFacadeTest {
         User user = User.builder().playgroundId(1L).playgroundToken("token").build();
         UserStatus userStatus = UserStatus.ACTIVE;
         Mockito.when(playgroundAuthService.getPlaygroundUserActiveInfo(anyString(), anyLong()))
-                .thenReturn(UserActiveInfo.builder().currentGeneration(34L).status(userStatus).build());
+                .thenReturn(new UserActiveInfo(34L, userStatus));
         Mockito.when(descriptionService.getMainDescription(userStatus))
                 .thenReturn(DescriptionInfo.MainDescription.builder().topDescription("activeTop")
                         .bottomDescription("activeBottom").build());
@@ -54,7 +53,7 @@ class DescriptionFacadeTest {
         User user = User.builder().playgroundId(1L).playgroundToken("token").build();
         UserStatus userStatus = UserStatus.INACTIVE;
         Mockito.when(playgroundAuthService.getPlaygroundUserActiveInfo(anyString(), anyLong()))
-                .thenReturn(UserActiveInfo.builder().currentGeneration(29L).status(userStatus).build());
+                .thenReturn(new UserActiveInfo(29L, userStatus));
         Mockito.when(descriptionService.getMainDescription(userStatus))
                 .thenReturn(DescriptionInfo.MainDescription.builder().topDescription("inactiveTop")
                         .bottomDescription("inactiveBottom").build());
