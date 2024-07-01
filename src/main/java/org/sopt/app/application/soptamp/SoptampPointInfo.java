@@ -1,11 +1,14 @@
 package org.sopt.app.application.soptamp;
 
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.sopt.app.domain.entity.Mission;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SoptampPointInfo {
 
     @Getter

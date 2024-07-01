@@ -1,4 +1,4 @@
-package org.sopt.app.application.auth;
+package org.sopt.app.application.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Comparator;
@@ -14,42 +14,18 @@ import lombok.ToString;
 import org.sopt.app.domain.enums.UserStatus;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class PlaygroundAuthInfo {
+public class PlaygroundProfileInfo {
 
-    @Getter
-    @Builder
-    public static class AppToken {
-
-        private String accessToken;
-        private String refreshToken;
+    public record ActiveUserIds(
+            @JsonProperty("memberIds")
+            List<Long> userIds
+    ) {
     }
 
-    @Getter
-    @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class RefreshedToken {
-
-        private String accessToken;
-        private String errorCode;
-    }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class ActiveUserIds {
-
-        @JsonProperty("memberIds")
-        private List<Long> userIds;
-    }
-
-    @Getter
-    @Builder
-    public static class UserActiveInfo {
-
-        private Long currentGeneration;
-        private UserStatus status;
+    public record UserActiveInfo(
+            Long currentGeneration,
+            UserStatus status
+    ) {
     }
 
     @Getter
@@ -69,12 +45,9 @@ public class PlaygroundAuthInfo {
         private UserStatus status;
     }
 
-    @Getter
-    @Builder
-    @ToString
-    public static class MainView {
-
-        private MainViewUser user;
+    public record MainView(
+            MainViewUser user
+    ) {
     }
 
     @Getter
@@ -162,13 +135,6 @@ public class PlaygroundAuthInfo {
         private String profileImage;
         private String name;
         private List<PlaygroundActivity> activities;
-
-        public PlaygroundProfileOfRecommendedFriend getProfileOfSameGeneration(Integer generation) {
-            this.activities = activities.stream()
-                    .filter(activity -> activity.getGeneration().equals(generation))
-                    .toList();
-            return this;
-        }
     }
 
     @Getter
@@ -178,41 +144,6 @@ public class PlaygroundAuthInfo {
 
         private String part;
         private Integer generation;
-    }
-
-    @Builder
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class RecommendFriendRequest {
-
-        private List<Integer> generations;
-        private List<RecommendFriendFilter> filters;
-
-        public static RecommendFriendRequest createRecommendFriendRequestByGeneration(List<Integer> generations) {
-            return RecommendFriendRequest.builder()
-                    .generations(generations)
-                    .filters(List.of())
-                    .build();
-        }
-    }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class RecommendFriendFilter {
-
-        private String key;
-        private String value;
-    }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class PlaygroundUserIds {
-        private List<Long> userIds;
     }
 
 }

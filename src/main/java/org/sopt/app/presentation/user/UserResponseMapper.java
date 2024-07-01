@@ -4,7 +4,7 @@ import java.util.List;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
-import org.sopt.app.application.auth.PlaygroundAuthInfo;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.operation.OperationInfo;
 import org.sopt.app.application.service.AppServiceInfo;
 import org.sopt.app.application.user.UserInfo;
@@ -20,14 +20,14 @@ public interface UserResponseMapper {
 
     UserResponse.AppUser ofAppUser(User user);
 
-    UserResponse.MainView ofMainView(PlaygroundAuthInfo.MainView user, OperationInfo.MainView operation,
+    UserResponse.MainView ofMainView(PlaygroundProfileInfo.MainView user, OperationInfo.MainView operation,
             Boolean isAllConfirm);
 
     UserResponse.Nickname of(UserInfo.Nickname nickname);
 
     UserResponse.ProfileMessage of(UserInfo.ProfileMessage profileMessage);
 
-    UserResponse.Generation ofGeneration(PlaygroundAuthInfo.UserActiveInfo userActiveInfo);
+    UserResponse.Generation ofGeneration(PlaygroundProfileInfo.UserActiveInfo userActiveInfo);
 
     List<AppService> ofAppServiceList(List<AppServiceInfo.AppService> appServiceList);
 }
