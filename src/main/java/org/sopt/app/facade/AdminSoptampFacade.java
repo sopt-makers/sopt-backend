@@ -41,7 +41,7 @@ public class AdminSoptampFacade {
     public AdminSoptampResponse.Rows initCurrentGenerationInfo(User user) {
         // 플그에서 현재 기수 멤버 아이디 조회
         val currentGenerationPlaygroundIdList = playgroundAuthService.getPlayGroundUserIds(user.getPlaygroundToken())
-                .getUserIds();
+                .userIds();
 
         // 플그에서 현재 기수 멤버 프로필 조회
         val memberProfileList = playgroundAuthService.getPlaygroundMemberProfiles(

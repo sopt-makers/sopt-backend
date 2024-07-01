@@ -3,7 +3,7 @@ package org.sopt.app.application.user;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.auth.PlaygroundAuthInfo;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.exception.UnauthorizedException;
@@ -24,7 +24,7 @@ public class UserService {
 
     @Transactional
     public UserInfo.Id loginWithUserPlaygroundId(
-            PlaygroundAuthInfo.PlaygroundMain playgroundMemberResponse
+            PlaygroundProfileInfo.PlaygroundMain playgroundMemberResponse
     ) {
         val registeredUser = userRepository.findUserByPlaygroundId(
                 playgroundMemberResponse.getId());
