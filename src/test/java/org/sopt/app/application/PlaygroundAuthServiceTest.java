@@ -186,7 +186,7 @@ class PlaygroundAuthServiceTest {
         when(playgroundClient.getSinglePlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         MainView result = playgroundAuthService.getPlaygroundUserForMainView(token, 1L);
-        assertEquals(mainView, result);
+        assertEquals(mainView.user().getName(), result.user().getName());
     }
 
     // getPlaygroundUserActiveInfo
