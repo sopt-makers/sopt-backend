@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.auth.PlaygroundAuthInfo.ActivityCardinalInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.RecommendFriendFilter;
@@ -33,7 +34,7 @@ public class PlaygroundAuthService {
 
     private final PlaygroundClient playgroundClient;
     @Value("${sopt.current.generation}")
-    private Long currentGeneration;
+    private Integer currentGeneration;
     @Value("${makers.playground.x-api-key}")
     private String apiKey;
     @Value("${makers.playground.x-request-from}")
@@ -94,7 +95,7 @@ public class PlaygroundAuthService {
         return PlaygroundAuthInfo.MainView.builder().user(mainViewUser).build();
     }
 
-    private UserStatus getStatus(List<Long> generationList) {
+    private UserStatus getStatus(List<Integer> generationList) {
         return generationList.contains(currentGeneration) ? UserStatus.ACTIVE : UserStatus.INACTIVE;
     }
 
@@ -119,16 +120,9 @@ public class PlaygroundAuthService {
                 .build();
     }
 
-    private List<Long> getMemberGenerationList(PlaygroundAuthInfo.PlaygroundProfile playgroundProfile) {
+    private List<Integer> getMemberGenerationList(PlaygroundAuthInfo.PlaygroundProfile playgroundProfile) {
         return playgroundProfile.getActivities().stream()
-                .map(activity ->
-                {
-                    try {
-                        return Long.parseLong(activity.getCardinalInfo().split(",")[0]);
-                    } catch (NumberFormatException e) {
-                        throw new BadRequestException(ErrorCode.INVALID_PLAYGROUND_CARDINAL_INFO.getMessage());
-                    }
-                })
+                .map(ActivityCardinalInfo::getGeneration)
                 .sorted(Collections.reverseOrder())
                 .toList();
     }

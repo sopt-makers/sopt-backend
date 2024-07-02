@@ -25,7 +25,7 @@ public interface PlaygroundClient {
             AppAuthRequest.AccessTokenRequest tokenRequest);
 
     @RequestLine("GET /internal/api/v1/members/latest?generation={generation}")
-    ActiveUserIds getPlaygroundUserIds(@HeaderMap Map<String, String> headers, @Param("generation") Long generation);
+    ActiveUserIds getPlaygroundUserIds(@HeaderMap Map<String, String> headers, @Param("generation") Integer generation);
 
     @RequestLine("GET /internal/api/v1/members/profile?memberIds={memberId}")
     List<PlaygroundProfile> getSinglePlaygroundMemberProfile(@HeaderMap Map<String, String> headers,

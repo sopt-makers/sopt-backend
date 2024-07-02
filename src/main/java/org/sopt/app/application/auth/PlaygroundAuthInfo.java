@@ -50,7 +50,7 @@ public class PlaygroundAuthInfo {
     @Builder
     public static class UserActiveInfo {
 
-        private Long currentGeneration;
+        private Integer currentGeneration;
         private UserStatus status;
     }
 
@@ -87,7 +87,7 @@ public class PlaygroundAuthInfo {
         private UserStatus status;
         private String name;
         private String profileImage;
-        private List<Long> generationList;
+        private List<Integer> generationList;
     }
 
     @Getter
