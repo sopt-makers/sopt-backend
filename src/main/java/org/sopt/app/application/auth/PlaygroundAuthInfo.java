@@ -186,28 +186,12 @@ public class PlaygroundAuthInfo {
         private Integer generation;
     }
 
-    @Builder
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class RecommendFriendRequest {
-
-        private List<Integer> generations;
-        private List<RecommendFriendFilter> filters;
-
-        public static RecommendFriendRequest createRecommendFriendRequestByGeneration(List<Integer> generations) {
-            return RecommendFriendRequest.builder()
-                    .generations(generations)
-                    .filters(List.of())
-                    .build();
-        }
-    }
-
     @Getter
     @Builder
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class RecommendFriendFilter {
+    @ToString
+    public static class RecommendFriendFilter{
 
         private String key;
         private String value;
