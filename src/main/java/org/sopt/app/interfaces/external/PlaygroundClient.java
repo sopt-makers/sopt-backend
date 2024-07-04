@@ -7,7 +7,7 @@ import org.sopt.app.application.auth.PlaygroundAuthInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundUserIds;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.RecommendFriendRequest;
+import org.sopt.app.application.auth.RecommendFriendRequest;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 
 import java.util.List;
