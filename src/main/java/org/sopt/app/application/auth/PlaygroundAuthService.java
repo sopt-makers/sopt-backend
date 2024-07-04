@@ -15,7 +15,6 @@ import org.sopt.app.application.auth.PlaygroundAuthInfo.ActivityCardinalInfo;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthInfo.RecommendFriendFilter;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.RecommendFriendRequest;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -32,7 +31,10 @@ import org.springframework.web.client.HttpClientErrorException.BadRequest;
 @RequiredArgsConstructor
 public class PlaygroundAuthService {
 
+    private final PlaygroundUserRecommender playgroundUserRecommender;
+
     private final PlaygroundClient playgroundClient;
+
     @Value("${sopt.current.generation}")
     private Integer currentGeneration;
     @Value("${makers.playground.x-api-key}")
@@ -172,10 +174,10 @@ public class PlaygroundAuthService {
 
     public List<Long> getPlaygroundIdsForSameGeneration(List<Integer> generationList) {
 
-        return playgroundClient.getPlaygroundUserIdsForSameRecommendType(
+        return playgroundUserRecommender.getPlaygroundUserIdsForSameRecommendType(
                 createAuthorizationHeader(playgroundToken),
                 RecommendFriendRequest.createRecommendFriendRequestByGeneration(generationList)
-        ).getUserIds();
+        );
     }
 
     private List<Integer> getGenerationListByLatestGenerationForRange(Integer latestGeneration) {
@@ -189,10 +191,10 @@ public class PlaygroundAuthService {
                 .generations(getGenerationListByLatestGenerationForRange(latestGeneration))
                 .filters(List.of(RecommendFriendFilter.builder().key(String.valueOf(MBTI)).value(mbti).build()))
                 .build();
-        return playgroundClient.getPlaygroundUserIdsForSameRecommendType(
+        return playgroundUserRecommender.getPlaygroundUserIdsForSameRecommendType(
                 createAuthorizationHeader(playgroundToken),
                 request
-        ).getUserIds();
+        );
     }
 
     public List<Long> getPlaygroundIdsForSameUniversity(Integer latestGeneration, String university) {
@@ -200,9 +202,9 @@ public class PlaygroundAuthService {
                 .generations(getGenerationListByLatestGenerationForRange(latestGeneration))
                 .filters(List.of(RecommendFriendFilter.builder().key(String.valueOf(UNIVERSITY)).value(university).build()))
                 .build();
-        return playgroundClient.getPlaygroundUserIdsForSameRecommendType(
+        return playgroundUserRecommender.getPlaygroundUserIdsForSameRecommendType(
                 createAuthorizationHeader(playgroundToken),
                 request
-        ).getUserIds();
+        );
     }
 }
