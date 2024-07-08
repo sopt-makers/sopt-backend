@@ -4,6 +4,8 @@ import feign.HeaderMap;
 import feign.Param;
 import feign.RequestLine;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
+import org.sopt.app.application.auth.dto.PlaygroundPostInfo;
+import org.sopt.app.application.auth.dto.PlaygroundPostInfo.PlaygroundPostResponse;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActiveUserIds;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
@@ -45,4 +47,7 @@ public interface PlaygroundClient {
     @RequestLine("POST /internal/api/v1/members/profile/recommend")
     PlaygroundUserIds getPlaygroundUserIdsForSameRecommendType(
             @HeaderMap Map<String, String> headers, @RequestBody RecommendFriendRequest request);
+
+    @RequestLine("GET /api/v1/community/posts/hot")
+    PlaygroundPostResponse getPlaygroundHotPost(@HeaderMap Map<String, String> headers);
 }
