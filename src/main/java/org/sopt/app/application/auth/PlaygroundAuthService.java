@@ -218,8 +218,8 @@ public class PlaygroundAuthService {
     }
 
     public PlaygroundPost getPlaygroundHotPost(String playgroundToken) {
-        // PlaygroundPostResponse postInfo = playgroundClient.getPlaygroundHotPost(createAuthorizationHeader(playgroundToken));
-        PlaygroundPostResponse postInfo = new PlaygroundPostResponse(1L, "title", "content");
+        PlaygroundPostResponse postInfo = playgroundClient.getPlaygroundHotPost(createAuthorizationHeader(playgroundToken));
+
         return PlaygroundPost.builder()
                 .title(postInfo.title())
                 .content(postInfo.content())
