@@ -4,8 +4,6 @@ import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.rank.SoptampPartRankCalculator;
-import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.domain.entity.SoptampPoint;
 import org.sopt.app.domain.entity.SoptampUser;
@@ -20,7 +18,6 @@ import org.springframework.transaction.annotation.Transactional;
 public class SoptampPointService {
 
     private final SoptampPointRepository soptampPointRepository;
-    private final SoptampPartRankCalculator soptampPartRankCalculator;
 
     @Value("${sopt.current.generation}")
     private Long currentGeneration;
@@ -145,10 +142,5 @@ public class SoptampPointService {
 
         soptampPointRepository.saveAll(soptampPointList);
         return soptampPointList;
-    }
-
-    @Transactional(readOnly = true)
-    public List<PartRank> findAllPartRanks() {
-        return soptampPartRankCalculator.findAllPartRanks();
     }
 }
