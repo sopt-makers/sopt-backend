@@ -5,11 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.mission.MissionService;
@@ -99,22 +95,8 @@ public class RankController {
     })
     @GetMapping("/part")
     public ResponseEntity<List<PartRank>> findPartRanks() {
-        List<Part> partList = Arrays.asList(Part.class.getEnumConstants());
 
-        Map<Part, Long> partPoints = partList.stream()
-                .collect(Collectors.toMap(
-                        Function.identity(),
-                        part -> soptampPointService.calculateSumOfPoints(
-                                soptampPointService.findCurrentPointListBySoptampUserIds(
-                                        soptampUserService.findSoptampUserByPart(part)
-                                )
-                        )
-                ));
-
-        return ResponseEntity.status(HttpStatus.OK).body(
-                partList.stream()
-                .map(soptampPointService.findPartRanks(partPoints)::get)
-                .toList()
-        );
+        return ResponseEntity.status(HttpStatus.OK)
+                .body((soptampPointService.findAllPartsRank()));
     }
 }
