@@ -1,4 +1,4 @@
-package org.sopt.app.application.soptamp;
+package org.sopt.app.application.rank;
 
 import java.util.Arrays;
 import java.util.List;
