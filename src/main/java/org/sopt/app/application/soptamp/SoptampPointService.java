@@ -146,6 +146,7 @@ public class SoptampPointService {
         return soptampPointList;
     }
 
+    @Transactional(readOnly = true)
     public List<PartRank> findAllPartRanks() {
         return soptampPartRankCalculator.findAllPartRanks();
     }
