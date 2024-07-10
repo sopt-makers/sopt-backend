@@ -23,7 +23,7 @@ import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.domain.entity.SoptampPoint;
 import org.sopt.app.domain.enums.Part;
 import org.sopt.app.domain.enums.UserStatus;
-import org.sopt.app.interfaces.postgres.SoptampPointRepository;
+import org.sopt.app.interfaces.postgres.soptamp_point.SoptampPointRepository;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
