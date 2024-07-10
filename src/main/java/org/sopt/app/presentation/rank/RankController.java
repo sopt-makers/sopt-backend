@@ -40,8 +40,8 @@ public class RankController {
     @GetMapping("")
     public ResponseEntity<List<RankResponse.RankMain>> findRanks() {
         val result = soptampUserService.findRanks();
-        val response = rankResponseMapper.of(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(rankResponseMapper.of(result));
     }
 
     @Operation(summary = "현재 기수 랭킹 목록 조회")
@@ -53,8 +53,8 @@ public class RankController {
     public ResponseEntity<List<RankResponse.RankMain>> findCurrentRanks() {
         val soptampPointList = soptampPointService.findCurrentPointList();
         val result = soptampUserService.findCurrentRanks(soptampPointList);
-        val response = rankResponseMapper.of(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(rankResponseMapper.of(result));
     }
 
     @Operation(summary = "파트 별 현재 기수 랭킹 목록 조회")
@@ -70,8 +70,8 @@ public class RankController {
         val soptampUserIdList = soptampUserService.findSoptampUserByPart(part);
         val soptampPointList = soptampPointService.findCurrentPointListBySoptampUserIds(soptampUserIdList);
         val result = soptampUserService.findCurrentRanks(soptampPointList);
-        val response = rankResponseMapper.of(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(rankResponseMapper.of(result));
     }
 
     @Operation(summary = "랭킹 상세 조회")
@@ -82,10 +82,10 @@ public class RankController {
     })
     @GetMapping("/detail")
     public ResponseEntity<RankResponse.Detail> findRankByNickname(@RequestParam(value = "nickname") String nickname) {
-        val result = soptampUserService.findRankByNickname(nickname);
-        val missionList = missionService.getCompleteMission(result.getUserId());
-        val response = rankResponseMapper.of(result, missionList);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        val soptampUser = soptampUserService.findSoptampUserByNickname(nickname);
+        val missionList = missionService.getCompleteMission(soptampUser.getUserId());
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(rankResponseMapper.of(soptampUser, missionList));
     }
 
     @Operation(summary = "파트끼리의 랭킹 목록 조회")
@@ -97,6 +97,6 @@ public class RankController {
     public ResponseEntity<List<PartRank>> findPartRanks() {
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body((soptampPointService.findAllPartsRank()));
+                .body((soptampPointService.findAllPartRanks()));
     }
 }
