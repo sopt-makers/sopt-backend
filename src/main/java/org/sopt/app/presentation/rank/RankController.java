@@ -38,8 +38,7 @@ public class RankController {
     @GetMapping("")
     public ResponseEntity<List<RankResponse.RankMain>> findRanks() {
         val result = rankFacade.findAllSoptampUserRanks();
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(rankResponseMapper.of(result));
+        return ResponseEntity.ok(rankResponseMapper.of(result));
     }
 
     @Operation(summary = "현재 기수 랭킹 목록 조회")
@@ -50,8 +49,7 @@ public class RankController {
     @GetMapping("/current")
     public ResponseEntity<List<RankResponse.RankMain>> findCurrentRanks() {
         val result = rankFacade.findCurrentRanksByPart();
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(rankResponseMapper.of(result));
+        return ResponseEntity.ok(rankResponseMapper.of(result));
     }
 
     @Operation(summary = "파트 별 현재 기수 랭킹 목록 조회")
@@ -65,8 +63,7 @@ public class RankController {
             @PathVariable("part") Part part
     ) {
         val result = rankFacade.findCurrentRanksByPart(part);
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(rankResponseMapper.of(result));
+        return ResponseEntity.ok(rankResponseMapper.of(result));
     }
 
     @Operation(summary = "유저 미션 정보 상세 조회")
@@ -79,8 +76,7 @@ public class RankController {
     public ResponseEntity<RankResponse.Detail> findSoptampUserAndCompletedMissionByNickname(
             @RequestParam(value = "nickname") String nickname) {
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(soptampFacade.findSoptampUserAndCompletedMissionByNickname(nickname));
+        return ResponseEntity.ok(soptampFacade.findSoptampUserAndCompletedMissionByNickname(nickname));
     }
 
     @Operation(summary = "파트끼리의 랭킹 목록 조회")
@@ -91,7 +87,6 @@ public class RankController {
     @GetMapping("/part")
     public ResponseEntity<List<PartRank>> findPartRanks() {
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body((rankFacade.findAllPartRanks()));
+        return ResponseEntity.ok((rankFacade.findAllPartRanks()));
     }
 }
