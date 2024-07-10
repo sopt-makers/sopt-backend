@@ -81,7 +81,8 @@ public class RankController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/detail")
-    public ResponseEntity<RankResponse.Detail> findRankByNickname(@RequestParam(value = "nickname") String nickname) {
+    public ResponseEntity<RankResponse.Detail> findSoptampUserAndCompletedMissionByNickname(
+            @RequestParam(value = "nickname") String nickname) {
         val soptampUser = soptampUserService.findSoptampUserByNickname(nickname);
         val missionList = missionService.getCompleteMission(soptampUser.getUserId());
         return ResponseEntity.status(HttpStatus.OK)
