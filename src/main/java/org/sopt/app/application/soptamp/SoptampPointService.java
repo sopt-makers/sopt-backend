@@ -3,6 +3,7 @@ package org.sopt.app.application.soptamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -163,7 +164,7 @@ public class SoptampPointService {
 
         val newSoptampUserList = soptampUserList.stream()
                 .map(soptampUser -> prevSoptampUserIdList.contains(soptampUser.getId()) ? null : soptampUser)
-                .filter(x -> x != null)
+                .filter(Objects::nonNull)
                 .toList();
 
         val soptampPointList = newSoptampUserList.stream().map(soptampUser ->
