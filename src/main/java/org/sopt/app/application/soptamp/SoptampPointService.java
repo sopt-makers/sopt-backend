@@ -1,12 +1,16 @@
 package org.sopt.app.application.soptamp;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.domain.entity.SoptampPoint;
 import org.sopt.app.domain.entity.SoptampUser;
+import org.sopt.app.domain.enums.Part;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.interfaces.postgres.soptamp_point.SoptampPointRepository;
 import org.springframework.beans.factory.annotation.Value;
@@ -142,5 +146,14 @@ public class SoptampPointService {
 
         soptampPointRepository.saveAll(soptampPointList);
         return soptampPointList;
+    }
+
+    public Map<Part, Long> findSumOfPointAllParts() {
+        List<Part> allParts = Arrays.asList(Part.class.getEnumConstants());
+        return allParts.stream()
+                .collect(Collectors.toMap(
+                        part -> part,
+                        part -> soptampPointRepository.findSumOfPointBySamePartAndGeneration(part, currentGeneration))
+                );
     }
 }

@@ -9,6 +9,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.mission.MissionService;
+import org.sopt.app.facade.RankFacade;
+import org.sopt.app.application.soptamp.SoptampPointInfo;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.application.soptamp.SoptampUserService;
@@ -27,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 @SecurityRequirement(name = "Authorization")
 public class RankController {
 
+    private final RankFacade rankFacade;
     private final SoptampPointService soptampPointService;
     private final SoptampUserService soptampUserService;
     private final RankResponseMapper rankResponseMapper;
@@ -98,6 +101,6 @@ public class RankController {
     public ResponseEntity<List<PartRank>> findPartRanks() {
 
         return ResponseEntity.status(HttpStatus.OK)
-                .body((soptampPointService.findAllPartRanks()));
+                .body((rankFacade.findAllPartRanks()));
     }
 }
