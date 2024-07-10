@@ -28,6 +28,6 @@ public class ConfigController {
     })
     @GetMapping(value = "/availability")
     public ResponseEntity<ConfigResponse.Availability> getUserInfo() {
-        return ResponseEntity.status(HttpStatus.OK).body(Availability.builder().isAvailable(isAvailable).build());
+        return ResponseEntity.ok(Availability.builder().isAvailable(isAvailable).build());
     }
 }

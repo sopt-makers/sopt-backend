@@ -42,7 +42,7 @@ public class UserOriginalController {
             @AuthenticationPrincipal User user
     ) {
         val response = userFacade.getMainViewInfo(user);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "유저 기수 정보 조회")
@@ -58,7 +58,7 @@ public class UserOriginalController {
         val generationUser = playgroundAuthService.getPlaygroundUserActiveInfo(
                 user.getPlaygroundToken(), user.getPlaygroundId());
         val response = userResponseMapper.ofGeneration(generationUser);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "앱 서비스 조회")
@@ -70,7 +70,7 @@ public class UserOriginalController {
     @GetMapping(value = "/app-service")
     public ResponseEntity<List<AppService>> getAppServiceInfo() {
         val response = userFacade.getAppServiceInfo();
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "플레이그라운드 인기 게시글 조회")
@@ -83,6 +83,6 @@ public class UserOriginalController {
             @AuthenticationPrincipal User user
     ) {
         val response = playgroundAuthService.getPlaygroundHotPost(user.getPlaygroundToken());
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 }

@@ -35,13 +35,13 @@ public class AdminSoptampController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @DeleteMapping(value = "/point")
-    public ResponseEntity initAllMissionAndStampAndPoints(
+    public ResponseEntity<Void> initAllMissionAndStampAndPoints(
             @AuthenticationPrincipal User user,
             @RequestParam(name = "password") String password
     ) {
         validateAdmin(password);
         adminSoptampFacade.initAllMissionAndStampAndPoints();
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "활동 기수 정보 전체 초기화")
@@ -57,7 +57,7 @@ public class AdminSoptampController {
     ) {
         validateAdmin(password);
         val rows = adminSoptampFacade.initCurrentGenerationInfo(user);
-        return ResponseEntity.status(HttpStatus.OK).body(rows);
+        return ResponseEntity.ok(rows);
     }
 
     private void validateAdmin(String password) {
