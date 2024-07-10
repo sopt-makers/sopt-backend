@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -98,7 +99,7 @@ public class RankController {
     })
     @GetMapping("/part")
     public ResponseEntity<List<PartRank>> findPartRanks() {
-        List<Part> partList = List.of(Part.PLAN, Part.DESIGN, Part.WEB, Part.IOS, Part.ANDROID, Part.SERVER);
+        List<Part> partList = Arrays.asList(Part.class.getEnumConstants());
 
         Map<Part, Long> partPoints = partList.stream()
                 .collect(Collectors.toMap(
