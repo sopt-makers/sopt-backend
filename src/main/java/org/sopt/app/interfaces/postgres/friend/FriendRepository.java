@@ -1,4 +1,4 @@
-package org.sopt.app.interfaces.postgres;
+package org.sopt.app.interfaces.postgres.friend;
 
 import org.sopt.app.domain.entity.Friend;
 import org.springframework.data.domain.Page;
