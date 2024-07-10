@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.operation.OperationInfo;
-import org.sopt.app.application.service.AppServiceInfo;
+import org.sopt.app.application.app_service.AppServiceInfo;
 import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.user.UserResponse.AppService;
