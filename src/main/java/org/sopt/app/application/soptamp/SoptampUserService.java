@@ -8,13 +8,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.slack.SlackService;
-import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
-import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.SoptampUser;
@@ -99,55 +94,12 @@ public class SoptampUserService {
         return registerUser.get().getId();
     }
 
-    public List<Main> findRanks() {
-        val userList = soptampUserRepository.findAll();
-        return this.getRanking(userList);
+    public List<SoptampUser> findAllBySoptampUserIds(List<Long> userIdList) {
+        return soptampUserRepository.findAllById(userIdList);
     }
 
-    public List<SoptampPointInfo.Main> findCurrentRanks(List<Point> soptampPointList) {
-        val soptampUserIdList = soptampPointList.stream()
-                .map(Point::getSoptampUserId).toList();
-        val userList = soptampUserRepository.findAllById(soptampUserIdList);
-        return this.getCurrentRanking(userList, soptampPointList);
-    }
-
-    private List<Main> getRanking(List<SoptampUser> userList) {
-        val rankPoint = new AtomicInteger(1);
-        return userList.stream().sorted(
-                        Comparator.comparing(SoptampUser::getTotalPoints).reversed())
-                .map(user -> Main.builder()
-                        .rank(rankPoint.getAndIncrement())
-                        .nickname(user.getNickname())
-                        .point(user.getTotalPoints())
-                        .profileMessage(user.getProfileMessage())
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    private List<Main> getCurrentRanking(List<SoptampUser> userList, List<Point> soptampPointList) {
-        val rankPoint = new AtomicInteger(1);
-        List<Main> rankingList = new ArrayList<>();
-
-        soptampPointList.stream().sorted(Comparator.comparing(Point::getPoints).reversed())
-                .forEach(point -> userList.stream()
-                        .filter(user -> user.getId().equals(point.getSoptampUserId()))
-                        .findAny()
-                        .ifPresentOrElse(
-                                user -> rankingList.add(Main.builder()
-                                        .rank(rankPoint.getAndIncrement())
-                                        .nickname(user.getNickname())
-                                        .point(point.getPoints())
-                                        .profileMessage(user.getProfileMessage())
-                                        .build()),
-                                () -> SlackService.sendSlackMessage(
-                                        "Warning",
-                                        "soptamp_point에 해당하지 않는 soptamp_user가 확인되었습니다.\n"
-                                        + "soptampPointId: " + point.getId() + "\n"
-                                        + "soptampUserId: " + point.getSoptampUserId()
-                                )
-                        ));
-
-        return rankingList;
+    public List<SoptampUser> findAllSoptampUsers() {
+        return soptampUserRepository.findAll();
     }
 
     public List<Long> findSoptampUserByPart(Part part) {
@@ -157,9 +109,11 @@ public class SoptampUserService {
                 .toList();
     }
 
-    public SoptampUser findSoptampUserByNickname(String nickname) {
-        return soptampUserRepository.findUserByNickname(nickname)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+    public SoptampUserInfo findSoptampUserByNickname(String nickname) {
+        return SoptampUserInfo.of(
+                soptampUserRepository.findUserByNickname(nickname)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()))
+        );
     }
 
     @Transactional
