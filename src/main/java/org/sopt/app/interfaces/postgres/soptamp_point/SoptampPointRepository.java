@@ -9,11 +9,15 @@ public interface SoptampPointRepository {
 
     SoptampPoint save(SoptampPoint soptampPoint);
 
+    void saveAll(List<SoptampPoint> soptampPoint);
+
+    void deleteAll();
+
     List<SoptampPoint> findAllByGeneration(Long currentGeneration);
 
     Optional<SoptampPoint> findBySoptampUserIdAndGeneration(Long soptampUserId, Long currentGeneration);
 
     List<SoptampPoint> findAllBySoptampUserIdInAndGeneration(List<Long> soptampUserIdList, Long currentGeneration);
 
-    List<SoptampPoint> findAllBySoptampUserPartAndGeneration(Part part, Long currentGeneration);
+    Long findSumOfPointBySamePartAndGeneration(Part part, Long generation);
 }
