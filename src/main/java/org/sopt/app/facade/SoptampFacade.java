@@ -64,13 +64,13 @@ public class SoptampFacade {
     }
 
     @Transactional
-    public SoptampUserInfo.SoptampUser editSoptampUserNickname(Long userId, String nickname){
+    public SoptampUserInfo editSoptampUserNickname(Long userId, String nickname){
         val soptampUser = soptampUserService.getSoptampUserInfo(userId);
         return soptampUserService.editNickname(soptampUser, nickname);
     }
 
     @Transactional
-    public SoptampUserInfo.SoptampUser editSoptampUserProfileMessage(Long userId, String newProfileMessage){
+    public SoptampUserInfo editSoptampUserProfileMessage(Long userId, String newProfileMessage){
         val soptampUser = soptampUserService.getSoptampUserInfo(userId);
         return soptampUserService.editProfileMessage(soptampUser, newProfileMessage);
     }
