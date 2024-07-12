@@ -12,7 +12,6 @@ import org.sopt.app.facade.RankFacade;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.domain.enums.Part;
 import org.sopt.app.facade.SoptampFacade;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -36,7 +35,7 @@ public class RankController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("")
-    public ResponseEntity<List<RankResponse.RankMain>> findRanks() {
+    public ResponseEntity<List<RankResponse.RankMain>> findAllRanks() {
         val result = rankFacade.findAllSoptampUserRanks();
         return ResponseEntity.ok(rankResponseMapper.of(result));
     }
@@ -48,7 +47,7 @@ public class RankController {
     })
     @GetMapping("/current")
     public ResponseEntity<List<RankResponse.RankMain>> findCurrentRanks() {
-        val result = rankFacade.findCurrentRanksByPart();
+        val result = rankFacade.findCurrentRanks();
         return ResponseEntity.ok(rankResponseMapper.of(result));
     }
 
