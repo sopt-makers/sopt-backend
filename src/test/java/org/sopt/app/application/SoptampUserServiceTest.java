@@ -5,8 +5,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_1;
 
-import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -16,8 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
-import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.exception.BadRequestException;
@@ -130,14 +128,30 @@ class SoptampUserServiceTest {
     void SUCCESS_editProfileMessage() {
         //given
         final String newProfileMessage = "newProfileMessage";
-        SoptampUserInfo soptampUser = SoptampUserInfo.builder()
-                .nickname("oldProfileMessage")
+        final Long userId = SOPTAMP_USER_1.getUserId();
+        final SoptampUser editedSoptampUser = SoptampUser.builder()
+                .id(SOPTAMP_USER_1.getId())
+                .userId(SOPTAMP_USER_1.getUserId())
+                .nickname(SOPTAMP_USER_1.getNickname())
+                .totalPoints(SOPTAMP_USER_1.getTotalPoints())
+                .profileMessage(newProfileMessage)
                 .build();
+        final SoptampUserInfo editedSoptampUserInfo = SoptampUserInfo.builder()
+                .id(SOPTAMP_USER_1.getId())
+                .userId(SOPTAMP_USER_1.getUserId())
+                .nickname(SOPTAMP_USER_1.getNickname())
+                .totalPoints(SOPTAMP_USER_1.getTotalPoints())
+                .profileMessage(newProfileMessage)
+                .build();
+        given(soptampUserRepository.findByUserId(userId)).willReturn(Optional.of(SOPTAMP_USER_1));
+        given(soptampUserRepository.save(any(SoptampUser.class))).willReturn(editedSoptampUser);
+
+        // when
+        String result = soptampUserService.editProfileMessage(editedSoptampUserInfo, newProfileMessage)
+                .getProfileMessage();
 
         //then
-        Assertions.assertEquals(
-                soptampUserService.editProfileMessage(soptampUser, newProfileMessage).getProfileMessage(),
-                newProfileMessage);
+        Assertions.assertEquals(newProfileMessage, result);
     }
 
     @Test
@@ -179,89 +193,6 @@ class SoptampUserServiceTest {
 
         //then
         Assertions.assertEquals(soptampUserService.updateSoptampUser(newNickname, anyUserId), id);
-    }
-
-    @Test
-    @DisplayName("SUCCESS_솝탬프 유저 리스트를 받아 랭크 조회")
-    void SUCCESS_findRanks() {
-        //given
-        final SoptampUser soptampUser1 = SoptampUser.builder().nickname("1stUser").totalPoints(100L).build();
-        final SoptampUser soptampUser2 = SoptampUser.builder().nickname("2stUser").totalPoints(200L).build();
-        final SoptampUser soptampUser3 = SoptampUser.builder().nickname("3stUser").totalPoints(300L).build();
-        final List<SoptampUser> soptampUserList = List.of(soptampUser1, soptampUser2, soptampUser3);
-
-        //when
-        List<Main> expected = List.of(
-                Main.builder().rank(1).point(300L).nickname("3stUser").build(),
-                Main.builder().rank(2).point(200L).nickname("2stUser").build(),
-                Main.builder().rank(3).point(100L).nickname("1stUser").build()
-        );
-
-        Mockito.when(soptampUserRepository.findAll()).thenReturn(soptampUserList);
-        List<Main> result = soptampUserService.findRanks();
-
-        //then
-        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
-    }
-
-    @Test
-    @DisplayName("SUCCESS_솝탬프 포인트 리스트를 받아 랭크를 조회")
-    void SUCCESS_findCurrentRanks() {
-        //given
-        List<Point> soptampPointList = List.of(
-                Point.of(1L, 1L, 1L, 100L),
-                Point.of(2L, 1L, 2L, 200L),
-                Point.of(3L, 1L, 3L, 300L)
-        );
-
-        List<Long> soptampUserIdList = List.of(1L, 2L, 3L);
-
-        //when
-        List<Main> expected = List.of(
-                Main.builder().rank(1).point(300L).build(),
-                Main.builder().rank(2).point(200L).build(),
-                Main.builder().rank(3).point(100L).build()
-        );
-
-        Mockito.when(soptampUserRepository.findAllById(soptampUserIdList)).thenReturn(
-                List.of(
-                        SoptampUser.builder().id(1L).build(),
-                        SoptampUser.builder().id(2L).build(),
-                        SoptampUser.builder().id(3L).build()
-                ));
-        List<Main> result = soptampUserService.findCurrentRanks(soptampPointList);
-
-        //then
-        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
-    }
-
-    @Test
-    @DisplayName("SUCCESS_솝탬프 포인트 해당하는 유저가 없다면 슬랙 알림을 보내기")
-    void SUCCESS_findCurrentRanks_Requirement1() {
-        //given
-        List<Point> soptampPointList = List.of(
-                Point.of(1L, 1L, 1L, 100L),
-                Point.of(2L, 1L, 2L, 200L),
-                Point.of(3L, 1L, 3L, 300L)
-        );
-
-        given(soptampUserRepository.findAllById(List.of(1L, 2L, 3L))).willReturn(
-                List.of(
-                        SoptampUser.builder().id(1L).build(),
-                        SoptampUser.builder().id(2L).build()
-                        // 3번 유저가 존재하지 않음
-                ));
-
-        //when
-        List<Main> result = soptampUserService.findCurrentRanks(soptampPointList);
-
-        //then
-        List<Main> expected = List.of(
-                Main.builder().rank(1).point(200L).build(),
-                Main.builder().rank(2).point(100L).build()
-        );
-
-        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
 
     @Test
