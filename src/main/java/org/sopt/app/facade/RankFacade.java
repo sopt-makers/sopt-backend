@@ -35,6 +35,10 @@ public class RankFacade {
         List<Point> soptampPointList = soptampPointService.findCurrentGenerationPoints();
         List<Long> soptampUserIdList = soptampPointList.stream().map(Point::getSoptampUserId).toList();
 
+        return getMainsByCalculateRanking(soptampUserIdList, soptampPointList);
+    }
+
+    private List<Main> getMainsByCalculateRanking(List<Long> soptampUserIdList, List<Point> soptampPointList) {
         List<SoptampUserInfo> userList = soptampUserService.findAllBySoptampUserIds(soptampUserIdList);
 
         SoptampUserRankCalculator soptampUserRankCalculator = new SoptampUserRankCalculator(userList);
@@ -46,10 +50,7 @@ public class RankFacade {
         List<Long> soptampUserIdList = soptampUserService.findSoptampUserByPart(part);
         List<Point> soptampPointList = soptampPointService.findCurrentPointListBySoptampUserIds(soptampUserIdList);
 
-        List<SoptampUserInfo> userList = soptampUserService.findAllBySoptampUserIds(soptampUserIdList);
-
-        SoptampUserRankCalculator soptampUserRankCalculator = new SoptampUserRankCalculator(userList);
-        return soptampUserRankCalculator.calculateRanking(soptampPointList);
+        return getMainsByCalculateRanking(soptampUserIdList, soptampPointList);
     }
 
     @Transactional(readOnly = true)
