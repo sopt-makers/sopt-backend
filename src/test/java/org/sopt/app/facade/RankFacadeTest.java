@@ -2,17 +2,21 @@ package org.sopt.app.facade;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
-import static org.sopt.app.common.fixtures.SoptampPointFixture.PART_AND_TOTAL_POINT_MAP;
+import static org.sopt.app.common.fixtures.SoptampPointFixture.PART_POINTS;
 import static org.sopt.app.common.fixtures.SoptampPointFixture.PART_RANK_ANDROID;
 import static org.sopt.app.common.fixtures.SoptampPointFixture.PART_RANK_DESIGN;
 import static org.sopt.app.common.fixtures.SoptampPointFixture.PART_RANK_IOS;
 import static org.sopt.app.common.fixtures.SoptampPointFixture.PART_RANK_PLAN;
 import static org.sopt.app.common.fixtures.SoptampPointFixture.PART_RANK_SERVER;
 import static org.sopt.app.common.fixtures.SoptampPointFixture.PART_RANK_WEB;
+import static org.sopt.app.common.fixtures.SoptampPointFixture.POINT_1;
+import static org.sopt.app.common.fixtures.SoptampPointFixture.POINT_2;
+import static org.sopt.app.common.fixtures.SoptampPointFixture.POINT_3;
 import static org.sopt.app.common.fixtures.SoptampPointFixture.SOPTAMP_POINT_LIST;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_ID_LIST;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_INFO_1;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_INFO_2;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_INFO_3;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_INFO_LIST;
 
 import java.util.List;
@@ -48,9 +52,9 @@ class RankFacadeTest {
 
         //when
         List<Main> expected = List.of(
-                Main.builder().rank(1).point(300L).build(),
-                Main.builder().rank(2).point(200L).build(),
-                Main.builder().rank(3).point(100L).build()
+                Main.builder().rank(1).nickname(SOPTAMP_USER_INFO_3.getNickname()).point(POINT_3.getPoints()).build(),
+                Main.builder().rank(2).nickname(SOPTAMP_USER_INFO_2.getNickname()).point(POINT_2.getPoints()).build(),
+                Main.builder().rank(3).nickname(SOPTAMP_USER_INFO_1.getNickname()).point(POINT_1.getPoints()).build()
         );
         List<Main> result = rankFacade.findCurrentRanks();
 
@@ -69,8 +73,8 @@ class RankFacadeTest {
 
         //when
         List<Main> expected = List.of(
-                Main.builder().rank(2).point(200L).build(),
-                Main.builder().rank(3).point(100L).build()
+                Main.builder().rank(1).nickname(SOPTAMP_USER_INFO_2.getNickname()).point(POINT_2.getPoints()).build(),
+                Main.builder().rank(2).nickname(SOPTAMP_USER_INFO_1.getNickname()).point(POINT_1.getPoints()).build()
         );
         List<Main> result = rankFacade.findCurrentRanks();
 
@@ -82,16 +86,16 @@ class RankFacadeTest {
     @DisplayName("SUCCESS_파트 랭킹 찾기")
     void SUCCESS_findAllPartRanks() {
         //given
-        given(soptampPointService.findSumOfPointAllParts()).willReturn(PART_AND_TOTAL_POINT_MAP);
+        given(soptampPointService.findSumOfPointAllParts()).willReturn(PART_POINTS);
 
         //when
         List<PartRank> result = rankFacade.findAllPartRanks();
         List<PartRank> expected = List.of(
                 PART_RANK_PLAN,
                 PART_RANK_DESIGN,
+                PART_RANK_WEB,
                 PART_RANK_IOS,
                 PART_RANK_ANDROID,
-                PART_RANK_WEB,
                 PART_RANK_SERVER
         );
 

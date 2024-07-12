@@ -5,7 +5,7 @@ import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_2;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_3;
 
 import java.util.List;
-import java.util.Map;
+import org.sopt.app.application.soptamp.SoptampPointInfo.PartPoint;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.domain.enums.Part;
@@ -60,13 +60,12 @@ public class SoptampPointFixture {
             .points(0L)
             .build();
 
-    public static final Map<Part, Long> PART_AND_TOTAL_POINT_MAP = Map.of(
-            Part.PLAN, 50L,
-            Part.SERVER, 40L,
-            Part.WEB, 30L,
-            Part.IOS, 20L,
-            Part.ANDROID, 10L,
-            Part.DESIGN, 0L
-    );
+    public static final List<PartPoint> PART_POINTS = List.of(
+            new PartPoint(Part.PLAN, 50L),
+            new PartPoint(Part.DESIGN, 0L),
+            new PartPoint(Part.WEB, 30L),
+            new PartPoint(Part.IOS, 20L),
+            new PartPoint(Part.ANDROID, 10L),
+            new PartPoint(Part.SERVER, 40L));
 }
 
