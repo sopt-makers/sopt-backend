@@ -1,12 +1,10 @@
 package org.sopt.app.application.soptamp;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.soptamp.SoptampPointInfo.PartPoint;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.domain.entity.SoptampPoint;
 import org.sopt.app.domain.entity.SoptampUser;
@@ -95,12 +93,12 @@ public class SoptampPointService {
         return soptampPointList;
     }
 
-    public Map<Part, Long> findSumOfPointAllParts() {
+    public List<PartPoint> findSumOfPointAllParts() {
         List<Part> allParts = Part.getAllParts();
         return allParts.stream()
-                .collect(Collectors.toMap(
-                        part -> part,
-                        part -> soptampPointRepository.findSumOfPointBySamePartAndGeneration(part, currentGeneration)
-                        , (x, y) -> y, LinkedHashMap::new));
+                .map(part -> {
+                    Long point = soptampPointRepository.findSumOfPointBySamePartAndGeneration(part, currentGeneration);
+                    return new PartPoint(part, point);
+                }).toList();
     }
 }

@@ -2,17 +2,20 @@ package org.sopt.app.application.soptamp;
 
 import java.util.List;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt.app.domain.entity.Mission;
 import org.sopt.app.domain.entity.SoptampPoint;
+import org.sopt.app.domain.enums.Part;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SoptampPointInfo {
 
     @Getter
     @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Main {
 
         private Integer rank;
@@ -31,7 +34,6 @@ public class SoptampPointInfo {
     }
 
     @Getter
-    @Builder
     public static class Detail {
 
         private String nickname;
@@ -41,6 +43,7 @@ public class SoptampPointInfo {
 
     @Getter
     @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class Point {
         private Long id;
         private Long generation;
@@ -59,9 +62,14 @@ public class SoptampPointInfo {
 
     @Getter
     @Builder
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class PartRank {
         private String part;
         private Integer rank;
         private Long points;
+    }
+
+    public record PartPoint(Part part, Long points) {
+
     }
 }

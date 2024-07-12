@@ -1,11 +1,11 @@
 package org.sopt.app.facade;
 
 import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.rank.SoptampPartRankCalculator;
 import org.sopt.app.application.rank.SoptampUserRankCalculator;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
+import org.sopt.app.application.soptamp.SoptampPointInfo.PartPoint;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.application.soptamp.SoptampPointService;
@@ -55,7 +55,7 @@ public class RankFacade {
 
     @Transactional(readOnly = true)
     public List<PartRank> findAllPartRanks() {
-        Map<Part, Long> partPoints = soptampPointService.findSumOfPointAllParts();
+        List<PartPoint> partPoints = soptampPointService.findSumOfPointAllParts();
         SoptampPartRankCalculator soptampPartRankCalculator = new SoptampPartRankCalculator(partPoints);
         return soptampPartRankCalculator.findAllPartRanks();
     }
