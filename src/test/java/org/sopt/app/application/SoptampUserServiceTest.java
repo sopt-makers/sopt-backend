@@ -128,7 +128,6 @@ class SoptampUserServiceTest {
     void SUCCESS_editProfileMessage() {
         //given
         final String newProfileMessage = "newProfileMessage";
-        final Long userId = SOPTAMP_USER_1.getUserId();
         final SoptampUser editedSoptampUser = SoptampUser.builder()
                 .id(SOPTAMP_USER_1.getId())
                 .userId(SOPTAMP_USER_1.getUserId())
@@ -143,7 +142,6 @@ class SoptampUserServiceTest {
                 .totalPoints(SOPTAMP_USER_1.getTotalPoints())
                 .profileMessage(newProfileMessage)
                 .build();
-        given(soptampUserRepository.findByUserId(userId)).willReturn(Optional.of(SOPTAMP_USER_1));
         given(soptampUserRepository.save(any(SoptampUser.class))).willReturn(editedSoptampUser);
 
         // when
