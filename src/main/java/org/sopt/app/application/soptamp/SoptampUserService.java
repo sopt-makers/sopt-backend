@@ -66,8 +66,7 @@ public class SoptampUserService {
     }
 
     @Transactional
-    public SoptampUserInfo editProfileMessage(SoptampUserInfo soptampUserInfo,
-            String profileMessage) {
+    public SoptampUserInfo editProfileMessage(SoptampUserInfo soptampUserInfo, String profileMessage) {
         val newSoptampUser = SoptampUser.builder()
                 .id(soptampUserInfo.getId())
                 .userId(soptampUserInfo.getUserId())
