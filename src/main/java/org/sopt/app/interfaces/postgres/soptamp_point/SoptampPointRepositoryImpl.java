@@ -50,22 +50,18 @@ public class SoptampPointRepositoryImpl implements SoptampPointRepository {
 
     @Override
     public Long findSumOfPointBySamePartAndGeneration(Part part, Long generation) {
-
-        QSoptampPoint soptampPoint = new QSoptampPoint("soptampUser");
+        QSoptampPoint soptampPoint = new QSoptampPoint("soptampPoint");
         QSoptampUser soptampUser = new QSoptampUser("soptampUser");
 
-        return Optional.of(queryFactory
+        return Optional.ofNullable(
+                queryFactory
                 .select(soptampPoint.points.sum())
                 .from(soptampUser)
-                .where(soptampUser.part.eq(String.valueOf(part))
-                        .and(soptampUser.generation.eq(generation))
-                        )
-                .join(soptampUser)
-                .on(soptampPoint.soptampUserId.eq(soptampUser.id))
-                .fetch()
-                        .stream()
-                        .mapToLong(Long::longValue)
-                        .sum())
+                .join(soptampPoint)
+                .on(soptampPoint.soptampUserId.eq(soptampUser.id)
+                        .and(soptampUser.part.eq(String.valueOf(part))
+                                .and(soptampUser.generation.eq(generation))))
+                . fetchOne())
                 .orElse(0L);
     }
 
