@@ -5,7 +5,6 @@ import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
 import org.sopt.app.domain.entity.Mission;
 import org.sopt.app.domain.entity.SoptampPoint;
 
@@ -14,7 +13,6 @@ public class SoptampPointInfo {
 
     @Getter
     @Builder
-    @ToString
     public static class Main {
 
         private Integer rank;
@@ -34,7 +32,6 @@ public class SoptampPointInfo {
 
     @Getter
     @Builder
-    @ToString
     public static class Detail {
 
         private String nickname;
@@ -44,7 +41,6 @@ public class SoptampPointInfo {
 
     @Getter
     @Builder
-    @ToString
     public static class Point {
         private Long id;
         private Long generation;
