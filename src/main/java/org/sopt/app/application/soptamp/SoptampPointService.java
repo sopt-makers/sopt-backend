@@ -1,6 +1,6 @@
 package org.sopt.app.application.soptamp;
 
-import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -100,7 +100,7 @@ public class SoptampPointService {
         return allParts.stream()
                 .collect(Collectors.toMap(
                         part -> part,
-                        part -> soptampPointRepository.findSumOfPointBySamePartAndGeneration(part, currentGeneration))
-                );
+                        part -> soptampPointRepository.findSumOfPointBySamePartAndGeneration(part, currentGeneration)
+                        , (x, y) -> y, LinkedHashMap::new));
     }
 }
