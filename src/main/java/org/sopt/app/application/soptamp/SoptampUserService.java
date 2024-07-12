@@ -94,12 +94,17 @@ public class SoptampUserService {
         return registerUser.get().getId();
     }
 
-    public List<SoptampUser> findAllBySoptampUserIds(List<Long> userIdList) {
-        return soptampUserRepository.findAllById(userIdList);
+    public List<SoptampUserInfo> findAllBySoptampUserIds(List<Long> userIdList) {
+        return soptampUserRepository.findAllById(userIdList)
+                .stream().map(SoptampUserInfo::of)
+                .toList();
     }
 
-    public List<SoptampUser> findAllSoptampUsers() {
-        return soptampUserRepository.findAll();
+    @Deprecated
+    public List<SoptampUserInfo> findAllSoptampUsers() {
+        return soptampUserRepository.findAll()
+                .stream().map(SoptampUserInfo::of)
+                .toList();
     }
 
     public List<Long> findSoptampUserByPart(Part part) {
