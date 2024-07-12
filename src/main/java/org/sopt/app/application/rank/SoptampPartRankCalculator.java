@@ -13,6 +13,7 @@ import org.sopt.app.domain.enums.Part;
 public class SoptampPartRankCalculator {
 
     private final Map<Part, Long> partPoints;
+    private int rankPoint = 1;
 
     public List<PartRank> findAllPartRanks() {
 
@@ -31,13 +32,12 @@ public class SoptampPartRankCalculator {
     }
 
     private int getTargetPartRank(Part targetPart) {
-        int rank = 1;
 
         for (Entry<Part, Long> comparator : partPoints.entrySet()) {
             if (partPoints.get(targetPart).equals(comparator.getValue())) {
-                return rank;
+                return rankPoint;
             }
-            rank++;
+            rankPoint++;
         }
         throw new InternalServerException("랭킹 계산 중 오류가 발생했습니다.");
     }
