@@ -13,7 +13,7 @@ public class SoptampUserFixture {
     public static final SoptampUser SOPTAMP_USER_3 =
             SoptampUser.builder().id(3L).userId(30L).nickname("3stUser").totalPoints(300L).build();
     public static final List<Long> SOPTAMP_USER_ID_LIST =
-            List.of(SOPTAMP_USER_1.getUserId(), SOPTAMP_USER_2.getUserId(), SOPTAMP_USER_3.getUserId());
+            List.of(SOPTAMP_USER_1.getId(), SOPTAMP_USER_2.getId(), SOPTAMP_USER_3.getId());
 
     public static final SoptampUserInfo SOPTAMP_USER_INFO_1 =
             SoptampUserInfo.builder().id(1L).userId(10L).nickname("1stUser").totalPoints(100L).build();
