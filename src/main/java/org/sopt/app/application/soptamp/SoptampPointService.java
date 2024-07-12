@@ -96,7 +96,7 @@ public class SoptampPointService {
     }
 
     public Map<Part, Long> findSumOfPointAllParts() {
-        List<Part> allParts = Arrays.asList(Part.class.getEnumConstants());
+        List<Part> allParts = Part.getAllParts();
         return allParts.stream()
                 .collect(Collectors.toMap(
                         part -> part,
