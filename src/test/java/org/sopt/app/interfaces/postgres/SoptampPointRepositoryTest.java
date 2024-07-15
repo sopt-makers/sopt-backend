@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.sopt.app.common.config.QuerydslConfiguration;
 import org.sopt.app.domain.entity.SoptampPoint;
 import org.sopt.app.interfaces.postgres.soptamp_point.SoptampPointRepository;
+import org.sopt.app.interfaces.postgres.soptamp_point.SoptampPointRepositoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
@@ -16,7 +17,7 @@ import org.springframework.context.annotation.Import;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
-@Import(QuerydslConfiguration.class)
+@Import({QuerydslConfiguration.class, SoptampPointRepositoryImpl.class})
 class SoptampPointRepositoryTest {
 
     @Autowired
