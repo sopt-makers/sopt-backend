@@ -5,7 +5,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
-import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_1;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_SERVER_1;
 
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
@@ -129,17 +129,17 @@ class SoptampUserServiceTest {
         //given
         final String newProfileMessage = "newProfileMessage";
         final SoptampUser editedSoptampUser = SoptampUser.builder()
-                .id(SOPTAMP_USER_1.getId())
-                .userId(SOPTAMP_USER_1.getUserId())
-                .nickname(SOPTAMP_USER_1.getNickname())
-                .totalPoints(SOPTAMP_USER_1.getTotalPoints())
+                .id(SOPTAMP_USER_SERVER_1.getId())
+                .userId(SOPTAMP_USER_SERVER_1.getUserId())
+                .nickname(SOPTAMP_USER_SERVER_1.getNickname())
+                .totalPoints(SOPTAMP_USER_SERVER_1.getTotalPoints())
                 .profileMessage(newProfileMessage)
                 .build();
         final SoptampUserInfo editedSoptampUserInfo = SoptampUserInfo.builder()
-                .id(SOPTAMP_USER_1.getId())
-                .userId(SOPTAMP_USER_1.getUserId())
-                .nickname(SOPTAMP_USER_1.getNickname())
-                .totalPoints(SOPTAMP_USER_1.getTotalPoints())
+                .id(SOPTAMP_USER_SERVER_1.getId())
+                .userId(SOPTAMP_USER_SERVER_1.getUserId())
+                .nickname(SOPTAMP_USER_SERVER_1.getNickname())
+                .totalPoints(SOPTAMP_USER_SERVER_1.getTotalPoints())
                 .profileMessage(newProfileMessage)
                 .build();
         given(soptampUserRepository.save(any(SoptampUser.class))).willReturn(editedSoptampUser);

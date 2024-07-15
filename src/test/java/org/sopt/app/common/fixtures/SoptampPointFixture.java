@@ -1,8 +1,8 @@
 package org.sopt.app.common.fixtures;
 
-import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_1;
-import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_2;
-import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_3;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_SERVER_1;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_PLAN_1;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_IOS_1;
 
 import java.util.List;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartPoint;
@@ -16,17 +16,17 @@ public class SoptampPointFixture {
     public static final Point POINT_1 = Point.builder()
             .id(1L)
             .generation(1L)
-            .soptampUserId(SOPTAMP_USER_1.getId())
+            .soptampUserId(SOPTAMP_USER_SERVER_1.getId())
             .points(100L).build();
     public static final Point POINT_2 = Point.builder()
             .id(2L)
             .generation(1L)
-            .soptampUserId(SOPTAMP_USER_2.getId())
+            .soptampUserId(SOPTAMP_USER_PLAN_1.getId())
             .points(200L).build();
     public static final Point POINT_3 = Point.builder()
             .id(3L)
             .generation(1L)
-            .soptampUserId(SOPTAMP_USER_3.getId())
+            .soptampUserId(SOPTAMP_USER_IOS_1.getId())
             .points(300L).build();
     public static final List<Point> SOPTAMP_POINT_LIST = List.of(POINT_1, POINT_2, POINT_3);
 
