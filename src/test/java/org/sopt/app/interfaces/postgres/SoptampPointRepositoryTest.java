@@ -1,7 +1,12 @@
 package org.sopt.app.interfaces.postgres;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
+import static org.sopt.app.common.fixtures.SoptampPointFixture.SOPTAMP_POINT_1;
+import static org.sopt.app.common.fixtures.SoptampPointFixture.SOPTAMP_POINT_2;
+import static org.sopt.app.common.fixtures.SoptampPointFixture.SOPTAMP_POINT_3;
+
 import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,71 +28,76 @@ class SoptampPointRepositoryTest {
     @Autowired
     private SoptampPointRepository soptampPointRepository;
 
-    private SoptampPoint generation1soptampPointId1;
-    private SoptampPoint generation1soptampPointId2;
+    @Autowired
+    private SoptampPointRepository soptampUserRepository;
 
     @BeforeEach
     void beforeTest() {
-        generation1soptampPointId1 = soptampPointRepository.save(
-                SoptampPoint.builder()
-                        .generation(1L)
-                        .soptampUserId(1L)
-                        .build()
-        );
-
-        generation1soptampPointId2 = soptampPointRepository.save(
-                SoptampPoint.builder()
-                        .generation(1L)
-                        .soptampUserId(2L)
-                        .build()
-        );
-
-        soptampPointRepository.save(
-                SoptampPoint.builder()
-                        .generation(1L)
-                        .soptampUserId(3L)
-                        .build()
-        );
-
-        soptampPointRepository.save(
-                SoptampPoint.builder()
-                        .generation(2L)
-                        .soptampUserId(4L)
-                        .build()
-        );
-
+        soptampPointRepository.save(SOPTAMP_POINT_1);
+        soptampPointRepository.save(SOPTAMP_POINT_2);
+        soptampPointRepository.save(SOPTAMP_POINT_3);
     }
 
     @Test
     @DisplayName("SUCCESS_기수별 솝탬프 포인트 찾기")
     void SUCCESS_findAllByGeneration() {
-        Assertions.assertThat(soptampPointRepository.findAllByGeneration(1L))
-                .containsAll(
-                        List.of(generation1soptampPointId1, generation1soptampPointId2)
-                );
+        // given & when
+        List<SoptampPoint> result = soptampPointRepository.findAllByGeneration(1L);
+
+        // then
+        List<Long> resultSoptampPointIdList = result.stream().map(SoptampPoint::getId).toList();
+
+        assertThat(resultSoptampPointIdList)
+                .containsAll(List.of(SOPTAMP_POINT_1.getId(), SOPTAMP_POINT_2.getId(), SOPTAMP_POINT_3.getId()));
     }
 
     @Test
     @DisplayName("SUCCESS_유저 아이디와 기수로 솝탬프 포인트 리스트 찾기")
     void SUCCESS_findAllBySoptampUserIdAndGeneration() {
-        Assertions.assertThat(soptampPointRepository.findBySoptampUserIdAndGeneration(1L, 1L)
-                        .orElseThrow().getId())
-                .isEqualTo(generation1soptampPointId1.getId());
+        // given & when
+        SoptampPoint soptampPoint =
+                soptampPointRepository.findBySoptampUserIdAndGeneration(
+                        SOPTAMP_POINT_1.getSoptampUserId(), SOPTAMP_POINT_1.getGeneration())
+                        .orElseThrow();
+        // then
+        assertThat(soptampPoint.getId()).isEqualTo(SOPTAMP_POINT_1.getId());
     }
 
     @Test
     @DisplayName("SUCCESS_유저 아이디 리스트와 기수로 솝탬프 포인트 리스트 찾기")
     void SUCCESS_findAllBySoptampUserIdInAndGeneration() {
         // given
+        List<Long> userIdList = List.of(SOPTAMP_POINT_1.getSoptampUserId(), SOPTAMP_POINT_2.getSoptampUserId());
+        Long generation = 1L;
+
+        // when
+        if (!SOPTAMP_POINT_1.getGeneration().equals(generation) ||
+                !SOPTAMP_POINT_2.getGeneration().equals(generation)) {
+            fail("기수가 같아야 정상적인 테스트를 진행할 수 있습니다.");
+        }
+
+        List<SoptampPoint> result =
+                soptampPointRepository.findAllBySoptampUserIdInAndGeneration(userIdList, generation);
+
+        // then
+        List<Long> resultSoptampPointIdList = result.stream().map(SoptampPoint::getId).toList();
+
+        assertThat(resultSoptampPointIdList).hasSameElementsAs(List.of(
+                SOPTAMP_POINT_1.getId(),
+                SOPTAMP_POINT_2.getId()
+        ));
+    }
+
+    @Test
+    @DisplayName("SUCCESS_유저 아이디 리스트와 기수로 솝탬프 포인트 리스트 찾기")
+    void SUCCESS_findSumOfPointBySamePartAndGeneration() {
+        // given
         List<Long> userIdList = List.of(1L, 2L);
 
         // when
-        List<SoptampPoint> result = soptampPointRepository.findAllBySoptampUserIdInAndGeneration(userIdList, 1L);
+        //Long result = soptampPointRepository.findSumOfPointBySamePartAndGeneration(Part part, Long generation);
 
         // then
-        Assertions.assertThat(result)
-                .hasSameElementsAs(
-                        List.of(generation1soptampPointId1, generation1soptampPointId2)
-                );
+
     }
 }
