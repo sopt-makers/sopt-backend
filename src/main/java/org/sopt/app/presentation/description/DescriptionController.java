@@ -35,7 +35,7 @@ public class DescriptionController {
         @AuthenticationPrincipal User user
     ) {
         val response = descriptionFacade.getMainDescriptionForUser(user);
-        return ResponseEntity.status(HttpStatus.OK).body(
+        return ResponseEntity.ok(
             DescriptionResponse.MainDescription.builder()
                 .topDescription(response.getTopDescription())
                 .bottomDescription(response.getBottomDescription())

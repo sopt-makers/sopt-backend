@@ -51,7 +51,7 @@ public class StampController {
     ) {
         val result = soptampFacade.getStampInfo(findStampRequest.getMissionId(), findStampRequest.getNickname());
         val response = stampResponseMapper.of(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "스탬프 조회하기 - DEPRECATED")
@@ -67,7 +67,7 @@ public class StampController {
     ) {
         val result = stampService.findStamp(missionId, user.getId());
         val response = stampResponseMapper.of(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "스탬프 등록하기 - DEPRECATED")
@@ -81,7 +81,7 @@ public class StampController {
     ) {
         val result = soptampFacade.uploadStampDeprecated(user.getId(), missionId, registerStampRequest, multipartFiles);
         val response = stampResponseMapper.of(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "스탬프 수정하기 - DEPRECATED")
@@ -94,7 +94,7 @@ public class StampController {
     ) {
         val stamp = soptampFacade.editStamp(editStampRequest, user.getId(), missionId, multipartFiles);
         val response = stampResponseMapper.of(stamp.getId());
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
 
@@ -112,7 +112,7 @@ public class StampController {
     ) {
         val result = soptampFacade.uploadStamp(user.getId(), registerStampRequest);
         val response = stampResponseMapper.of(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "스탬프 수정하기")
@@ -128,7 +128,7 @@ public class StampController {
     ) {
         val stamp = stampService.editStampContents(editStampRequest, user.getId());
         val response = stampResponseMapper.of(stamp.getId());
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "스탬프 삭제하기(개별)")
@@ -138,12 +138,12 @@ public class StampController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @DeleteMapping("/{stampId}")
-    public ResponseEntity<StampResponse.StampMain> deleteStampById(
+    public ResponseEntity<Void> deleteStampById(
             @AuthenticationPrincipal User user,
             @PathVariable Long stampId
     ) {
         soptampFacade.deleteStamp(user.getId(), stampId);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "스탬프 삭제하기(전체)")
@@ -152,8 +152,8 @@ public class StampController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @DeleteMapping("/all")
-    public ResponseEntity<StampResponse.StampMain> deleteStampByUserId(@AuthenticationPrincipal User user) {
+    public ResponseEntity<Void> deleteStampByUserId(@AuthenticationPrincipal User user) {
         soptampFacade.deleteStampAll(user.getId());
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.ok().build();
     }
 }

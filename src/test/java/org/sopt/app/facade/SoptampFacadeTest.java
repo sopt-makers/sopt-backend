@@ -22,7 +22,7 @@ import org.sopt.app.application.mission.MissionInfo;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.s3.S3Service;
 import org.sopt.app.application.soptamp.SoptampPointService;
-import org.sopt.app.application.soptamp.SoptampUserInfo.SoptampUser;
+import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampService;
@@ -152,7 +152,7 @@ class SoptampFacadeTest {
     @DisplayName("SUCCESS_솝탬프 유저 닉네임 수정하기")
     void SUCCESS_editSoptampUserNickname() {
         // given
-        final SoptampUser soptampUser = SoptampFixture.getUserInfo();
+        final SoptampUserInfo soptampUser = SoptampFixture.getUserInfo();
         given(soptampUserService.getSoptampUserInfo(USER_ID)).willReturn(soptampUser);
 
         // when
@@ -166,7 +166,7 @@ class SoptampFacadeTest {
     @DisplayName("SUCCESS_솝탬프 유저 프로필 메시지 수정하기")
     void SUCCESS_editSoptampUserProfileMessage() {
         // given
-        final SoptampUser soptampUser = SoptampFixture.getUserInfo();
+        final SoptampUserInfo soptampUser = SoptampFixture.getUserInfo();
         final String newProfileMessage = "new message";
         given(soptampUserService.getSoptampUserInfo(USER_ID)).willReturn(soptampUser);
 

@@ -16,7 +16,7 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.common.utils.AnonymousNameGenerator;
 import org.sopt.app.domain.entity.Friend;
 import org.sopt.app.domain.enums.Friendship;
-import org.sopt.app.interfaces.postgres.FriendRepository;
+import org.sopt.app.interfaces.postgres.friend.FriendRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class FriendService {
 
+    private final Random random = new Random();
     private final FriendRepository friendRepository;
 
     public List<Long> findAllFriendIdsByUserIdRandomly(Long userId, int limitNum) {
@@ -163,8 +164,6 @@ public class FriendService {
         if (friendIdsPokeMe.isEmpty() || friends.isEmpty()) {
             throw new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND.getMessage());
         }
-
-        Random random = new Random();
 
         return friends.get(random.nextInt(friends.size())).getFriendUserId();
     }

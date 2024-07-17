@@ -40,7 +40,7 @@ public class MissionController {
     public ResponseEntity<List<MissionResponse.Completeness>> findAllMission(@AuthenticationPrincipal User user) {
         val result = missionService.findAllMission(user.getId());
         val response = missionResponseMapper.ofCompleteness(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
 
@@ -54,7 +54,7 @@ public class MissionController {
             @Valid @RequestBody MissionRequest.RegisterMissionRequest registerMissionRequest) {
         val mission = missionService.uploadMission(registerMissionRequest);
         val response = missionResponseMapper.of(mission.getId());
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "완료 미션만 조회하기")
@@ -66,7 +66,7 @@ public class MissionController {
     public ResponseEntity<List<MissionResponse.MissionMain>> findCompleteMission(@AuthenticationPrincipal User user) {
         val result = missionService.getCompleteMission(user.getId());
         val response = missionResponseMapper.of(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "미완료 미션만 조회하기")
@@ -78,6 +78,6 @@ public class MissionController {
     public ResponseEntity<List<MissionResponse.MissionMain>> findInCompleteMission(@AuthenticationPrincipal User user) {
         val result = missionService.getIncompleteMission(user.getId());
         val response = missionResponseMapper.of(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 }

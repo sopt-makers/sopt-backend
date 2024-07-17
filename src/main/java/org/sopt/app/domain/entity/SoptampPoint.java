@@ -31,4 +31,24 @@ public class SoptampPoint extends BaseEntity{
 
     @Column(name = "points")
     private Long points;
+
+    public void addPointsByLevelValue(Integer level) {
+        this.points += level;
+    }
+
+    public void subtractPointsByLevelValue(Integer level) {
+        this.points -= level;
+    }
+
+    public void initPoint() {
+        this.points = 0L;
+    }
+
+    public static SoptampPoint createNewSoptampPoint(Long generation, Long soptampUserId) {
+        return SoptampPoint.builder()
+                .generation(generation)
+                .soptampUserId(soptampUserId)
+                .points(0L)
+                .build();
+    }
 }

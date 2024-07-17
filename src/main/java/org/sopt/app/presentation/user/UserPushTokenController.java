@@ -43,7 +43,7 @@ public class UserPushTokenController {
                 pushTokenRequest.getPlatform()
         );
         val response = pushTokenResponseMapper.ofStatus(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "푸시 토큰 해제")
@@ -62,7 +62,7 @@ public class UserPushTokenController {
             );
             pushTokenService.deleteDeviceToken(targetPushToken);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.ok().build();
     }
 
 }
