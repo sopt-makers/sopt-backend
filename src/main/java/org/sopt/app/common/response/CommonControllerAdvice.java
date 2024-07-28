@@ -19,8 +19,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @RequiredArgsConstructor
 public class CommonControllerAdvice {
 
-    private final SlackService slackService;
-
     @ExceptionHandler(value = BaseException.class)
     public ResponseEntity onKnownException(HttpServletRequest req, BaseException baseException) {
         final Long userId = getUserId();
@@ -32,7 +30,7 @@ public class CommonControllerAdvice {
                 baseException, userId, requestMethod, requestUri, baseExceptionMessage, baseExceptionStatusCode
         );
 
-        slackService.sendSlackMessage("Error", message);
+        SlackService.sendSlackMessage("Error", message);
 
         return new ResponseEntity<>(CommonResponse.onFailure(baseExceptionStatusCode,
                 baseExceptionMessage), null, baseExceptionStatusCode);

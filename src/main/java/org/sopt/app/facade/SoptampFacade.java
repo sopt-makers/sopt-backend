@@ -10,6 +10,9 @@ import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampService;
+import org.sopt.app.domain.entity.Mission;
+import org.sopt.app.presentation.rank.RankResponse;
+import org.sopt.app.presentation.rank.RankResponseMapper;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,7 @@ public class SoptampFacade {
     private final MissionService missionService;
     private final SoptampUserService soptampUserService;
     private final SoptampPointService soptampPointService;
+    private final RankResponseMapper rankResponseMapper;
 
     @Transactional
     public StampInfo.Stamp uploadStampDeprecated(Long userId, Long missionId, RegisterStampRequest registerStampRequest, List<MultipartFile> multipartFileList){
@@ -64,13 +68,13 @@ public class SoptampFacade {
     }
 
     @Transactional
-    public SoptampUserInfo.SoptampUser editSoptampUserNickname(Long userId, String nickname){
+    public SoptampUserInfo editSoptampUserNickname(Long userId, String nickname){
         val soptampUser = soptampUserService.getSoptampUserInfo(userId);
         return soptampUserService.editNickname(soptampUser, nickname);
     }
 
     @Transactional
-    public SoptampUserInfo.SoptampUser editSoptampUserProfileMessage(Long userId, String newProfileMessage){
+    public SoptampUserInfo editSoptampUserProfileMessage(Long userId, String newProfileMessage){
         val soptampUser = soptampUserService.getSoptampUserInfo(userId);
         return soptampUserService.editProfileMessage(soptampUser, newProfileMessage);
     }
@@ -89,5 +93,12 @@ public class SoptampFacade {
             stampService.editStampImagesDeprecated(stamp, imgPaths);
         }
         return stamp;
+    }
+
+    public RankResponse.Detail findSoptampUserAndCompletedMissionByNickname(String nickname) {
+        SoptampUserInfo soptampUserInfo = soptampUserService.findSoptampUserByNickname(nickname);
+        List<Mission> missionList = missionService.getCompleteMission(soptampUserInfo.getUserId());
+
+        return rankResponseMapper.of(soptampUserInfo, missionList);
     }
 }

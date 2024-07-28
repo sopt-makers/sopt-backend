@@ -127,7 +127,7 @@ public class PushTokenService {
     }
 
     private PushTokenRequest.PushTokenManageRequest createBodyFor(PushToken pushToken) {
-        return PushTokenRequest.PushTokenManageRequest.of(
+        return new PushTokenRequest.PushTokenManageRequest(
                 List.of(String.valueOf(pushToken.getPlaygroundId())),
                 pushToken.getToken()
         );

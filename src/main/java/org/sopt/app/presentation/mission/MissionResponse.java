@@ -3,15 +3,17 @@ package org.sopt.app.presentation.mission;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MissionResponse {
 
     @Getter
-    @Setter
-    @ToString
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class MissionMain {
 
         @Schema(description = "미션 아이디", example = "1")
@@ -25,8 +27,8 @@ public class MissionResponse {
     }
 
     @Getter
-    @Setter
-    @ToString
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class Completeness {
 
         @Schema(description = "미션 아이디", example = "1")
@@ -42,8 +44,8 @@ public class MissionResponse {
     }
 
     @Getter
-    @Setter
-    @ToString
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class MissionId {
 
         @Schema(description = "미션 아이디", example = "1")

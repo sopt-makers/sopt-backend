@@ -7,7 +7,7 @@ import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.soptamp.SoptampPointService;
-import org.sopt.app.application.soptamp.SoptampUserInfo.SoptampUserPlaygroundInfo;
+import org.sopt.app.application.soptamp.SoptampUserPlaygroundInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.application.user.UserInfo.UserProfile;
@@ -40,8 +40,8 @@ public class AdminSoptampFacade {
     @Transactional
     public AdminSoptampResponse.Rows initCurrentGenerationInfo(User user) {
         // 플그에서 현재 기수 멤버 아이디 조회
-        val currentGenerationPlaygroundIdList = playgroundAuthService.getPlayGroundUserIds(user.getPlaygroundToken())
-                .getUserIds();
+        val currentGenerationPlaygroundIdList =
+                playgroundAuthService.getPlayGroundUserIds(user.getPlaygroundToken()).userIds();
 
         // 플그에서 현재 기수 멤버 프로필 조회
         val memberProfileList = playgroundAuthService.getPlaygroundMemberProfiles(
@@ -71,8 +71,8 @@ public class AdminSoptampFacade {
         ).filter(Objects::nonNull).toList();
 
         // 플그 파트, 기수, 점수 정보 업데이트
-        val updatedSoptampUserList = soptampUserService.initAllCurrentGenerationSoptampUser(soptampUserList,
-                userInfoList);
+        val updatedSoptampUserList =
+                soptampUserService.initAllCurrentGenerationSoptampUser(soptampUserList, userInfoList);
 
         // 플그 아이디로 SoptampPoint 현활기수 row 추가
         val currentGenerationSoptampPointList = soptampPointService.createCurrentGenerationSoptampPointList(

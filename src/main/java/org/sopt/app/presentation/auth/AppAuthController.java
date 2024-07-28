@@ -35,7 +35,7 @@ public class AppAuthController {
             @Valid @RequestBody AppAuthRequest.CodeRequest codeRequest
     ) {
         val response = authFacade.loginWithPlayground(codeRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "토큰 리프레시")
@@ -49,6 +49,6 @@ public class AppAuthController {
             @Valid @RequestBody AppAuthRequest.RefreshRequest refreshRequest
     ) {
         val response = authFacade.getRefreshToken(refreshRequest);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 }

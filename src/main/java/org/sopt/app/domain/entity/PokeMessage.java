@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -13,7 +12,6 @@ import org.sopt.app.domain.enums.PokeMessageType;
 import org.sopt.app.domain.enums.PokeMessageTypeConverter;
 
 @Getter
-@Setter
 @Entity
 @Table(name = "poke_message", schema = "app_dev")
 @Builder

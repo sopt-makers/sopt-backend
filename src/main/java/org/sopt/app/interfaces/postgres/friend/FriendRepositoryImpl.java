@@ -1,11 +1,10 @@
-package org.sopt.app.interfaces.postgres;
+package org.sopt.app.interfaces.postgres.friend;
 
 import com.querydsl.core.types.SubQueryExpression;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import org.sopt.app.domain.entity.QFriend;
 
 @RequiredArgsConstructor

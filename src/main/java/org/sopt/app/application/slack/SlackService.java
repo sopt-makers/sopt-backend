@@ -4,20 +4,23 @@ import com.slack.api.Slack;
 import com.slack.api.model.Attachment;
 import com.slack.api.webhook.Payload;
 import java.util.List;
-import lombok.RequiredArgsConstructor;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
+@Slf4j
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SlackService {
 
     @Value("${webhook.slack.url}")
-    private String SLACK_WEBHOOK_URL;
+    private static String SLACK_WEBHOOK_URL;
 
-    private final Slack slackClient = Slack.getInstance();
+    private static final Slack slackClient = Slack.getInstance();
 
-    public void sendSlackMessage(String title, String message) {
+    public static void sendSlackMessage(String title, String message) {
         try{
             slackClient.send(SLACK_WEBHOOK_URL, Payload.builder()
                     .text(title)
@@ -29,7 +32,7 @@ public class SlackService {
                     ))
                 .build());
         } catch (Exception e) {
-            e.printStackTrace();
+            log.warn(e.getMessage());
         }
     }
 }

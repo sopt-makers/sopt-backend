@@ -9,6 +9,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthService;
+import org.sopt.app.application.auth.dto.PlaygroundPostInfo.PlaygroundPost;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.UserFacade;
 import org.sopt.app.presentation.user.UserResponse.AppService;
@@ -41,7 +42,7 @@ public class UserOriginalController {
             @AuthenticationPrincipal User user
     ) {
         val response = userFacade.getMainViewInfo(user);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "유저 기수 정보 조회")
@@ -57,7 +58,7 @@ public class UserOriginalController {
         val generationUser = playgroundAuthService.getPlaygroundUserActiveInfo(
                 user.getPlaygroundToken(), user.getPlaygroundId());
         val response = userResponseMapper.ofGeneration(generationUser);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "앱 서비스 조회")
@@ -69,6 +70,19 @@ public class UserOriginalController {
     @GetMapping(value = "/app-service")
     public ResponseEntity<List<AppService>> getAppServiceInfo() {
         val response = userFacade.getAppServiceInfo();
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "플레이그라운드 인기 게시글 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping(value = "/playground/hot-post")
+    public ResponseEntity<PlaygroundPost> getPlaygroundHotPost(
+            @AuthenticationPrincipal User user
+    ) {
+        val response = playgroundAuthService.getPlaygroundHotPost(user.getPlaygroundToken());
+        return ResponseEntity.ok(response);
     }
 }

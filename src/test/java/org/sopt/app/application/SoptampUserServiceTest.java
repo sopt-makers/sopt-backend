@@ -4,11 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_1;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -17,8 +16,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
-import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.exception.BadRequestException;
@@ -53,7 +50,7 @@ class SoptampUserServiceTest {
                 .build());
 
         //when
-        SoptampUserInfo.SoptampUser expected = SoptampUserInfo.SoptampUser.builder()
+        SoptampUserInfo expected = SoptampUserInfo.builder()
                 .id(id)
                 .userId(anyUserId)
                 .profileMessage(profileMessage)
@@ -62,7 +59,7 @@ class SoptampUserServiceTest {
                 .build();
 
         Mockito.when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(soptampUser);
-        SoptampUserInfo.SoptampUser result = soptampUserService.getSoptampUserInfo(anyUserId);
+        SoptampUserInfo result = soptampUserService.getSoptampUserInfo(anyUserId);
         //then
 
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
@@ -118,7 +115,7 @@ class SoptampUserServiceTest {
     void SUCCESS_editNickname() {
         //given
         final String newNickname = "newNickname";
-        SoptampUserInfo.SoptampUser soptampUser = SoptampUserInfo.SoptampUser.builder()
+        SoptampUserInfo soptampUser = SoptampUserInfo.builder()
                 .nickname("oldNickname")
                 .build();
 
@@ -131,14 +128,28 @@ class SoptampUserServiceTest {
     void SUCCESS_editProfileMessage() {
         //given
         final String newProfileMessage = "newProfileMessage";
-        SoptampUserInfo.SoptampUser soptampUser = SoptampUserInfo.SoptampUser.builder()
-                .nickname("oldProfileMessage")
+        final SoptampUser editedSoptampUser = SoptampUser.builder()
+                .id(SOPTAMP_USER_1.getId())
+                .userId(SOPTAMP_USER_1.getUserId())
+                .nickname(SOPTAMP_USER_1.getNickname())
+                .totalPoints(SOPTAMP_USER_1.getTotalPoints())
+                .profileMessage(newProfileMessage)
                 .build();
+        final SoptampUserInfo editedSoptampUserInfo = SoptampUserInfo.builder()
+                .id(SOPTAMP_USER_1.getId())
+                .userId(SOPTAMP_USER_1.getUserId())
+                .nickname(SOPTAMP_USER_1.getNickname())
+                .totalPoints(SOPTAMP_USER_1.getTotalPoints())
+                .profileMessage(newProfileMessage)
+                .build();
+        given(soptampUserRepository.save(any(SoptampUser.class))).willReturn(editedSoptampUser);
+
+        // when
+        String result = soptampUserService.editProfileMessage(editedSoptampUserInfo, newProfileMessage)
+                .getProfileMessage();
 
         //then
-        Assertions.assertEquals(
-                soptampUserService.editProfileMessage(soptampUser, newProfileMessage).getProfileMessage(),
-                newProfileMessage);
+        Assertions.assertEquals(newProfileMessage, result);
     }
 
     @Test
@@ -183,87 +194,8 @@ class SoptampUserServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_솝탬프 유저 리스트를 받아 랭크 조회")
-    void SUCCESS_findRanks() {
-        //given
-        final SoptampUser soptampUser1 = SoptampUser.builder().nickname("1stUser").totalPoints(100L).build();
-        final SoptampUser soptampUser2 = SoptampUser.builder().nickname("2stUser").totalPoints(200L).build();
-        final SoptampUser soptampUser3 = SoptampUser.builder().nickname("3stUser").totalPoints(300L).build();
-        final List<SoptampUser> soptampUserList = List.of(soptampUser1, soptampUser2, soptampUser3);
-
-        //when
-        List<Main> expected = List.of(
-                Main.builder().rank(1).point(300L).nickname("3stUser").build(),
-                Main.builder().rank(2).point(200L).nickname("2stUser").build(),
-                Main.builder().rank(3).point(100L).nickname("1stUser").build()
-        );
-
-        Mockito.when(soptampUserRepository.findAll()).thenReturn(soptampUserList);
-        List<Main> result = soptampUserService.findRanks();
-
-        //then
-        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
-    }
-
-    @Test
-    @DisplayName("SUCCESS_솝탬프 포인트 리스트를 받아 랭크를 조회")
-    void SUCCESS_findCurrentRanks() {
-        //given
-        List<Point> soptampPointList = Stream.of(
-                Point.of(1L, 1L, 1L, 100L),
-                Point.of(2L, 1L, 2L, 200L),
-                Point.of(3L, 1L, 3L, 300L)
-        ).collect(Collectors.toList());
-
-        List<Long> soptampUserIdList = soptampPointList.stream()
-                .map(Point::getSoptampUserId).toList();
-
-        //when
-        List<Main> expected = List.of(
-                Main.builder().rank(1).point(300L).build(),
-                Main.builder().rank(2).point(200L).build(),
-                Main.builder().rank(3).point(100L).build()
-        );
-
-        Mockito.when(soptampUserRepository.findAllById(soptampUserIdList)).thenReturn(
-                List.of(
-                        SoptampUser.builder().id(1L).build(),
-                        SoptampUser.builder().id(2L).build(),
-                        SoptampUser.builder().id(3L).build()
-                ));
-        List<Main> result = soptampUserService.findCurrentRanks(soptampPointList);
-
-        //then
-        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
-    }
-
-    @Test
-    @DisplayName("FAIL_솝탬프 포인트 리스트를 받았을 때 유저를 찾지 못하면 BadRequestException 발생")
-    void FAIL_findCurrentRanks() {
-        //given
-        List<Point> soptampPointList = Stream.of(
-                Point.of(1L, 1L, 1L, 100L),
-                Point.of(2L, 1L, 2L, 200L),
-                Point.of(3L, 1L, 3L, 300L)
-        ).collect(Collectors.toList());
-
-        List<Long> soptampUserIdList = soptampPointList.stream()
-                .map(Point::getSoptampUserId).toList();
-
-        //when
-
-        Mockito.when(soptampUserRepository.findAllById(soptampUserIdList)).thenReturn(List.of());
-
-        //then
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            soptampUserService.findCurrentRanks(soptampPointList);
-        });
-    }
-
-
-    @Test
     @DisplayName("SUCCESS_닉네임으로 랭킹 조회")
-    void SUCCESS_findRankByNickname() {
+    void SUCCESS_findSoptampUserByNickname() {
         // given
         final String anyNickname = anyString();
         final SoptampUser soptampUser = SoptampUser.builder().nickname(anyNickname).build();
@@ -278,7 +210,7 @@ class SoptampUserServiceTest {
 
     @Test
     @DisplayName("FAIL_닉네임으로 랭킹 조회")
-    void FAIL_findRankByNickname() {
+    void FAIL_findSoptampUserByNickname() {
         // given
         final String anyNickname = anyString();
 
@@ -287,7 +219,7 @@ class SoptampUserServiceTest {
 
         //then
         Assertions.assertThrows(BadRequestException.class, () -> {
-            soptampUserService.findRankByNickname(anyNickname);
+            soptampUserService.findSoptampUserByNickname(anyNickname);
         });
 
     }
@@ -309,7 +241,7 @@ class SoptampUserServiceTest {
                 .build();
 
         //when
-        SoptampUserInfo.SoptampUser result = SoptampUserInfo.SoptampUser.builder()
+        SoptampUserInfo result = SoptampUserInfo.builder()
                 .id(newSoptampUser.getId())
                 .userId(newSoptampUser.getUserId())
                 .profileMessage(newSoptampUser.getProfileMessage())
@@ -356,7 +288,7 @@ class SoptampUserServiceTest {
                 .build();
 
         //when
-        SoptampUserInfo.SoptampUser result = SoptampUserInfo.SoptampUser.builder()
+        SoptampUserInfo result = SoptampUserInfo.builder()
                 .id(newSoptampUser.getId())
                 .userId(newSoptampUser.getUserId())
                 .profileMessage(newSoptampUser.getProfileMessage())
@@ -405,7 +337,7 @@ class SoptampUserServiceTest {
                 .build();
         //when
         Mockito.when(soptampUserRepository.findUserByNickname(anyNickname)).thenReturn(Optional.of(soptampUser));
-        SoptampUserInfo.SoptampUser expected = SoptampUserInfo.SoptampUser.builder()
+        SoptampUserInfo expected = SoptampUserInfo.builder()
                 .id(id)
                 .userId(userId)
                 .profileMessage(profileMessage)

@@ -2,17 +2,19 @@ package org.sopt.app.presentation.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import javax.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserRequest {
 
     @Getter
-    @Setter
-    @ToString
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class EditNicknameRequest {
 
         @Schema(description = "닉네임", example = "김앱짱")
@@ -21,8 +23,8 @@ public class UserRequest {
     }
 
     @Getter
-    @Setter
-    @ToString
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class EditProfileMessageRequest {
 
         @Schema(description = "한마디", example = "1등이 되고 말거야!")
@@ -32,8 +34,8 @@ public class UserRequest {
 
 
     @Getter
-    @Setter
-    @ToString
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class EditIsOptInRequest {
 
         @Schema(description = "푸시 알림 수신 동의", example = "false")
@@ -42,8 +44,8 @@ public class UserRequest {
     }
 
     @Getter
-    @Setter
-    @ToString
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     public static class MemberProfilesRequest {
 
         @Schema(description = "프로필 조회 대상 플레이그라운드 ID 리스트", example = "[115, 106]")
