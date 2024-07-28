@@ -2,9 +2,15 @@ package org.sopt.app.interfaces.postgres;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.sopt.app.common.fixtures.SoptampPointFixture.SOPTAMP_POINT_1;
 import static org.sopt.app.common.fixtures.SoptampPointFixture.SOPTAMP_POINT_2;
 import static org.sopt.app.common.fixtures.SoptampPointFixture.SOPTAMP_POINT_3;
+import static org.sopt.app.common.fixtures.SoptampPointFixture.SOPTAMP_POINT_4;
+import static org.sopt.app.common.fixtures.SoptampPointFixture.SOPTAMP_POINT_5;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_SERVER_1;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_SERVER_4;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_SERVER_NOT_SAME_GENERATION_5;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,6 +18,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sopt.app.common.config.QuerydslConfiguration;
 import org.sopt.app.domain.entity.SoptampPoint;
+import org.sopt.app.domain.enums.Part;
 import org.sopt.app.interfaces.postgres.soptamp_point.SoptampPointRepository;
 import org.sopt.app.interfaces.postgres.soptamp_point.SoptampPointRepositoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +36,7 @@ class SoptampPointRepositoryTest {
     private SoptampPointRepository soptampPointRepository;
 
     @Autowired
-    private SoptampPointRepository soptampUserRepository;
+    private SoptampUserRepository soptampUserRepository;
 
     @BeforeEach
     void beforeTest() {
@@ -89,15 +96,30 @@ class SoptampPointRepositoryTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_유저 아이디 리스트와 기수로 솝탬프 포인트 리스트 찾기")
+    @DisplayName("SUCCESS_동일 파트와 동일 기수의 솝탬프 포인트 합계 찾기")
     void SUCCESS_findSumOfPointBySamePartAndGeneration() {
         // given
-        List<Long> userIdList = List.of(1L, 2L);
+        final Part serverPart = Part.SERVER;
+        Long generation = 1L;
+        soptampUserRepository.save(SOPTAMP_USER_SERVER_1);
+        soptampUserRepository.save(SOPTAMP_USER_SERVER_4);
+        soptampUserRepository.save(SOPTAMP_USER_SERVER_NOT_SAME_GENERATION_5);
+        soptampPointRepository.save(SOPTAMP_POINT_1);
+        soptampPointRepository.save(SOPTAMP_POINT_4);
+        soptampPointRepository.save(SOPTAMP_POINT_5);
+
+        System.out.println("hio" + SOPTAMP_POINT_1.getSoptampUserId());
+        System.out.println("hio" + SOPTAMP_POINT_4.getSoptampUserId());
 
         // when
-        //Long result = soptampPointRepository.findSumOfPointBySamePartAndGeneration(Part part, Long generation);
+        if (!SOPTAMP_USER_SERVER_1.getGeneration().equals(generation) ||
+                !SOPTAMP_USER_SERVER_4.getGeneration().equals(generation)) {
+            fail("기수가 같아야 정상적인 테스트를 진행할 수 있습니다.");
+        }
+        Long result = soptampPointRepository.findSumOfPointBySamePartAndGeneration(serverPart, generation);
+        Long expected = SOPTAMP_POINT_1.getPoints() + SOPTAMP_POINT_4.getPoints();
 
         // then
-
+        assertEquals(expected, result);
     }
 }

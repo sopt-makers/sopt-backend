@@ -1,8 +1,10 @@
 package org.sopt.app.common.fixtures;
 
 import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_SERVER_1;
-import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_PLAN_1;
-import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_IOS_1;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_PLAN_2;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_IOS_3;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_SERVER_4;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_SERVER_NOT_SAME_GENERATION_5;
 
 import java.util.List;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartPoint;
@@ -15,19 +17,29 @@ public class SoptampPointFixture {
 
     public static final Point POINT_1 = Point.builder()
             .id(1L)
-            .generation(1L)
+            .generation(SOPTAMP_USER_SERVER_1.getGeneration())
             .soptampUserId(SOPTAMP_USER_SERVER_1.getId())
-            .points(100L).build();
+            .points(SOPTAMP_USER_SERVER_1.getTotalPoints()).build();
     public static final Point POINT_2 = Point.builder()
             .id(2L)
-            .generation(1L)
-            .soptampUserId(SOPTAMP_USER_PLAN_1.getId())
-            .points(200L).build();
+            .generation(SOPTAMP_USER_PLAN_2.getGeneration())
+            .soptampUserId(SOPTAMP_USER_PLAN_2.getId())
+            .points(SOPTAMP_USER_PLAN_2.getTotalPoints()).build();
     public static final Point POINT_3 = Point.builder()
             .id(3L)
-            .generation(1L)
-            .soptampUserId(SOPTAMP_USER_IOS_1.getId())
-            .points(300L).build();
+            .generation(SOPTAMP_USER_IOS_3.getGeneration())
+            .soptampUserId(SOPTAMP_USER_IOS_3.getId())
+            .points(SOPTAMP_USER_IOS_3.getTotalPoints()).build();
+    public static final Point POINT_4 = Point.builder()
+            .id(4L)
+            .generation(SOPTAMP_USER_SERVER_4.getGeneration())
+            .soptampUserId(SOPTAMP_USER_SERVER_4.getId())
+            .points(SOPTAMP_USER_SERVER_4.getTotalPoints()).build();
+    public static final Point POINT_5 = Point.builder()
+            .id(5L)
+            .generation(SOPTAMP_USER_SERVER_NOT_SAME_GENERATION_5.getGeneration())
+            .soptampUserId(SOPTAMP_USER_SERVER_NOT_SAME_GENERATION_5.getId())
+            .points(SOPTAMP_USER_SERVER_NOT_SAME_GENERATION_5.getTotalPoints()).build();
     public static final List<Point> SOPTAMP_POINT_LIST = List.of(POINT_1, POINT_2, POINT_3);
 
     public static final SoptampPoint SOPTAMP_POINT_1 = SoptampPoint.builder()
@@ -45,6 +57,16 @@ public class SoptampPointFixture {
             .generation(POINT_3.getGeneration())
             .soptampUserId(POINT_3.getSoptampUserId())
             .points(POINT_3.getPoints()).build();
+    public static final SoptampPoint SOPTAMP_POINT_4 = SoptampPoint.builder()
+            .id(POINT_4.getId())
+            .generation(POINT_4.getGeneration())
+            .soptampUserId(POINT_4.getSoptampUserId())
+            .points(POINT_4.getPoints()).build();
+    public static final SoptampPoint SOPTAMP_POINT_5 = SoptampPoint.builder()
+            .id(POINT_5.getId())
+            .generation(POINT_5.getGeneration())
+            .soptampUserId(POINT_5.getSoptampUserId())
+            .points(POINT_5.getPoints()).build();
 
     public static final PartPoint PART_POINT_PLAN = new PartPoint(Part.PLAN, 50L);
     public static final PartPoint PART_POINT_SERVER = new PartPoint(Part.SERVER, 40L);
@@ -89,7 +111,7 @@ public class SoptampPointFixture {
     public static final PartRank PART_RANK_DESIGN = PartRank.builder()
             .part(Part.DESIGN.getPartName())
             .rank(6)
-            .points(0L)
+            .points(PART_POINT_DESIGN.points())
             .build();
 }
 
