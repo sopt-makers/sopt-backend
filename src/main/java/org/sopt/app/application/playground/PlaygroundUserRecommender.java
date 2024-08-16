@@ -1,4 +1,4 @@
-package org.sopt.app.application.auth;
+package org.sopt.app.application.playground;
 
 import java.util.List;
 import org.sopt.app.application.auth.dto.RecommendFriendRequest;

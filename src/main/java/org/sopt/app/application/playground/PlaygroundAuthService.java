@@ -1,5 +1,7 @@
-package org.sopt.app.application.auth;
+package org.sopt.app.application.playground;
 
+import static org.sopt.app.application.playground.PlaygroundHeaderCreator.createAuthorizationHeaderByUserPlaygroundToken;
+import static org.sopt.app.application.playground.PlaygroundHeaderCreator.createDefaultHeader;
 import static org.sopt.app.domain.enums.FriendRecommendType.MBTI;
 import static org.sopt.app.domain.enums.FriendRecommendType.UNIVERSITY;
 
@@ -70,7 +72,7 @@ public class PlaygroundAuthService {
     }
 
     private PlaygroundProfileInfo.PlaygroundMain getPlaygroundMember(String accessToken) {
-        Map<String, String> headers = createAuthorizationHeader(accessToken);
+        Map<String, String> headers = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         try {
             return playgroundClient.getPlaygroundMember(headers);
         } catch (ExpiredJwtException e) {
@@ -109,7 +111,7 @@ public class PlaygroundAuthService {
     }
 
     private PlaygroundProfile getPlaygroundMemberProfile(String accessToken, Long playgroundId) {
-        Map<String, String> headers = createAuthorizationHeader(accessToken);
+        Map<String, String> headers = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         try {
             return playgroundClient.getSinglePlaygroundMemberProfile(headers, playgroundId).get(0);
         } catch (BadRequest e) {
@@ -133,19 +135,8 @@ public class PlaygroundAuthService {
                 .toList();
     }
 
-    // Header 생성 메서드
-    private Map<String, String> createDefaultHeader() {
-        return new HashMap<>(Map.of(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE));
-    }
-
-    private Map<String, String> createAuthorizationHeader(String accessToken) {
-        Map<String, String> headers = createDefaultHeader();
-        headers.put(HttpHeaders.AUTHORIZATION, accessToken);
-        return headers;
-    }
-
     public PlaygroundProfileInfo.ActiveUserIds getPlayGroundUserIds(String accessToken) {
-        Map<String, String> requestHeader = createAuthorizationHeader(accessToken);
+        Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         try {
             return playgroundClient.getPlaygroundUserIds(requestHeader, currentGeneration);
         } catch (BadRequest e) {
@@ -156,7 +147,7 @@ public class PlaygroundAuthService {
     }
 
     public List<PlaygroundProfile> getPlaygroundMemberProfiles(String accessToken, List<Long> memberIds) {
-        Map<String, String> requestHeader = createAuthorizationHeader(accessToken);
+        Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         String stringifyIds = memberIds.stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
@@ -171,7 +162,7 @@ public class PlaygroundAuthService {
     }
 
     public OwnPlaygroundProfile getOwnPlaygroundProfile(String accessToken) {
-        Map<String, String> requestHeader = createAuthorizationHeader(accessToken);
+        Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         return playgroundClient.getOwnPlaygroundProfile(requestHeader);
     }
 
@@ -208,7 +199,8 @@ public class PlaygroundAuthService {
     }
 
     public PlaygroundPost getPlaygroundHotPost(String playgroundToken) {
-        PlaygroundPostResponse postInfo = playgroundClient.getPlaygroundHotPost(createAuthorizationHeader(playgroundToken));
+        PlaygroundPostResponse postInfo =
+                playgroundClient.getPlaygroundHotPost(createAuthorizationHeaderByUserPlaygroundToken(playgroundToken));
 
         return PlaygroundPost.builder()
                 .title(postInfo.title())

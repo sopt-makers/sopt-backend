@@ -28,7 +28,7 @@ import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundMain;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.UserActiveInfo;
-import org.sopt.app.application.auth.PlaygroundAuthService;
+import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.auth.dto.RecommendedFriendInfo.PlaygroundUserIds;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
