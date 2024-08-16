@@ -8,7 +8,6 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -48,8 +47,6 @@ public class PlaygroundAuthService {
     private String apiKey;
     @Value("${makers.playground.x-request-from}")
     private String requestFrom;
-    @Value("${makers.playground.access-token}")
-    private String playgroundToken;
     @Value("${makers.playground.web-page}")
     private String playgroundWebPageUrl;
 
@@ -181,7 +178,6 @@ public class PlaygroundAuthService {
     public List<Long> getPlaygroundIdsForSameGeneration(List<Long> generationList) {
 
         return playgroundUserRecommender.getPlaygroundUserIdsForSameRecommendType(
-                createAuthorizationHeader(playgroundToken),
                 RecommendFriendRequest.createRecommendFriendRequestByGeneration(generationList)
         );
     }
@@ -198,14 +194,12 @@ public class PlaygroundAuthService {
                         getGenerationListByLatestGenerationForRange(latestGeneration),
                         List.of(RecommendFriendFilter.builder().key(String.valueOf(MBTI)).value(mbti).build()));
         return playgroundUserRecommender.getPlaygroundUserIdsForSameRecommendType(
-                createAuthorizationHeader(playgroundToken),
                 request
         );
     }
 
     public List<Long> getPlaygroundIdsForSameUniversity(Long latestGeneration, String university) {
         return playgroundUserRecommender.getPlaygroundUserIdsForSameRecommendType(
-                createAuthorizationHeader(playgroundToken),
                 new RecommendFriendRequest(
                         getGenerationListByLatestGenerationForRange(latestGeneration),
                         List.of(RecommendFriendFilter.builder().key(String.valueOf(UNIVERSITY)).value(university).build())
