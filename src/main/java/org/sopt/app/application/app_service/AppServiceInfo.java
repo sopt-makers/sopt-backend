@@ -1,4 +1,4 @@
-package org.sopt.app.application.service;
+package org.sopt.app.application.app_service;
 
 import lombok.Builder;
 import lombok.Getter;

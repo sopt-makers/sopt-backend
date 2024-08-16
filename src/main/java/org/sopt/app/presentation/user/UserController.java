@@ -11,7 +11,6 @@ import lombok.val;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.SoptampFacade;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,7 +38,7 @@ public class UserController {
     @GetMapping(value = "")
     public ResponseEntity<UserResponse.AppUser> getUserInfo(@AuthenticationPrincipal User user) {
         val response = userResponseMapper.ofAppUser(user);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "솝탬프 정보 조회")
@@ -55,7 +54,7 @@ public class UserController {
             .profileMessage(soptampUser.getProfileMessage())
             .points(soptampUser.getTotalPoints())
             .build();
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "닉네임 중복 검사")
@@ -67,7 +66,7 @@ public class UserController {
     @GetMapping(value = "/nickname/{nickname}")
     public ResponseEntity<UserResponse.Nickname> validateUserNickname(@PathVariable String nickname) {
         soptampUserService.checkUserNickname(nickname);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "닉네임 변경")
@@ -84,7 +83,7 @@ public class UserController {
         val response = UserResponse.Nickname.builder()
             .nickname(result.getNickname())
             .build();
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "한마디 변경")
@@ -101,7 +100,7 @@ public class UserController {
         val response = UserResponse.ProfileMessage.builder()
             .profileMessage(result.getProfileMessage())
             .build();
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
 }

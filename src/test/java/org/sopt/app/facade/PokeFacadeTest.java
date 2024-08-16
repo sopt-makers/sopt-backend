@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,10 +31,10 @@ import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sopt.app.application.auth.PlaygroundAuthInfo;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.ActivityCardinalInfo;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActiveUserIds;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.poke.FriendService;
 import org.sopt.app.application.poke.PokeHistoryService;
@@ -71,7 +70,7 @@ class PokeFacadeTest {
     private static final String MESSAGES_HEADER_FOR_POKE = "함께 보낼 메시지를 선택해주세요";
     private final Relationship relationship1 = Relationship.builder().pokeNum(1).build();
     private final Relationship relationship2 = Relationship.builder().pokeNum(3).build();
-    private final PlaygroundAuthInfo.ActiveUserIds activeUserIds = ActiveUserIds.builder().userIds(List.of(1L, 2L, 3L)).build();
+    private final PlaygroundProfileInfo.ActiveUserIds activeUserIds = new ActiveUserIds(List.of(1L, 2L, 3L));
     private final User user = User.builder().id(1L).playgroundToken("token").build();
     private final UserProfile userProfile1 = UserProfile.builder().userId(1L).name("name1").playgroundId(1L).build();
     private final UserProfile userProfile2 = UserProfile.builder().userId(2L).name("name2").playgroundId(2L).build();
@@ -100,12 +99,6 @@ class PokeFacadeTest {
     private final PokeHistoryInfo pokeHistoryInfo2PokedIsNotReply = PokeHistoryInfo.builder().id(3L).pokedId(2L)
             .pokerId(1L)
             .isReply(false).isAnonymous(false).build();
-    private final PokeHistoryInfo pokeHistoryInfo2PokedIsReply = PokeHistoryInfo.builder().id(3L).pokedId(2L)
-            .pokerId(1L)
-            .isReply(true)
-            .isAnonymous(false).build();
-    private final PokeHistory pokeHistory3 = PokeHistory.builder().id(3L).pokedId(1L).pokerId(3L).isReply(true)
-            .isAnonymous(false).build();
     private final PokeDetail pokeDetail2 = PokeDetail.builder().id(2L).pokedId(1L).pokerId(2L).message("message")
             .build();
     private final Friend friend2 = Friend.builder().id(2L).userId(1L).friendUserId(2L).pokeCount(1).anonymousName("")
@@ -166,11 +159,11 @@ class PokeFacadeTest {
                 List.of(activityCardinalInfo));
         List<PlaygroundProfile> playgroundProfileListForNew = List.of(playgroundProfile);
         List<SimplePokeProfile> simplePokeProfileListForNew = List.of(
-                SimplePokeProfile.of(2L, 2L, "image", "name2", "", 34, "서버", 1,
+                SimplePokeProfile.of(2L, 2L, "image", "name2", "", 34L, "서버", 1,
                         "새로운 친구", "새로운 친구", true, false, false, ""));
 
         when(playgroundAuthService.getPlayGroundUserIds("token")).thenReturn(activeUserIds);
-        when(userService.getUserProfilesByPlaygroundIds(activeUserIds.getUserIds())).thenReturn(
+        when(userService.getUserProfilesByPlaygroundIds(activeUserIds.userIds())).thenReturn(
                 userProfileListIncludingMe);
         when(friendService.isFriendEachOther(1L, 2L)).thenReturn(false);
         when(friendService.isFriendEachOther(1L, 3L)).thenReturn(true);
@@ -246,7 +239,7 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_단일 누가 나를 찔렀어요 답장 X 조회")
     void SUCCESS_getMostRecentPokeMeHistoryIsNotReply() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2",
-                "message", 34, "서버", 1, null, "name3의 친구", true, false, false, "");
+                "message", 34L, "서버", 1, null, "name3의 친구", true, false, false, "");
 
 
         when(pokeHistoryService.getPokeMeUserIds(1L)).thenReturn(List.of(2L));
@@ -277,7 +270,7 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_리스트 누가 나를 찔렀어요 조회")
     void SUCCESS_getAllPokeMeHistory() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "", "name2",
-                "message", 34, "서버", 3, null, "name3 외 1명과 친구", false, false, false, "");
+                "message", 34L, "서버", 3, null, "name3 외 1명과 친구", false, false, false, "");
 
         PokeToMeHistoryList pokeToMeHistoryList = PokeToMeHistoryList.of(List.of(simplePokeProfile), 1, 1, 0);
         Page<PokeHistory> pokeHistoryPage = new PageImpl<>(List.of(pokeHistory2));
@@ -340,7 +333,7 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_친구 가져오기, 이미지 있을 때, 친구 없을 때")
     void SUCCESS_getFriendNoMutualFriend() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2",
-                "", 34, "서버", 1, null, "새로운 친구", false, false, false, "");
+                "", 34L, "서버", 1, null, "새로운 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
         when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
@@ -356,7 +349,7 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_친구 가져오기, 이미지 있을 때, 친구 1명일 때")
     void SUCCESS_getFriendWithImage() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2",
-                "", 34, "서버", 1, null, "name3의 친구", false, false, false, "");
+                "", 34L, "서버", 1, null, "name3의 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
         when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
@@ -373,7 +366,7 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_친구 가져오기, 이미지 없을 때, 친구 1명일 때")
     void SUCCESS_getFriendWithoutImage() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "", "name2",
-                "", 34, "서버", 1, null, "name3의 친구", false, false, false, "");
+                "", 34L, "서버", 1, null, "name3의 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
         when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
@@ -391,7 +384,7 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_친구 가져오기, 이미지 없을 때, 친구 2명 이상일 때")
     void SUCCESS_getFriendWithoutImageSomeFriends() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "", "name2",
-                "", 34, "서버", 1, null, "name3 외 1명과 친구", false, false, false, "");
+                "", 34L, "서버", 1, null, "name3 외 1명과 친구", false, false, false, "");
 
         when(friendService.getPokeFriendIdRandomly(1L)).thenReturn(2L);
         when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
@@ -410,7 +403,7 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_친구 관계로 두 친구 가져오기, 친구 아닐 때")
     void SUCCESS_getTwoFriendsByFriendshipNonFriend(Friendship friendship) {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2",
-                "message", 34, "서버", 3, null, "name3의 친구", false, false, false, "");
+                "message", 34L, "서버", 3, null, "name3의 친구", false, false, false, "");
 
         when(friendService.findAllFriendsByFriendship(any(), any(), any())).thenReturn(List.of(friend2));
         when(pokeHistoryService.getAllOfPokeBetween(1L, 2L)).thenReturn(List.of(pokeHistoryInfo2));
@@ -443,7 +436,7 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_친구 관계로 모든 친구 가져오기")
     void SUCCESS_getAllFriendByFriendship(Friendship friendship) {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2",
-                "message", 34, "서버", 3, null, "name3의 친구", false, false, false, "");
+                "message", 34L, "서버", 3, null, "name3의 친구", false, false, false, "");
         Pageable pageable = Pageable.ofSize(1);
         Page<Friend> friendPage = new PageImpl<>(List.of(friend2));
         EachRelationFriendList eachRelationFriendList = EachRelationFriendList.of(List.of(simplePokeProfile),
@@ -472,7 +465,7 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_콕찌르기 히스토리 프로필 조회, 답장 없을 때, 친구 1명일 때")
     void SUCCESS_getPokeHistoryProfileReplyAMutualFriend() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "image", "name2", "message",
-                34, "서버", 3, null, "name3의 친구", false, false, false, "");
+                34L, "서버", 3, null, "name3의 친구", false, false, false, "");
 
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
         when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
@@ -490,7 +483,7 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_콕찌르기 히스토리 프로필 조회, 답장 있을 때, 친구 2명 이상일 때")
     void SUCCESS_getPokeHistoryProfileNoReplySomeMutualFriends() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "", "name2",
-                "message", 34, "서버", 3, null, "name3 외 1명과 친구", false, false, false, "");
+                "message", 34L, "서버", 3, null, "name3 외 1명과 친구", false, false, false, "");
 
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
         when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
@@ -509,7 +502,7 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_콕찌르기 히스토리 프로필 조회, 답장 없을 때, 친구 없을 때")
     void SUCCESS_getPokeHistoryProfileNoReplyNoMutualFriend() {
         SimplePokeProfile simplePokeProfile = SimplePokeProfile.of(2L, 2L, "", "name2", "message",
-                34, "서버", 3, null, "새로운 친구", false, false, false, "");
+                34L, "서버", 3, null, "새로운 친구", false, false, false, "");
 
         when(pokeService.getPokeDetail(pokeHistory2.getId())).thenReturn(pokeDetail2);
         when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);

@@ -23,7 +23,6 @@ public class S3Controller {
 
     private final S3Service s3Service;
     private final S3ResponseMapper s3ResponseMapper;
-    private RestTemplate restTemplate = new RestTemplate();
 
     @Operation(summary = "스탬프 pre-signed url 조회")
     @ApiResponses({
@@ -35,7 +34,7 @@ public class S3Controller {
     public ResponseEntity<S3Response.PreSignedUrl> getStampPreSignedUrl() {
         val result = s3Service.getPreSignedUrl("stamp");
         val response = s3ResponseMapper.of(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "미션 pre-signed url 조회")
@@ -48,6 +47,6 @@ public class S3Controller {
     public ResponseEntity<S3Response.PreSignedUrl> getMissionPreSignedUrl() {
         val result = s3Service.getPreSignedUrl("mission");
         val response = s3ResponseMapper.of(result);
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return ResponseEntity.ok(response);
     }
 }

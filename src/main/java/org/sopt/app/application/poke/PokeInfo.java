@@ -60,7 +60,7 @@ public class PokeInfo {
         private final Long playgroundId;
         private final String name;
         private final String profileImage;
-        private final Integer generation;
+        private final Long generation;
         private final String part;
         private final Relationship relation;
         private final List<String> mutualFriendNames;

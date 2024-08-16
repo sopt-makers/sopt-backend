@@ -38,7 +38,7 @@ public class SoptampUser extends BaseEntity {
     private String nickname;
 
     @Column(name = "generation")
-    private Integer generation;
+    private Long generation;
 
     @Column(name = "part")
     private String part;
@@ -51,7 +51,7 @@ public class SoptampUser extends BaseEntity {
         this.nickname = nickname;
     }
 
-    public void updateGenerationAndPart(Integer generation, PlaygroundPart part) {
+    public void updateGenerationAndPart(Long generation, PlaygroundPart part) {
         this.generation = generation;
         this.part = part.name();
     }

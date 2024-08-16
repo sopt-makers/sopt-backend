@@ -3,11 +3,14 @@ package org.sopt.app.interfaces.external;
 import feign.HeaderMap;
 import feign.Param;
 import feign.RequestLine;
-import org.sopt.app.application.auth.PlaygroundAuthInfo;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.ActiveUserIds;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundUserIds;
-import org.sopt.app.application.auth.RecommendFriendRequest;
+import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
+import org.sopt.app.application.auth.dto.PlaygroundPostInfo;
+import org.sopt.app.application.auth.dto.PlaygroundPostInfo.PlaygroundPostResponse;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActiveUserIds;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.application.auth.dto.RecommendFriendRequest;
+import org.sopt.app.application.auth.dto.RecommendedFriendInfo.PlaygroundUserIds;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 
 import java.util.List;
@@ -21,11 +24,11 @@ public interface PlaygroundClient {
             final AppAuthRequest.CodeRequest codeRequest);
 
     @RequestLine("POST /internal/api/v1/idp/auth/token")
-    PlaygroundAuthInfo.RefreshedToken refreshPlaygroundToken(@HeaderMap Map<String, String> headers,
+    RefreshedToken refreshPlaygroundToken(@HeaderMap Map<String, String> headers,
             AppAuthRequest.AccessTokenRequest tokenRequest);
 
     @RequestLine("GET /internal/api/v1/members/latest?generation={generation}")
-    ActiveUserIds getPlaygroundUserIds(@HeaderMap Map<String, String> headers, @Param("generation") Integer generation);
+    ActiveUserIds getPlaygroundUserIds(@HeaderMap Map<String, String> headers, @Param("generation") Long generation);
 
     @RequestLine("GET /internal/api/v1/members/profile?memberIds={memberId}")
     List<PlaygroundProfile> getSinglePlaygroundMemberProfile(@HeaderMap Map<String, String> headers,
@@ -36,12 +39,15 @@ public interface PlaygroundClient {
             @Param(value = "encodedIds") String encodedIds);
 
     @RequestLine("GET /internal/api/v1/members/me")
-    PlaygroundAuthInfo.PlaygroundMain getPlaygroundMember(@HeaderMap Map<String, String> headers);
+    PlaygroundProfileInfo.PlaygroundMain getPlaygroundMember(@HeaderMap Map<String, String> headers);
 
     @RequestLine("GET /api/v1/members/profile/me")
-    PlaygroundAuthInfo.OwnPlaygroundProfile getOwnPlaygroundProfile(@HeaderMap Map<String, String> headers);
+    PlaygroundProfileInfo.OwnPlaygroundProfile getOwnPlaygroundProfile(@HeaderMap Map<String, String> headers);
 
     @RequestLine("POST /internal/api/v1/members/profile/recommend")
     PlaygroundUserIds getPlaygroundUserIdsForSameRecommendType(
             @HeaderMap Map<String, String> headers, @RequestBody RecommendFriendRequest request);
+
+    @RequestLine("GET /api/v1/community/posts/hot")
+    PlaygroundPostResponse getPlaygroundHotPost(@HeaderMap Map<String, String> headers);
 }

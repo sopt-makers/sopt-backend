@@ -6,7 +6,7 @@ import lombok.val;
 import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.application.operation.OperationInfo;
-import org.sopt.app.application.service.AppServiceService;
+import org.sopt.app.application.app_service.AppServiceService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.user.UserResponse.AppService;
 import org.sopt.app.presentation.user.UserResponse.MainView;

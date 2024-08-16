@@ -17,10 +17,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.ActivityCardinalInfo;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.OwnPlaygroundProfile;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundActivity;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundProfile;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
+import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.auth.PlaygroundAuthService;
 import org.sopt.app.application.poke.FriendService;
 import org.sopt.app.application.poke.PokeHistoryService;
@@ -78,7 +77,7 @@ public class PokeFacade {
             Long userId
     ) {
         val playgroundUserIds = playgroundAuthService.getPlayGroundUserIds(playgroundToken);
-        val notFriendUserPlaygroundIds = userService.getUserProfilesByPlaygroundIds(playgroundUserIds.getUserIds())
+        val notFriendUserPlaygroundIds = userService.getUserProfilesByPlaygroundIds(playgroundUserIds.userIds())
                 .stream()
                 .filter(userProfile -> !userId.equals(userProfile.getUserId()) && !friendService.isFriendEachOther(
                         userId, userProfile.getUserId()))
@@ -388,7 +387,7 @@ public class PokeFacade {
 
         OwnPlaygroundProfile ownPlaygroundProfile = playgroundAuthService.getOwnPlaygroundProfile(
                 user.getPlaygroundToken());
-        Integer latestGeneration = getLatestGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities());
+        Long latestGeneration = getLatestGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities());
         String mbti = ownPlaygroundProfile.getMbti();
         String university = ownPlaygroundProfile.getUniversity();
 
@@ -439,7 +438,7 @@ public class PokeFacade {
 
     private void handleAllType(List<RecommendedFriendsByType> recommendedFriendsByTypeList,
             OwnPlaygroundProfile ownPlaygroundProfile, int size, User user) {
-        Integer latestGeneration = getLatestGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities());
+        Long latestGeneration = getLatestGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities());
         String mbti = ownPlaygroundProfile.getMbti();
         String university = ownPlaygroundProfile.getUniversity();
         List<SimplePokeProfile> recommendedFriendProfiles;
@@ -475,8 +474,7 @@ public class PokeFacade {
     }
 
     private List<SimplePokeProfile> findRecommendedFriendsListByGeneration(User user, int size,
-            List<Integer> generationList,
-            Function<List<Integer>, List<Long>> fetchProfilesFunction) {
+            List<Long> generationList, Function<List<Long>, List<Long>> fetchProfilesFunction) {
         List<Long> recommendedPlaygroundIds = fetchProfilesFunction.apply(generationList);
         return getRecommendedFriendsBySize(user, size, recommendedPlaygroundIds);
     }
@@ -494,8 +492,8 @@ public class PokeFacade {
                 selectRandomProfilesOfSize(validatedUserProfiles, size), user.getPlaygroundToken());
     }
 
-    private <T> List<SimplePokeProfile> findRecommendedFriendsList(User user, int size, Integer latestGeneration,
-            T value, BiFunction<Integer, T, List<Long>> fetchProfilesFunction) {
+    private <T> List<SimplePokeProfile> findRecommendedFriendsList(User user, int size, Long latestGeneration,
+            T value, BiFunction<Long, T, List<Long>> fetchProfilesFunction) {
         List<Long> recommendedPlaygroundIds = fetchProfilesFunction.apply(latestGeneration, value);
         return getRecommendedFriendsBySize(user, size, recommendedPlaygroundIds);
     }
@@ -549,7 +547,7 @@ public class PokeFacade {
                 )).toList();
     }
 
-    private Integer getLatestGenerationByActivityCardinalInfoList(List<ActivityCardinalInfo> activityCardinalInfoList) {
+    private Long getLatestGenerationByActivityCardinalInfoList(List<ActivityCardinalInfo> activityCardinalInfoList) {
         return activityCardinalInfoList.stream()
                         .filter(ActivityCardinalInfo::isActualGeneration)
                         .max(Comparator.comparing(ActivityCardinalInfo::getGeneration))
@@ -558,7 +556,7 @@ public class PokeFacade {
                         .getGeneration();
     }
 
-    private List<Integer> getAllGenerationByActivityCardinalInfoList(
+    private List<Long> getAllGenerationByActivityCardinalInfoList(
             List<ActivityCardinalInfo> activityCardinalInfoList) {
         return activityCardinalInfoList.stream()
                 .filter(ActivityCardinalInfo::isActualGeneration)

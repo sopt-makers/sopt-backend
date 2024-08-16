@@ -1,4 +1,4 @@
-package org.sopt.app.application.auth;
+package org.sopt.app.application.auth.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Comparator;
@@ -16,43 +16,18 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
-public class PlaygroundAuthInfo {
+public class PlaygroundProfileInfo {
 
-    @Getter
-    @Builder
-    public static class AppToken {
-
-        private String accessToken;
-        private String refreshToken;
+    public record ActiveUserIds(
+            @JsonProperty("memberIds")
+            List<Long> userIds
+    ) {
     }
 
-    @Getter
-    @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class RefreshedToken {
-
-        private String accessToken;
-        private String errorCode;
-    }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class ActiveUserIds {
-
-        @JsonProperty("memberIds")
-        private List<Long> userIds;
-    }
-
-    @Getter
-    @Builder
-    public static class UserActiveInfo {
-
-        private Integer currentGeneration;
-        private UserStatus status;
-    }
+    public record UserActiveInfo(
+            Long currentGeneration,
+            UserStatus status
+    ) {}
 
     @Getter
     @Builder
@@ -71,12 +46,9 @@ public class PlaygroundAuthInfo {
         private UserStatus status;
     }
 
-    @Getter
-    @Builder
-    @ToString
-    public static class MainView {
-
-        private MainViewUser user;
+    public record MainView(
+            MainViewUser user
+    ) {
     }
 
     @Getter
@@ -87,7 +59,7 @@ public class PlaygroundAuthInfo {
         private UserStatus status;
         private String name;
         private String profileImage;
-        private List<Integer> generationList;
+        private List<Long> generationList;
     }
 
     @Getter
@@ -117,9 +89,9 @@ public class PlaygroundAuthInfo {
 
         private String cardinalInfo;
 
-        public Integer getGeneration() {
+        public Long getGeneration() {
             try {
-                return Integer.parseInt(cardinalInfo.split(",")[0]);
+                return Long.parseLong(cardinalInfo.split(",")[0]);
             } catch (NumberFormatException e) {
                 throw new BadRequestException(ErrorCode.INVALID_PLAYGROUND_CARDINAL_INFO.getMessage());
             }
@@ -168,13 +140,6 @@ public class PlaygroundAuthInfo {
         private String profileImage;
         private String name;
         private List<PlaygroundActivity> activities;
-
-        public PlaygroundProfileOfRecommendedFriend getProfileOfSameGeneration(Integer generation) {
-            this.activities = activities.stream()
-                    .filter(activity -> activity.getGeneration().equals(generation))
-                    .toList();
-            return this;
-        }
     }
 
     @Getter

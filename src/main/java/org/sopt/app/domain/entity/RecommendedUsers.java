@@ -5,7 +5,7 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.sopt.app.application.auth.RecommendFriendRequest;
+import org.sopt.app.application.auth.dto.RecommendFriendRequest;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 

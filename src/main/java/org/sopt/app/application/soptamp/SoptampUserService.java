@@ -8,13 +8,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.slack.SlackService;
-import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
-import org.sopt.app.application.soptamp.SoptampPointInfo.Point;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.SoptampUser;
@@ -31,10 +26,10 @@ public class SoptampUserService {
     private final SoptampUserRepository soptampUserRepository;
 
     @Transactional(readOnly = true)
-    public SoptampUserInfo.SoptampUser getSoptampUserInfo(Long userId) {
+    public SoptampUserInfo getSoptampUserInfo(Long userId) {
         val user = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
-        return SoptampUserInfo.SoptampUser.builder()
+        return SoptampUserInfo.builder()
                 .id(user.getId())
                 .userId(user.getUserId())
                 .profileMessage(user.getProfileMessage())
@@ -52,16 +47,16 @@ public class SoptampUserService {
     }
 
     @Transactional
-    public SoptampUserInfo.SoptampUser editNickname(SoptampUserInfo.SoptampUser soptampUser, String nickname) {
+    public SoptampUserInfo editNickname(SoptampUserInfo soptampUserInfo, String nickname) {
         val newSoptampUser = SoptampUser.builder()
-                .id(soptampUser.getId())
-                .userId(soptampUser.getUserId())
-                .profileMessage(soptampUser.getProfileMessage())
-                .totalPoints(soptampUser.getTotalPoints())
+                .id(soptampUserInfo.getId())
+                .userId(soptampUserInfo.getUserId())
+                .profileMessage(soptampUserInfo.getProfileMessage())
+                .totalPoints(soptampUserInfo.getTotalPoints())
                 .nickname(nickname)
                 .build();
         soptampUserRepository.save(newSoptampUser);
-        return SoptampUserInfo.SoptampUser.builder()
+        return SoptampUserInfo.builder()
                 .id(newSoptampUser.getId())
                 .userId(newSoptampUser.getUserId())
                 .profileMessage(newSoptampUser.getProfileMessage())
@@ -71,23 +66,15 @@ public class SoptampUserService {
     }
 
     @Transactional
-    public SoptampUserInfo.SoptampUser editProfileMessage(SoptampUserInfo.SoptampUser soptampUser,
-            String profileMessage) {
+    public SoptampUserInfo editProfileMessage(SoptampUserInfo soptampUserInfo, String profileMessage) {
         val newSoptampUser = SoptampUser.builder()
-                .id(soptampUser.getId())
-                .userId(soptampUser.getUserId())
+                .id(soptampUserInfo.getId())
+                .userId(soptampUserInfo.getUserId())
                 .profileMessage(profileMessage)
-                .totalPoints(soptampUser.getTotalPoints())
-                .nickname(soptampUser.getNickname())
+                .totalPoints(soptampUserInfo.getTotalPoints())
+                .nickname(soptampUserInfo.getNickname())
                 .build();
-        soptampUserRepository.save(newSoptampUser);
-        return SoptampUserInfo.SoptampUser.of(
-                newSoptampUser.getId(),
-                newSoptampUser.getUserId(),
-                newSoptampUser.getProfileMessage(),
-                newSoptampUser.getTotalPoints(),
-                newSoptampUser.getNickname()
-        );
+        return SoptampUserInfo.of(soptampUserRepository.save(newSoptampUser));
     }
 
     @Transactional
@@ -106,55 +93,17 @@ public class SoptampUserService {
         return registerUser.get().getId();
     }
 
-    public List<Main> findRanks() {
-        val userList = soptampUserRepository.findAll();
-        return this.getRanking(userList);
+    public List<SoptampUserInfo> findAllBySoptampUserIds(List<Long> userIdList) {
+        return soptampUserRepository.findAllById(userIdList)
+                .stream().map(SoptampUserInfo::of)
+                .toList();
     }
 
-    public List<SoptampPointInfo.Main> findCurrentRanks(List<Point> soptampPointList) {
-        val soptampUserIdList = soptampPointList.stream()
-                .map(Point::getSoptampUserId).toList();
-        val userList = soptampUserRepository.findAllById(soptampUserIdList);
-        return this.getCurrentRanking(userList, soptampPointList);
-    }
-
-    private List<Main> getRanking(List<SoptampUser> userList) {
-        val rankPoint = new AtomicInteger(1);
-        return userList.stream().sorted(
-                        Comparator.comparing(SoptampUser::getTotalPoints).reversed())
-                .map(user -> Main.builder()
-                        .rank(rankPoint.getAndIncrement())
-                        .nickname(user.getNickname())
-                        .point(user.getTotalPoints())
-                        .profileMessage(user.getProfileMessage())
-                        .build())
-                .collect(Collectors.toList());
-    }
-
-    private List<Main> getCurrentRanking(List<SoptampUser> userList, List<Point> soptampPointList) {
-        val rankPoint = new AtomicInteger(1);
-        List<Main> rankingList = new ArrayList<>();
-
-        soptampPointList.stream().sorted(Comparator.comparing(Point::getPoints).reversed())
-                .forEach(point -> userList.stream()
-                        .filter(user -> user.getId().equals(point.getSoptampUserId()))
-                        .findAny()
-                        .ifPresentOrElse(
-                                user -> rankingList.add(Main.builder()
-                                        .rank(rankPoint.getAndIncrement())
-                                        .nickname(user.getNickname())
-                                        .point(point.getPoints())
-                                        .profileMessage(user.getProfileMessage())
-                                        .build()),
-                                () -> SlackService.sendSlackMessage(
-                                        "Warning",
-                                        "soptamp_point에 해당하지 않는 soptamp_user가 확인되었습니다.\n"
-                                        + "soptampPointId: " + point.getId() + "\n"
-                                        + "soptampUserId: " + point.getSoptampUserId()
-                                )
-                        ));
-
-        return rankingList;
+    @Deprecated
+    public List<SoptampUserInfo> findAllSoptampUsers() {
+        return soptampUserRepository.findAll()
+                .stream().map(SoptampUserInfo::of)
+                .toList();
     }
 
     public List<Long> findSoptampUserByPart(Part part) {
@@ -164,13 +113,15 @@ public class SoptampUserService {
                 .toList();
     }
 
-    public SoptampUser findRankByNickname(String nickname) {
-        return soptampUserRepository.findUserByNickname(nickname)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+    public SoptampUserInfo findSoptampUserByNickname(String nickname) {
+        return SoptampUserInfo.of(
+                soptampUserRepository.findUserByNickname(nickname)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()))
+        );
     }
 
     @Transactional
-    public SoptampUserInfo.SoptampUser addPoint(Long userId, Integer level) {
+    public SoptampUserInfo addPoint(Long userId, Integer level) {
         val user = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
         val newTotalPoint = user.getTotalPoints() + level;
@@ -181,18 +132,11 @@ public class SoptampUserService {
                 .totalPoints(newTotalPoint)
                 .nickname(user.getNickname())
                 .build();
-        soptampUserRepository.save(newSoptampUser);
-        return SoptampUserInfo.SoptampUser.builder()
-                .id(newSoptampUser.getId())
-                .userId(newSoptampUser.getUserId())
-                .profileMessage(newSoptampUser.getProfileMessage())
-                .totalPoints(newSoptampUser.getTotalPoints())
-                .nickname(newSoptampUser.getNickname())
-                .build();
+        return SoptampUserInfo.of(soptampUserRepository.save(newSoptampUser));
     }
 
     @Transactional
-    public SoptampUserInfo.SoptampUser subtractPoint(Long userId, Integer level) {
+    public SoptampUserInfo subtractPoint(Long userId, Integer level) {
         val user = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
         val newTotalPoint = user.getTotalPoints() - level;
@@ -203,26 +147,13 @@ public class SoptampUserService {
                 .totalPoints(newTotalPoint)
                 .nickname(user.getNickname())
                 .build();
-        soptampUserRepository.save(newSoptampUser);
-        return SoptampUserInfo.SoptampUser.builder()
-                .id(newSoptampUser.getId())
-                .userId(newSoptampUser.getUserId())
-                .profileMessage(newSoptampUser.getProfileMessage())
-                .totalPoints(newSoptampUser.getTotalPoints())
-                .nickname(newSoptampUser.getNickname())
-                .build();
+        return SoptampUserInfo.of(soptampUserRepository.save(newSoptampUser));
     }
 
-    public SoptampUserInfo.SoptampUser findByNickname(String nickname) {
+    public SoptampUserInfo findByNickname(String nickname) {
         val soptampUser = soptampUserRepository.findUserByNickname(nickname)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
-        return SoptampUserInfo.SoptampUser.builder()
-                .id(soptampUser.getId())
-                .userId(soptampUser.getUserId())
-                .profileMessage(soptampUser.getProfileMessage())
-                .totalPoints(soptampUser.getTotalPoints())
-                .nickname(soptampUser.getNickname())
-                .build();
+        return SoptampUserInfo.of(soptampUser);
     }
 
     @Transactional
@@ -253,11 +184,11 @@ public class SoptampUserService {
     @Transactional
     public List<SoptampUser> initAllCurrentGenerationSoptampUser(
             List<SoptampUser> soptampUserList,
-            List<SoptampUserInfo.SoptampUserPlaygroundInfo> userInfoList
+            List<SoptampUserPlaygroundInfo> userInfoList
     ) {
         val validatedSoptampUserList = validateNickname(soptampUserList);
 
-        validatedSoptampUserList.stream().forEach(soptampUser -> {
+        validatedSoptampUserList.forEach(soptampUser -> {
             val userInfo = userInfoList.stream()
                     .filter(e -> soptampUser.getUserId().equals(e.getUserId()))
                     .findFirst().get();
@@ -285,8 +216,8 @@ public class SoptampUserService {
 
     private HashMap<String, ArrayList<String>> generateUniqueNicknameMap(List<String> nicknameList) {
         val nicknameMap = new HashMap<String, ArrayList<String>>();
-        val uniqueNicknameList = nicknameList.stream().distinct().collect(Collectors.toList());
-        uniqueNicknameList.stream().forEach(nickname -> {
+        val uniqueNicknameList = nicknameList.stream().distinct().toList();
+        uniqueNicknameList.forEach(nickname -> {
             val count = Collections.frequency(nicknameList, nickname);
             if (count == 1) {
                 nicknameMap.put(nickname, new ArrayList<>(List.of()));
@@ -305,7 +236,7 @@ public class SoptampUserService {
     ) {
         soptampUserList.stream().sorted(Comparator.comparing(SoptampUser::getUserId)).forEach(soptampUser -> {
             val validatedNicknameList = nicknameMap.get(soptampUser.getNickname());
-            if (validatedNicknameList.size() > 0) {
+            if (!validatedNicknameList.isEmpty()) {
                 val validatedNickname = validatedNicknameList.get(0);
                 validatedNicknameList.remove(0);
                 nicknameMap.put(soptampUser.getNickname(), validatedNicknameList);

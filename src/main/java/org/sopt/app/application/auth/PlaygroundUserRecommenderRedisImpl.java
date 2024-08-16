@@ -4,7 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.application.auth.PlaygroundAuthInfo.PlaygroundUserIds;
+import org.sopt.app.application.auth.dto.RecommendFriendRequest;
+import org.sopt.app.application.auth.dto.RecommendedFriendInfo.PlaygroundUserIds;
 import org.sopt.app.domain.entity.RecommendedUsers;
 import org.sopt.app.interfaces.external.PlaygroundClient;
 import org.sopt.app.interfaces.postgres.RecommendedUserIdsRepository;
@@ -27,7 +28,7 @@ public class PlaygroundUserRecommenderRedisImpl implements PlaygroundUserRecomme
         }
 
         PlaygroundUserIds playgroundUserIds = playgroundClient.getPlaygroundUserIdsForSameRecommendType(authHeader, request);
-        return recommendedUserIdsRepository.save(new RecommendedUsers(request, playgroundUserIds.getUserIds()))
+        return recommendedUserIdsRepository.save(new RecommendedUsers(request, playgroundUserIds.userIds()))
                 .getUserIds();
     }
 }

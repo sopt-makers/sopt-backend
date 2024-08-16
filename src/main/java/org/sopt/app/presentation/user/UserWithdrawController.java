@@ -47,7 +47,7 @@ public class UserWithdrawController {
             );
             pushTokenService.deleteDeviceToken(targetPushToken);
         }
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.ok().build();
     }
 
     @Operation(summary = "탈퇴하기")
@@ -65,6 +65,6 @@ public class UserWithdrawController {
         pushTokenService.deleteAllDeviceTokenOf(user);
         // 유저 정보 삭제
         userService.deleteUser(user);
-        return ResponseEntity.status(HttpStatus.OK).body(null);
+        return ResponseEntity.ok().build();
     }
 }
