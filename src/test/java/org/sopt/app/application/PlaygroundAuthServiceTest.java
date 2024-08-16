@@ -29,7 +29,7 @@ import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.UserActiveInfo;
 import org.sopt.app.application.playground.PlaygroundAuthService;
-import org.sopt.app.application.auth.dto.RecommendedFriendInfo.PlaygroundUserIds;
+import org.sopt.app.application.playground.PlaygroundUserRecommender;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.domain.enums.UserStatus;
@@ -44,6 +44,9 @@ class PlaygroundAuthServiceTest {
 
     @Mock
     private PlaygroundClient playgroundClient;
+
+    @Mock
+    private PlaygroundUserRecommender playgroundUserRecommender;
 
     @InjectMocks
     private PlaygroundAuthService playgroundAuthService;
@@ -325,9 +328,7 @@ class PlaygroundAuthServiceTest {
     @DisplayName("SUCCESS_같은 기수의 플레이그라운드 프로필 조회")
     void SUCCESS_getPlaygroundIdsForSameGeneration() {
         // given & when
-
-        given(playgroundClient.getPlaygroundUserIdsForSameRecommendType(any(), any()))
-                .willReturn(new PlaygroundUserIds(List.of()));
+        given(playgroundUserRecommender.getPlaygroundUserIdsForSameRecommendType(any())).willReturn(List.of());
 
         // then
         assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundIdsForSameGeneration(List.of(GENERATION)));
@@ -337,8 +338,7 @@ class PlaygroundAuthServiceTest {
     @DisplayName("SUCCESS_같은 MBTI의 플레이그라운드 프로필 조회")
     void SUCCESS_getPlaygroundProfilesForSameMbtiAndGeneration() {
         // given & when
-        given(playgroundClient.getPlaygroundUserIdsForSameRecommendType(any(), any()))
-                .willReturn(new PlaygroundUserIds(List.of()));
+        given(playgroundUserRecommender.getPlaygroundUserIdsForSameRecommendType(any())).willReturn(List.of());
 
         // then
         assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundIdsForSameMbti(GENERATION, MBTI));
@@ -348,8 +348,7 @@ class PlaygroundAuthServiceTest {
     @DisplayName("SUCCESS_같은 대학교의 플레이그라운드 프로필 조회")
     void SUCCESS_getPlaygroundProfilesForSameUniversityAndGeneration() {
         // given & when
-        given(playgroundClient.getPlaygroundUserIdsForSameRecommendType(any(), any()))
-                .willReturn(new PlaygroundUserIds(List.of()));
+        given(playgroundUserRecommender.getPlaygroundUserIdsForSameRecommendType(any())).willReturn(List.of());
 
         // then
         assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundIdsForSameUniversity(GENERATION, UNIVERSITY));
