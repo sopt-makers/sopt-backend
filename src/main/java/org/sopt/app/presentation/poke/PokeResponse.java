@@ -201,7 +201,7 @@ public class PokeResponse {
         @Schema(description = "메시지", example = "메시지A")
         private String message;
         @Schema(description = "SOPT 최신 활동 기수 정보", example = "{'generation': 29, 'part': '안드로이드'}")
-        private Integer generation;
+        private Long generation;
         @Schema(description = "SOPT 최신 활동 기수 정보", example = "{'generation': 29, 'part': '안드로이드'}")
         private String part;
         @Schema(description = "현재까지 찌른 횟수", example = "3")
@@ -252,7 +252,7 @@ public class PokeResponse {
                 String profileImage,
                 String name,
                 String message,
-                Integer generation,
+                Long generation,
                 String part,
                 Integer pickNum,
                 String relationName,
@@ -286,7 +286,7 @@ public class PokeResponse {
                 Long playgroundId,
                 String profileImage,
                 String name,
-                Integer generation,
+                Long generation,
                 String part
         ) {
             return new SimplePokeProfile(

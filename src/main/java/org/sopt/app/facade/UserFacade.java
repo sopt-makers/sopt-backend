@@ -3,7 +3,7 @@ package org.sopt.app.facade;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.auth.PlaygroundAuthService;
+import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.application.operation.OperationInfo;
 import org.sopt.app.application.app_service.AppServiceService;

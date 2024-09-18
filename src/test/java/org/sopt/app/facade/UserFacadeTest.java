@@ -15,7 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.MainView;
-import org.sopt.app.application.auth.PlaygroundAuthService;
+import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.application.operation.OperationInfo;
 import org.sopt.app.domain.entity.User;

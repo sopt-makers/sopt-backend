@@ -4,11 +4,11 @@ import java.util.List;
 import org.sopt.app.application.auth.dto.RecommendedFriendInfo.RecommendFriendFilter;
 
 public record RecommendFriendRequest(
-        List<Integer> generations,
+        List<Long> generations,
         List<RecommendFriendFilter> filters
 ) {
 
-    public static RecommendFriendRequest createRecommendFriendRequestByGeneration(List<Integer> generations) {
+    public static RecommendFriendRequest createRecommendFriendRequestByGeneration(List<Long> generations) {
         return new RecommendFriendRequest(generations, List.of());
     }
 }

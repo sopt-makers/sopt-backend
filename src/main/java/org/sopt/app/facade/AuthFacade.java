@@ -3,7 +3,7 @@ package org.sopt.app.facade;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.JwtTokenService;
-import org.sopt.app.application.auth.PlaygroundAuthService;
+import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.user.UserService;

@@ -13,7 +13,7 @@ public class PokeFixture {
 
     public static final String MBTI = "ENFP";
     public static final String UNIVERSITY = "테스트대학교";
-    public static final Integer GENERATION = 33;
+    public static final Long GENERATION = 33L;
     public static final String PART = "서버";
 
     public static List<PlaygroundProfile> createPlaygroundProfileList(

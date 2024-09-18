@@ -14,7 +14,7 @@ import org.sopt.app.application.auth.JwtTokenService;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.AppToken;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundMain;
-import org.sopt.app.application.auth.PlaygroundAuthService;
+import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.user.UserInfo.Id;

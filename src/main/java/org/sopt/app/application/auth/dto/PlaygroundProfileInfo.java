@@ -11,6 +11,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -25,8 +27,7 @@ public class PlaygroundProfileInfo {
     public record UserActiveInfo(
             Long currentGeneration,
             UserStatus status
-    ) {
-    }
+    ) {}
 
     @Getter
     @Builder
@@ -74,7 +75,7 @@ public class PlaygroundProfileInfo {
 
         public ActivityCardinalInfo getLatestActivity() {
             return activities.stream()
-                    .sorted(Comparator.comparing(activity -> Integer.parseInt(activity.getGeneration()),
+                    .sorted(Comparator.comparing(ActivityCardinalInfo::getGeneration,
                             Comparator.reverseOrder()))
                     .toList()
                     .get(0);
@@ -88,8 +89,12 @@ public class PlaygroundProfileInfo {
 
         private String cardinalInfo;
 
-        public String getGeneration() {
-            return cardinalInfo.split(",")[0];
+        public Long getGeneration() {
+            try {
+                return Long.parseLong(cardinalInfo.split(",")[0]);
+            } catch (NumberFormatException e) {
+                throw new BadRequestException(ErrorCode.INVALID_PLAYGROUND_CARDINAL_INFO.getMessage());
+            }
         }
 
         public String getPart() {
@@ -144,6 +149,25 @@ public class PlaygroundProfileInfo {
 
         private String part;
         private Integer generation;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    @ToString
+    public static class RecommendFriendFilter{
+
+        private String key;
+        private String value;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class PlaygroundUserIds {
+        private List<Long> userIds;
     }
 
 }

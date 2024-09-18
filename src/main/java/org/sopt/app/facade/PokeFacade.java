@@ -20,7 +20,7 @@ import lombok.val;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
-import org.sopt.app.application.auth.PlaygroundAuthService;
+import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.poke.FriendService;
 import org.sopt.app.application.poke.PokeHistoryService;
 import org.sopt.app.application.poke.PokeInfo;
@@ -116,7 +116,7 @@ public class PokeFacade {
                             playgroundProfile.getProfileImage(),
                             playgroundProfile.getName(),
                             "",
-                            Integer.parseInt(generation),
+                            generation,
                             part,
                             pokeCount,
                             Friendship.NON_FRIEND.getFriendshipName(),
@@ -281,7 +281,7 @@ public class PokeFacade {
                         friendProfile.getProfileImage(),
                         friendProfile.getName(),
                         "",
-                        Integer.parseInt(friendProfile.getActivities().get(0).getGeneration()),
+                        friendProfile.getActivities().get(0).getGeneration(),
                         friendProfile.getActivities().get(0).getPart(),
                         friendRelationInfo.getPokeNum(),
                         friendRelationInfo.getRelationName(),
@@ -387,7 +387,7 @@ public class PokeFacade {
 
         OwnPlaygroundProfile ownPlaygroundProfile = playgroundAuthService.getOwnPlaygroundProfile(
                 user.getPlaygroundToken());
-        Integer latestGeneration = getLatestGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities());
+        Long latestGeneration = getLatestGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities());
         String mbti = ownPlaygroundProfile.getMbti();
         String university = ownPlaygroundProfile.getUniversity();
 
@@ -438,7 +438,7 @@ public class PokeFacade {
 
     private void handleAllType(List<RecommendedFriendsByType> recommendedFriendsByTypeList,
             OwnPlaygroundProfile ownPlaygroundProfile, int size, User user) {
-        Integer latestGeneration = getLatestGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities());
+        Long latestGeneration = getLatestGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities());
         String mbti = ownPlaygroundProfile.getMbti();
         String university = ownPlaygroundProfile.getUniversity();
         List<SimplePokeProfile> recommendedFriendProfiles;
@@ -474,8 +474,7 @@ public class PokeFacade {
     }
 
     private List<SimplePokeProfile> findRecommendedFriendsListByGeneration(User user, int size,
-            List<Integer> generationList,
-            Function<List<Integer>, List<Long>> fetchProfilesFunction) {
+            List<Long> generationList, Function<List<Long>, List<Long>> fetchProfilesFunction) {
         List<Long> recommendedPlaygroundIds = fetchProfilesFunction.apply(generationList);
         return getRecommendedFriendsBySize(user, size, recommendedPlaygroundIds);
     }
@@ -493,8 +492,8 @@ public class PokeFacade {
                 selectRandomProfilesOfSize(validatedUserProfiles, size), user.getPlaygroundToken());
     }
 
-    private <T> List<SimplePokeProfile> findRecommendedFriendsList(User user, int size, Integer latestGeneration,
-            T value, BiFunction<Integer, T, List<Long>> fetchProfilesFunction) {
+    private <T> List<SimplePokeProfile> findRecommendedFriendsList(User user, int size, Long latestGeneration,
+            T value, BiFunction<Long, T, List<Long>> fetchProfilesFunction) {
         List<Long> recommendedPlaygroundIds = fetchProfilesFunction.apply(latestGeneration, value);
         return getRecommendedFriendsBySize(user, size, recommendedPlaygroundIds);
     }
@@ -543,26 +542,25 @@ public class PokeFacade {
                         profile.getMemberId(),
                         profile.getProfileImage(),
                         profile.getName(),
-                        Integer.parseInt(profile.getLatestActivity().getGeneration()),
+                        profile.getLatestActivity().getGeneration(),
                         profile.getLatestActivity().getPart()
                 )).toList();
     }
 
-    private Integer getLatestGenerationByActivityCardinalInfoList(List<ActivityCardinalInfo> activityCardinalInfoList) {
-        return Integer.parseInt(
-                activityCardinalInfoList.stream()
+    private Long getLatestGenerationByActivityCardinalInfoList(List<ActivityCardinalInfo> activityCardinalInfoList) {
+        return activityCardinalInfoList.stream()
                         .filter(ActivityCardinalInfo::isActualGeneration)
                         .max(Comparator.comparing(ActivityCardinalInfo::getGeneration))
                         .orElseThrow(
                                 () -> new BadRequestException(ErrorCode.USER_GENERATION_INFO_NOT_FOUND.getMessage()))
-                        .getGeneration());
+                        .getGeneration();
     }
 
-    private List<Integer> getAllGenerationByActivityCardinalInfoList(
+    private List<Long> getAllGenerationByActivityCardinalInfoList(
             List<ActivityCardinalInfo> activityCardinalInfoList) {
         return activityCardinalInfoList.stream()
                 .filter(ActivityCardinalInfo::isActualGeneration)
-                .map(activityCardinalInfo -> Integer.parseInt(activityCardinalInfo.getGeneration()))
+                .map(ActivityCardinalInfo::getGeneration)
                 .toList();
     }
 
@@ -579,7 +577,7 @@ public class PokeFacade {
                 .playgroundId(pokedUserPlaygroundProfile.getMemberId())
                 .name(pokedUserPlaygroundProfile.getName())
                 .profileImage(pokedUserPlaygroundProfile.getProfileImage())
-                .generation(Integer.parseInt(latestActivity.getGeneration()))
+                .generation(latestActivity.getGeneration())
                 .part(latestActivity.getPart())
                 .relation(relationInfo)
                 .mutualFriendNames(mutualFriendNames)
