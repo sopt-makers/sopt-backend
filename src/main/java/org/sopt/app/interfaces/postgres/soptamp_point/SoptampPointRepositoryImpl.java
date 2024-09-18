@@ -6,7 +6,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.domain.entity.QSoptampPoint;
 import org.sopt.app.domain.entity.QSoptampUser;
-import org.sopt.app.domain.entity.SoptampPoint;
+import org.sopt.app.domain.entity.soptamp.SoptampPoint;
 import org.sopt.app.domain.enums.Part;
 import org.springframework.stereotype.Repository;
 

@@ -1,10 +1,11 @@
-package org.sopt.app.domain.entity;
+package org.sopt.app.domain.entity.poke;
 
 import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Type;
+import org.sopt.app.domain.entity.BaseEntity;
 import org.sopt.app.domain.enums.PokeMessageType;
 import org.sopt.app.domain.enums.PokeMessageTypeConverter;
 

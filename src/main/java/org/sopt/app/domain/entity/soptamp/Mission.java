@@ -1,4 +1,4 @@
-package org.sopt.app.domain.entity;
+package org.sopt.app.domain.entity.soptamp;
 
 
 import com.vladmihalcea.hibernate.type.array.ListArrayType;

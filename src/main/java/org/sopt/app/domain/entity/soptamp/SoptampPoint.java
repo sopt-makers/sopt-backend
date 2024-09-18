@@ -1,14 +1,15 @@
-package org.sopt.app.domain.entity;
+package org.sopt.app.domain.entity.soptamp;
 
 import javax.persistence.*;
 import lombok.*;
+import org.sopt.app.domain.entity.BaseEntity;
 
 @Entity
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class SoptampPoint extends BaseEntity{
+public class SoptampPoint extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

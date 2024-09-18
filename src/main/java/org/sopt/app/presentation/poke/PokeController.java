@@ -139,7 +139,6 @@ public class PokeController {
     @GetMapping("/to/me/list")
     public ResponseEntity<PokeToMeHistoryList> getAllOfPokeMe(
             @AuthenticationPrincipal User user,
-            // TODO : Notification List 에서도 기본 Size 요구사항이 25 개면 yaml 에서 속성 관리하기
             @PageableDefault(size = 25, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         val response = pokeFacade.getAllPokeMeHistory(user, pageable);

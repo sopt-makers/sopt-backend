@@ -31,7 +31,7 @@ import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
-import org.sopt.app.domain.entity.PokeHistory;
+import org.sopt.app.domain.entity.poke.PokeHistory;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.FriendRecommendType;
 import org.sopt.app.domain.enums.Friendship;

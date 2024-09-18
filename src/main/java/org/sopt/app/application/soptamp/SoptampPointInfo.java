@@ -6,8 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.sopt.app.domain.entity.Mission;
-import org.sopt.app.domain.entity.SoptampPoint;
+import org.sopt.app.domain.entity.soptamp.Mission;
+import org.sopt.app.domain.entity.soptamp.SoptampPoint;
 import org.sopt.app.domain.enums.Part;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

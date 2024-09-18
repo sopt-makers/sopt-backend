@@ -1,4 +1,4 @@
-package org.sopt.app.domain.entity;
+package org.sopt.app.domain.entity.soptamp;
 
 
 import com.vladmihalcea.hibernate.type.array.ListArrayType;
@@ -7,6 +7,7 @@ import javax.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import org.sopt.app.domain.entity.BaseEntity;
 
 @Entity
 @TypeDef(

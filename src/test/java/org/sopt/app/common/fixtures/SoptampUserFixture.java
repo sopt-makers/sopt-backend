@@ -2,7 +2,7 @@ package org.sopt.app.common.fixtures;
 
 import java.util.List;
 import org.sopt.app.application.soptamp.SoptampUserInfo;
-import org.sopt.app.domain.entity.SoptampUser;
+import org.sopt.app.domain.entity.soptamp.SoptampUser;
 
 public class SoptampUserFixture {
 

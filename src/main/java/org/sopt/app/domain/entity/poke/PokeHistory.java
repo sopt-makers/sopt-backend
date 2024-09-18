@@ -1,9 +1,10 @@
-package org.sopt.app.domain.entity;
+package org.sopt.app.domain.entity.poke;
 
 import javax.persistence.*;
 import lombok.*;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Type;
+import org.sopt.app.domain.entity.BaseEntity;
 
 @Getter
 @Entity

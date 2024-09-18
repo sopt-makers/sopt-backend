@@ -24,7 +24,7 @@ import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.fixtures.SoptampFixture;
-import org.sopt.app.domain.entity.Stamp;
+import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;

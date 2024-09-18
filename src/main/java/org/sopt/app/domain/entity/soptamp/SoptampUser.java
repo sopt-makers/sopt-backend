@@ -1,8 +1,9 @@
-package org.sopt.app.domain.entity;
+package org.sopt.app.domain.entity.soptamp;
 
 import javax.persistence.*;
 import lombok.AccessLevel;
 import lombok.*;
+import org.sopt.app.domain.entity.BaseEntity;
 import org.sopt.app.domain.enums.PlaygroundPart;
 
 @Entity

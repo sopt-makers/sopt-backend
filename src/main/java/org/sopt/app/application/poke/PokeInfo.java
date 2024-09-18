@@ -4,9 +4,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.sopt.app.domain.entity.PokeHistory;
+import org.sopt.app.domain.entity.poke.PokeHistory;
 
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class PokeInfo {
 
     public static final String NEW_FRIEND_NO_MUTUAL = "새로운 친구";

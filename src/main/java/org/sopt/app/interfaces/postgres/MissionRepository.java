@@ -1,7 +1,7 @@
 package org.sopt.app.interfaces.postgres;
 
 import java.util.List;
-import org.sopt.app.domain.entity.Mission;
+import org.sopt.app.domain.entity.soptamp.Mission;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

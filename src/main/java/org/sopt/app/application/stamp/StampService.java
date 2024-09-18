@@ -9,7 +9,7 @@ import lombok.val;
 import org.sopt.app.common.event.Events;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
-import org.sopt.app.domain.entity.Stamp;
+import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;

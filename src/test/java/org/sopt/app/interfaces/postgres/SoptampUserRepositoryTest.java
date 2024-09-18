@@ -2,7 +2,7 @@ package org.sopt.app.interfaces.postgres;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.sopt.app.common.config.QuerydslConfiguration;
-import org.sopt.app.domain.entity.SoptampUser;
+import org.sopt.app.domain.entity.soptamp.SoptampUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
@@ -14,7 +14,7 @@ import org.springframework.context.annotation.Import;
 @Import(QuerydslConfiguration.class)
 class SoptampUserRepositoryTest {
 
-    SoptampUser user = new SoptampUser();
+    SoptampUser user = SoptampUser.builder().build();
     @Autowired
     private SoptampUserRepository soptampUserRepository;
 
@@ -53,16 +53,4 @@ class SoptampUserRepositoryTest {
         }
         return nickname;
     }
-
-//    @Test
-//    @DisplayName("SUCCESS_유저 아이디로 유저 찾기")
-//    void SUCCESS_findByUserId() {
-//        Assertions.assertEquals(Optional.of(user), soptampUserRepository.findByUserId(user.getUserId()));
-//    }
-//
-//    @Test
-//    @DisplayName("SUCCESS_유저 닉네임으로 유저 찾기")
-//    void findUserByNickname() {
-//        Assertions.assertEquals(Optional.of(user), soptampUserRepository.findUserByNickname(user.getNickname()));
-//    }
 }

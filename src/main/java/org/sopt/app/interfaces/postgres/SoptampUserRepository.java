@@ -2,7 +2,7 @@ package org.sopt.app.interfaces.postgres;
 
 import java.util.List;
 import java.util.Optional;
-import org.sopt.app.domain.entity.SoptampUser;
+import org.sopt.app.domain.entity.soptamp.SoptampUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SoptampUserRepository extends JpaRepository<SoptampUser, Long> {
