@@ -1,5 +1,6 @@
 package org.sopt.app.domain.entity;
 
+import javax.validation.constraints.NotNull;
 import lombok.*;
 import org.sopt.app.domain.enums.PushTokenPlatform;
 
@@ -9,24 +10,24 @@ import javax.persistence.*;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
-@Table(name = "push_token", schema = "app_dev")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PushToken extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
+    @NotNull
     private Long userId;
 
-    @Column(name = "playground_id", nullable = false)
+    @NotNull
     private Long playgroundId;
 
-    @Column( name = "token", columnDefinition = "TEXT", nullable = false)
+    @Column(columnDefinition = "TEXT")
+    @NotNull
     private String token;
 
-    @Column(name = "platform", nullable = false)
+    @NotNull
     @Enumerated(EnumType.STRING)
     private PushTokenPlatform platform;
 
