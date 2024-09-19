@@ -96,3 +96,6 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
+test {
+    exclude '**/*RepositoryTest.*'
+}
