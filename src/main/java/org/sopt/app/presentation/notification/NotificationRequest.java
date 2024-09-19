@@ -17,6 +17,7 @@ public class NotificationRequest {
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @Builder
     public static class RegisterNotificationRequest {
 
         @Schema(description = "알림 대상 유저 플레이그라운드 ID 리스트", example = "['1', '2']")
@@ -54,5 +55,4 @@ public class NotificationRequest {
         @JsonProperty(value = "id")
         private String notificationId;
     }
-
 }
