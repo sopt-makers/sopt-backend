@@ -13,7 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class User extends BaseEntity implements UserDetails {
 
     @Id

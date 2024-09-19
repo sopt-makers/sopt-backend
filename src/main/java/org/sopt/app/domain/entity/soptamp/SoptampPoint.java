@@ -8,7 +8,7 @@ import org.sopt.app.domain.entity.BaseEntity;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class SoptampPoint extends BaseEntity {
 
     @Id

@@ -9,7 +9,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Entity
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class Friend extends BaseEntity {
 
     @Id

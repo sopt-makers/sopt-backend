@@ -1,7 +1,6 @@
 package org.sopt.app.domain.entity.soptamp;
 
 import javax.persistence.*;
-import lombok.AccessLevel;
 import lombok.*;
 import org.sopt.app.domain.entity.BaseEntity;
 import org.sopt.app.domain.enums.PlaygroundPart;
@@ -10,7 +9,7 @@ import org.sopt.app.domain.enums.PlaygroundPart;
 @Getter
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class SoptampUser extends BaseEntity {
 
     @Id
