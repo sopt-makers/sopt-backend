@@ -11,6 +11,7 @@ import org.sopt.app.domain.enums.NotificationType;
 @Entity
 @Getter
 @Builder
+@Table(name = "notifications") // 예약어로 인한 테이블명 변경
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notification extends BaseEntity{

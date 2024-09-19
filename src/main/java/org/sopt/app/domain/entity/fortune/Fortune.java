@@ -14,9 +14,6 @@ public class Fortune {
     private Long id;
 
     @NotNull
-    private String name;
-
-    @NotNull
     private String title;
 
     @NotNull

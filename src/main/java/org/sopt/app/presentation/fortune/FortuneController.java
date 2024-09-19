@@ -1,5 +1,6 @@
 package org.sopt.app.presentation.fortune;
 
+import org.sopt.app.application.fortune.FortuneProvider;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -16,6 +17,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 @RequestMapping("/api/v2/fortune")
 public class FortuneController {
 
+    private final FortuneProvider fortuneProvider;
+
     @Operation(summary = "오늘의 솝마디 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
@@ -28,7 +31,10 @@ public class FortuneController {
             @RequestParam(name = "todayDate") LocalDate todayDate
     ) {
         return ResponseEntity.ok(
-                new FortuneResponse("홍길동", "단순하게 생각하면 일이 술술 풀리겠솝!")
+                FortuneResponse.of(
+                        fortuneProvider.getTodayFortuneByUserId(user.getId(), todayDate),
+                        user.getUsername()
+                )
         );
     }
 
@@ -43,7 +49,9 @@ public class FortuneController {
             @AuthenticationPrincipal User user
     ) {
         return ResponseEntity.ok(
-            new FortuneCardResponse("홍길동", "오늘은 좋은 일이 많이 생기겠솝!", "url")
+                FortuneCardResponse.of(
+                        fortuneProvider.getTodayFortuneCardByUserId(user.getId())
+                )
         );
     }
 }
