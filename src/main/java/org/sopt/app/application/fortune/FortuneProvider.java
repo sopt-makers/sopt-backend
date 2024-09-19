@@ -3,7 +3,7 @@ package org.sopt.app.application.fortune;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.interfaces.postgres.fortune.FortuneCardRepository;
-import org.sopt.app.interfaces.postgres.fortune.FortuneRepository;
+import org.sopt.app.interfaces.postgres.fortune.FortuneWordRepository;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -11,10 +11,10 @@ import org.springframework.stereotype.Service;
 public class FortuneProvider {
 
     private final FortuneCardRepository fortuneCardRepository;
-    private final FortuneRepository fortuneRepository;
+    private final FortuneWordRepository fortuneWordRepository;
 
-    public FortuneInfo getTodayFortuneByUserId(final Long userId, final LocalDate todayDate) {
-        return FortuneInfo.of(fortuneRepository.findByRelatedUserIdAndCheckedAt(userId, todayDate).get());
+    public FortuneWordInfo getTodayFortuneByUserId(final Long userId, final LocalDate todayDate) {
+        return FortuneWordInfo.of(fortuneWordRepository.findByRelatedUserIdAndCheckedAt(userId, todayDate).get());
     }
 
     public FortuneCardInfo getTodayFortuneCardByUserId(final Long userId) {

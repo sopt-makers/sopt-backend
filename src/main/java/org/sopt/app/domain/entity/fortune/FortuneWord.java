@@ -7,7 +7,7 @@ import lombok.*;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Fortune {
+public class FortuneWord {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
