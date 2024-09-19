@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.domain.entity.fortune.FortuneWord;
-import org.sopt.app.domain.entity.fortune.QFortune;
+import org.sopt.app.domain.entity.fortune.QFortuneWord;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -16,12 +16,12 @@ public class FortuneWordRepositoryImpl implements FortuneWordRepository {
 
     @Override
     public Optional<FortuneWord> findByRelatedUserIdAndCheckedAt(final Long userId, final LocalDate checkedAt) {
-        QFortune fortune = new QFortune("fortune");
+        QFortuneWord fortuneWord = new QFortuneWord("fortune");
 
         return Optional.ofNullable(
-                queryFactory.select(fortune)
-                        .from(fortune)
-                        .where(fortune.id.eq(1L))
+                queryFactory.select(fortuneWord)
+                        .from(fortuneWord)
+                        .where(fortuneWord.id.eq(1L))
                         .fetchOne()
         );
     }
