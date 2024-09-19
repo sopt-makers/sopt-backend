@@ -1,36 +1,31 @@
-package org.sopt.app.domain.entity;
+package org.sopt.app.domain.entity.poke;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import org.hibernate.annotations.Type;
+import org.sopt.app.domain.entity.BaseEntity;
 import org.sopt.app.domain.enums.PokeMessageType;
 import org.sopt.app.domain.enums.PokeMessageTypeConverter;
 
 @Getter
 @Entity
-@Table(name = "poke_message", schema = "app_dev")
 @Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class PokeMessage extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
+    @NotNull
     private Long id;
 
     @NotNull
-    @Column(name = "content", nullable = false)
     @Type(type = "org.hibernate.type.TextType")
     private String content;
 
     @NotNull
     @Convert(converter = PokeMessageTypeConverter.class)
-    @Column(name = "type")
     private PokeMessageType type;
 }

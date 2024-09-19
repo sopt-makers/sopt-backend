@@ -10,7 +10,7 @@ import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampService;
-import org.sopt.app.domain.entity.Mission;
+import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.presentation.rank.RankResponse;
 import org.sopt.app.presentation.rank.RankResponseMapper;
 import org.sopt.app.presentation.stamp.StampRequest;

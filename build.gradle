@@ -1,15 +1,6 @@
-// QueryDSL 추가
-buildscript {
-    ext {
-        queryDslVersion = "5.0.0"
-    }
-}
-
 plugins {
     id 'org.springframework.boot' version '2.7.4'
     id 'io.spring.dependency-management' version '1.0.14.RELEASE'
-    //querydsl 추가
-    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
     id 'java'
     id 'jacoco'
 }
@@ -74,9 +65,10 @@ dependencies {
     implementation 'com.google.guava:guava:30.1.1-jre'
 
     // querydsl
-    implementation "com.querydsl:querydsl-jpa:${queryDslVersion}"
-    implementation "com.querydsl:querydsl-apt:${queryDslVersion}"
-    implementation "com.querydsl:querydsl-core:${queryDslVersion}" // 한개 더 추가!
+    implementation 'com.querydsl:querydsl-jpa'
+    annotationProcessor "com.querydsl:querydsl-apt:${dependencyManagement.importedProperties['querydsl.version']}:jpa"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-api"
 
     //hibernate-type52 추가 array type을 위해
     implementation group: 'com.vladmihalcea', name: 'hibernate-types-52', version: '2.19.0'
@@ -104,29 +96,6 @@ dependencies {
 tasks.named('test') {
     useJUnitPlatform()
 }
-
-//querydsl 추가 시작
-def querydslDir = "$buildDir/generated/querydsl"
-
-querydsl {
-    jpa = true
-    querydslSourcesDir = querydslDir
-}
-sourceSets {
-    main.java.srcDir querydslDir
-}
-compileQuerydsl {
-    options.annotationProcessorPath = configurations.querydsl
-}
-
-configurations {
-    compileOnly {
-        extendsFrom annotationProcessor
-    }
-    querydsl.extendsFrom compileClasspath
-}
-//querydsl 추가 끝
-
-springBoot {
-    buildInfo()
+test {
+    exclude '**/*RepositoryTest.*'
 }

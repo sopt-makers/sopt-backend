@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
 import org.sopt.app.application.soptamp.SoptampUserInfo;
-import org.sopt.app.domain.entity.Mission;
+import org.sopt.app.domain.entity.soptamp.Mission;
 
 @Mapper(
         componentModel = "spring",

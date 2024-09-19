@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.event.Events;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
-import org.sopt.app.domain.entity.PokeHistory;
+import org.sopt.app.domain.entity.poke.PokeHistory;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.PokeHistoryRepository;
 import org.sopt.app.interfaces.postgres.UserRepository;

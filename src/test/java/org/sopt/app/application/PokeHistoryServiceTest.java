@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.poke.PokeHistoryService;
 import org.sopt.app.application.poke.PokeInfo.PokeHistoryInfo;
 import org.sopt.app.common.exception.BadRequestException;
-import org.sopt.app.domain.entity.PokeHistory;
+import org.sopt.app.domain.entity.poke.PokeHistory;
 import org.sopt.app.interfaces.postgres.PokeHistoryRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

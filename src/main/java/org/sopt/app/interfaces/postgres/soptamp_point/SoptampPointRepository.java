@@ -2,7 +2,7 @@ package org.sopt.app.interfaces.postgres.soptamp_point;
 
 import java.util.List;
 import java.util.Optional;
-import org.sopt.app.domain.entity.SoptampPoint;
+import org.sopt.app.domain.entity.soptamp.SoptampPoint;
 import org.sopt.app.domain.enums.Part;
 
 public interface SoptampPointRepository {

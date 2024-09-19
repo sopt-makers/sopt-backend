@@ -1,12 +1,10 @@
 package org.sopt.app.domain.entity;
 
+import lombok.*;
 import java.util.Collection;
+import java.util.Collections;
 import javax.persistence.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
@@ -18,39 +16,33 @@ import org.springframework.security.core.userdetails.UserDetails;
 @NoArgsConstructor
 public class User extends BaseEntity implements UserDetails {
 
-    @Column
-    public String username;
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
 
+    private String username;
 
-    @Column(name = "playground_id", unique = true)
+    @Column(unique = true)
     private Long playgroundId;
 
-    @Column(name = "playground_token")
     private String playgroundToken;
 
     @Builder
-    public User(String username, String nickname, Long playgroundId) {
+    public User(String username, Long playgroundId) {
         this.username = username;
-        // Default : 모든 알림 설정 OFF
         this.playgroundId = playgroundId;
     }
-
 
     public void updatePlaygroundUserInfo(String username, String playgroundToken) {
         this.username = username;
         this.playgroundToken = playgroundToken;
     }
 
-
     // UserDetails Override Methods
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

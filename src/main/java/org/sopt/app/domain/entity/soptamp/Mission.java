@@ -1,31 +1,22 @@
-package org.sopt.app.domain.entity;
+package org.sopt.app.domain.entity.soptamp;
 
 
 import com.vladmihalcea.hibernate.type.array.ListArrayType;
 import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import javax.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 @Entity
-@Table(name = "mission", schema = "app_dev")
 @TypeDef(
         name = "list-array",
         typeClass = ListArrayType.class
 )
 @Getter
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Mission {
 
     @Id
@@ -33,19 +24,13 @@ public class Mission {
     @Column(name = "mission_id")
     private Long id;
 
-    @Column
     private String title;
 
-    @Column(name = "level")
     private Integer level;
 
-    @Column
     private boolean display;
 
     @Type(type = "list-array")
-    @Column(
-            name = "profile_image",
-            columnDefinition = "text[]"
-    )
+    @Column(columnDefinition = "text[]")
     private List<String> profileImage;
 }

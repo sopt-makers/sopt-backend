@@ -17,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.poke.PokeInfo.PokeDetail;
 import org.sopt.app.application.poke.PokeService;
 import org.sopt.app.common.exception.NotFoundException;
-import org.sopt.app.domain.entity.PokeHistory;
+import org.sopt.app.domain.entity.poke.PokeHistory;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.PokeHistoryRepository;
 import org.sopt.app.interfaces.postgres.UserRepository;

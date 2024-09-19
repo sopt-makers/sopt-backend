@@ -1,23 +1,15 @@
-package org.sopt.app.domain.entity;
+package org.sopt.app.domain.entity.soptamp;
 
 
 import com.vladmihalcea.hibernate.type.array.ListArrayType;
 import java.util.List;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import javax.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import org.sopt.app.domain.entity.BaseEntity;
 
 @Entity
-@Table(name = "stamp", schema = "app_dev")
 @TypeDef(
         name = "list-array",
         typeClass = ListArrayType.class
@@ -32,19 +24,14 @@ public class Stamp extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
     private String contents;
 
     @Type(type = "list-array")
-    @Column(
-            columnDefinition = "text[]"
-    )
+    @Column(columnDefinition = "text[]")
     private List<String> images;
 
-    @Column
     private Long userId;
 
-    @Column
     private Long missionId;
 
     @Column(length = 10)

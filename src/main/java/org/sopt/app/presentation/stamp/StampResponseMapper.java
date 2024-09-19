@@ -4,7 +4,6 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.sopt.app.application.stamp.StampInfo;
-import org.sopt.app.domain.entity.Stamp;
 
 @Mapper(
         componentModel = "spring",
