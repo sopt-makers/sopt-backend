@@ -60,8 +60,8 @@ public class SoptampPointRepositoryImpl implements SoptampPointRepository {
                 .join(soptampPoint)
                 .on(soptampPoint.soptampUserId.eq(soptampUser.id)
                         .and(soptampUser.part.eq(String.valueOf(part))
-                                .and(soptampUser.generation.eq(generation))))
-                . fetchOne())
+                                .and(soptampPoint.generation.eq(generation))))
+                .fetchOne())
                 .orElse(0L);
     }
 
