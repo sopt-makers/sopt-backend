@@ -1,6 +1,7 @@
 package org.sopt.app.presentation.fortune;
 
 import org.sopt.app.application.fortune.FortuneProvider;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -28,6 +29,7 @@ public class FortuneController {
     @GetMapping("/word")
     public ResponseEntity<FortuneResponse> getFortune(
             @AuthenticationPrincipal User user,
+            @DateTimeFormat(pattern = "yyyy-MM-dd")
             @RequestParam(name = "todayDate") LocalDate todayDate
     ) {
         return ResponseEntity.ok(
