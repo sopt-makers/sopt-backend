@@ -27,11 +27,8 @@ import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
-import org.sopt.app.interfaces.external.PlaygroundClient;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
 

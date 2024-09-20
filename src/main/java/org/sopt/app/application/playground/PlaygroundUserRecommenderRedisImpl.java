@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.auth.dto.RecommendFriendRequest;
 import org.sopt.app.application.auth.dto.RecommendedFriendInfo.PlaygroundUserIds;
 import org.sopt.app.domain.entity.RecommendedUsers;
-import org.sopt.app.interfaces.external.PlaygroundClient;
 import org.sopt.app.interfaces.postgres.RecommendedUserIdsRepository;
 import org.springframework.stereotype.Service;
 
