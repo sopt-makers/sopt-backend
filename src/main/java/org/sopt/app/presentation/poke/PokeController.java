@@ -63,14 +63,6 @@ public class PokeController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/friend/random-user")
-    public ResponseEntity<List<Friend>> getRandomFriendsOfUsersFriend(
-            @AuthenticationPrincipal User user
-    ) {
-        val result = pokeFacade.getRecommendFriendsOfUsersFriend(user);
-        return ResponseEntity.ok(result);
-    }
-
     @Operation(summary = "찌르기 메시지 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "success"),

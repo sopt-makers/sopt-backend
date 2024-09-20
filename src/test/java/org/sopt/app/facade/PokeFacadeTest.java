@@ -86,11 +86,6 @@ class PokeFacadeTest {
             new PlaygroundProfile(2L, "name2", "", List.of(activityCardinalInfo)),
             new PlaygroundProfile(3L, "name3", "", List.of(activityCardinalInfo))
     );
-    private final List<Long> userIdListExcludeMe = List.of(2L, 3L);
-    private final List<PokeResponse.Friend> friendList = List.of(
-            PokeResponse.Friend.of(2L, 2L, "name2", "", List.of()),
-            PokeResponse.Friend.of(3L, 3L, "name2", "", List.of())
-    );
     private final PokeHistory pokeHistory2 = PokeHistory.builder().id(2L).pokedId(1L).pokerId(2L).isReply(false)
             .isAnonymous(false).build();
     private final PokeHistoryInfo pokeHistoryInfo2 = PokeHistoryInfo.builder().id(2L).pokedId(1L).pokerId(2L)
@@ -188,51 +183,6 @@ class PokeFacadeTest {
         assertThrows(RuntimeException.class, () ->
                 pokeFacade.getRecommendUserForNew("token", 1L, 1L)
         );
-    }
-
-    @Test
-    @DisplayName("SUCCESS_친구의 친구 있을 때 추천 조회")
-    void SUCCESS_getRecommendFriendsOfUsersFriend() {
-        when(friendService.findAllFriendIdsByUserIdRandomly(1L, 2)).thenReturn(List.of(2L, 3L));
-        when(pokeHistoryService.getPokeFriendIds(1L)).thenReturn(List.of(4L));
-        when(friendService.findAllFriendIdsByUserId(1L)).thenReturn(List.of(5L));
-        when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
-        when(userService.getUserProfileOrElseThrow(3L)).thenReturn(userProfile3);
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(3L))).thenReturn(
-                playgroundProfileListWithoutImage);
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L, 3L))).thenReturn(
-                playgroundProfileListWithoutImage);
-        when(friendService.findAllFriendIdsByUserIdRandomlyExcludeUserId(any(), any(), anyInt())).thenReturn(
-                userIdListExcludeMe);
-        when(userService.getUserProfilesByUserIds(userIdListExcludeMe)).thenReturn(userProfileList);
-        when(pokeHistoryService.getAllPokeHistoryMap(any())).thenReturn(new HashMap<>());
-        when(friendService.getRelationInfo(any(), any())).thenReturn(relationship1);
-
-        List<PokeResponse.Friend> result = pokeFacade.getRecommendFriendsOfUsersFriend(user);
-        assertEquals(friendList.size(), result.size());
-        assertEquals(friendList.get(0).getFriendId(), result.get(0).getFriendId());
-        assertEquals(friendList.get(1).getFriendId(), result.get(1).getFriendId());
-    }
-
-    @Test
-    @DisplayName("SUCCESS_친구의 친구 없을 때 추천 조회")
-    void SUCCESS_getRecommendFriendsOfUsersFriendEmpty() {
-        when(friendService.findAllFriendIdsByUserIdRandomly(1L, 2)).thenReturn(List.of(2L, 3L));
-        when(pokeHistoryService.getPokeFriendIds(1L)).thenReturn(List.of(4L));
-        when(friendService.findAllFriendIdsByUserId(1L)).thenReturn(List.of(5L));
-        when(userService.getUserProfileOrElseThrow(2L)).thenReturn(userProfile2);
-        when(userService.getUserProfileOrElseThrow(3L)).thenReturn(userProfile3);
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(2L))).thenReturn(playgroundProfileList);
-        when(playgroundAuthService.getPlaygroundMemberProfiles("token", List.of(3L))).thenReturn(
-                playgroundProfileListWithoutImage);
-        when(friendService.findAllFriendIdsByUserIdRandomlyExcludeUserId(any(), any(), anyInt())).thenReturn(
-                List.of());
-
-        List<PokeResponse.Friend> result = pokeFacade.getRecommendFriendsOfUsersFriend(user);
-        assertEquals(friendList.size(), result.size());
-        assertEquals(friendList.get(0).getFriendId(), result.get(0).getFriendId());
-        assertEquals(friendList.get(1).getFriendId(), result.get(1).getFriendId());
     }
 
     @Test

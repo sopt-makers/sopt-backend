@@ -9,11 +9,11 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class PlaygroundUserProvider {
+public class PlaygroundUserIdsProvider {
 
     private final PlaygroundUserFinder finder;
 
-    public Set<Long> getFriendPlaygroundIdsByType(OwnPlaygroundProfile profile, FriendRecommendType type) {
+    public Set<Long> findPlaygroundIdsByType(OwnPlaygroundProfile profile, FriendRecommendType type) {
         PlaygroundUserFindConditionCreatorFactory factory = new PlaygroundUserFindConditionCreatorFactory();
         PlaygroundUserFindConditionCreator conditionCreator = factory.create(type);
 
