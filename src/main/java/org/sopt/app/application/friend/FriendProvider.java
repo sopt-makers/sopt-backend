@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 public class FriendProvider {
     public Set<Long> getFriendPlaygroundIdsByType(OwnPlaygroundProfile profile, FriendRecommendType type) {
         FriendRecommenderFactory factory = new FriendRecommenderFactory();
-        FriendRecommender recommender = factory.create(type);
+        FriendRecommender recommender = factory.createRecommender(type);
         return recommender.recommend(profile);
     }
 }
