@@ -2,20 +2,20 @@ package org.sopt.app.application.friend.friend_recommender;
 
 import org.sopt.app.domain.enums.FriendRecommendType;
 
-public class FriendRecommenderFactory {
+public class FriendRecommendRequestCreatorFactory {
 
-    public FriendRecommender createRecommender(final FriendRecommendType recommendType) {
+    public FriendRecommendRequestCreator create(final FriendRecommendType recommendType) {
 
         if (recommendType == FriendRecommendType.MBTI) {
-            return new MbtiFriendRecommender();
+            return new MbtiFriendRecommendRequestCreator();
         }
 
         if (recommendType == FriendRecommendType.GENERATION) {
-            return new GenerationFriendRecommender();
+            return new GenerationFriendRecommendRequestCreator();
         }
 
         if (recommendType == FriendRecommendType.UNIVERSITY) {
-            return new UniversityFriendRecommender();
+            return new UniversityFriendRecommendRequestCreator();
         }
 
         throw new IllegalArgumentException("Invalid recommend type");
