@@ -44,8 +44,8 @@ public interface PlaygroundClient {
     PlaygroundProfileInfo.OwnPlaygroundProfile getOwnPlaygroundProfile(@HeaderMap Map<String, String> headers);
 
     @RequestLine("POST /internal/api/v1/members/profile/recommend")
-    PlaygroundUserIds getPlaygroundUserIdsForSameRecommendType(
-            @HeaderMap Map<String, String> headers, @RequestBody PlaygroundUserFindCondition request);
+    PlaygroundUserIds getPlaygroundUserIdsByCondition(@HeaderMap Map<String, String> headers,
+            @RequestBody PlaygroundUserFindCondition condition);
 
     @RequestLine("GET /api/v1/community/posts/hot")
     PlaygroundPostResponse getPlaygroundHotPost(@HeaderMap Map<String, String> headers);
