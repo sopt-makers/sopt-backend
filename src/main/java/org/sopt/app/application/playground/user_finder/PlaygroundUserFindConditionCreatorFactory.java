@@ -7,15 +7,15 @@ public class PlaygroundUserFindConditionCreatorFactory {
     public PlaygroundUserFindConditionCreator create(final FriendRecommendType recommendType) {
 
         if (recommendType == FriendRecommendType.MBTI) {
-            return new MbtiPlaygroundUserFindConditionCreator();
+            return new PlaygroundUserFindConditionByMbtiCreator();
         }
 
         if (recommendType == FriendRecommendType.GENERATION) {
-            return new GenerationPlaygroundUserFindConditionCreator();
+            return new PlaygroundUserFindConditionByGenerationCreator();
         }
 
         if (recommendType == FriendRecommendType.UNIVERSITY) {
-            return new UniversityPlaygroundUserFindConditionCreator();
+            return new PlaygroundUserFindConditionByUniversityCreator();
         }
 
         throw new IllegalArgumentException("Invalid recommend type");
