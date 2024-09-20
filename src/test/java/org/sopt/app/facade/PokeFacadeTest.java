@@ -57,7 +57,7 @@ import org.sopt.app.domain.enums.PokeMessageType;
 import org.sopt.app.presentation.poke.PokeResponse;
 import org.sopt.app.presentation.poke.PokeResponse.EachRelationFriendList;
 import org.sopt.app.presentation.poke.PokeResponse.PokeToMeHistoryList;
-import org.sopt.app.presentation.poke.PokeResponse.RecommendedFriendsByAllType;
+import org.sopt.app.presentation.poke.PokeResponse.RecommendedFriendsRequest;
 import org.sopt.app.presentation.poke.PokeResponse.RecommendedFriendsByType;
 import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
 import org.springframework.data.domain.Page;
@@ -561,7 +561,7 @@ class PokeFacadeTest {
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result =
+        RecommendedFriendsRequest result =
                 pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
         List<Long> playgroundIdByRecommendedFriendByGeneration =
                 findPlaygroundIdsInRecommendedFriendsByAllTypeByType(result, FriendRecommendType.GENERATION);
@@ -599,7 +599,7 @@ class PokeFacadeTest {
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        RecommendedFriendsRequest result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
 
         // then
         assertTrue(result.getRandomInfoList().isEmpty());
@@ -628,7 +628,7 @@ class PokeFacadeTest {
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        RecommendedFriendsRequest result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
 
         // then
         assertTrue(result.getRandomInfoList().isEmpty());
@@ -656,7 +656,7 @@ class PokeFacadeTest {
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result =
+        RecommendedFriendsRequest result =
                 pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
 
         // then
@@ -686,7 +686,7 @@ class PokeFacadeTest {
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result =
+        RecommendedFriendsRequest result =
                 pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
 
 
@@ -724,7 +724,7 @@ class PokeFacadeTest {
         User myAppUser = UserFixture.createMyAppUser();
 
         // when
-        RecommendedFriendsByAllType result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        RecommendedFriendsRequest result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
 
         // then
         List<FriendRecommendType> recommendedFriendTypes = result.getRandomInfoList().stream()
@@ -733,8 +733,9 @@ class PokeFacadeTest {
         assertTrue(recommendedFriendTypes.containsAll(List.of(FriendRecommendType.GENERATION, FriendRecommendType.UNIVERSITY)));
     }
 
-    private List<Long> findPlaygroundIdsInRecommendedFriendsByAllTypeByType(RecommendedFriendsByAllType recommendedFriendsByAllType, FriendRecommendType type) {
-        return recommendedFriendsByAllType.getRandomInfoList().stream()
+    private List<Long> findPlaygroundIdsInRecommendedFriendsByAllTypeByType(
+            RecommendedFriendsRequest recommendedFriendsRequest, FriendRecommendType type) {
+        return recommendedFriendsRequest.getRandomInfoList().stream()
                 .filter(randomInfo -> randomInfo.getRandomType() == type)
                 .flatMap(randomInfo -> randomInfo.getUserInfoList().stream())
                 .map(SimplePokeProfile::getPlaygroundId)

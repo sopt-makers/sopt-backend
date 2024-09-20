@@ -372,14 +372,14 @@ public class PokeResponse {
 
     @Getter
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class RecommendedFriendsByAllType {
+    public static class RecommendedFriendsRequest {
 
         private List<RecommendedFriendsByType> randomInfoList;
 
-        public static RecommendedFriendsByAllType of(
+        public static RecommendedFriendsRequest of(
                 List<RecommendedFriendsByType> randomInfoList
         ) {
-            return new RecommendedFriendsByAllType(randomInfoList);
+            return new RecommendedFriendsRequest(randomInfoList);
         }
     }
 

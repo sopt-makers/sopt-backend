@@ -38,7 +38,7 @@ import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.presentation.poke.PokeResponse;
 import org.sopt.app.presentation.poke.PokeResponse.EachRelationFriendList;
 import org.sopt.app.presentation.poke.PokeResponse.PokeToMeHistoryList;
-import org.sopt.app.presentation.poke.PokeResponse.RecommendedFriendsByAllType;
+import org.sopt.app.presentation.poke.PokeResponse.RecommendedFriendsRequest;
 import org.sopt.app.presentation.poke.PokeResponse.RecommendedFriendsByType;
 import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
 import org.springframework.data.domain.Page;
@@ -381,7 +381,7 @@ public class PokeFacade {
         );
     }
 
-    public RecommendedFriendsByAllType getRecommendedFriendsByTypeList(List<FriendRecommendType> typeList, int size,
+    public RecommendedFriendsRequest getRecommendedFriendsByTypeList(List<FriendRecommendType> typeList, int size,
             User user) {
         List<RecommendedFriendsByType> recommendedFriendsByTypeList = new ArrayList<>();
 
@@ -396,7 +396,7 @@ public class PokeFacade {
             switch (type) {
                 case ALL:
                     handleAllType(recommendedFriendsByTypeList, ownPlaygroundProfile, size, user);
-                    return RecommendedFriendsByAllType.of(recommendedFriendsByTypeList);
+                    return RecommendedFriendsRequest.of(recommendedFriendsByTypeList);
                 case GENERATION:
                     recommendedFriendProfiles = findRecommendedFriendsListByGeneration(user, size,
                             this.getAllGenerationByActivityCardinalInfoList(ownPlaygroundProfile.getActivities()),
@@ -432,7 +432,7 @@ public class PokeFacade {
                     throw new BadRequestException(ErrorCode.INVALID_FRIEND_RECOMMEND_TYPE.getMessage());
             }
         }
-        return RecommendedFriendsByAllType.of(recommendedFriendsByTypeList);
+        return RecommendedFriendsRequest.of(recommendedFriendsByTypeList);
     }
 
 
