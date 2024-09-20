@@ -22,7 +22,8 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.MainView;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
-import org.sopt.app.application.playground.dto.RecommendedFriendInfo.RecommendFriendFilter;
+import org.sopt.app.application.playground.dto.RecommendedFriendInfo.PlaygroundUserFindFilter;
+import org.sopt.app.application.playground.user_finder.PlaygroundUserFinder;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -180,7 +181,7 @@ public class PlaygroundAuthService {
         PlaygroundUserFindCondition request =
                 new PlaygroundUserFindCondition(
                         getGenerationListByLatestGenerationForRange(latestGeneration),
-                        List.of(RecommendFriendFilter.builder().key(String.valueOf(MBTI)).value(mbti).build()));
+                        List.of(PlaygroundUserFindFilter.builder().key(String.valueOf(MBTI)).value(mbti).build()));
         return playgroundUserFinder.getPlaygroundUserIdsForSameRecommendType(
                 request
         );
@@ -190,7 +191,7 @@ public class PlaygroundAuthService {
         return playgroundUserFinder.getPlaygroundUserIdsForSameRecommendType(
                 new PlaygroundUserFindCondition(
                         getGenerationListByLatestGenerationForRange(latestGeneration),
-                        List.of(RecommendFriendFilter.builder().key(String.valueOf(UNIVERSITY)).value(university).build())
+                        List.of(PlaygroundUserFindFilter.builder().key(String.valueOf(UNIVERSITY)).value(university).build())
                 )
         );
     }

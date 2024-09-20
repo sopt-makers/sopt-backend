@@ -29,7 +29,7 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundP
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.UserActiveInfo;
 import org.sopt.app.application.playground.PlaygroundAuthService;
-import org.sopt.app.application.playground.PlaygroundUserFinder;
+import org.sopt.app.application.playground.user_finder.PlaygroundUserFinder;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.domain.enums.UserStatus;

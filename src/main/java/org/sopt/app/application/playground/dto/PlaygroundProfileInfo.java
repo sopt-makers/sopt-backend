@@ -115,6 +115,12 @@ public class PlaygroundProfileInfo {
         private String mbti;
         private String university;
         private List<ActivityCardinalInfo> activities;
+
+        public List<Long> getAllGenerations() {
+            return activities.stream()
+                    .map(ActivityCardinalInfo::getGeneration)
+                    .toList();
+        }
     }
 
     @Getter
