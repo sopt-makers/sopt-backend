@@ -2,11 +2,11 @@ package org.sopt.app.common.fixtures;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundActivity;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfileOfRecommendedFriend;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundActivity;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfileOfRecommendedFriend;
 import org.sopt.app.application.user.UserInfo.UserProfile;
 
 public class PokeFixture {

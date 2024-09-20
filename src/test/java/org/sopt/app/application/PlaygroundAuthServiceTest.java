@@ -20,16 +20,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActiveUserIds;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.MainView;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.MainViewUser;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundMain;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.UserActiveInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActiveUserIds;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.MainView;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.MainViewUser;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.UserActiveInfo;
 import org.sopt.app.application.playground.PlaygroundAuthService;
-import org.sopt.app.application.playground.PlaygroundUserRecommender;
+import org.sopt.app.application.playground.PlaygroundUserFinder;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.domain.enums.UserStatus;
@@ -46,7 +46,7 @@ class PlaygroundAuthServiceTest {
     private PlaygroundClient playgroundClient;
 
     @Mock
-    private PlaygroundUserRecommender playgroundUserRecommender;
+    private PlaygroundUserFinder playgroundUserFinder;
 
     @InjectMocks
     private PlaygroundAuthService playgroundAuthService;
@@ -328,7 +328,7 @@ class PlaygroundAuthServiceTest {
     @DisplayName("SUCCESS_같은 기수의 플레이그라운드 프로필 조회")
     void SUCCESS_getPlaygroundIdsForSameGeneration() {
         // given & when
-        given(playgroundUserRecommender.getPlaygroundUserIdsForSameRecommendType(any())).willReturn(List.of());
+        given(playgroundUserFinder.getPlaygroundUserIdsForSameRecommendType(any())).willReturn(List.of());
 
         // then
         assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundIdsForSameGeneration(List.of(GENERATION)));
@@ -338,7 +338,7 @@ class PlaygroundAuthServiceTest {
     @DisplayName("SUCCESS_같은 MBTI의 플레이그라운드 프로필 조회")
     void SUCCESS_getPlaygroundProfilesForSameMbtiAndGeneration() {
         // given & when
-        given(playgroundUserRecommender.getPlaygroundUserIdsForSameRecommendType(any())).willReturn(List.of());
+        given(playgroundUserFinder.getPlaygroundUserIdsForSameRecommendType(any())).willReturn(List.of());
 
         // then
         assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundIdsForSameMbti(GENERATION, MBTI));
@@ -348,7 +348,7 @@ class PlaygroundAuthServiceTest {
     @DisplayName("SUCCESS_같은 대학교의 플레이그라운드 프로필 조회")
     void SUCCESS_getPlaygroundProfilesForSameUniversityAndGeneration() {
         // given & when
-        given(playgroundUserRecommender.getPlaygroundUserIdsForSameRecommendType(any())).willReturn(List.of());
+        given(playgroundUserFinder.getPlaygroundUserIdsForSameRecommendType(any())).willReturn(List.of());
 
         // then
         assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundIdsForSameUniversity(GENERATION, UNIVERSITY));

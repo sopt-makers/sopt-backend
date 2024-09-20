@@ -4,12 +4,12 @@ import feign.HeaderMap;
 import feign.Param;
 import feign.RequestLine;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
-import org.sopt.app.application.auth.dto.PlaygroundPostInfo.PlaygroundPostResponse;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActiveUserIds;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
-import org.sopt.app.application.auth.dto.RecommendFriendRequest;
-import org.sopt.app.application.auth.dto.RecommendedFriendInfo.PlaygroundUserIds;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActiveUserIds;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
+import org.sopt.app.application.playground.dto.RecommendedFriendInfo.PlaygroundUserIds;
 import org.sopt.app.presentation.auth.AppAuthRequest;
 
 import java.util.List;
@@ -45,7 +45,7 @@ public interface PlaygroundClient {
 
     @RequestLine("POST /internal/api/v1/members/profile/recommend")
     PlaygroundUserIds getPlaygroundUserIdsForSameRecommendType(
-            @HeaderMap Map<String, String> headers, @RequestBody RecommendFriendRequest request);
+            @HeaderMap Map<String, String> headers, @RequestBody PlaygroundUserFindCondition request);
 
     @RequestLine("GET /api/v1/community/posts/hot")
     PlaygroundPostResponse getPlaygroundHotPost(@HeaderMap Map<String, String> headers);

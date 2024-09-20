@@ -14,15 +14,15 @@ import java.util.stream.LongStream;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
-import org.sopt.app.application.auth.dto.PlaygroundPostInfo.PlaygroundPost;
-import org.sopt.app.application.auth.dto.PlaygroundPostInfo.PlaygroundPostResponse;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.MainView;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
-import org.sopt.app.application.auth.dto.RecommendFriendRequest;
-import org.sopt.app.application.auth.dto.RecommendedFriendInfo.RecommendFriendFilter;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPost;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.MainView;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
+import org.sopt.app.application.playground.dto.RecommendedFriendInfo.RecommendFriendFilter;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -36,7 +36,7 @@ import org.springframework.web.client.HttpClientErrorException.BadRequest;
 @RequiredArgsConstructor
 public class PlaygroundAuthService {
 
-    private final PlaygroundUserRecommender playgroundUserRecommender;
+    private final PlaygroundUserFinder playgroundUserFinder;
 
     private final PlaygroundClient playgroundClient;
 
@@ -165,8 +165,8 @@ public class PlaygroundAuthService {
 
     public List<Long> getPlaygroundIdsForSameGeneration(List<Long> generationList) {
 
-        return playgroundUserRecommender.getPlaygroundUserIdsForSameRecommendType(
-                RecommendFriendRequest.createRecommendFriendRequestByGeneration(generationList)
+        return playgroundUserFinder.getPlaygroundUserIdsForSameRecommendType(
+                PlaygroundUserFindCondition.createRecommendFriendRequestByGeneration(generationList)
         );
     }
 
@@ -177,18 +177,18 @@ public class PlaygroundAuthService {
     }
 
     public List<Long> getPlaygroundIdsForSameMbti(Long latestGeneration, String mbti) {
-        RecommendFriendRequest request =
-                new RecommendFriendRequest(
+        PlaygroundUserFindCondition request =
+                new PlaygroundUserFindCondition(
                         getGenerationListByLatestGenerationForRange(latestGeneration),
                         List.of(RecommendFriendFilter.builder().key(String.valueOf(MBTI)).value(mbti).build()));
-        return playgroundUserRecommender.getPlaygroundUserIdsForSameRecommendType(
+        return playgroundUserFinder.getPlaygroundUserIdsForSameRecommendType(
                 request
         );
     }
 
     public List<Long> getPlaygroundIdsForSameUniversity(Long latestGeneration, String university) {
-        return playgroundUserRecommender.getPlaygroundUserIdsForSameRecommendType(
-                new RecommendFriendRequest(
+        return playgroundUserFinder.getPlaygroundUserIdsForSameRecommendType(
+                new PlaygroundUserFindCondition(
                         getGenerationListByLatestGenerationForRange(latestGeneration),
                         List.of(RecommendFriendFilter.builder().key(String.valueOf(UNIVERSITY)).value(university).build())
                 )
