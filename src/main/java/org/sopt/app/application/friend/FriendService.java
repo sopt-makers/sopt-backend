@@ -1,4 +1,4 @@
-package org.sopt.app.application.poke;
+package org.sopt.app.application.friend;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -11,6 +11,8 @@ import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import org.sopt.app.application.poke.PokeInfo;
+import org.sopt.app.application.poke.PokeInfo.Relationship;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.common.utils.AnonymousNameGenerator;
@@ -114,7 +116,7 @@ public class FriendService {
         return pokerToPokedRelation.isPresent() && pokedToPokerRelation.isPresent();
     }
 
-    public PokeInfo.Relationship getRelationInfo(Long pokerId, Long pokedId) {
+    public Relationship getRelationInfo(Long pokerId, Long pokedId) {
         Optional<Friend> friendshipFromPokerToPoked = friendRepository.findByUserIdAndFriendUserId(pokerId, pokedId);
         Optional<Friend> friendshipFromPokedToPoker = friendRepository.findByUserIdAndFriendUserId(pokedId, pokerId);
         String anonymousName = "";

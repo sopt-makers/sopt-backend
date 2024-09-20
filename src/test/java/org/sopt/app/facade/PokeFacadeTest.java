@@ -36,7 +36,7 @@ import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActiveUserIds;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
 import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.playground.PlaygroundAuthService;
-import org.sopt.app.application.poke.FriendService;
+import org.sopt.app.application.friend.FriendService;
 import org.sopt.app.application.poke.PokeHistoryService;
 import org.sopt.app.application.poke.PokeInfo.PokeDetail;
 import org.sopt.app.application.poke.PokeInfo.PokeHistoryInfo;
