@@ -33,7 +33,7 @@ import org.sopt.app.application.playground.PlaygroundUserRecommender;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.domain.enums.UserStatus;
-import org.sopt.app.interfaces.external.PlaygroundClient;
+import org.sopt.app.application.playground.PlaygroundClient;
 import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
 import org.sopt.app.presentation.auth.AppAuthRequest.CodeRequest;
 import org.springframework.test.util.ReflectionTestUtils;

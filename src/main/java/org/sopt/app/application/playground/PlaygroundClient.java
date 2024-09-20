@@ -1,4 +1,4 @@
-package org.sopt.app.interfaces.external;
+package org.sopt.app.application.playground;
 
 import feign.HeaderMap;
 import feign.Param;
