@@ -2,10 +2,7 @@ package org.sopt.app.application.playground.user_finder;
 
 import static org.sopt.app.application.playground.PlaygroundHeaderCreator.createAuthorizationHeaderByInternalPlaygroundToken;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.playground.PlaygroundClient;
 import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
@@ -19,12 +16,6 @@ public class PlaygroundUserFinderRedisImpl implements PlaygroundUserFinder {
 
     private final PlaygroundClient playgroundClient;
     private final RecommendedUserIdsRepository recommendedUserIdsRepository;
-
-    @Override
-    @Deprecated
-    public List<Long> getPlaygroundUserIdsForSameRecommendType(final PlaygroundUserFindCondition request) {
-        return List.of();
-    }
 
     @Override
     public Set<Long> findByCondition(PlaygroundUserFindCondition condition) {
