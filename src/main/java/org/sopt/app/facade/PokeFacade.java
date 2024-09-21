@@ -262,42 +262,50 @@ public class PokeFacade {
 
     public RecommendedFriendsRequest getRecommendedFriendsByTypeList(
             List<FriendRecommendType> typeList, int size, User user) {
+        typeList = this.adjustTypeList(typeList);
+
         OwnPlaygroundProfile ownProfile = playgroundAuthService.getOwnPlaygroundProfile(user.getPlaygroundToken());
-
-        if (typeList.contains(FriendRecommendType.ALL)) {
-            typeList = List.of(FriendRecommendType.GENERATION, FriendRecommendType.MBTI,
-                    FriendRecommendType.UNIVERSITY);
-        }
-
-        FriendFilter friendFilter = new FriendFilter(friendService.findAllFriendIdsByUserId(user.getId()), user.getId());
-        List<RecommendedFriendsByType> recommendedFriendsByTypes = new ArrayList<>();
+        FriendFilter friendFilter =
+                new FriendFilter(friendService.findAllFriendIdsByUserId(user.getId()), user.getId());
+        List<RecommendedFriendsByType> recommendedFriends = new ArrayList<>();
         for (FriendRecommendType type : typeList) {
-            // {User}의 {typeList}의 친구 set을 달라
-            Set<Long> playgroundIds = playgroundUserIdsProvider.findPlaygroundIdsByType(ownProfile, type);
-            // 이미 친구였던 유저는 제외해서 반환한다.
-            Set<Long> recommendablePlaygroundIds = friendFilter.excludeAlreadyFriendIds(playgroundIds);
-            List<UserProfile> recommendedUserProfiles =
-                    userService.getUserProfilesByPlaygroundIds(List.copyOf(recommendablePlaygroundIds));
-            if (!recommendedUserProfiles.isEmpty()) { // 추천 가능한 유저가 없다면 다음 type으로 넘어간다.
-                // 친구 Set 중 {size}만큼 랜덤으로 뽑는다.
-                List<UserProfile> pickedRecommendedUserProfiles = RandomPicker.pickRandom(recommendedUserProfiles, size);
+            List<UserProfile> recommendableUserProfiles =
+                    this.getRecommendableUserProfiles(type, ownProfile, friendFilter);
+            if (!recommendableUserProfiles.isEmpty()) {
+                List<UserProfile> pickedUserProfiles = RandomPicker.pickRandom(recommendableUserProfiles, size);
+                List<SimplePokeProfile> simplePokeProfiles =
+                        this.convertUserProfilesToSimplePokeProfiles(pickedUserProfiles, user);
 
-                // 뽑은 친구의 SimplePokeProfile을 만들어 반환한다.
-                List<PlaygroundProfile> pickedRecommendedPlaygroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(
-                        user.getPlaygroundToken(), pickedRecommendedUserProfiles.stream().map(UserProfile::getPlaygroundId).toList());
-
-                List<SimplePokeProfile> simplePokeProfiles = this.makeSimplePokeProfilesForNotFriend(
-                        pickedRecommendedPlaygroundProfiles, pickedRecommendedUserProfiles);
-
-                RecommendedFriendsByType recommendedFriendsByType = RecommendedFriendsByType.builder()
+                recommendedFriends.add(RecommendedFriendsByType.builder()
                         .randomType(type)
                         .randomTitle(type.getRecommendTitle())
                         .userInfoList(simplePokeProfiles)
-                        .build();
-                recommendedFriendsByTypes.add(recommendedFriendsByType);
+                        .build());
             }
         }
-        return new RecommendedFriendsRequest(recommendedFriendsByTypes);
+        return new RecommendedFriendsRequest(recommendedFriends);
+    }
+
+    private List<SimplePokeProfile> convertUserProfilesToSimplePokeProfiles(
+            List<UserProfile> pickedUserProfiles, User user) {
+        List<Long> pickedUserIds = pickedUserProfiles.stream().map(UserProfile::getUserId).toList();
+        List<PlaygroundProfile> pickedPlaygroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(
+                user.getPlaygroundToken(), pickedUserIds);
+        return this.makeSimplePokeProfilesForNotFriend(pickedPlaygroundProfiles, pickedUserProfiles);
+    }
+
+    private List<UserProfile> getRecommendableUserProfiles(
+            FriendRecommendType type, OwnPlaygroundProfile ownProfile, FriendFilter friendFilter) {
+        Set<Long> playgroundIds = playgroundUserIdsProvider.findPlaygroundIdsByType(ownProfile, type);
+        Set<Long> notFriendPlaygroundIds = friendFilter.excludeAlreadyFriendIds(playgroundIds);
+        return userService.getUserProfilesByPlaygroundIds(List.copyOf(notFriendPlaygroundIds));
+    }
+
+    private List<FriendRecommendType> adjustTypeList(List<FriendRecommendType> typeList) {
+        if (typeList.contains(FriendRecommendType.ALL)) {
+            return List.of(FriendRecommendType.GENERATION, FriendRecommendType.MBTI, FriendRecommendType.UNIVERSITY);
+        }
+        return typeList;
     }
 
     private List<SimplePokeProfile> makeSimplePokeProfilesForNotFriend(
