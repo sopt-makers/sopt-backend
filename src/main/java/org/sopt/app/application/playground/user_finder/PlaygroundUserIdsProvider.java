@@ -1,5 +1,6 @@
 package org.sopt.app.application.playground.user_finder;
 
+import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
@@ -17,7 +18,10 @@ public class PlaygroundUserIdsProvider {
         PlaygroundUserFindConditionCreatorFactory factory = new PlaygroundUserFindConditionCreatorFactory();
         PlaygroundUserFindConditionCreator conditionCreator = factory.create(type);
 
-        PlaygroundUserFindCondition condition = conditionCreator.createCondition(profile);
-        return finder.findByCondition(condition);
+        Optional<PlaygroundUserFindCondition> condition = conditionCreator.createCondition(profile);
+        if (condition.isPresent()){
+            return finder.findByCondition(condition.get());
+        }
+        return Set.of();
     }
 }
