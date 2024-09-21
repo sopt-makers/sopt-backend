@@ -1,31 +1,17 @@
 package org.sopt.app.application.playground;
 
-import static org.sopt.app.application.playground.PlaygroundHeaderCreator.createAuthorizationHeaderByUserPlaygroundToken;
-import static org.sopt.app.application.playground.PlaygroundHeaderCreator.createDefaultHeader;
-import static org.sopt.app.domain.enums.FriendRecommendType.MBTI;
-import static org.sopt.app.domain.enums.FriendRecommendType.UNIVERSITY;
+import static org.sopt.app.application.playground.PlaygroundHeaderCreator.*;
 
+import lombok.*;
 import io.jsonwebtoken.ExpiredJwtException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.LongStream;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.*;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
-import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPost;
-import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.MainView;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
-import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
-import org.sopt.app.application.playground.dto.RecommendedFriendInfo.PlaygroundUserFindFilter;
-import org.sopt.app.application.playground.user_finder.PlaygroundUserFinder;
-import org.sopt.app.common.exception.BadRequestException;
-import org.sopt.app.common.exception.UnauthorizedException;
+import org.sopt.app.common.exception.*;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.auth.AppAuthRequest;
@@ -36,8 +22,6 @@ import org.springframework.web.client.HttpClientErrorException.BadRequest;
 @Service
 @RequiredArgsConstructor
 public class PlaygroundAuthService {
-
-    private final PlaygroundUserFinder playgroundUserFinder;
 
     private final PlaygroundClient playgroundClient;
 
@@ -51,7 +35,7 @@ public class PlaygroundAuthService {
     private String playgroundWebPageUrl;
 
 
-    public PlaygroundProfileInfo.PlaygroundMain getPlaygroundInfo(String token) {
+    public PlaygroundMain getPlaygroundInfo(String token) {
         val member = this.getPlaygroundMember(token);
         val playgroundProfile = this.getPlaygroundMemberProfile(token, member.getId());
         val generationList = this.getMemberGenerationList(playgroundProfile);
@@ -69,7 +53,7 @@ public class PlaygroundAuthService {
         }
     }
 
-    private PlaygroundProfileInfo.PlaygroundMain getPlaygroundMember(String accessToken) {
+    private PlaygroundMain getPlaygroundMember(String accessToken) {
         Map<String, String> headers = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         try {
             return playgroundClient.getPlaygroundMember(headers);
@@ -91,11 +75,11 @@ public class PlaygroundAuthService {
         }
     }
 
-    public PlaygroundProfileInfo.MainView getPlaygroundUserForMainView(String accessToken, Long playgroundId) {
+    public MainView getPlaygroundUserForMainView(String accessToken, Long playgroundId) {
         val playgroundProfile = this.getPlaygroundMemberProfile(accessToken, playgroundId);
         val profileImage = playgroundProfile.getProfileImage() == null ? "" : playgroundProfile.getProfileImage();
         val generationList = this.getMemberGenerationList(playgroundProfile);
-        val mainViewUser = PlaygroundProfileInfo.MainViewUser.builder()
+        val mainViewUser = MainViewUser.builder()
                 .status(this.getStatus(generationList))
                 .name(playgroundProfile.getName())
                 .profileImage(profileImage)
@@ -119,21 +103,21 @@ public class PlaygroundAuthService {
         }
     }
 
-    public PlaygroundProfileInfo.UserActiveInfo getPlaygroundUserActiveInfo(String accessToken, Long playgroundId) {
+    public UserActiveInfo getPlaygroundUserActiveInfo(String accessToken, Long playgroundId) {
         val playgroundProfile = this.getPlaygroundMemberProfile(accessToken, playgroundId);
         val generationList = this.getMemberGenerationList(playgroundProfile);
         val userStatus = this.getStatus(generationList);
-        return new PlaygroundProfileInfo.UserActiveInfo(currentGeneration, userStatus);
+        return new UserActiveInfo(currentGeneration, userStatus);
     }
 
-    private List<Long> getMemberGenerationList(PlaygroundProfileInfo.PlaygroundProfile playgroundProfile) {
+    private List<Long> getMemberGenerationList(PlaygroundProfile playgroundProfile) {
         return playgroundProfile.getActivities().stream()
                 .map(ActivityCardinalInfo::getGeneration)
                 .sorted(Collections.reverseOrder())
                 .toList();
     }
 
-    public PlaygroundProfileInfo.ActiveUserIds getPlayGroundUserIds(String accessToken) {
+    public ActiveUserIds getPlayGroundUserIds(String accessToken) {
         Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         try {
             return playgroundClient.getPlaygroundUserIds(requestHeader, currentGeneration);
