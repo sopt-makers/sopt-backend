@@ -112,14 +112,18 @@ public class UserService {
         ).toList();
     }
 
-    public List<UserProfile> getUserProfilesByUserIds(List<Long> userId) {
-        return userRepository.findAllByIdIn(userId).stream().map(
+    public List<UserProfile> getUserProfilesByUserIds(List<Long> userIds) {
+        return userRepository.findAllByIdIn(userIds).stream().map(
                 user -> UserProfile.builder()
                         .userId(user.getId())
                         .name(user.getUsername())
                         .playgroundId(user.getPlaygroundId())
                         .build()
         ).toList();
+    }
+
+    public List<Long> getAllPlaygroundIds() {
+        return userRepository.findAllPlaygroundId();
     }
 
     public boolean isUserExist(Long userId) {

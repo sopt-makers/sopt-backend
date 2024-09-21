@@ -151,7 +151,7 @@ public class PokeController {
     @GetMapping("/random")
     public ResponseEntity<RecommendedFriendsRequest> getRandomFriendsByFriendRecommendType(
             @AuthenticationPrincipal User user,
-            @RequestParam(value = "randomType") List<FriendRecommendType> typeList,
+            @RequestParam(value = "randomType", required = false) List<FriendRecommendType> typeList,
             @RequestParam(value = "size") int size
     ) {
         return ResponseEntity.ok(

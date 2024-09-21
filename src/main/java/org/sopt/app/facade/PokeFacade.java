@@ -288,20 +288,29 @@ public class PokeFacade {
 
     private List<SimplePokeProfile> convertUserProfilesToSimplePokeProfiles(
             List<UserProfile> pickedUserProfiles, User user) {
-        List<Long> pickedUserIds = pickedUserProfiles.stream().map(UserProfile::getUserId).toList();
+        List<Long> pickedPlaygroundIds = pickedUserProfiles.stream().map(UserProfile::getPlaygroundId).toList();
         List<PlaygroundProfile> pickedPlaygroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(
-                user.getPlaygroundToken(), pickedUserIds);
+                user.getPlaygroundToken(), pickedPlaygroundIds);
         return this.makeSimplePokeProfilesForNotFriend(pickedPlaygroundProfiles, pickedUserProfiles);
     }
 
     private List<UserProfile> getRecommendableUserProfiles(
             FriendRecommendType type, OwnPlaygroundProfile ownProfile, FriendFilter friendFilter) {
-        Set<Long> playgroundIds = playgroundUserIdsProvider.findPlaygroundIdsByType(ownProfile, type);
+        Set<Long> playgroundIds;
+        if (type == FriendRecommendType.ALL_USER) {
+            playgroundIds = Set.copyOf(userService.getAllPlaygroundIds());
+        } else {
+            playgroundIds = playgroundUserIdsProvider.findPlaygroundIdsByType(ownProfile, type);
+        }
         Set<Long> notFriendPlaygroundIds = friendFilter.excludeAlreadyFriendIds(playgroundIds);
         return userService.getUserProfilesByPlaygroundIds(List.copyOf(notFriendPlaygroundIds));
     }
 
     private List<FriendRecommendType> adjustTypeList(List<FriendRecommendType> typeList) {
+        if (typeList == null || typeList.isEmpty()) {
+            return List.of(FriendRecommendType.ALL_USER);
+        }
+
         if (typeList.contains(FriendRecommendType.ALL)) {
             return List.of(FriendRecommendType.GENERATION, FriendRecommendType.MBTI, FriendRecommendType.UNIVERSITY);
         }
