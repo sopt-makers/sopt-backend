@@ -18,6 +18,7 @@ import org.sopt.app.application.poke.*;
 import org.sopt.app.application.poke.PokeInfo.PokeHistoryInfo;
 import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.application.user.UserService;
+import org.sopt.app.common.utils.RandomPicker;
 import org.sopt.app.domain.entity.poke.PokeHistory;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.FriendRecommendType;
@@ -322,7 +323,7 @@ public class PokeFacade {
                 continue;
             }
             // 친구 Set 중 {size}만큼 랜덤으로 뽑는다.
-
+            Set<Long> pickedRecommendedPlaygroundIds = RandomPicker.pickRandom(recommendablePlaygroundIds, size);
 
             // 뽑은 친구의 SimplePokeProfile을 만들어 반환한다.
         }
