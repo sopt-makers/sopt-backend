@@ -1,5 +1,6 @@
 package org.sopt.app.application.poke;
 
+import org.sopt.app.common.utils.HttpHeadersUtils;
 import org.sopt.app.domain.enums.NotificationCategory;
 import org.sopt.app.presentation.poke.PokeRequest;
 import org.sopt.app.presentation.poke.PokeResponse;
@@ -26,12 +27,10 @@ import lombok.val;
 @RequiredArgsConstructor
 public class PokeEventListener {
     private final RestTemplate restTemplate = new RestTemplate();
+    private final HttpHeadersUtils headersUtils;
 
     @Value("${makers.push.server}")
     private String baseURI;
-
-    @Value("${makers.push.x-api-key}")
-    private String apiKey;
 
     @Async
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
@@ -39,20 +38,11 @@ public class PokeEventListener {
     public void sendPokeAlarm(PokeEvent pokeEvent) {
             val entity = new HttpEntity(
                     createBodyFor(pokeEvent.getPokedUserId()),
-                    createHeadersForSend()
+                    headersUtils.createHeadersForSend()
             );
             sendRequestToAlarmServer(entity);
     }
 
-    private HttpHeaders createHeadersForSend() {
-        val headers = new HttpHeaders();
-        headers.add("Content-Type", "application/json");
-        headers.add("action", "send");
-        headers.add("x-api-key", apiKey);
-        headers.add("service", "app");
-        headers.add("transactionId", UUID.randomUUID().toString());
-        return headers;
-    }
     private PokeRequest.PokeAlarmRequest createBodyFor(Long pokedUserId) {
         return PokeRequest.PokeAlarmRequest.of(
                 List.of(String.valueOf(pokedUserId)),
@@ -70,5 +60,4 @@ public class PokeEventListener {
                 PokeResponse.PokeAlarmStatusResponse.class
         );
     }
-
 }
