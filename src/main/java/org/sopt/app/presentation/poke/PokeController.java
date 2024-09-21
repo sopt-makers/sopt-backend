@@ -29,18 +29,6 @@ public class PokeController {
 
     private final PokeFacade pokeFacade;
 
-    @GetMapping("/random-user")
-    public ResponseEntity<List<PokeResponse.SimplePokeProfile>> getRandomUserForNew(
-            @AuthenticationPrincipal User user
-    ) {
-        val result = pokeFacade.getRecommendUserForNew(
-                user.getPlaygroundToken(),
-                user.getPlaygroundId(),
-                user.getId()
-        );
-        return ResponseEntity.ok(result);
-    }
-
     @Operation(summary = "신규 유저인지 조회")
     @GetMapping("/new")
     public ResponseEntity<PokeResponse.IsNew> getPokeList(
