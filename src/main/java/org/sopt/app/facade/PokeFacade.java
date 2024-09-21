@@ -5,7 +5,6 @@ import static org.sopt.app.application.poke.PokeInfo.NEW_FRIEND_NO_MUTUAL;
 import static org.sopt.app.application.poke.PokeInfo.NEW_FRIEND_ONE_MUTUAL;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.friend.FriendFilter;
@@ -54,73 +53,6 @@ public class PokeFacade {
 
     public String getPokingMessageHeader(String type) {
         return pokeMessageService.getMessagesHeaderComment(type);
-    }
-
-    @Transactional(readOnly = true)
-    public List<SimplePokeProfile> getRecommendUserForNew(String playgroundToken, Long userPlaygroundId,
-            Long userId
-    ) {
-        val playgroundUserIds = playgroundAuthService.getPlayGroundUserIds(playgroundToken);
-        val notFriendUserPlaygroundIds = userService.getUserProfilesByPlaygroundIds(playgroundUserIds.userIds())
-                .stream()
-                .filter(userProfile -> !userId.equals(userProfile.getUserId()) && !friendService.isFriendEachOther(
-                        userId, userProfile.getUserId()))
-                .map(UserProfile::getPlaygroundId)
-                .collect(Collectors.toList());
-        final int RECOMMEND_USER_NUM_FOR_NEW = 6;
-        val recommendUserIds = pickRandomUserIds(notFriendUserPlaygroundIds, userPlaygroundId,
-                RECOMMEND_USER_NUM_FOR_NEW
-        );
-        val playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(playgroundToken, recommendUserIds);
-        val userProfiles = userService.getUserProfilesByPlaygroundIds(recommendUserIds);
-        val pokeHistories = pokeHistoryService.getAllPokeHistoryMap(userId);
-        return makeRandomSimplePokeProfile(userProfiles, playgroundProfiles, pokeHistories, userId);
-    }
-
-    private List<SimplePokeProfile> makeRandomSimplePokeProfile(
-            List<UserProfile> userProfiles,
-            List<PlaygroundProfile> playgroundProfiles,
-            Map<Long, Boolean> pokeHistories,
-            Long userId
-    ) {
-        return userProfiles.stream().map(
-                userProfile -> {
-                    val isAlreadyPoke = Objects.nonNull(pokeHistories.get(userProfile.getUserId()));
-                    val pokeCount = friendService.getRelationInfo(userId, userProfile.getUserId()).getPokeNum();
-                    val playgroundProfile = playgroundProfiles.stream()
-                            .filter(profile -> profile.getMemberId().equals(userProfile.getPlaygroundId()))
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException("플레이그라운드 프로필이 없습니다."));
-                    val generation = playgroundProfile.getActivities().get(0).getGeneration();
-                    val part = playgroundProfile.getActivities().get(0).getPart();
-
-                    return SimplePokeProfile.of(
-                            userProfile.getUserId(),
-                            playgroundProfile.getMemberId(),
-                            playgroundProfile.getProfileImage(),
-                            playgroundProfile.getName(),
-                            "",
-                            generation,
-                            part,
-                            pokeCount,
-                            Friendship.NON_FRIEND.getFriendshipName(),
-                            NEW_FRIEND_NO_MUTUAL,
-                            true,
-                            isAlreadyPoke,
-                            false,
-                            ""
-                    );
-                }
-        ).toList();
-    }
-
-    private List<Long> pickRandomUserIds(
-            List<Long> playgroundUserIds, Long userPlaygroundId, int limitNum
-    ) {
-        List<Long> copiedList = new ArrayList<>(playgroundUserIds);
-        copiedList.remove(userPlaygroundId);
-        Collections.shuffle(copiedList, new Random());
-        return copiedList.stream().limit(limitNum).toList();
     }
 
     @Transactional(readOnly = true)
@@ -186,7 +118,6 @@ public class PokeFacade {
             friendService.registerFriendshipOf(pokerUserId, pokedUserId);
         }
     }
-
 
     @Transactional(readOnly = true)
     public List<SimplePokeProfile> getFriend(User user) {
@@ -305,31 +236,8 @@ public class PokeFacade {
         );
     }
 
-    public RecommendedFriendsRequest getRecommendedFriendsByTypeList(
-            List<FriendRecommendType> typeList, int size, User user) {
-        OwnPlaygroundProfile ownProfile = playgroundAuthService.getOwnPlaygroundProfile(user.getPlaygroundToken());
-
-        if (typeList.contains(FriendRecommendType.ALL)) {
-            typeList = List.of(FriendRecommendType.GENERATION, FriendRecommendType.MBTI, FriendRecommendType.UNIVERSITY);
-        }
-
-        FriendFilter friendFilter = new FriendFilter(friendService.findAllFriendIdsByUserId(user.getId()));
-        for (FriendRecommendType type : typeList) {
-            // {User}의 {typeList}의 친구 set을 달라
-            Set<Long> playgroundIds = playgroundUserIdsProvider.findPlaygroundIdsByType(ownProfile, type);
-            // 이미 친구였던 유저는 제외해서 반환한다.
-            Set<Long> recommendablePlaygroundIds = friendFilter.excludeAlreadyFriendIds(playgroundIds);
-            if(recommendablePlaygroundIds.isEmpty()){ // 추천 가능한 유저가 없다면 다음 type으로 넘어간다.
-                continue;
-            }
-            // 친구 Set 중 {size}만큼 랜덤으로 뽑는다.
-            Set<Long> pickedRecommendedPlaygroundIds = RandomPicker.pickRandom(recommendablePlaygroundIds, size);
-
-            // 뽑은 친구의 SimplePokeProfile을 만들어 반환한다.
-        }
-
-
-        return null;
+    private PokeInfo.PokeDetail getPokeInfo(Long pokeHistoryId) {
+        return pokeService.getPokeDetail(pokeHistoryId);
     }
 
     private PokeInfo.PokedUserInfo getFriendUserInfo(User user, Long friendUserId) {
@@ -352,8 +260,62 @@ public class PokeFacade {
                 .build();
     }
 
-    private PokeInfo.PokeDetail getPokeInfo(Long pokeHistoryId) {
-        return pokeService.getPokeDetail(pokeHistoryId);
+    public RecommendedFriendsRequest getRecommendedFriendsByTypeList(
+            List<FriendRecommendType> typeList, int size, User user) {
+        OwnPlaygroundProfile ownProfile = playgroundAuthService.getOwnPlaygroundProfile(user.getPlaygroundToken());
+
+        if (typeList.contains(FriendRecommendType.ALL)) {
+            typeList = List.of(FriendRecommendType.GENERATION, FriendRecommendType.MBTI,
+                    FriendRecommendType.UNIVERSITY);
+        }
+
+        FriendFilter friendFilter = new FriendFilter(friendService.findAllFriendIdsByUserId(user.getId()));
+        List<RecommendedFriendsByType> recommendedFriendsByTypes = new ArrayList<>();
+        for (FriendRecommendType type : typeList) {
+            // {User}의 {typeList}의 친구 set을 달라
+            Set<Long> playgroundIds = playgroundUserIdsProvider.findPlaygroundIdsByType(ownProfile, type);
+            // 이미 친구였던 유저는 제외해서 반환한다.
+            Set<Long> recommendablePlaygroundIds = friendFilter.excludeAlreadyFriendIds(playgroundIds);
+            if (recommendablePlaygroundIds.isEmpty()) { // 추천 가능한 유저가 없다면 다음 type으로 넘어간다.
+                continue;
+            }
+            // 친구 Set 중 {size}만큼 랜덤으로 뽑는다.
+            List<Long> pickedRecommendedPlaygroundIds = RandomPicker.pickRandom(recommendablePlaygroundIds, size);
+
+            // 뽑은 친구의 SimplePokeProfile을 만들어 반환한다.
+            List<PlaygroundProfile> profiles = playgroundAuthService.getPlaygroundMemberProfiles(
+                    user.getPlaygroundToken(), pickedRecommendedPlaygroundIds);
+            List<UserProfile> userProfiles = userService.getUserProfilesByPlaygroundIds(pickedRecommendedPlaygroundIds);
+            List<SimplePokeProfile> simplePokeProfiles = this.makeSimplePokeProfilesForNotFriend(profiles,
+                    userProfiles);
+
+            RecommendedFriendsByType recommendedFriendsByType = RecommendedFriendsByType.builder()
+                    .randomType(type)
+                    .randomTitle(type.getRecommendTitle())
+                    .userInfoList(simplePokeProfiles)
+                    .build();
+            recommendedFriendsByTypes.add(recommendedFriendsByType);
+        }
+        return new RecommendedFriendsRequest(recommendedFriendsByTypes);
+    }
+
+    private List<SimplePokeProfile> makeSimplePokeProfilesForNotFriend(
+            List<PlaygroundProfile> playgroundProfiles, List<UserProfile> userProfiles) {
+
+        return userProfiles.stream().map(userProfile -> {
+            PlaygroundProfile playgroundProfile = playgroundProfiles.stream()
+                    .filter(profile -> profile.getMemberId().equals(userProfile.getPlaygroundId()))
+                    .findFirst().orElseThrow();
+
+            return SimplePokeProfile.createNonFriendPokeProfile(
+                    userProfile.getUserId(),
+                    userProfile.getPlaygroundId(),
+                    playgroundProfile.getProfileImage(),
+                    userProfile.getName(),
+                    playgroundProfile.getLatestActivity().getGeneration(),
+                    playgroundProfile.getLatestActivity().getPart()
+            );
+        }).toList();
     }
 
     public boolean getIsNewUser(Long userId) {
