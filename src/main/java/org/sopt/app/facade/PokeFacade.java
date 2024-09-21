@@ -48,7 +48,7 @@ public class PokeFacade {
         messages.add(fixedMessage);
 
         return messages.stream().map(messagesDetail ->
-                PokeMessage.of(messagesDetail.getId(), messagesDetail.getContent())
+                new PokeMessage(messagesDetail.getId(), messagesDetail.getContent())
         ).toList();
     }
 
@@ -157,12 +157,12 @@ public class PokeFacade {
                 .map(pokeHistory -> getPokeHistoryProfile(user, pokeHistory.getPokerId(), pokeHistory.getId()))
                 .distinct()
                 .toList();
-        return PokeToMeHistoryList.of(
-                pokeToMeHistories,
-                totalPageSize,
-                pageable.getPageSize(),
-                pokedHistories.getNumber()
-        );
+        return PokeToMeHistoryList.builder()
+                .history(pokeToMeHistories)
+                .totalPageSize(totalPageSize)
+                .pageNum(pokedHistories.getNumber())
+                .pageSize(pageable.getPageSize())
+                .build();
     }
 
 
@@ -284,13 +284,13 @@ public class PokeFacade {
         val totalSize = friendService.findAllFriendSizeByFriendship(
                 user.getId(), friendship.getLowerLimit(), friendship.getUpperLimit());
         val totalPageSize = totalSize / pageable.getPageSize();
-        return EachRelationFriendList.of(
-                allOfPokeWithFriends,
-                totalSize,
-                totalPageSize,
-                pageable.getPageSize(),
-                friends.getNumber()
-        );
+        return EachRelationFriendList.builder()
+                .friendList(allOfPokeWithFriends)
+                .totalSize(totalSize)
+                .totalPageSize(totalPageSize)
+                .pageSize(pageable.getPageSize())
+                .pageNum(friends.getNumber())
+                .build();
     }
 
     public SimplePokeProfile getPokeHistoryProfile(User user, Long friendId, Long pokeId) {

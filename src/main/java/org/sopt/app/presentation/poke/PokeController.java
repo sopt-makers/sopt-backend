@@ -13,25 +13,13 @@ import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.FriendRecommendType;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.facade.PokeFacade;
-import org.sopt.app.presentation.poke.PokeResponse.AllRelationFriendList;
-import org.sopt.app.presentation.poke.PokeResponse.Friend;
-import org.sopt.app.presentation.poke.PokeResponse.FriendList;
-import org.sopt.app.presentation.poke.PokeResponse.PokeMessageList;
-import org.sopt.app.presentation.poke.PokeResponse.PokeToMeHistoryList;
-import org.sopt.app.presentation.poke.PokeResponse.RecommendedFriendsRequest;
-import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
+import org.sopt.app.presentation.poke.PokeResponse.*;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v2/poke")
@@ -59,8 +47,7 @@ public class PokeController {
             @AuthenticationPrincipal User user
     ) {
         val result = pokeFacade.getIsNewUser(user.getId());
-        val response = PokeResponse.IsNew.of(result);
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(new IsNew(result));
     }
 
     @Operation(summary = "찌르기 메시지 조회")
@@ -74,7 +61,7 @@ public class PokeController {
     ) {
         val messages = pokeFacade.getPokingMessages(messageType);
         val pokingMessageHeader = pokeFacade.getPokingMessageHeader(messageType);
-        val response = PokeMessageList.of(pokingMessageHeader, messages);
+        val response = new PokeMessageList(pokingMessageHeader, messages);
         return ResponseEntity.ok(response);
     }
 
@@ -155,12 +142,12 @@ public class PokeController {
             val soulMates = pokeFacade.getTwoFriendByFriendship(user, Friendship.SOULMATE);
             val soulMatesSize = pokeFacade.getFriendSizeByFriendship(user.getId(), Friendship.SOULMATE);
 
-            val response = AllRelationFriendList.of(
-                    newFriends, newFriendsSize,
-                    bestFriends, bestFriendsSize,
-                    soulMates, soulMatesSize,
-                    newFriendsSize + bestFriendsSize + soulMatesSize
-            );
+            val response = AllRelationFriendList.builder()
+                    .newFriend(newFriends).newFriendSize(newFriendsSize)
+                    .bestFriend(bestFriends).bestFriendSize(bestFriendsSize)
+                    .soulmate(soulMates).soulmateSize(soulMatesSize)
+                    .totalSize(newFriendsSize + bestFriendsSize + soulMatesSize)
+                    .build();
             return ResponseEntity.ok(response);
         }
         Friendship targetFriendship = Friendship.getFriendshipByValue(type);
