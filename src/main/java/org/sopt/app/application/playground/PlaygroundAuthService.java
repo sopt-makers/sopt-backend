@@ -111,7 +111,7 @@ public class PlaygroundAuthService {
     private PlaygroundProfile getPlaygroundMemberProfile(String accessToken, Long playgroundId) {
         Map<String, String> headers = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         try {
-            return playgroundClient.getSinglePlaygroundMemberProfile(headers, playgroundId).get(0);
+            return playgroundClient.getPlaygroundMemberProfiles(headers, playgroundId).get(0);
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
         } catch (ExpiredJwtException e) {
@@ -144,9 +144,9 @@ public class PlaygroundAuthService {
         }
     }
 
-    public List<PlaygroundProfile> getPlaygroundMemberProfiles(String accessToken, List<Long> memberIds) {
+    public List<PlaygroundProfile> getPlaygroundMemberProfiles(String accessToken, List<Long> playgroundIds) {
         Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
-        String stringifyIds = memberIds.stream()
+        String stringifyIds = playgroundIds.stream()
                 .map(String::valueOf)
                 .collect(Collectors.joining(","));
         try {
@@ -162,38 +162,6 @@ public class PlaygroundAuthService {
     public OwnPlaygroundProfile getOwnPlaygroundProfile(String accessToken) {
         Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         return playgroundClient.getOwnPlaygroundProfile(requestHeader);
-    }
-
-    public List<Long> getPlaygroundIdsForSameGeneration(List<Long> generationList) {
-
-        return playgroundUserFinder.getPlaygroundUserIdsForSameRecommendType(
-                PlaygroundUserFindCondition.createRecommendFriendRequestByGeneration(generationList)
-        );
-    }
-
-    private List<Long> getGenerationListByLatestGenerationForRange(Long latestGeneration) {
-        return LongStream.rangeClosed(0, 3)
-                .mapToObj(i -> latestGeneration - i)
-                .collect(Collectors.toList());
-    }
-
-    public List<Long> getPlaygroundIdsForSameMbti(Long latestGeneration, String mbti) {
-        PlaygroundUserFindCondition request =
-                new PlaygroundUserFindCondition(
-                        getGenerationListByLatestGenerationForRange(latestGeneration),
-                        List.of(PlaygroundUserFindFilter.builder().key(String.valueOf(MBTI)).value(mbti).build()));
-        return playgroundUserFinder.getPlaygroundUserIdsForSameRecommendType(
-                request
-        );
-    }
-
-    public List<Long> getPlaygroundIdsForSameUniversity(Long latestGeneration, String university) {
-        return playgroundUserFinder.getPlaygroundUserIdsForSameRecommendType(
-                new PlaygroundUserFindCondition(
-                        getGenerationListByLatestGenerationForRange(latestGeneration),
-                        List.of(PlaygroundUserFindFilter.builder().key(String.valueOf(UNIVERSITY)).value(university).build())
-                )
-        );
     }
 
     public PlaygroundPost getPlaygroundHotPost(String playgroundToken) {
