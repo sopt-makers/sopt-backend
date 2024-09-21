@@ -269,7 +269,7 @@ public class PokeFacade {
                     FriendRecommendType.UNIVERSITY);
         }
 
-        FriendFilter friendFilter = new FriendFilter(friendService.findAllFriendIdsByUserId(user.getId()));
+        FriendFilter friendFilter = new FriendFilter(friendService.findAllFriendIdsByUserId(user.getId()), user.getId());
         List<RecommendedFriendsByType> recommendedFriendsByTypes = new ArrayList<>();
         for (FriendRecommendType type : typeList) {
             // {User}의 {typeList}의 친구 set을 달라
