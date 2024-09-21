@@ -15,8 +15,7 @@ import java.util.List;
 public class NotificationRequest {
 
     @Getter
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @AllArgsConstructor(access = AccessLevel.PROTECTED)
     @Builder
     public static class RegisterNotificationRequest {
 
