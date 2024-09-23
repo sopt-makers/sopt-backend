@@ -479,16 +479,15 @@ class PokeFacadeTest {
     @DisplayName("SUCCESS_요구사항1_추천할 친구가 없다면 객체를 반환하지 않음")
     void SUCCESS_getRecommendedFriendsByAllType_Requirement1() {
         // given
-        final Set<Long> emptyPlaygroundIds = Set.of();
+        final List<Long> emptyPlaygroundIds = List.of();
         final List<Long> emptyUserIds = List.of();
 
         given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
                 .willReturn(PokeFixture.createOwnPlaygroundProfile());
         given(friendService.findAllFriendIdsByUserId(anyLong())).willReturn(Set.of()); // 현재 친구인 유저 없음
 
-        given(playgroundUserIdsProvider.findPlaygroundIdsByType(any(), eq(FriendRecommendType.ALL_USER)))
-                .willReturn(emptyPlaygroundIds); // 추천된 playground id 없음
-        given(userService.getUserProfilesByPlaygroundIds(List.copyOf(emptyPlaygroundIds)))
+        given(userService.getAllPlaygroundIds()).willReturn(emptyPlaygroundIds); // 추천된 playground id 없음
+        given(userService.getUserProfilesByPlaygroundIds(emptyPlaygroundIds))
                 .willReturn(PokeFixture.createUserProfileList(emptyUserIds ,List.copyOf(emptyPlaygroundIds)));
 
         // when

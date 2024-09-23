@@ -12,8 +12,8 @@ public class FriendFilter {
 
     public List<UserProfile> excludeAlreadyFriendUserIds(List<UserProfile> userProfiles) {
         return userProfiles.stream()
-                .filter(userProfile -> ownUserId.equals(userProfile.getUserId()))
-                .filter(userProfile -> friendUserIds.contains(userProfile.getUserId()))
+                .filter(userProfile -> !ownUserId.equals(userProfile.getUserId()))
+                .filter(userProfile -> !friendUserIds.contains(userProfile.getUserId()))
                 .toList();
     }
 }
