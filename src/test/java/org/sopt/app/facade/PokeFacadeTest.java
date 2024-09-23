@@ -485,7 +485,6 @@ class PokeFacadeTest {
         given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
                 .willReturn(PokeFixture.createOwnPlaygroundProfile());
         given(friendService.findAllFriendIdsByUserId(anyLong())).willReturn(Set.of()); // 현재 친구인 유저 없음
-
         given(userService.getAllPlaygroundIds()).willReturn(emptyPlaygroundIds); // 추천된 playground id 없음
         given(userService.getUserProfilesByPlaygroundIds(emptyPlaygroundIds))
                 .willReturn(PokeFixture.createUserProfileList(emptyUserIds ,List.copyOf(emptyPlaygroundIds)));
@@ -522,36 +521,27 @@ class PokeFacadeTest {
         assertTrue(result.getRandomInfoList().isEmpty());
     }
 
-    /**
     @Test
     @DisplayName("SUCCESS_요구사항3_플그 아이디는 있지만 앱 아이디가 없는 유저는 추천하지 않도록 필터링")
     void SUCCESS_getRecommendedFriendsByAllType_Requirement3() {
         // given
+        final List<Long> playgroundIds = List.of(1L);
+
         given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
                 .willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundIdsForSameGeneration(List.of(GENERATION)))
-                .willReturn(List.of(1L));
-        given(playgroundAuthService.getPlaygroundIdsForSameMbti(GENERATION, MBTI))
-                .willReturn(List.of(2L));
-        given(playgroundAuthService.getPlaygroundIdsForSameUniversity(GENERATION, UNIVERSITY))
-                .willReturn(List.of(3L));
-        given(friendService.findUserIdsLinkedFriends(anyLong())).willReturn(new ArrayList<>());
-
-        given(userService.getUserProfilesByPlaygroundIds(anyList())).willReturn(
-                PokeFixture.createUserProfileList(
-                        List.of(44L, 55L, 66L, 77L, 88L),
-                        List.of(4L, 5L, 6L, 7L, 8L)
-                )); // playgroundId가 1, 2, 3인 유저는 앱 아이디가 없음
-        User myAppUser = UserFixture.createMyAppUser();
+        given(friendService.findAllFriendIdsByUserId(anyLong())).willReturn(Set.of()); // 현재 친구인 유저 없음
+        given(userService.getAllPlaygroundIds()).willReturn(playgroundIds); // playgroundId 존재
+        given(userService.getUserProfilesByPlaygroundIds(playgroundIds)).willReturn(List.of());// 앱 아이디가 없어 userProfile을 반환하지 않음
 
         // when
-        RecommendedFriendsRequest result =
-                pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        RecommendedFriendsRequest result = pokeFacade.getRecommendedFriendsByTypeList(
+                List.of(FriendRecommendType.ALL_USER), 6, UserFixture.createMyAppUser());
 
         // then
         assertTrue(result.getRandomInfoList().isEmpty());
     }
 
+    /**
     @Test
     @DisplayName("SUCCESS_요구사항4_이미 친구인 유저는 추천 친구에서 제외함 ")
     void SUCCESS_getRecommendedFriendsByAllType_Requirement4() {
