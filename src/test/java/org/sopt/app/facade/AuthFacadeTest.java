@@ -13,7 +13,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.auth.JwtTokenService;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.AppToken;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundMain;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.application.soptamp.SoptampUserService;
@@ -27,7 +27,7 @@ import org.sopt.app.presentation.auth.AppAuthResponse.Token;
 import org.sopt.app.presentation.auth.AppAuthResponseMapper;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthFacadeTest {
+class AuthFacadeTest {
 
     @Mock
     private AppAuthResponseMapper appAuthResponseMapper;

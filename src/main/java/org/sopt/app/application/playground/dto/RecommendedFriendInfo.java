@@ -1,6 +1,6 @@
-package org.sopt.app.application.auth.dto;
+package org.sopt.app.application.playground.dto;
 
-import java.util.List;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -9,14 +9,14 @@ import lombok.NoArgsConstructor;
 public class RecommendedFriendInfo {
 
     @Builder
-    public record RecommendFriendFilter(
+    public record PlaygroundUserFindFilter(
             String key,
             String value
     ) {
     }
 
     public record PlaygroundUserIds(
-            List<Long> userIds
+            Set<Long> userIds
     ) {
     }
 }

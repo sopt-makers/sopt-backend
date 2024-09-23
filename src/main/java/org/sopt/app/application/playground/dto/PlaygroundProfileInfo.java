@@ -1,4 +1,4 @@
-package org.sopt.app.application.auth.dto;
+package org.sopt.app.application.playground.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Comparator;
@@ -115,6 +115,12 @@ public class PlaygroundProfileInfo {
         private String mbti;
         private String university;
         private List<ActivityCardinalInfo> activities;
+
+        public List<Long> getAllGenerations() {
+            return activities.stream()
+                    .map(ActivityCardinalInfo::getGeneration)
+                    .toList();
+        }
     }
 
     @Getter

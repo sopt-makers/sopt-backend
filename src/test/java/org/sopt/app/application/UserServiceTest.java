@@ -14,7 +14,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundMain;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
 import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.common.exception.NotFoundException;

@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.joda.time.LocalDateTime;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.AppToken;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.springframework.beans.factory.annotation.Value;

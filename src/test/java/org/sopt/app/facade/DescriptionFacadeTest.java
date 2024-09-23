@@ -11,7 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.UserActiveInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.UserActiveInfo;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.description.DescriptionInfo;
 import org.sopt.app.application.description.DescriptionInfo.MainDescription;
