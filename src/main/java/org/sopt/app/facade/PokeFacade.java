@@ -294,6 +294,25 @@ public class PokeFacade {
         return this.makeSimplePokeProfilesForNotFriend(pickedPlaygroundProfiles, pickedUserProfiles);
     }
 
+    private List<SimplePokeProfile> makeSimplePokeProfilesForNotFriend(
+            List<PlaygroundProfile> playgroundProfiles, List<UserProfile> userProfiles) {
+
+        return userProfiles.stream().map(userProfile -> {
+            PlaygroundProfile playgroundProfile = playgroundProfiles.stream()
+                    .filter(profile -> profile.getMemberId().equals(userProfile.getPlaygroundId()))
+                    .findFirst().orElseThrow();
+
+            return SimplePokeProfile.createNonFriendPokeProfile(
+                    userProfile.getUserId(),
+                    userProfile.getPlaygroundId(),
+                    playgroundProfile.getProfileImage(),
+                    userProfile.getName(),
+                    playgroundProfile.getLatestActivity().getGeneration(),
+                    playgroundProfile.getLatestActivity().getPart()
+            );
+        }).toList();
+    }
+
     private List<UserProfile> getRecommendableUserProfiles(
             FriendRecommendType type, OwnPlaygroundProfile ownProfile, FriendFilter friendFilter) {
         Set<Long> playgroundIds;
@@ -315,25 +334,6 @@ public class PokeFacade {
             return List.of(FriendRecommendType.GENERATION, FriendRecommendType.MBTI, FriendRecommendType.UNIVERSITY);
         }
         return typeList;
-    }
-
-    private List<SimplePokeProfile> makeSimplePokeProfilesForNotFriend(
-            List<PlaygroundProfile> playgroundProfiles, List<UserProfile> userProfiles) {
-
-        return userProfiles.stream().map(userProfile -> {
-            PlaygroundProfile playgroundProfile = playgroundProfiles.stream()
-                    .filter(profile -> profile.getMemberId().equals(userProfile.getPlaygroundId()))
-                    .findFirst().orElseThrow();
-
-            return SimplePokeProfile.createNonFriendPokeProfile(
-                    userProfile.getUserId(),
-                    userProfile.getPlaygroundId(),
-                    playgroundProfile.getProfileImage(),
-                    userProfile.getName(),
-                    playgroundProfile.getLatestActivity().getGeneration(),
-                    playgroundProfile.getLatestActivity().getPart()
-            );
-        }).toList();
     }
 
     public boolean getIsNewUser(Long userId) {
