@@ -321,8 +321,8 @@ public class PokeFacade {
         } else {
             playgroundIds = playgroundUserIdsProvider.findPlaygroundIdsByType(ownProfile, type);
         }
-        Set<Long> notFriendPlaygroundIds = friendFilter.excludeAlreadyFriendIds(playgroundIds);
-        return userService.getUserProfilesByPlaygroundIds(List.copyOf(notFriendPlaygroundIds));
+        List<UserProfile> unFilteredUserProfiles = userService.getUserProfilesByPlaygroundIds(List.copyOf(playgroundIds));
+        return friendFilter.excludeAlreadyFriendUserIds(unFilteredUserProfiles);
     }
 
     private List<FriendRecommendType> adjustTypeList(List<FriendRecommendType> typeList) {
