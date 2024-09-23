@@ -472,35 +472,31 @@ class PokeFacadeTest {
         assertEquals(List.copyOf(sameGenerationPlaygroundIds), resultSameGenerationPlaygroundIds);
     }
 
-    /**
     @Test
     @DisplayName("SUCCESS_요구사항1_추천할 친구가 없다면 객체를 반환하지 않음")
     void SUCCESS_getRecommendedFriendsByAllType_Requirement1() {
         // given
+        final Set<Long> sameMbtiPlaygroundIds = Set.of();
+        final List<Long> sameMbtiUserIds = List.of();
+
         given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
                 .willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundIdsForSameGeneration(List.of(GENERATION))).willReturn(List.of());
-        given(playgroundAuthService.getPlaygroundIdsForSameMbti(GENERATION, MBTI))
-                .willReturn(List.of(4L,5L,6L));
-        given(playgroundAuthService.getPlaygroundIdsForSameUniversity(GENERATION, UNIVERSITY)).willReturn(List.of());
-        given(friendService.findUserIdsLinkedFriends(anyLong()))
-                .willReturn(new ArrayList<>(Arrays.asList(44L, 55L, 66L)));
+        given(friendService.findAllFriendIdsByUserId(anyLong())).willReturn(Set.of()); // 현재 친구인 유저 없음
 
-        // 추천 친구가 있어도 이미 친구인 프로필이라서 제외되어 추천 친구가 0명이 되면 객체를 반환하지 않아야 한다.
-        given(userService.getUserProfilesByPlaygroundIds(anyList())).willReturn(
-                PokeFixture.createUserProfileList(
-                        List.of(11L, 22L, 33L, 44L, 55L, 66L, 77L, 88L, 99L),
-                        List.of(1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L)
-                ));
-        User myAppUser = UserFixture.createMyAppUser();
+        given(playgroundUserIdsProvider.findPlaygroundIdsByType(any(), eq(FriendRecommendType.MBTI)))
+                .willReturn(sameMbtiPlaygroundIds);
+        given(userService.getUserProfilesByPlaygroundIds(List.copyOf(sameMbtiPlaygroundIds)))
+                .willReturn(PokeFixture.createUserProfileList(sameMbtiUserIds ,List.copyOf(sameMbtiPlaygroundIds)));
 
         // when
-        RecommendedFriendsRequest result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
+        RecommendedFriendsRequest result = pokeFacade.getRecommendedFriendsByTypeList(
+                List.of(FriendRecommendType.MBTI), 6, UserFixture.createMyAppUser());
 
         // then
         assertTrue(result.getRandomInfoList().isEmpty());
     }
 
+    /**
     @Test
     @DisplayName("SUCCESS_요구사항2_자기 자신은 추천 친구에서 제외되어야 함")
     void SUCCESS_getRecommendedFriendsByAllType_Requirement2() {
@@ -529,6 +525,7 @@ class PokeFacadeTest {
         // then
         assertTrue(result.getRandomInfoList().isEmpty());
     }
+
 
     @Test
     @DisplayName("SUCCESS_요구사항3_플그 아이디는 있지만 앱 아이디가 없는 유저는 추천하지 않도록 필터링")
