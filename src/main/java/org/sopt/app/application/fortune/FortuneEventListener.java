@@ -1,21 +1,18 @@
 package org.sopt.app.application.fortune;
 
+import jakarta.transaction.Transactional;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.utils.HttpHeadersUtils;
 import org.sopt.app.domain.enums.NotificationCategory;
 import org.sopt.app.presentation.fortune.FortuneAlarmRequest;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.*;
-import org.springframework.stereotype.Component;
-
-import javax.transaction.Transactional;
-import java.util.List;
-
-import lombok.RequiredArgsConstructor;
-import lombok.val;
 
 @Component
 @RequiredArgsConstructor
