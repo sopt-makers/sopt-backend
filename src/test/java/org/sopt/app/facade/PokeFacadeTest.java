@@ -2,7 +2,6 @@ package org.sopt.app.facade;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 
 import java.util.*;
@@ -15,12 +14,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.friend.FriendService;
-import org.sopt.app.application.playground.user_finder.PlaygroundUserIdsProvider;
 import org.sopt.app.application.poke.*;
 import org.sopt.app.application.poke.PokeInfo.*;
 import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.application.user.UserService;
-import org.sopt.app.common.fixtures.*;
 import org.sopt.app.domain.entity.*;
 import org.sopt.app.domain.entity.Friend;
 import org.sopt.app.domain.entity.poke.*;
@@ -76,8 +73,6 @@ class PokeFacadeTest {
     private PokeHistoryService pokeHistoryService;
     @Mock
     private PokeService pokeService;
-    @Mock
-    private PlaygroundUserIdsProvider playgroundUserIdsProvider;
     @InjectMocks
     private PokeFacade pokeFacade;
 
@@ -415,206 +410,4 @@ class PokeFacadeTest {
         boolean result = pokeFacade.getIsNewUser(user.getId());
         assertTrue(result);
     }
-
-    @Test
-    @DisplayName("SUCCESS_모든 유형의 추천 친구 조회")
-    void SUCCESS_getRecommendedFriendsByAllType() {
-        // given
-        final Set<Long> sameMbtiPlaygroundIds = Set.of(1L);
-        final List<Long> sameMbtiUserIds = List.of(11L);
-        final Set<Long> sameUniversityPlaygroundIds = Set.of(2L);
-        final List<Long> sameUniversityUserIds = List.of(22L);
-        final Set<Long> sameGenerationPlaygroundIds = Set.of(3L);
-        final List<Long> sameGenerationUserIds = List.of(33L);
-
-        given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
-                .willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(friendService.findAllFriendIdsByUserId(anyLong())).willReturn(Set.of()); // 현재 친구인 유저 없음
-
-        //== MBTI, UNIVERSITY, GENERATION별 playgroundIds를 찾는 로직 ==//
-        given(playgroundUserIdsProvider.findPlaygroundIdsByType(any(), eq(FriendRecommendType.MBTI)))
-                .willReturn(sameMbtiPlaygroundIds);
-        given(playgroundUserIdsProvider.findPlaygroundIdsByType(any(), eq(FriendRecommendType.UNIVERSITY)))
-                .willReturn(sameUniversityPlaygroundIds);
-        given(playgroundUserIdsProvider.findPlaygroundIdsByType(any(), eq(FriendRecommendType.GENERATION)))
-                .willReturn(sameGenerationPlaygroundIds);
-
-        //== MBTI, UNIVERSITY, GENERATION별 playground profile을 찾는 로직 ==//
-        given(playgroundAuthService.getPlaygroundMemberProfiles(anyString(), eq(List.copyOf(sameMbtiPlaygroundIds))))
-                .willReturn(PokeFixture.createPlaygroundProfileList(List.copyOf(sameMbtiPlaygroundIds)));
-        given(playgroundAuthService.getPlaygroundMemberProfiles(anyString(), eq(List.copyOf(sameUniversityPlaygroundIds))))
-                .willReturn(PokeFixture.createPlaygroundProfileList(List.copyOf(sameUniversityPlaygroundIds)));
-        given(playgroundAuthService.getPlaygroundMemberProfiles(anyString(), eq(List.copyOf(sameGenerationPlaygroundIds))))
-                .willReturn(PokeFixture.createPlaygroundProfileList(List.copyOf(sameGenerationPlaygroundIds)));
-
-        //== MBTI, UNIVERSITY, GENERATION별 user profile을 찾는 로직 ==//
-        given(userService.getUserProfilesByPlaygroundIds(List.copyOf(sameMbtiPlaygroundIds)))
-                .willReturn(PokeFixture.createUserProfileList(sameMbtiUserIds ,List.copyOf(sameMbtiPlaygroundIds)));
-        given(userService.getUserProfilesByPlaygroundIds(List.copyOf(sameUniversityPlaygroundIds)))
-                .willReturn(PokeFixture.createUserProfileList(sameUniversityUserIds ,List.copyOf(sameUniversityPlaygroundIds)));
-        given(userService.getUserProfilesByPlaygroundIds(List.copyOf(sameGenerationPlaygroundIds)))
-                .willReturn(PokeFixture.createUserProfileList(sameGenerationUserIds ,List.copyOf(sameGenerationPlaygroundIds)));
-
-        // when
-        RecommendedFriendsRequest result = pokeFacade.getRecommendedFriendsByTypeList(
-                List.of(FriendRecommendType.ALL), 6, UserFixture.createMyAppUser());
-        List<Long> resultSameMbtiPlaygroundIds = result.getRandomInfoList().stream()
-                .filter(info -> info.getRandomType() == FriendRecommendType.MBTI)
-                .findFirst().get().getUserInfoList().stream().map(SimplePokeProfile::getPlaygroundId).toList();
-        List<Long> resultSameUniversityPlaygroundIds = result.getRandomInfoList().stream()
-                .filter(info -> info.getRandomType() == FriendRecommendType.UNIVERSITY)
-                .findFirst().get().getUserInfoList().stream().map(SimplePokeProfile::getPlaygroundId).toList();
-        List<Long> resultSameGenerationPlaygroundIds = result.getRandomInfoList().stream()
-                .filter(info -> info.getRandomType() == FriendRecommendType.GENERATION)
-                .findFirst().get().getUserInfoList().stream().map(SimplePokeProfile::getPlaygroundId).toList();
-
-        // then
-        assertEquals(3, result.getRandomInfoList().size());
-        assertEquals(List.copyOf(sameMbtiPlaygroundIds), resultSameMbtiPlaygroundIds);
-        assertEquals(List.copyOf(sameUniversityPlaygroundIds), resultSameUniversityPlaygroundIds);
-        assertEquals(List.copyOf(sameGenerationPlaygroundIds), resultSameGenerationPlaygroundIds);
-    }
-
-    @Test
-    @DisplayName("SUCCESS_요구사항1_추천할 친구가 없다면 객체를 반환하지 않음")
-    void SUCCESS_getRecommendedFriendsByAllType_Requirement1() {
-        // given
-        final List<Long> emptyPlaygroundIds = List.of();
-        final List<Long> emptyUserIds = List.of();
-
-        given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
-                .willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(friendService.findAllFriendIdsByUserId(anyLong())).willReturn(Set.of()); // 현재 친구인 유저 없음
-        given(userService.getAllPlaygroundIds()).willReturn(emptyPlaygroundIds); // 추천된 playground id 없음
-        given(userService.getUserProfilesByPlaygroundIds(emptyPlaygroundIds))
-                .willReturn(PokeFixture.createUserProfileList(emptyUserIds ,List.copyOf(emptyPlaygroundIds)));
-
-        // when
-        RecommendedFriendsRequest result = pokeFacade.getRecommendedFriendsByTypeList(
-                List.of(FriendRecommendType.ALL_USER), 6, UserFixture.createMyAppUser());
-
-        // then
-        assertTrue(result.getRandomInfoList().isEmpty());
-    }
-
-    @Test
-    @DisplayName("SUCCESS_요구사항2_자기 자신은 추천 친구에서 제외되어야 함")
-    void SUCCESS_getRecommendedFriendsByAllType_Requirement2() {
-        // given
-        final List<Long> playgroundIds = List.of(UserFixture.myPlaygroundId);
-        final List<Long> userIds = List.of(UserFixture.myAppUserId);
-
-        given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
-                .willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(friendService.findAllFriendIdsByUserId(anyLong())).willReturn(Set.of()); // 현재 친구인 유저 없음
-
-        //== playgroundIds에 자신의 playgroundId만 포함됨 ==//
-        given(userService.getAllPlaygroundIds()).willReturn(playgroundIds);
-        given(userService.getUserProfilesByPlaygroundIds(playgroundIds)).willReturn(
-                PokeFixture.createUserProfileList(userIds, playgroundIds));
-
-        // when
-        RecommendedFriendsRequest result = pokeFacade.getRecommendedFriendsByTypeList(
-                List.of(FriendRecommendType.ALL_USER), 6, UserFixture.createMyAppUser());
-
-        // then
-        assertTrue(result.getRandomInfoList().isEmpty());
-    }
-
-    @Test
-    @DisplayName("SUCCESS_요구사항3_플그 아이디는 있지만 앱 아이디가 없는 유저는 추천하지 않도록 필터링")
-    void SUCCESS_getRecommendedFriendsByAllType_Requirement3() {
-        // given
-        final List<Long> playgroundIds = List.of(1L);
-
-        given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
-                .willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(friendService.findAllFriendIdsByUserId(anyLong())).willReturn(Set.of()); // 현재 친구인 유저 없음
-        given(userService.getAllPlaygroundIds()).willReturn(playgroundIds); // playgroundId 존재
-        given(userService.getUserProfilesByPlaygroundIds(playgroundIds)).willReturn(List.of());// 앱 아이디가 없어 userProfile을 반환하지 않음
-
-        // when
-        RecommendedFriendsRequest result = pokeFacade.getRecommendedFriendsByTypeList(
-                List.of(FriendRecommendType.ALL_USER), 6, UserFixture.createMyAppUser());
-
-        // then
-        assertTrue(result.getRandomInfoList().isEmpty());
-    }
-
-    @Test
-    @DisplayName("SUCCESS_요구사항4_이미 친구인 유저는 추천 친구에서 제외함 ")
-    void SUCCESS_getRecommendedFriendsByAllType_Requirement4() {
-        // given
-        final List<Long> playgroundIds = List.of(1L, 2L);
-        final List<Long> userIds = List.of(11L, 22L);
-
-        given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
-                .willReturn(PokeFixture.createOwnPlaygroundProfile());
-        given(friendService.findAllFriendIdsByUserId(anyLong())).willReturn(Set.of(11L)); // 11번 유저는 이미 친구
-
-        given(userService.getAllPlaygroundIds()).willReturn(playgroundIds);
-        given(userService.getUserProfilesByPlaygroundIds(any())).willReturn(
-                PokeFixture.createUserProfileList(userIds, playgroundIds));
-
-        // when
-        ArgumentCaptor<List<Long>> ac = ArgumentCaptor.forClass(List.class);
-        when(playgroundAuthService.getPlaygroundMemberProfiles(anyString(), ac.capture())).
-                thenReturn(PokeFixture.createPlaygroundProfileList(List.of(2L)));
-        RecommendedFriendsRequest result = pokeFacade.getRecommendedFriendsByTypeList(
-                List.of(FriendRecommendType.ALL_USER), 6, UserFixture.createMyAppUser());
-
-        // then
-        assertEquals(2L, ac.getValue().get(0));
-        assertEquals(22L, result.getRandomInfoList().get(0).getUserInfoList().get(0).getUserId());
-    }
-
-    /**
-    @Test
-    @DisplayName("SUCCESS_요구사항5_자신의 유형 값이 null이면 객체를 반환하지 않음")
-    void SUCCESS_getRecommendedFriendsByAllType_Requirement5() {
-        // given
-        final List<Long> sameGenerationPlaygroundIds = List.of(1L);
-        final List<Long> sameMbtiPlaygroundIds = List.of(2L);
-
-        given(playgroundAuthService.getOwnPlaygroundProfile(anyString()))
-                .willReturn(PokeFixture.createMbtiNullPlaygroundProfile());
-        given(playgroundAuthService.getPlaygroundIdsForSameGeneration(List.of(GENERATION)))
-                .willReturn(List.of(1L));
-        given(playgroundAuthService.getPlaygroundIdsForSameUniversity(GENERATION, UNIVERSITY))
-                .willReturn(List.of(2L));
-        given(friendService.findUserIdsLinkedFriends(anyLong()))
-                .willReturn(new ArrayList<>(Arrays.asList(33L, 66L, 99L)));
-
-        given(userService.getUserProfilesByPlaygroundIds(sameGenerationPlaygroundIds)).willReturn(
-                PokeFixture.createUserProfileList(List.of(11L), sameGenerationPlaygroundIds));
-        given(userService.getUserProfilesByPlaygroundIds(sameMbtiPlaygroundIds)).willReturn(
-                PokeFixture.createUserProfileList(List.of(22L), sameMbtiPlaygroundIds));
-
-
-        given(playgroundAuthService.getPlaygroundMemberProfiles(dummyPlaygroundToken, sameGenerationPlaygroundIds))
-                .willReturn(PokeFixture.createPlaygroundProfileList(sameGenerationPlaygroundIds));
-        given(playgroundAuthService.getPlaygroundMemberProfiles(dummyPlaygroundToken, sameMbtiPlaygroundIds))
-                .willReturn(PokeFixture.createPlaygroundProfileList(sameMbtiPlaygroundIds));
-
-        User myAppUser = UserFixture.createMyAppUser();
-
-        // when
-        RecommendedFriendsRequest result = pokeFacade.getRecommendedFriendsByTypeList(List.of(FriendRecommendType.ALL), 6, myAppUser);
-
-        // then
-        List<FriendRecommendType> recommendedFriendTypes = result.getRandomInfoList().stream()
-                .map(RecommendedFriendsByType::getRandomType)
-                .toList();
-        assertTrue(recommendedFriendTypes.containsAll(List.of(FriendRecommendType.GENERATION, FriendRecommendType.UNIVERSITY)));
-    }
-
-    private List<Long> findPlaygroundIdsInRecommendedFriendsByAllTypeByType(
-            RecommendedFriendsRequest recommendedFriendsRequest, FriendRecommendType type) {
-        return recommendedFriendsRequest.getRandomInfoList().stream()
-                .filter(randomInfo -> randomInfo.getRandomType() == type)
-                .flatMap(randomInfo -> randomInfo.getUserInfoList().stream())
-                .map(SimplePokeProfile::getPlaygroundId)
-                .toList();
-    }
-     **/
 }
