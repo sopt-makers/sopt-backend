@@ -1,7 +1,9 @@
 package org.sopt.app.application.playground.user_finder;
 
 import org.sopt.app.domain.enums.FriendRecommendType;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PlaygroundUserFindConditionCreatorFactory {
 
     public PlaygroundUserFindConditionCreator create(final FriendRecommendType recommendType) {

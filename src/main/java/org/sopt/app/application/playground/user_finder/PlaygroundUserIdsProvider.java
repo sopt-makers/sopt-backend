@@ -13,11 +13,10 @@ import org.springframework.stereotype.Service;
 public class PlaygroundUserIdsProvider {
 
     private final PlaygroundUserFinder finder;
+    private final PlaygroundUserFindConditionCreatorFactory factory;
 
     public Set<Long> findPlaygroundIdsByType(OwnPlaygroundProfile profile, FriendRecommendType type) {
-        PlaygroundUserFindConditionCreatorFactory factory = new PlaygroundUserFindConditionCreatorFactory();
         PlaygroundUserFindConditionCreator conditionCreator = factory.create(type);
-
         Optional<PlaygroundUserFindCondition> condition = conditionCreator.createCondition(profile);
         if (condition.isPresent()){
             return finder.findByCondition(condition.get());
