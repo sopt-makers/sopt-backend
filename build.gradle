@@ -49,10 +49,10 @@ dependencies {
     // lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 
     //postgres
     runtimeOnly 'org.postgresql:postgresql'
-    testAnnotationProcessor 'org.projectlombok:lombok'
 
 
     // mapper

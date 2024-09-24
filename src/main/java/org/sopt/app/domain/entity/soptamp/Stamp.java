@@ -2,16 +2,9 @@ package org.sopt.app.domain.entity.soptamp;
 
 
 import io.hypersistence.utils.hibernate.type.array.StringArrayType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Type;
 import org.sopt.app.domain.entity.BaseEntity;
 
