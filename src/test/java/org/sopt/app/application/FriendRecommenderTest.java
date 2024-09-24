@@ -13,9 +13,11 @@ import java.util.List;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.friend.FriendRecommender;
 import org.sopt.app.application.friend.FriendService;
 import org.sopt.app.application.playground.PlaygroundAuthService;
@@ -24,10 +26,10 @@ import org.sopt.app.application.user.UserService;
 import org.sopt.app.common.fixtures.PokeFixture;
 import org.sopt.app.common.fixtures.UserFixture;
 import org.sopt.app.domain.enums.FriendRecommendType;
-import org.sopt.app.facade.PokeFacade;
 import org.sopt.app.presentation.poke.PokeResponse.RecommendedFriendsRequest;
 import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
 
+@ExtendWith(MockitoExtension.class)
 class FriendRecommenderTest {
 
     @Mock
@@ -191,13 +193,6 @@ class FriendRecommenderTest {
         // then
         assertEquals(2L, ac.getValue().get(0));
         assertEquals(22L, result.getRandomInfoList().get(0).getUserInfoList().get(0).getUserId());
-    }
-
-    // TODO: 자신의 유형 값이 null이면 객체를 반환하지 않아야 하는 테스트 다른 객체로 책임 전달
-    @Test
-    @DisplayName("SUCCESS_요구사항5_자신의 유형 값이 null이면 객체를 반환하지 않음")
-    void SUCCESS_getRecommendedFriendsByAllType_Requirement5() {
-
     }
 
 }
