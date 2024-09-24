@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,7 +18,6 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import javax.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.joda.time.LocalDateTime;
@@ -51,18 +51,19 @@ public class S3Service {
     @Value("${cloud.aws.s3.uri}")
     private String baseURI;
 
-    private final AmazonS3 amazonS3;
+    private AmazonS3 amazonS3;
 
 
     @PostConstruct
     public AmazonS3 getAmazonS3() {
         val awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
-        return AmazonS3ClientBuilder.standard()
+        AmazonS3 amazonS3 =  AmazonS3ClientBuilder.standard()
                 .withRegion(region)
                 .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
                 .build();
+        this.amazonS3 = amazonS3;
+        return amazonS3;
     }
-
 
     public List<String> uploadDeprecated(List<MultipartFile> multipartFiles) {
         if (multipartFiles == null || multipartFiles.get(0).isEmpty()) {
