@@ -1,6 +1,6 @@
 package org.sopt.app.domain.entity.fortune;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Getter

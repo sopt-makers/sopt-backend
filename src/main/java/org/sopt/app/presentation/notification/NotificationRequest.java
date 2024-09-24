@@ -3,7 +3,7 @@ package org.sopt.app.presentation.notification;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import lombok.*;
 import org.sopt.app.domain.enums.NotificationCategory;

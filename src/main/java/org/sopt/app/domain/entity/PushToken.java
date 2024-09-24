@@ -1,10 +1,10 @@
 package org.sopt.app.domain.entity;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.sopt.app.domain.enums.PushTokenPlatform;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Entity
 @Getter
