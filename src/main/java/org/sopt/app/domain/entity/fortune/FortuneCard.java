@@ -18,4 +18,5 @@ public class FortuneCard {
 
     private String imageUrl;
 
+    private String imageColorCode;
 }
