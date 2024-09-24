@@ -3,8 +3,6 @@ package org.sopt.app.application.friend;
 import lombok.*;
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.jetbrains.annotations.NotNull;
 import org.sopt.app.application.poke.PokeInfo.Relationship;
 import org.sopt.app.common.exception.NotFoundException;
@@ -170,14 +168,5 @@ public class FriendService {
 
     public Set<Long> findAllFriendIdsByUserId(Long userId) {
         return friendRepository.findAllOfFriendIdsByUserId(userId);
-    }
-
-    public List<Long> findUserIdsLinkedFriends(Long userId) {
-        return Stream.concat(
-                        friendRepository.findAllOfFriendIdsByUserId(userId).stream(),
-                        friendRepository.findAllIfUserIdsByFriendId(userId).stream()
-                )
-                .distinct()
-                .collect(Collectors.toList());
     }
 }
