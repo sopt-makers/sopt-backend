@@ -1,8 +1,8 @@
 package org.sopt.app.domain.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.sopt.app.domain.enums.NotificationCategory;

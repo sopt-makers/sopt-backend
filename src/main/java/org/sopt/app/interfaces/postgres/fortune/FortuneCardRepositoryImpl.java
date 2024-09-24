@@ -16,7 +16,7 @@ public class FortuneCardRepositoryImpl implements FortuneCardRepository {
     @Override
     public Optional<FortuneCard> findByRelatedUserId(final Long userId) {
 
-        QFortuneCard fortuneCard = new QFortuneCard("fortuneCard");
+        QFortuneCard fortuneCard = QFortuneCard.fortuneCard;
 
         return Optional.ofNullable(
                 queryFactory.select(fortuneCard)

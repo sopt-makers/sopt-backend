@@ -7,7 +7,8 @@ import org.sopt.app.application.fortune.FortuneCardInfo;
 public record FortuneCardResponse(
         String name,
         String description,
-        String imageUrl
+        String imageUrl,
+        String imageColorCode
 )
 {
     public static FortuneCardResponse of(FortuneCardInfo fortuneCardInfo) {
@@ -15,6 +16,7 @@ public record FortuneCardResponse(
                 .name(fortuneCardInfo.name())
                 .description(fortuneCardInfo.description())
                 .imageUrl(fortuneCardInfo.imageUrl())
+                .imageColorCode(fortuneCardInfo.imageColorCode())
                 .build();
     }
 }

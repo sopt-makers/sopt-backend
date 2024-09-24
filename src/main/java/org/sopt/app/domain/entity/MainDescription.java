@@ -1,6 +1,6 @@
 package org.sopt.app.domain.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
