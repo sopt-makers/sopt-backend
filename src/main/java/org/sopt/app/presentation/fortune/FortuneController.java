@@ -1,5 +1,6 @@
 package org.sopt.app.presentation.fortune;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.sopt.app.application.fortune.FortuneProvider;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v2/fortune")
+@SecurityRequirement(name = "Authorization")
 public class FortuneController {
 
     private final FortuneProvider fortuneProvider;

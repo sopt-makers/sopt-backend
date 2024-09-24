@@ -1,19 +1,14 @@
 package org.sopt.app.domain.entity.soptamp;
 
 
-import com.vladmihalcea.hibernate.type.array.ListArrayType;
+import io.hypersistence.utils.hibernate.type.array.StringArrayType;
+import jakarta.persistence.*;
 import java.util.List;
-import javax.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 import org.sopt.app.domain.entity.BaseEntity;
 
 @Entity
-@TypeDef(
-        name = "list-array",
-        typeClass = ListArrayType.class
-)
 @Getter
 @Builder
 @NoArgsConstructor
@@ -26,8 +21,8 @@ public class Stamp extends BaseEntity {
 
     private String contents;
 
-    @Type(type = "list-array")
     @Column(columnDefinition = "text[]")
+    @Type(value= StringArrayType.class)
     private List<String> images;
 
     private Long userId;

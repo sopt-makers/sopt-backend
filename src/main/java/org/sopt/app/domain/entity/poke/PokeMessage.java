@@ -1,10 +1,12 @@
 package org.sopt.app.domain.entity.poke;
 
-import lombok.*;
-
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import org.hibernate.annotations.Type;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.sopt.app.domain.entity.BaseEntity;
 import org.sopt.app.domain.enums.PokeMessageType;
 import org.sopt.app.domain.enums.PokeMessageTypeConverter;
@@ -22,7 +24,7 @@ public class PokeMessage extends BaseEntity {
     private Long id;
 
     @NotNull
-    @Type(type = "org.hibernate.type.TextType")
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     @NotNull

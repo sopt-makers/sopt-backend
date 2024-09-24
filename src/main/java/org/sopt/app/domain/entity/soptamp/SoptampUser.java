@@ -1,6 +1,6 @@
 package org.sopt.app.domain.entity.soptamp;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import lombok.*;
 import org.sopt.app.domain.entity.BaseEntity;
 import org.sopt.app.domain.enums.PlaygroundPart;
