@@ -1,7 +1,7 @@
 package org.sopt.app.common.config;
 
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
+import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +15,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.security.web.firewall.DefaultHttpFirewall;
 import org.springframework.security.web.firewall.HttpFirewall;
 import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 @RequiredArgsConstructor
 @EnableWebSecurity
@@ -45,18 +47,10 @@ public class WebSecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors-> cors.configurationSource(configurationSource()))
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .requestCache(RequestCacheConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(req ->{
-                    CorsConfiguration configuration = new CorsConfiguration();
-                    configuration.setAllowedOrigins(List.of("*"));
-                    configuration.setAllowedHeaders(List.of("*"));
-                    configuration.setAllowedMethods(List.of("*"));
-                    configuration.setAllowCredentials(true);
-                    configuration.setMaxAge(3600L);
-                    return configuration;
-                }))
                 .sessionManagement(sessionManagementConfigurer ->
                         sessionManagementConfigurer
                                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -79,5 +73,19 @@ public class WebSecurityConfig {
     @Bean
     public HttpFirewall defaultHttpFirewall() {
         return new DefaultHttpFirewall();
+    }
+
+    @Bean
+    public CorsConfigurationSource configurationSource() {
+        CorsConfiguration configuration = new CorsConfiguration();
+
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("HEAD", "GET", "POST", "PUT", "DELETE"));
+        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type"));
+        configuration.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
+        return source;
     }
 }
