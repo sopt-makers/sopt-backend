@@ -2,15 +2,12 @@ package org.sopt.app.common.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.Arrays;
-import java.util.Collections;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.RequestCacheConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -24,8 +21,7 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @Configuration
 public class WebSecurityConfig {
-    @Value("${app.base.url}")
-    private String domain;
+
     private static final String[] SwaggerPatterns = {
             "/docs/**",
             "/swagger-resources/**",
@@ -49,10 +45,9 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors-> cors.configurationSource(customconfigurationSource()))
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .requestCache(RequestCacheConfigurer::disable)
+                .cors(cors-> cors.configurationSource(corsConfigurationSource()))
+                .csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .sessionManagement(sessionManagementConfigurer ->
                         sessionManagementConfigurer
@@ -68,8 +63,8 @@ public class WebSecurityConfig {
                     auth.anyRequest().authenticated();
                 });
         // 필터 체인에 필터 추가
-        http.addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        http.addFilterAfter(jwtExceptionFilter, JwtAuthenticationFilter.class);
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class);
         return http.build();
     }
 
@@ -79,14 +74,21 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource customconfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedHeaders(Collections.singletonList("*"));
-        configuration.setAllowedMethods(Arrays.asList("HEAD", "POST", "GET", "DELETE", "PUT", "UPDATE", "OPTIONS"));
-        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
-        configuration.setAllowCredentials(false);
+    protected CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", getDefaultCorsConfiguration());
+
         return source;
+    }
+
+    private CorsConfiguration getDefaultCorsConfiguration() {
+        CorsConfiguration configuration = new CorsConfiguration();
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setAllowedMethods(Arrays.asList("*"));
+        configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L);
+
+        return configuration;
     }
 }
