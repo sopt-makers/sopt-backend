@@ -20,7 +20,7 @@ public class FirebaseController {
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @GetMapping(value = "")
+    @GetMapping
     public FirebaseResponse.Main getFirebaseInfo() {
 
         return FirebaseResponse.Main.builder()
