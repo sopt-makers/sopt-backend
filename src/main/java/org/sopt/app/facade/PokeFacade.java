@@ -98,7 +98,7 @@ public class PokeFacade {
         pokeHistoryService.checkDuplicate(pokerUserId, pokedUserId);
         PokeHistory newPoke = pokeService.poke(pokerUserId, pokedUserId, pokeMessage, isAnonymous);
 
-        this.applyFriendship(pokerUserId, pokedUserId);
+        applyFriendship(pokerUserId, pokedUserId);
         return newPoke.getId();
     }
 
