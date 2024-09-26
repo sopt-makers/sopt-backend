@@ -13,7 +13,6 @@ import org.hibernate.annotations.ColumnDefault;
 public class Friend extends BaseEntity {
 
     @Id
-    @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

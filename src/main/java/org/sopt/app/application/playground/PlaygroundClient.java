@@ -1,19 +1,21 @@
 package org.sopt.app.application.playground;
 
+
 import feign.HeaderMap;
 import feign.Param;
 import feign.RequestLine;
+import java.util.List;
+import java.util.Map;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
 import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
 import org.sopt.app.application.playground.dto.RecommendedFriendInfo.PlaygroundUserIds;
 import org.sopt.app.presentation.auth.AppAuthRequest;
-
-import java.util.List;
-import java.util.Map;
+import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.web.bind.annotation.RequestBody;
 
+@EnableFeignClients
 public interface PlaygroundClient {
 
     @RequestLine("POST /api/v1/idp/sso/auth")
