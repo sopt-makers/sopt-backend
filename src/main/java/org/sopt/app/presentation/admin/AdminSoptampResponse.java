@@ -15,9 +15,5 @@ public class AdminSoptampResponse {
 
         @Schema(description = "SoptampUser 초기화 성공 회원 수", example = "200")
         private int soptampUserRows;
-
-
-        @Schema(description = "SoptampPoint 초기화 성공 회원 수", example = "200")
-        private int soptampPointRows;
     }
 }
