@@ -1,6 +1,7 @@
 package org.sopt.app.interfaces.postgres.fortune;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.domain.entity.fortune.FortuneCard;
@@ -15,8 +16,7 @@ public class FortuneCardRepositoryImpl implements FortuneCardRepository {
 
     @Override
     public Optional<FortuneCard> findByRelatedUserId(final Long userId) {
-
-        QFortuneCard fortuneCard = new QFortuneCard("fortuneCard");
+        QFortuneCard fortuneCard = QFortuneCard.fortuneCard;
 
         return Optional.ofNullable(
                 queryFactory.select(fortuneCard)
@@ -25,5 +25,15 @@ public class FortuneCardRepositoryImpl implements FortuneCardRepository {
                         .fetchOne()
         );
     }
+
+    @Override
+    public List<Long> findAllIds() {
+        QFortuneCard fortuneCard = QFortuneCard.fortuneCard;
+
+        return queryFactory.select(fortuneCard.id)
+                .from(fortuneCard)
+                .fetch();
+    }
+
 
 }
