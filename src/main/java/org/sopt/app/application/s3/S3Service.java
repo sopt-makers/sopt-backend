@@ -7,17 +7,23 @@ import com.amazonaws.auth.BasicAWSCredentials;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.ListObjectsV2Request;
+import com.amazonaws.services.s3.model.ListObjectsV2Result;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 import jakarta.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.joda.time.LocalDateTime;
@@ -133,7 +139,7 @@ public class S3Service {
         fileNameList.forEach(file -> deleteFile(folderURI, file));
     }
 
-    private List<String> getFileNameList(List<String> fileUrls) {
+    public List<String> getFileNameList(List<String> fileUrls) {
         return fileUrls.stream().map(url -> {
             val fileNameSplit = url.split("/");
             return fileNameSplit[fileNameSplit.length - 1];
@@ -146,5 +152,27 @@ public class S3Service {
         } catch (AmazonServiceException e) {
             LoggerFactory.getLogger(S3Service.class).error(e.getErrorMessage());
         }
+    }
+
+    public List<String> getAllImageUrls(String folderName) {
+        String folderURI = "mainpage/makers-app-img/fortune/" + folderName + "/";
+        ListObjectsV2Request req = new ListObjectsV2Request()
+                .withBucketName(bucket)
+                .withPrefix(folderURI);
+        ListObjectsV2Result result;
+        try {
+            result = amazonS3.listObjectsV2(req);
+        } catch (AmazonServiceException e) {
+            LoggerFactory.getLogger(S3Service.class).error(e.getErrorMessage());
+            throw new BadRequestException("S3 객체 목록을 가져오는 데 실패했습니다.");
+        }
+        List<S3ObjectSummary> objectSummaries = result.getObjectSummaries();
+        return objectSummaries.stream()
+                .filter(obj -> obj.getKey().contains("."))
+                .map(obj -> {
+                    String url = amazonS3.getUrl(bucket, obj.getKey()).toString();
+                    return URLDecoder.decode(url, StandardCharsets.UTF_8);
+                })
+                .collect(Collectors.toList());
     }
 }
