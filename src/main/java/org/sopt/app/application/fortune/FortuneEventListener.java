@@ -42,7 +42,7 @@ public class FortuneEventListener {
                 "오늘의 솝마디",  // 메시지 제목
                 "오늘의 솝마디를 확인해보세요!",  // 메시지 내용
                 NotificationCategory.NEWS.name(),
-                "https://app.dev.sopt.org/api/v2/fortune/word"  // Fortune API로 연결되는 URL
+                "home/fortune"  // Fortune API로 연결되는 URL
         );
     }
 

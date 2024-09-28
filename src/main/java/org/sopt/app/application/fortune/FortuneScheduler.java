@@ -19,7 +19,6 @@ public class FortuneScheduler {
     @Value("${app.base.url}")
     private String baseUrl;
 
-    // 매일 아침 9시에 실행되는 스케줄러
     @Scheduled(cron = "0 0 9 * * ?")
     public void runDailyFortuneCreation() {
         RegisterNotificationRequest registerNotificationRequest = createFortuneNotificationRequest();
