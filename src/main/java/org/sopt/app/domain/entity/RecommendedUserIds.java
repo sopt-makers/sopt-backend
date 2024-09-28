@@ -1,11 +1,11 @@
 package org.sopt.app.domain.entity;
 
-import java.util.List;
+import java.util.Set;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.sopt.app.application.auth.dto.RecommendFriendRequest;
+import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
@@ -13,14 +13,14 @@ import org.springframework.data.redis.core.RedisHash;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @RedisHash(value = "recommendedUsers", timeToLive = 60 * 60 * 24L)
-public class RecommendedUsers {
+public class RecommendedUserIds {
 
     @Id
     private String condition;
 
-    private List<Long> userIds;
+    private Set<Long> userIds;
 
-    public RecommendedUsers(final RecommendFriendRequest request, final List<Long> userIds) {
+    public RecommendedUserIds(final PlaygroundUserFindCondition request, final Set<Long> userIds) {
         this.condition = request.toString();
         this.userIds = userIds;
     }

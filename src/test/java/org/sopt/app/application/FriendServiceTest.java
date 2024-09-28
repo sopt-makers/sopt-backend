@@ -11,8 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sopt.app.application.poke.FriendService;
-import org.sopt.app.interfaces.postgres.friend.FriendRepository;
+import org.sopt.app.application.friend.FriendService;
+import org.sopt.app.interfaces.postgres.FriendRepository;
 
 @ExtendWith(MockitoExtension.class)
 class FriendServiceTest {

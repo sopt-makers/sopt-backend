@@ -28,4 +28,5 @@ public class FortuneCardRepositoryImpl implements FortuneCardRepository {
                         .fetchOne()
         );
     }
+
 }

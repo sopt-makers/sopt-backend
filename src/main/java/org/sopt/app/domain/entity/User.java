@@ -3,7 +3,7 @@ package org.sopt.app.domain.entity;
 import lombok.*;
 import java.util.Collection;
 import java.util.Collections;
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;

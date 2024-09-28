@@ -9,7 +9,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.playground.PlaygroundAuthService;
-import org.sopt.app.application.auth.dto.PlaygroundPostInfo.PlaygroundPost;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPost;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.UserFacade;
 import org.sopt.app.presentation.user.UserResponse.AppService;

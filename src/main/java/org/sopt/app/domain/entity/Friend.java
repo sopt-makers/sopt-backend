@@ -1,8 +1,8 @@
 package org.sopt.app.domain.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import lombok.*;
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.ColumnDefault;
 
 @Getter
@@ -13,7 +13,6 @@ import org.hibernate.annotations.ColumnDefault;
 public class Friend extends BaseEntity {
 
     @Id
-    @NotNull
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

@@ -1,22 +1,16 @@
-package org.sopt.app.application.poke;
+package org.sopt.app.application.friend;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import lombok.*;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Random;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import org.sopt.app.application.poke.PokeInfo.Relationship;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.common.utils.AnonymousNameGenerator;
 import org.sopt.app.domain.entity.Friend;
 import org.sopt.app.domain.enums.Friendship;
-import org.sopt.app.interfaces.postgres.friend.FriendRepository;
+import org.sopt.app.interfaces.postgres.FriendRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -27,10 +21,6 @@ public class FriendService {
 
     private final Random random = new Random();
     private final FriendRepository friendRepository;
-
-    public List<Long> findAllFriendIdsByUserIdRandomly(Long userId, int limitNum) {
-        return friendRepository.getFriendRandom(userId, limitNum);
-    }
 
     public List<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
         HashMap<Long, Integer> map = getPokeCountMap(userId);
@@ -114,7 +104,7 @@ public class FriendService {
         return pokerToPokedRelation.isPresent() && pokedToPokerRelation.isPresent();
     }
 
-    public PokeInfo.Relationship getRelationInfo(Long pokerId, Long pokedId) {
+    public Relationship getRelationInfo(Long pokerId, Long pokedId) {
         Optional<Friend> friendshipFromPokerToPoked = friendRepository.findByUserIdAndFriendUserId(pokerId, pokedId);
         Optional<Friend> friendshipFromPokedToPoker = friendRepository.findByUserIdAndFriendUserId(pokedId, pokerId);
         String anonymousName = "";
@@ -126,7 +116,7 @@ public class FriendService {
             totalPokeNum += friendshipFromPokedToPoker.get().getPokeCount();
             anonymousName = friendshipFromPokedToPoker.get().getAnonymousName();
         }
-        return PokeInfo.Relationship.builder()
+        return Relationship.builder()
                 .pokeNum(totalPokeNum)
                 .relationName(decideRelationName(totalPokeNum))
                 .anonymousName(anonymousName)
@@ -147,8 +137,8 @@ public class FriendService {
     }
 
     public List<Long> getMutualFriendIds(Long pokerId, Long pokedId) {
-        List<Long> pokerFriendIds = friendRepository.findAllOfFriendIdsByUserId(pokerId);
-        List<Long> pokedFriendIds = friendRepository.findAllOfFriendIdsByUserId(pokedId);
+        Set<Long> pokerFriendIds = friendRepository.findAllOfFriendIdsByUserId(pokerId);
+        Set<Long> pokedFriendIds = friendRepository.findAllOfFriendIdsByUserId(pokedId);
         return pokerFriendIds.stream()
                 .filter(pokedFriendIds::contains)
                 .toList();
@@ -176,22 +166,7 @@ public class FriendService {
         return friends.isEmpty();
     }
 
-    public List<Long> findAllFriendIdsByUserIdRandomlyExcludeUserId(
-            Long friendsUserId, List<Long> excludedUserId, int limitNum
-    ) {
-        return friendRepository.getFriendRandom(friendsUserId, excludedUserId, limitNum);
-    }
-
-    public List<Long> findAllFriendIdsByUserId(Long userId) {
+    public Set<Long> findAllFriendIdsByUserId(Long userId) {
         return friendRepository.findAllOfFriendIdsByUserId(userId);
-    }
-
-    public List<Long> findUserIdsLinkedFriends(Long userId) {
-        return Stream.concat(
-                        friendRepository.findAllOfFriendIdsByUserId(userId).stream(),
-                        friendRepository.findAllIfUserIdsByFriendId(userId).stream()
-                )
-                .distinct()
-                .collect(Collectors.toList());
     }
 }

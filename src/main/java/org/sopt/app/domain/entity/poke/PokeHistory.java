@@ -1,9 +1,16 @@
 package org.sopt.app.domain.entity.poke;
 
-import javax.persistence.*;
-import lombok.*;
-import javax.validation.constraints.NotNull;
-import org.hibernate.annotations.Type;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.sopt.app.domain.entity.BaseEntity;
 
 @Getter
@@ -15,7 +22,6 @@ public class PokeHistory extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
     private Long id;
 
     @NotNull
@@ -24,7 +30,7 @@ public class PokeHistory extends BaseEntity {
     @NotNull
     private Long pokedId;
 
-    @Type(type = "org.hibernate.type.TextType")
+    @Column(columnDefinition = "TEXT")
     private String message;
 
     private Boolean isReply;

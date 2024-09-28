@@ -1,8 +1,8 @@
 package org.sopt.app.domain.entity.fortune;
 
 import java.time.LocalDate;
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Getter
