@@ -1,7 +1,7 @@
 package org.sopt.app.interfaces.postgres.fortune;
 
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.domain.entity.fortune.FortuneWord;
@@ -13,17 +13,19 @@ import org.springframework.stereotype.Repository;
 public class FortuneWordRepositoryImpl implements FortuneWordRepository {
 
     private final JPAQueryFactory queryFactory;
+    private final FortuneWordJpaRepository fortuneWordJpaRepository;
 
     @Override
-    public Optional<FortuneWord> findByRelatedUserIdAndCheckedAt(final Long userId, final LocalDate checkedAt) {
-        QFortuneWord fortuneWord = new QFortuneWord("fortune");
+    public List<Long> findAllIds() {
+        QFortuneWord fortuneWord = QFortuneWord.fortuneWord;
 
-        return Optional.ofNullable(
-                queryFactory.select(fortuneWord)
-                        .from(fortuneWord)
-                        .where(fortuneWord.id.eq(1L))
-                        .fetchOne()
-        );
+        return queryFactory.select(fortuneWord.id)
+                .from(fortuneWord)
+                .fetch();
     }
 
+    @Override
+    public Optional<FortuneWord> findById(Long id) {
+        return fortuneWordJpaRepository.findById(id);
+    }
 }
