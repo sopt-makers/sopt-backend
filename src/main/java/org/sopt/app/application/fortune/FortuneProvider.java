@@ -22,7 +22,10 @@ public class FortuneProvider {
     @Transactional
     public FortuneWordInfo getTodayFortuneWordByUserId(final Long userId, final LocalDate todayDate) {
         UserFortune userFortune = userFortuneRepository.findByUserId(userId)
-                .orElseGet(() -> fortuneGenerator.generateNewUserFortune(userId, todayDate));
+                .orElseGet(() -> {
+                    UserFortune generatedUserFortune = fortuneGenerator.generateNewUserFortune(userId, todayDate);
+                    return userFortuneRepository.save(generatedUserFortune);
+                });
 
         if(!userFortune.getCheckedAt().equals(todayDate)) {
             fortuneGenerator.updateTodayUserFortune(userFortune, todayDate);

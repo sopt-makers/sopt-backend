@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.app.domain.entity.fortune.UserFortune;
 import org.sopt.app.interfaces.postgres.fortune.FortuneWordRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +24,7 @@ public class FortuneGenerator {
                 .build();
     }
 
+    @Transactional
     public void updateTodayUserFortune(UserFortune userFortune, final LocalDate todayDate) {
         userFortune.updateTodayFortune(this.generateRandomFortuneWordId(), todayDate);
     }
