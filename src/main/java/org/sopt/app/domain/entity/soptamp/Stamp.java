@@ -1,7 +1,7 @@
 package org.sopt.app.domain.entity.soptamp;
 
 
-import io.hypersistence.utils.hibernate.type.array.StringArrayType;
+import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import jakarta.persistence.*;
 import java.util.List;
 import lombok.*;
@@ -22,7 +22,7 @@ public class Stamp extends BaseEntity {
     private String contents;
 
     @Column(columnDefinition = "text[]")
-    @Type(value= StringArrayType.class)
+    @Type(value= ListArrayType.class)
     private List<String> images;
 
     private Long userId;
