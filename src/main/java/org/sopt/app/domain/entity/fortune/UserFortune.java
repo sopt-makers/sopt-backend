@@ -13,6 +13,9 @@ import lombok.*;
 public class UserFortune {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @NotNull
     private Long userId;
 
