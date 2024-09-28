@@ -34,8 +34,8 @@ public class FortuneScheduler {
                 .content("오늘의 솝마디를 확인해보세요!")
                 .type(NotificationType.SEND_ALL)
                 .category(NotificationCategory.NEWS)
-                .deepLink(baseUrl + "/api/v2/fortune/word")
-                .webLink(baseUrl + "/api/v2/fortune/word")
+                .deepLink("home/fortune")
+                .webLink("home/fortune")
                 .build();
     }
 }
