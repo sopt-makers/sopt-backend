@@ -10,20 +10,22 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 @RequiredArgsConstructor
-public class FortuneWordRepositoryImpl implements FortuneWordRepository {
+public abstract class FortuneWordRepositoryImpl implements FortuneWordRepository {
 
     private final JPAQueryFactory queryFactory;
 
     @Override
-    public Optional<FortuneWord> findByRelatedUserIdAndCheckedAt(final Long userId, final LocalDate checkedAt) {
-        QFortuneWord fortuneWord = new QFortuneWord("fortune");
+    public Optional<FortuneWord> findByUserIdAndCheckAt(final Long userId, final LocalDate checkedAt) {
+        QFortuneWord fortuneWord = QFortuneWord.fortuneWord;
 
         return Optional.ofNullable(
                 queryFactory.select(fortuneWord)
                         .from(fortuneWord)
-                        .where(fortuneWord.id.eq(1L))
+                        .where(
+                                fortuneWord.userId.eq(userId)
+                                        .and(fortuneWord.checkAt.eq(checkedAt))
+                        )
                         .fetchOne()
         );
     }
-
 }
