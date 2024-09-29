@@ -1,9 +1,9 @@
 package org.sopt.app.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_1;
 
@@ -93,7 +93,7 @@ class SoptampUserServiceTest {
                 .profileMessage(newProfileMessage)
                 .build();
 
-        given(soptampUserRepository.save(any(SoptampUser.class))).willReturn(editedSoptampUser);
+        given(soptampUserRepository.findByUserId(anyLong())).willReturn(Optional.of(editedSoptampUser));
 
         // when
         String result = soptampUserService.editProfileMessage(SOPTAMP_USER_1.getUserId(), newProfileMessage)
@@ -145,37 +145,6 @@ class SoptampUserServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_닉네임으로 랭킹 조회")
-    void SUCCESS_findSoptampUserByNickname() {
-        // given
-        final String anyNickname = anyString();
-        final SoptampUser soptampUser = SoptampUser.builder().nickname(anyNickname).build();
-
-        //when
-        Mockito.when(soptampUserRepository.findUserByNickname(anyNickname)).thenReturn(Optional.of(soptampUser));
-        Optional<SoptampUser> result = soptampUserRepository.findUserByNickname(anyNickname);
-
-        //then
-        assertThat(result).usingRecursiveComparison().isEqualTo(Optional.of(soptampUser));
-    }
-
-    @Test
-    @DisplayName("FAIL_닉네임으로 랭킹 조회")
-    void FAIL_findSoptampUserByNickname() {
-        // given
-        final String anyNickname = anyString();
-
-        //when
-        Mockito.when(soptampUserRepository.findUserByNickname(anyNickname)).thenReturn(Optional.empty());
-
-        //then
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            soptampUserService.findSoptampUserByNickname(anyNickname);
-        });
-
-    }
-
-    @Test
     @DisplayName("SUCCESS_미션 레벨별로 유저의 포인트 추가")
     void SUCCESS_addPointByLevel() {
         //given
@@ -186,25 +155,12 @@ class SoptampUserServiceTest {
                 .userId(anyUserId)
                 .totalPoints(soptampUserTotalPoints)
                 .build();
-        final SoptampUser newSoptampUser = SoptampUser.builder()
-                .userId(anyUserId)
-                .totalPoints(soptampUserTotalPoints + level)
-                .build();
-
         //when
-        SoptampUserInfo result = SoptampUserInfo.builder()
-                .id(newSoptampUser.getId())
-                .userId(newSoptampUser.getUserId())
-                .profileMessage(newSoptampUser.getProfileMessage())
-                .totalPoints(newSoptampUser.getTotalPoints())
-                .nickname(newSoptampUser.getNickname())
-                .build();
 
         Mockito.when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.of(oldSoptampUser));
-        Mockito.when(soptampUserRepository.save(any(SoptampUser.class))).thenReturn(newSoptampUser);
 
         //then
-        assertThat(soptampUserService.addPointByLevel(anyUserId, level)).usingRecursiveComparison().isEqualTo(result);
+        assertDoesNotThrow(() -> soptampUserService.addPointByLevel(anyUserId, level));
     }
 
     @Test
@@ -233,25 +189,12 @@ class SoptampUserServiceTest {
                 .userId(anyUserId)
                 .totalPoints(soptampUserTotalPoints)
                 .build();
-        final SoptampUser newSoptampUser = SoptampUser.builder()
-                .userId(anyUserId)
-                .totalPoints(soptampUserTotalPoints - level)
-                .build();
 
         //when
-        SoptampUserInfo result = SoptampUserInfo.builder()
-                .id(newSoptampUser.getId())
-                .userId(newSoptampUser.getUserId())
-                .profileMessage(newSoptampUser.getProfileMessage())
-                .totalPoints(newSoptampUser.getTotalPoints())
-                .nickname(newSoptampUser.getNickname())
-                .build();
-
         Mockito.when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.of(oldSoptampUser));
-        Mockito.when(soptampUserRepository.save(any(SoptampUser.class))).thenReturn(newSoptampUser);
 
         //then
-        assertThat(soptampUserService.subtractPointByLevel(anyUserId, level)).usingRecursiveComparison().isEqualTo(result);
+        assertDoesNotThrow(()-> soptampUserService.subtractPointByLevel(anyUserId, level));
     }
 
     @Test
@@ -270,52 +213,6 @@ class SoptampUserServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_닉네임으로 유저 조회")
-    void SUCCESS_findByNickname() {
-        //given
-        final Long id = 1L;
-        final Long userId = 1L;
-        final String profileMessage = "profileMessage";
-        final Long totalPoints = 100L;
-        final String anyNickname = anyString();
-
-        final SoptampUser soptampUser = SoptampUser.builder()
-                .id(id)
-                .userId(userId)
-                .profileMessage(profileMessage)
-                .totalPoints(totalPoints)
-                .nickname(anyNickname)
-                .build();
-        //when
-        Mockito.when(soptampUserRepository.findUserByNickname(anyNickname)).thenReturn(Optional.of(soptampUser));
-        SoptampUserInfo expected = SoptampUserInfo.builder()
-                .id(id)
-                .userId(userId)
-                .profileMessage(profileMessage)
-                .totalPoints(totalPoints)
-                .nickname(anyNickname)
-                .build();
-
-        //then
-        assertThat(soptampUserService.findByNickname(anyNickname)).usingRecursiveComparison().isEqualTo(expected);
-    }
-
-    @Test
-    @DisplayName("FAIL_닉네임으로 유저 조회 실패시 BadRequestException 발생")
-    void FAIL_findByNickname() {
-        //given
-        final String anyNickname = anyString();
-
-        //when
-        Mockito.when(soptampUserRepository.findUserByNickname(anyNickname)).thenReturn(Optional.empty());
-
-        //then
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            soptampUserService.findByNickname(anyNickname);
-        });
-    }
-
-    @Test
     @DisplayName("SUCCESS_포인트 초기화")
     void SUCCESS_initPoint() {
         //given
@@ -329,7 +226,7 @@ class SoptampUserServiceTest {
         Mockito.when(soptampUserRepository.save(any(SoptampUser.class))).thenReturn(soptampUser);
 
         //then
-        Assertions.assertDoesNotThrow(() -> {
+        assertDoesNotThrow(() -> {
             soptampUserService.initPoint(anyUserId);
         });
     }

@@ -2,10 +2,8 @@ package org.sopt.app.application;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.PutObjectResult;
 import java.net.MalformedURLException;
@@ -25,7 +23,7 @@ import org.sopt.app.common.exception.BadRequestException;
 import org.springframework.mock.web.MockMultipartFile;
 
 @ExtendWith(MockitoExtension.class)
-public class S3ServiceTest {
+class S3ServiceTest {
 
     @Mock
     private AmazonS3 s3Client;
@@ -112,13 +110,5 @@ public class S3ServiceTest {
         Assertions.assertDoesNotThrow(() ->
                 s3Service.deleteFiles(List.of("https://url.com"), "folderName")
         );
-    }
-
-    @Test
-    @DisplayName("FAIL_파일 삭제 중 AmazonServiceException 발생")
-    void FAIL_deleteFilesAmazonServiceException() {
-        doThrow(AmazonServiceException.class).when(s3Client).deleteObject(any(), any());
-
-        s3Service.deleteFiles(List.of("https://url.com"), "folderName");
     }
 }

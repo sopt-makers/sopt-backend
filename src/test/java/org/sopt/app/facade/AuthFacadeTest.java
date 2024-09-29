@@ -61,7 +61,6 @@ class AuthFacadeTest {
         when(userService.loginWithUserPlaygroundId(playgroundMain)).thenReturn(userId);
         when(soptampUserService.createSoptampUser(playgroundMain.getName(), userId.getId()))
                 .thenReturn(soptampUserId);
-        doNothing().when(soptampPointService).upsertSoptampPoint(playgroundMain.getStatus(), soptampUserId);
         when(jwtTokenService.issueNewTokens(userId, playgroundMain)).thenReturn(appToken);
         when(appAuthResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(),
                 playgroundMain.getAccessToken(), playgroundMain.getStatus())).thenReturn(token);
