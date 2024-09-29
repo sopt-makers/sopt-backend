@@ -1,23 +1,8 @@
 package org.sopt.app.facade;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
-import static org.sopt.app.common.fixtures.SoptampPointFixture.PART_POINTS;
-import static org.sopt.app.common.fixtures.SoptampPointFixture.PART_RANK_ANDROID;
-import static org.sopt.app.common.fixtures.SoptampPointFixture.PART_RANK_DESIGN;
-import static org.sopt.app.common.fixtures.SoptampPointFixture.PART_RANK_IOS;
-import static org.sopt.app.common.fixtures.SoptampPointFixture.PART_RANK_PLAN;
-import static org.sopt.app.common.fixtures.SoptampPointFixture.PART_RANK_SERVER;
-import static org.sopt.app.common.fixtures.SoptampPointFixture.PART_RANK_WEB;
-import static org.sopt.app.common.fixtures.SoptampPointFixture.POINT_1;
-import static org.sopt.app.common.fixtures.SoptampPointFixture.POINT_2;
-import static org.sopt.app.common.fixtures.SoptampPointFixture.POINT_3;
-import static org.sopt.app.common.fixtures.SoptampPointFixture.SOPTAMP_POINT_LIST;
-import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_ID_LIST;
-import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_INFO_1;
-import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_INFO_2;
-import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_INFO_3;
-import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_INFO_LIST;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.*;
 
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -28,78 +13,115 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
-import org.sopt.app.application.soptamp.SoptampPointService;
-import org.sopt.app.application.soptamp.SoptampUserService;
+import org.sopt.app.application.soptamp.SoptampUserFinder;
+import org.sopt.app.domain.enums.Part;
 
 @ExtendWith(MockitoExtension.class)
 class RankFacadeTest {
 
     @Mock
-    private SoptampUserService soptampUserService;
-
-    @Mock
-    private SoptampPointService soptampPointService;
+    private SoptampUserFinder soptampUserFinder;
 
     @InjectMocks
     private RankFacade rankFacade;
 
     @Test
-    @DisplayName("SUCCESS_솝탬프 포인트 리스트를 받아 랭크를 조회")
+    @DisplayName("SUCCESS_현재 기수의 솝탬프 유저 랭킹 조회")
     void SUCCESS_findCurrentRanks() {
         //given
-        given(soptampPointService.findCurrentGenerationPoints()).willReturn(SOPTAMP_POINT_LIST);
-        given(soptampUserService.findAllBySoptampUserIds(SOPTAMP_USER_ID_LIST)).willReturn(SOPTAMP_USER_INFO_LIST);
+        given(soptampUserFinder.findAllCurrentGenerationSoptampUsers()).willReturn(SOPTAMP_USER_INFO_LIST);
 
-        //when
-        List<Main> expected = List.of(
-                Main.builder().rank(1).nickname(SOPTAMP_USER_INFO_3.getNickname()).point(POINT_3.getPoints()).build(),
-                Main.builder().rank(2).nickname(SOPTAMP_USER_INFO_2.getNickname()).point(POINT_2.getPoints()).build(),
-                Main.builder().rank(3).nickname(SOPTAMP_USER_INFO_1.getNickname()).point(POINT_1.getPoints()).build()
-        );
+        // when
         List<Main> result = rankFacade.findCurrentRanks();
+        List<Main> expected = List.of(
+                Main.builder().rank(1)
+                        .nickname(SOPTAMP_USER_6.getNickname())
+                        .point(SOPTAMP_USER_6.getTotalPoints()).build(),
+                Main.builder().rank(2)
+                        .nickname(SOPTAMP_USER_5.getNickname())
+                        .point(SOPTAMP_USER_5.getTotalPoints()).build(),
+                Main.builder().rank(5)
+                        .nickname(SOPTAMP_USER_3.getNickname())
+                        .point(SOPTAMP_USER_3.getTotalPoints()).build(),
+                Main.builder().rank(5)
+                        .nickname(SOPTAMP_USER_4.getNickname())
+                        .point(SOPTAMP_USER_4.getTotalPoints()).build(),
+                Main.builder().rank(4)
+                        .nickname(SOPTAMP_USER_2.getNickname())
+                        .point(SOPTAMP_USER_2.getTotalPoints()).build(),
+                Main.builder().rank(3)
+                        .nickname(SOPTAMP_USER_1.getNickname())
+                        .point(SOPTAMP_USER_1.getTotalPoints()).build()
+        );
 
-        //then
-        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+        // then
+        assertEquals(expected.size(), result.size());
+        for (int i = 0; i < expected.size(); i++) {
+            assertEquals(expected.get(i).getNickname(), result.get(i).getNickname(), i + "번째 index");
+        }
     }
 
     @Test
-    @DisplayName("SUCCESS_솝탬프 포인트 해당하는 유저가 없다면 슬랙 알림을 보내기")
-    void SUCCESS_findCurrentRanks_Requirement1() {
-        //given
-        given(soptampPointService.findCurrentGenerationPoints()).willReturn(SOPTAMP_POINT_LIST);
-        given(soptampUserService.findAllBySoptampUserIds(SOPTAMP_USER_ID_LIST)).willReturn(
-                List.of(SOPTAMP_USER_INFO_1, SOPTAMP_USER_INFO_2) // 3번 유저가 존재하지 않음
-        );
-
-        //when
+    @DisplayName("SUCCESS 파트별 현재 기수의 솝탬프 유저 랭킹 조회")
+    void findCurrentRanksByPart() {
+        // given
+        given(soptampUserFinder.findSoptampUserIdByPart(Part.SERVER)).willReturn(SERVER_PART_SOPTAMP_USER_INFO_LIST);
+        // when
+        List<Main> result = rankFacade.findCurrentRanksByPart(Part.SERVER);
         List<Main> expected = List.of(
-                Main.builder().rank(1).nickname(SOPTAMP_USER_INFO_2.getNickname()).point(POINT_2.getPoints()).build(),
-                Main.builder().rank(2).nickname(SOPTAMP_USER_INFO_1.getNickname()).point(POINT_1.getPoints()).build()
+                Main.builder().rank(1)
+                        .nickname(SOPTAMP_USER_6.getNickname())
+                        .point(SOPTAMP_USER_6.getTotalPoints()).build(),
+                Main.builder().rank(2)
+                        .nickname(SOPTAMP_USER_5.getNickname())
+                        .point(SOPTAMP_USER_5.getTotalPoints()).build(),
+                Main.builder().rank(3)
+                        .nickname(SOPTAMP_USER_1.getNickname())
+                        .point(SOPTAMP_USER_1.getTotalPoints()).build()
         );
-        List<Main> result = rankFacade.findCurrentRanks();
-
-        //then
-        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+        // then
+        assertEquals(expected.size(), result.size());
+        for (int i = 0; i < expected.size(); i++) {
+            assertEquals(expected.get(i).getNickname(), result.get(i).getNickname(), i + "번째 index");
+        }
     }
 
     @Test
-    @DisplayName("SUCCESS_파트 랭킹 찾기")
-    void SUCCESS_findAllPartRanks() {
-        //given
-        given(soptampPointService.findSumOfPointAllParts()).willReturn(PART_POINTS);
-
-        //when
+    @DisplayName("SUCCESS 파트끼리의 솝탬프 포인트 랭킹 조회")
+    void findAllPartRanks() {
+        // given
+        given(soptampUserFinder.findAllCurrentGenerationSoptampUsers()).willReturn(SOPTAMP_USER_INFO_LIST);
+        // when
         List<PartRank> result = rankFacade.findAllPartRanks();
-        List<PartRank> expected = List.of(
-                PART_RANK_PLAN,
-                PART_RANK_DESIGN,
-                PART_RANK_WEB,
-                PART_RANK_IOS,
-                PART_RANK_ANDROID,
-                PART_RANK_SERVER
+        List<PartRank> expected = List.of( // 기-디-웹-아-안-서 순서
+                PartRank.builder().rank(5) // 동점이라면 rank도 같아야 함
+                        .part(Part.PLAN.getPartName())
+                        .points(0L).build(),
+                PartRank.builder().rank(2)
+                        .part(Part.DESIGN.getPartName())
+                        .points(SOPTAMP_USER_4.getTotalPoints()).build(),
+                PartRank.builder().rank(5)
+                        .part(Part.WEB.getPartName())
+                        .points(0L).build(),
+                PartRank.builder().rank(2)
+                        .part(Part.IOS.getPartName())
+                        .points(SOPTAMP_USER_3.getTotalPoints()).build(),
+                PartRank.builder().rank(4) // 2등, 2등 다음 rank는 3등이 아닌 4등이다.
+                        .part(Part.ANDROID.getPartName())
+                        .points(SOPTAMP_USER_2.getTotalPoints()).build(),
+                PartRank.builder().rank(1)
+                        .part(Part.SERVER.getPartName())
+                        .points(SOPTAMP_USER_6.getTotalPoints() +
+                                SOPTAMP_USER_5.getTotalPoints() +
+                                SOPTAMP_USER_1.getTotalPoints()).build()
         );
 
-        //then
-        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+        // then
+        assertEquals(expected.size(), result.size());
+        for (int i = 0; i < expected.size(); i++) {
+            assertEquals(expected.get(i).getPart(), result.get(i).getPart(), i + "번째 index");
+            assertEquals(expected.get(i).getRank(), result.get(i).getRank(), i + "번째 index");
+            assertEquals(expected.get(i).getPoints(), result.get(i).getPoints(), i + "번째 index");
+        }
     }
 }

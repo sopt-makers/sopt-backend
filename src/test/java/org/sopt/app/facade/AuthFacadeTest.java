@@ -15,7 +15,6 @@ import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.AppToken;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
 import org.sopt.app.application.playground.PlaygroundAuthService;
-import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.user.UserInfo.Id;
 import org.sopt.app.application.user.UserService;
@@ -39,8 +38,6 @@ class AuthFacadeTest {
     private PlaygroundAuthService playgroundAuthService;
     @Mock
     private SoptampUserService soptampUserService;
-    @Mock
-    private SoptampPointService soptampPointService;
 
     @InjectMocks
     private AuthFacade authFacade;
@@ -62,9 +59,8 @@ class AuthFacadeTest {
         when(playgroundAuthService.getPlaygroundInfo(refreshedToken.getAccessToken()))
                 .thenReturn(playgroundMain);
         when(userService.loginWithUserPlaygroundId(playgroundMain)).thenReturn(userId);
-        when(soptampUserService.updateSoptampUser(playgroundMain.getName(), userId.getId()))
+        when(soptampUserService.createSoptampUser(playgroundMain.getName(), userId.getId()))
                 .thenReturn(soptampUserId);
-        doNothing().when(soptampPointService).upsertSoptampPoint(playgroundMain.getStatus(), soptampUserId);
         when(jwtTokenService.issueNewTokens(userId, playgroundMain)).thenReturn(appToken);
         when(appAuthResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(),
                 playgroundMain.getAccessToken(), playgroundMain.getStatus())).thenReturn(token);

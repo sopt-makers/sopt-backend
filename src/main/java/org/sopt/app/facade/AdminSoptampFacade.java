@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.mission.MissionService;
-import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.application.soptamp.SoptampUserPlaygroundInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.stamp.StampService;
@@ -24,7 +23,6 @@ public class AdminSoptampFacade {
 
     private final MissionService missionService;
     private final StampService stampService;
-    private final SoptampPointService soptampPointService;
     private final SoptampUserService soptampUserService;
     private final PlaygroundAuthService playgroundAuthService;
     private final UserService userService;
@@ -33,7 +31,6 @@ public class AdminSoptampFacade {
     public void initAllMissionAndStampAndPoints() {
         missionService.deleteAll();
         stampService.deleteAll();
-        soptampPointService.deleteAll();
         soptampUserService.initAllSoptampUserPoints();
     }
 
@@ -74,13 +71,8 @@ public class AdminSoptampFacade {
         val updatedSoptampUserList =
                 soptampUserService.initAllCurrentGenerationSoptampUser(soptampUserList, userInfoList);
 
-        // 플그 아이디로 SoptampPoint 현활기수 row 추가
-        val currentGenerationSoptampPointList = soptampPointService.createCurrentGenerationSoptampPointList(
-                updatedSoptampUserList);
-
         return Rows.builder()
                 .soptampUserRows(updatedSoptampUserList.size())
-                .soptampPointRows(currentGenerationSoptampPointList.size())
                 .build();
     }
 }

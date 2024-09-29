@@ -3,14 +3,7 @@ package org.sopt.app.facade;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.sopt.app.common.fixtures.SoptampFixture.MISSION_ID;
-import static org.sopt.app.common.fixtures.SoptampFixture.MISSION_LEVEL;
-import static org.sopt.app.common.fixtures.SoptampFixture.MULTIPART_FILE_LIST;
-import static org.sopt.app.common.fixtures.SoptampFixture.NICKNAME;
-import static org.sopt.app.common.fixtures.SoptampFixture.SOPTAMP_USER_ID;
-import static org.sopt.app.common.fixtures.SoptampFixture.STAMP_ID;
-import static org.sopt.app.common.fixtures.SoptampFixture.STAMP_IMG_PATHS;
-import static org.sopt.app.common.fixtures.SoptampFixture.USER_ID;
+import static org.sopt.app.common.fixtures.SoptampFixture.*;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,14 +11,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sopt.app.application.mission.MissionInfo;
-import org.sopt.app.application.mission.MissionService;
+import org.sopt.app.application.mission.*;
 import org.sopt.app.application.s3.S3Service;
-import org.sopt.app.application.soptamp.SoptampPointService;
-import org.sopt.app.application.soptamp.SoptampUserInfo;
-import org.sopt.app.application.soptamp.SoptampUserService;
-import org.sopt.app.application.stamp.StampInfo;
-import org.sopt.app.application.stamp.StampService;
+import org.sopt.app.application.soptamp.*;
+import org.sopt.app.application.stamp.*;
 import org.sopt.app.common.fixtures.SoptampFixture;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.EditStampRequest;
@@ -42,7 +31,7 @@ class SoptampFacadeTest {
     @Mock
     private SoptampUserService soptampUserService;
     @Mock
-    private SoptampPointService soptampPointService;
+    private SoptampUserFinder soptampUserFinder;
 
     @InjectMocks
     private SoptampFacade soptampFacade;
@@ -53,7 +42,7 @@ class SoptampFacadeTest {
     void SUCCESS_getStampInfo() {
         // given
         final StampInfo.Stamp stampInfo = SoptampFixture.getStampInfo();
-        given(soptampUserService.findByNickname(NICKNAME)).willReturn(SoptampFixture.getUserInfo());
+        given(soptampUserFinder.findByNickname(NICKNAME)).willReturn(SoptampFixture.getUserInfo());
         given(stampService.findStamp(MISSION_ID, USER_ID)).willReturn(stampInfo);
 
         // when
@@ -72,7 +61,6 @@ class SoptampFacadeTest {
         final StampRequest.RegisterStampRequest registerStampRequest = SoptampFixture.getRegisterStampRequest();
         given(stampService.uploadStamp(registerStampRequest, SOPTAMP_USER_ID)).willReturn(uploadedStamp);
         given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
-        given(soptampUserService.addPoint(SOPTAMP_USER_ID, MISSION_LEVEL)).willReturn(SoptampFixture.getUserInfo());
 
         // when
         StampInfo.Stamp result = soptampFacade.uploadStamp(SOPTAMP_USER_ID, registerStampRequest);
@@ -91,7 +79,6 @@ class SoptampFacadeTest {
         given(stampService.uploadStampDeprecated(registerStampRequest, STAMP_IMG_PATHS, SOPTAMP_USER_ID, MISSION_ID))
                 .willReturn(uploadedStamp);
         given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
-        given(soptampUserService.addPoint(SOPTAMP_USER_ID, MISSION_LEVEL)).willReturn(SoptampFixture.getUserInfo());
 
         // when
         StampInfo.Stamp result = soptampFacade.uploadStampDeprecated(
@@ -125,14 +112,11 @@ class SoptampFacadeTest {
         // given
         given(stampService.getMissionIdByStampId(STAMP_ID)).willReturn(MISSION_ID);
         given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
-        given(soptampUserService.subtractPoint(SOPTAMP_USER_ID, MISSION_LEVEL))
-                .willReturn(SoptampFixture.getUserInfo());
 
         // when
         soptampFacade.deleteStamp(SOPTAMP_USER_ID, STAMP_ID);
 
         // then
-        then(soptampPointService).should().subtractPoint(SOPTAMP_USER_ID, MISSION_LEVEL);
         then(stampService).should().deleteStampById(STAMP_ID);
     }
 
@@ -145,21 +129,6 @@ class SoptampFacadeTest {
         // then
         then(stampService).should().deleteAllStamps(SOPTAMP_USER_ID);
         then(soptampUserService).should().initPoint(SOPTAMP_USER_ID);
-        then(soptampPointService).should().initPoint(SOPTAMP_USER_ID);
-    }
-
-    @Test
-    @DisplayName("SUCCESS_솝탬프 유저 닉네임 수정하기")
-    void SUCCESS_editSoptampUserNickname() {
-        // given
-        final SoptampUserInfo soptampUser = SoptampFixture.getUserInfo();
-        given(soptampUserService.getSoptampUserInfo(USER_ID)).willReturn(soptampUser);
-
-        // when
-        soptampFacade.editSoptampUserNickname(USER_ID, NICKNAME);
-
-        // then
-        then(soptampUserService).should().editNickname(soptampUser, NICKNAME);
     }
 
     @Test
@@ -168,12 +137,11 @@ class SoptampFacadeTest {
         // given
         final SoptampUserInfo soptampUser = SoptampFixture.getUserInfo();
         final String newProfileMessage = "new message";
-        given(soptampUserService.getSoptampUserInfo(USER_ID)).willReturn(soptampUser);
 
         // when
         soptampFacade.editSoptampUserProfileMessage(USER_ID, newProfileMessage);
 
         // then
-        then(soptampUserService).should().editProfileMessage(soptampUser, newProfileMessage);
+        then(soptampUserService).should().editProfileMessage(soptampUser.getUserId(), newProfileMessage);
     }
 }

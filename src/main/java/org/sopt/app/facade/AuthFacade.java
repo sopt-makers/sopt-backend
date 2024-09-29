@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.JwtTokenService;
 import org.sopt.app.application.playground.PlaygroundAuthService;
-import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.presentation.auth.AppAuthRequest;
@@ -23,7 +22,6 @@ public class AuthFacade {
     private final PlaygroundAuthService playgroundAuthService;
     private final AppAuthResponseMapper authResponseMapper;
     private final SoptampUserService soptampUserService;
-    private final SoptampPointService soptampPointService;
 
     @Transactional
     public Token loginWithPlayground(AppAuthRequest.CodeRequest codeRequest) {
@@ -33,10 +31,8 @@ public class AuthFacade {
         val playgroundToken = playgroundAuthService.refreshPlaygroundToken(temporaryToken);
         // PlayGround User Info 받아옴
         val playgroundMember = playgroundAuthService.getPlaygroundInfo(playgroundToken.getAccessToken());
-
         val userId = userService.loginWithUserPlaygroundId(playgroundMember);
-        val soptampUserId = soptampUserService.updateSoptampUser(playgroundMember.getName(), userId.getId());
-        soptampPointService.upsertSoptampPoint(playgroundMember.getStatus(), soptampUserId);
+        soptampUserService.createSoptampUser(playgroundMember.getName(), userId.getId());
 
         // Response 할 Body 생성
         val appToken = jwtTokenService.issueNewTokens(userId, playgroundMember);

@@ -1,6 +1,5 @@
 package org.sopt.app.domain.entity.soptamp;
 
-
 import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import jakarta.persistence.*;
 import java.util.List;

@@ -40,4 +40,16 @@ public class SoptampUser extends BaseEntity {
         this.generation = generation;
         this.part = part.name();
     }
+
+    public void addPointsByLevel(Integer level) {
+        this.totalPoints += level;
+    }
+
+    public void subtractPointsByLevel(Integer level) {
+        this.totalPoints -= level;
+    }
+
+    public void updateProfileMessage(String profileMessage) {
+        this.profileMessage = profileMessage;
+    }
 }

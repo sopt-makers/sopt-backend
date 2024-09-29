@@ -11,7 +11,9 @@ public interface SoptampUserRepository extends JpaRepository<SoptampUser, Long> 
 
     Optional<SoptampUser> findUserByNickname(String nickname);
 
-    List<SoptampUser> findAllByNicknameStartingWith(String part);
+    List<SoptampUser> findAllByNicknameStartingWithAndGeneration(String part, Long generation);
 
     List<SoptampUser> findAllByUserIdIn(List<Long> userIdList);
+
+    List<SoptampUser> findAllByGeneration(Long generation);
 }
