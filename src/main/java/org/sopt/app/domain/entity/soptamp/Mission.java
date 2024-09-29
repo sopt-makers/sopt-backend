@@ -1,7 +1,6 @@
 package org.sopt.app.domain.entity.soptamp;
 
-
-import io.hypersistence.utils.hibernate.type.array.StringArrayType;
+import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import jakarta.persistence.*;
 import java.util.List;
 import lombok.*;
@@ -25,7 +24,7 @@ public class Mission {
 
     private boolean display;
 
-    @Type(value= StringArrayType.class)
+    @Type(value= ListArrayType.class)
     @Column(columnDefinition = "text[]")
     private List<String> profileImage;
 }
