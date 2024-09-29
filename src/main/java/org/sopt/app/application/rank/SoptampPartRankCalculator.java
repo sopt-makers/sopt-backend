@@ -1,8 +1,8 @@
 package org.sopt.app.application.rank;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampUserInfo;
@@ -14,14 +14,15 @@ public class SoptampPartRankCalculator {
 
     private final List<SoptampUserInfo> userInfos;
 
-    private final Map<String, AtomicInteger> partScores = Map.of(
-            Part.SERVER.getPartName(), new AtomicInteger(0),
-            Part.WEB.getPartName(), new AtomicInteger(0),
-            Part.DESIGN.getPartName(), new AtomicInteger(0),
-            Part.ANDROID.getPartName(), new AtomicInteger(0),
-            Part.IOS.getPartName(), new AtomicInteger(0),
-            Part.PLAN.getPartName(), new AtomicInteger(0)
-    );
+    private final HashMap<String, Long> partScores =
+            new HashMap<>(Map.of(
+            Part.SERVER.getPartName(), 0L,
+            Part.WEB.getPartName(), 0L,
+            Part.DESIGN.getPartName(), 0L,
+            Part.ANDROID.getPartName(), 0L,
+            Part.IOS.getPartName(), 0L,
+            Part.PLAN.getPartName(), 0L
+    ));
 
     private final List<Part> partReturnOrder = List.of(
             Part.PLAN, Part.DESIGN, Part.WEB, Part.IOS, Part.ANDROID, Part.SERVER
@@ -31,44 +32,29 @@ public class SoptampPartRankCalculator {
         userInfos.forEach(this::calculatePartScore);
         return partReturnOrder.stream().map(part -> PartRank.builder()
                 .part(part.getPartName())
-                .rank(getTargetPartRank(partScores.get(part.getPartName()).get()))
-                .points(partScores.get(part.getPartName()).longValue())
+                .rank(getTargetPartRank(partScores.get(part.getPartName())))
+                .points(partScores.get(part.getPartName()))
                 .build()).toList();
     }
 
     private void calculatePartScore(SoptampUserInfo userInfo) {
         String nickname = userInfo.getNickname();
-        if(nickname.startsWith(Part.SERVER.getPartName())){
-            partScores.get(Part.SERVER.getPartName()).getAndIncrement();
-            return;
-        }
-        if(nickname.startsWith(Part.WEB.getPartName())){
-            partScores.get(Part.WEB.getPartName()).getAndIncrement();
-            return;
-        }
-        if(nickname.startsWith(Part.DESIGN.getPartName())){
-            partScores.get(Part.DESIGN.getPartName()).getAndIncrement();
-            return;
-        }
-        if(nickname.startsWith(Part.ANDROID.getPartName())){
-            partScores.get(Part.ANDROID.getPartName()).getAndIncrement();
-            return;
-        }
-        if(nickname.startsWith(Part.IOS.getPartName())){
-            partScores.get(Part.IOS.getPartName()).getAndIncrement();
-            return;
-        }
-        if(nickname.startsWith(Part.PLAN.getPartName())){
-            partScores.get(Part.PLAN.getPartName()).getAndIncrement();
-            return;
-        }
+        partReturnOrder.forEach(part -> {
+            if(nickname.startsWith(part.getPartName())){
+                this.putPartScore(part.getPartName(), userInfo.getTotalPoints());
+            }
+        });
     }
 
-    private int getTargetPartRank(int targetPartPoint) {
+    private void putPartScore(String partName, Long point) {
+        partScores.put(partName, partScores.get(partName) + point);
+    }
+
+    private int getTargetPartRank(Long targetPartPoint) {
         int rankPoint = 1;
 
-        for (AtomicInteger atomicInteger : partScores.values()) {
-            if (targetPartPoint < atomicInteger.get()) {
+        for (Long partScore : partScores.values()) {
+            if (targetPartPoint < partScore) {
                 rankPoint++;
             }
         }
