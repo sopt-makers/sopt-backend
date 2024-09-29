@@ -16,6 +16,7 @@ public class FortuneCard {
 
     private String description;
 
+    @Column(columnDefinition = "TEXT")
     private String imageUrl;
 
     private String imageColorCode;

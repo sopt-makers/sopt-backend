@@ -7,10 +7,15 @@ import lombok.*;
 
 @Getter
 @Entity
+@Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserFortune {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @NotNull
     private Long userId;
 
@@ -19,4 +24,9 @@ public class UserFortune {
 
     @NotNull
     private LocalDate checkedAt;
+
+    public void updateTodayFortune(final Long fortuneId, final LocalDate checkedAt) {
+        this.fortuneId = fortuneId;
+        this.checkedAt = checkedAt;
+    }
 }
