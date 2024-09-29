@@ -2,18 +2,11 @@ package org.sopt.app.application.soptamp;
 
 import static org.sopt.app.domain.enums.PlaygroundPart.findPlaygroundPart;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
+import java.util.*;
+import lombok.*;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
-import org.sopt.app.domain.enums.Part;
 import org.sopt.app.domain.enums.PlaygroundPart;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 import org.springframework.stereotype.Service;
@@ -27,147 +20,66 @@ public class SoptampUserService {
 
     @Transactional(readOnly = true)
     public SoptampUserInfo getSoptampUserInfo(Long userId) {
-        val user = soptampUserRepository.findByUserId(userId)
+        SoptampUser user = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
-        return SoptampUserInfo.builder()
-                .id(user.getId())
-                .userId(user.getUserId())
-                .profileMessage(user.getProfileMessage())
-                .totalPoints(user.getTotalPoints())
-                .nickname(user.getNickname())
-                .build();
-    }
-
-    @Transactional(readOnly = true)
-    public void checkUserNickname(String nickname) {
-        val nicknameUser = soptampUserRepository.findUserByNickname(nickname);
-        if (nicknameUser.isPresent()) {
-            throw new BadRequestException(ErrorCode.DUPLICATE_NICKNAME.getMessage());
-        }
+        return SoptampUserInfo.of(user);
     }
 
     @Transactional
-    public SoptampUserInfo editNickname(SoptampUserInfo soptampUserInfo, String nickname) {
-        val newSoptampUser = SoptampUser.builder()
-                .id(soptampUserInfo.getId())
-                .userId(soptampUserInfo.getUserId())
-                .profileMessage(soptampUserInfo.getProfileMessage())
-                .totalPoints(soptampUserInfo.getTotalPoints())
-                .nickname(nickname)
-                .build();
-        soptampUserRepository.save(newSoptampUser);
-        return SoptampUserInfo.builder()
-                .id(newSoptampUser.getId())
-                .userId(newSoptampUser.getUserId())
-                .profileMessage(newSoptampUser.getProfileMessage())
-                .totalPoints(newSoptampUser.getTotalPoints())
-                .nickname(newSoptampUser.getNickname())
-                .build();
-    }
-
-    @Transactional
-    public SoptampUserInfo editProfileMessage(SoptampUserInfo soptampUserInfo, String profileMessage) {
-        val newSoptampUser = SoptampUser.builder()
-                .id(soptampUserInfo.getId())
-                .userId(soptampUserInfo.getUserId())
-                .profileMessage(profileMessage)
-                .totalPoints(soptampUserInfo.getTotalPoints())
-                .nickname(soptampUserInfo.getNickname())
-                .build();
-        return SoptampUserInfo.of(soptampUserRepository.save(newSoptampUser));
-    }
-
-    @Transactional
-    public Long updateSoptampUser(String name, Long userId) {
-        val registerUser = soptampUserRepository.findByUserId(userId);
-        if (registerUser.isEmpty()) {
-            val newSoptampUser = SoptampUser.builder()
-                    .userId(userId)
-                    .profileMessage(null)
-                    .totalPoints(0L)
-                    .nickname(name)
-                    .build();
-            return soptampUserRepository.save(newSoptampUser).getId();
-
-        }
-        return registerUser.get().getId();
-    }
-
-    public List<SoptampUserInfo> findAllBySoptampUserIds(List<Long> userIdList) {
-        return soptampUserRepository.findAllById(userIdList)
-                .stream().map(SoptampUserInfo::of)
-                .toList();
-    }
-
-    @Deprecated
-    public List<SoptampUserInfo> findAllSoptampUsers() {
-        return soptampUserRepository.findAll()
-                .stream().map(SoptampUserInfo::of)
-                .toList();
-    }
-
-    public List<Long> findSoptampUserByPart(Part part) {
-        return soptampUserRepository.findAllByNicknameStartingWith(part.getPartName())
-                .stream()
-                .map(SoptampUser::getId)
-                .toList();
-    }
-
-    public SoptampUserInfo findSoptampUserByNickname(String nickname) {
-        return SoptampUserInfo.of(
-                soptampUserRepository.findUserByNickname(nickname)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()))
-        );
-    }
-
-    @Transactional
-    public SoptampUserInfo addPoint(Long userId, Integer level) {
-        val user = soptampUserRepository.findByUserId(userId)
+    public SoptampUserInfo editNickname(Long userId, String nickname) {
+        SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
-        val newTotalPoint = user.getTotalPoints() + level;
-        val newSoptampUser = SoptampUser.builder()
-                .id(user.getId())
-                .userId(user.getUserId())
-                .profileMessage(user.getProfileMessage())
-                .totalPoints(newTotalPoint)
-                .nickname(user.getNickname())
-                .build();
-        return SoptampUserInfo.of(soptampUserRepository.save(newSoptampUser));
-    }
-
-    @Transactional
-    public SoptampUserInfo subtractPoint(Long userId, Integer level) {
-        val user = soptampUserRepository.findByUserId(userId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
-        val newTotalPoint = user.getTotalPoints() - level;
-        val newSoptampUser = SoptampUser.builder()
-                .id(user.getId())
-                .userId(user.getUserId())
-                .profileMessage(user.getProfileMessage())
-                .totalPoints(newTotalPoint)
-                .nickname(user.getNickname())
-                .build();
-        return SoptampUserInfo.of(soptampUserRepository.save(newSoptampUser));
-    }
-
-    public SoptampUserInfo findByNickname(String nickname) {
-        val soptampUser = soptampUserRepository.findUserByNickname(nickname)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+        soptampUser.updateNickname(nickname);
         return SoptampUserInfo.of(soptampUser);
     }
 
     @Transactional
-    public void initPoint(Long userId) {
-        val soptampUser = soptampUserRepository.findByUserId(userId)
+    public SoptampUserInfo editProfileMessage(Long userId, String profileMessage) {
+        SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
-        val newSoptampUser = SoptampUser.builder()
-                .id(soptampUser.getId())
-                .userId(soptampUser.getUserId())
-                .profileMessage(soptampUser.getProfileMessage())
+        soptampUser.updateProfileMessage(profileMessage);
+        return SoptampUserInfo.of(soptampUser);
+    }
+
+    @Transactional
+    public Long createSoptampUser(String name, Long userId) {
+        Optional<SoptampUser> registeredUser = soptampUserRepository.findByUserId(userId);
+        if (registeredUser.isEmpty()) {
+            val newSoptampUser = this.createNewSoptampUser(name, userId);
+            return soptampUserRepository.save(newSoptampUser).getId();
+        }
+        return registeredUser.get().getId();
+    }
+
+    private SoptampUser createNewSoptampUser(String name, Long userId) {
+        return SoptampUser.builder()
+                .userId(userId)
+                .nickname(name)
+                .profileMessage("")
                 .totalPoints(0L)
-                .nickname(soptampUser.getNickname())
                 .build();
-        soptampUserRepository.save(newSoptampUser);
+    }
+
+    @Transactional
+    public void addPointByLevel(Long userId, Integer level) {
+        SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+        soptampUser.addPointsByLevel(level);
+    }
+
+    @Transactional
+    public void subtractPointByLevel(Long userId, Integer level) {
+        SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+        soptampUser.subtractPointsByLevel(level);
+    }
+
+    @Transactional
+    public void initPoint(Long userId) {
+        SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+        soptampUser.initTotalPoints();
+        soptampUserRepository.save(soptampUser);
     }
 
     @Transactional
