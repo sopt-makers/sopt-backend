@@ -15,7 +15,6 @@ import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampUserFinder;
 import org.sopt.app.domain.enums.Part;
-import org.springframework.security.core.parameters.P;
 
 @ExtendWith(MockitoExtension.class)
 class RankFacadeTest {
@@ -96,20 +95,20 @@ class RankFacadeTest {
         List<PartRank> result = rankFacade.findAllPartRanks();
         List<PartRank> expected = List.of( // 기-디-웹-아-안-서 순서
                 PartRank.builder().rank(5) // 동점이라면 rank도 같아야 함
-                                .part(Part.PLAN.getPartName())
-                                .points(0L).build(),
+                        .part(Part.PLAN.getPartName())
+                        .points(0L).build(),
                 PartRank.builder().rank(2)
-                                .part(Part.DESIGN.getPartName())
-                                .points(SOPTAMP_USER_4.getTotalPoints()).build(),
+                        .part(Part.DESIGN.getPartName())
+                        .points(SOPTAMP_USER_4.getTotalPoints()).build(),
                 PartRank.builder().rank(5)
-                                .part(Part.WEB.getPartName())
-                                .points(0L).build(),
+                        .part(Part.WEB.getPartName())
+                        .points(0L).build(),
                 PartRank.builder().rank(2)
-                                .part(Part.IOS.getPartName())
-                                .points(SOPTAMP_USER_3.getTotalPoints()).build(),
+                        .part(Part.IOS.getPartName())
+                        .points(SOPTAMP_USER_3.getTotalPoints()).build(),
                 PartRank.builder().rank(4) // 2등, 2등 다음 rank는 3등이 아닌 4등이다.
-                                .part(Part.ANDROID.getPartName())
-                                .points(SOPTAMP_USER_2.getTotalPoints()).build(),
+                        .part(Part.ANDROID.getPartName())
+                        .points(SOPTAMP_USER_2.getTotalPoints()).build(),
                 PartRank.builder().rank(1)
                         .part(Part.SERVER.getPartName())
                         .points(SOPTAMP_USER_6.getTotalPoints() +
