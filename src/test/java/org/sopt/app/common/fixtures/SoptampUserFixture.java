@@ -7,13 +7,17 @@ import org.sopt.app.domain.entity.soptamp.SoptampUser;
 public class SoptampUserFixture {
 
     public static final SoptampUser SOPTAMP_USER_1 =
-            SoptampUser.builder().id(1L).userId(10L).nickname("서버1stUser").totalPoints(100L).build();
+            SoptampUser.builder().id(1L).userId(10L).nickname("서버유저").totalPoints(100L).build();
     public static final SoptampUser SOPTAMP_USER_2 =
-            SoptampUser.builder().id(2L).userId(20L).nickname("안드2stUser").totalPoints(200L).build();
+            SoptampUser.builder().id(2L).userId(20L).nickname("안드유저").totalPoints(200L).build();
     public static final SoptampUser SOPTAMP_USER_3 =
-            SoptampUser.builder().id(3L).userId(30L).nickname("아요3stUser").totalPoints(300L).build();
+            SoptampUser.builder().id(3L).userId(30L).nickname("아요유저").totalPoints(300L).build();
     public static final SoptampUser SOPTAMP_USER_4 =
-            SoptampUser.builder().id(4L).userId(40L).nickname("디자인3stUser").totalPoints(300L).build();
+            SoptampUser.builder().id(4L).userId(40L).nickname("디자인유저").totalPoints(300L).build();
+    public static final SoptampUser SOPTAMP_USER_5 =
+            SoptampUser.builder().id(5L).userId(50L).nickname("서버유저A").totalPoints(500L).build();
+    public static final SoptampUser SOPTAMP_USER_6 =
+            SoptampUser.builder().id(6L).userId(60L).nickname("서버유저B").totalPoints(600L).build();
 
     public static final SoptampUserInfo SOPTAMP_USER_INFO_1 = SoptampUserInfo.builder()
             .id(SOPTAMP_USER_1.getId())
@@ -35,6 +39,18 @@ public class SoptampUserFixture {
             .userId(SOPTAMP_USER_4.getUserId())
             .nickname(SOPTAMP_USER_4.getNickname())
             .totalPoints(SOPTAMP_USER_4.getTotalPoints()).build();
+    public static final SoptampUserInfo SOPTAMP_USER_INFO_5 = SoptampUserInfo.builder()
+            .id(SOPTAMP_USER_5.getId())
+            .userId(SOPTAMP_USER_5.getUserId())
+            .nickname(SOPTAMP_USER_5.getNickname())
+            .totalPoints(SOPTAMP_USER_5.getTotalPoints()).build();
+    public static final SoptampUserInfo SOPTAMP_USER_INFO_6 = SoptampUserInfo.builder()
+            .id(SOPTAMP_USER_6.getId())
+            .userId(SOPTAMP_USER_6.getUserId())
+            .nickname(SOPTAMP_USER_6.getNickname())
+            .totalPoints(SOPTAMP_USER_6.getTotalPoints()).build();
     public static final List<SoptampUserInfo> SOPTAMP_USER_INFO_LIST =
             List.of(SOPTAMP_USER_INFO_1, SOPTAMP_USER_INFO_2, SOPTAMP_USER_INFO_3, SOPTAMP_USER_INFO_4);
+    public static final List<SoptampUserInfo> SERVER_PART_SOPTAMP_USER_INFO_LIST =
+            List.of(SOPTAMP_USER_INFO_6, SOPTAMP_USER_INFO_5, SOPTAMP_USER_INFO_1);
 }

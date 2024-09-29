@@ -13,6 +13,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
 import org.sopt.app.application.soptamp.SoptampUserFinder;
+import org.sopt.app.domain.enums.Part;
 
 @ExtendWith(MockitoExtension.class)
 class RankFacadeTest {
@@ -53,14 +54,31 @@ class RankFacadeTest {
         }
     }
 
-    /**
     @Test
     @DisplayName("SUCCESS 파트별 현재 기수의 솝탬프 유저 랭킹 조회")
     void findCurrentRanksByPart() {
-
-        List<Main> result = rankFacade.findCurrentRanksByPart();
+        // given
+        given(soptampUserFinder.findSoptampUserIdByPart(Part.SERVER)).willReturn(SERVER_PART_SOPTAMP_USER_INFO_LIST);
+        // when
+        List<Main> result = rankFacade.findCurrentRanksByPart(Part.SERVER);
+        List<Main> expected = List.of(
+                Main.builder().rank(1)
+                        .nickname(SOPTAMP_USER_6.getNickname())
+                        .point(SOPTAMP_USER_6.getTotalPoints()).build(),
+                Main.builder().rank(2)
+                        .nickname(SOPTAMP_USER_5.getNickname())
+                        .point(SOPTAMP_USER_5.getTotalPoints()).build(),
+                Main.builder().rank(3)
+                        .nickname(SOPTAMP_USER_1.getNickname())
+                        .point(SOPTAMP_USER_1.getTotalPoints()).build()
+        );
+        // then
+        assertEquals(expected.size(), result.size());
+        for (int i = 0; i < expected.size(); i++) {
+            assertEquals(expected.get(i).getNickname(), result.get(i).getNickname());
+        }
     }
-
+    /**
     @Test
     @DisplayName("SUCCESS 파트끼리의 솝탬프 포인트 랭킹 조회")
     void findAllPartRanks() {
