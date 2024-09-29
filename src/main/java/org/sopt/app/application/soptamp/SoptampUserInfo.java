@@ -1,9 +1,6 @@
 package org.sopt.app.application.soptamp;
 
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
+import lombok.*;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
 
 @Getter
