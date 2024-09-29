@@ -57,35 +57,6 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "닉네임 중복 검사")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success", content = @Content),
-            @ApiResponse(responseCode = "400", description = "duplicate nickname", content = @Content),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping(value = "/nickname/{nickname}")
-    public ResponseEntity<UserResponse.Nickname> validateUserNickname(@PathVariable String nickname) {
-        soptampUserService.checkUserNickname(nickname);
-        return ResponseEntity.ok().build();
-    }
-
-    @Operation(summary = "닉네임 변경")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @PatchMapping(value = "/nickname")
-    public ResponseEntity<UserResponse.Nickname> editNickname(
-            @AuthenticationPrincipal User user,
-            @Valid @RequestBody UserRequest.EditNicknameRequest editNicknameRequest
-    ) {
-        val result = soptampFacade.editSoptampUserNickname(user.getId(), editNicknameRequest.getNickname());
-        val response = UserResponse.Nickname.builder()
-            .nickname(result.getNickname())
-            .build();
-        return ResponseEntity.ok(response);
-    }
-
     @Operation(summary = "한마디 변경")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
