@@ -21,7 +21,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.mission.MissionInfo;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.s3.S3Service;
-import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.stamp.StampInfo;
@@ -72,7 +71,7 @@ class SoptampFacadeTest {
         final StampRequest.RegisterStampRequest registerStampRequest = SoptampFixture.getRegisterStampRequest();
         given(stampService.uploadStamp(registerStampRequest, SOPTAMP_USER_ID)).willReturn(uploadedStamp);
         given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
-        given(soptampUserService.addPoint(SOPTAMP_USER_ID, MISSION_LEVEL)).willReturn(SoptampFixture.getUserInfo());
+        given(soptampUserService.addPointByLevel(SOPTAMP_USER_ID, MISSION_LEVEL)).willReturn(SoptampFixture.getUserInfo());
 
         // when
         StampInfo.Stamp result = soptampFacade.uploadStamp(SOPTAMP_USER_ID, registerStampRequest);
@@ -91,7 +90,7 @@ class SoptampFacadeTest {
         given(stampService.uploadStampDeprecated(registerStampRequest, STAMP_IMG_PATHS, SOPTAMP_USER_ID, MISSION_ID))
                 .willReturn(uploadedStamp);
         given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
-        given(soptampUserService.addPoint(SOPTAMP_USER_ID, MISSION_LEVEL)).willReturn(SoptampFixture.getUserInfo());
+        given(soptampUserService.addPointByLevel(SOPTAMP_USER_ID, MISSION_LEVEL)).willReturn(SoptampFixture.getUserInfo());
 
         // when
         StampInfo.Stamp result = soptampFacade.uploadStampDeprecated(
@@ -125,7 +124,7 @@ class SoptampFacadeTest {
         // given
         given(stampService.getMissionIdByStampId(STAMP_ID)).willReturn(MISSION_ID);
         given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
-        given(soptampUserService.subtractPoint(SOPTAMP_USER_ID, MISSION_LEVEL))
+        given(soptampUserService.subtractPointByLevel(SOPTAMP_USER_ID, MISSION_LEVEL))
                 .willReturn(SoptampFixture.getUserInfo());
 
         // when

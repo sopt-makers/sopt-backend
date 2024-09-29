@@ -1,18 +1,13 @@
 package org.sopt.app.domain.entity.soptamp;
 
 
-import com.vladmihalcea.hibernate.type.array.ListArrayType;
+import io.hypersistence.utils.hibernate.type.array.StringArrayType;
+import jakarta.persistence.*;
 import java.util.List;
-import javax.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
 
 @Entity
-@TypeDef(
-        name = "list-array",
-        typeClass = ListArrayType.class
-)
 @Getter
 @Builder
 @AllArgsConstructor
@@ -30,7 +25,7 @@ public class Mission {
 
     private boolean display;
 
-    @Type(type = "list-array")
+    @Type(value= StringArrayType.class)
     @Column(columnDefinition = "text[]")
     private List<String> profileImage;
 }

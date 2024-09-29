@@ -8,7 +8,9 @@ public record FortuneCardInfo(
         Long id,
         String name,
         String description,
-        String imageUrl
+        String imageUrl,
+        String imageColorCode
+
 ) {
     public static FortuneCardInfo of(FortuneCard fortuneCard) {
         return FortuneCardInfo.builder()
@@ -16,6 +18,7 @@ public record FortuneCardInfo(
                 .name(fortuneCard.getName())
                 .description(fortuneCard.getDescription())
                 .imageUrl(fortuneCard.getImageUrl())
+                .imageColorCode(fortuneCard.getImageColorCode())
                 .build();
     }
 }

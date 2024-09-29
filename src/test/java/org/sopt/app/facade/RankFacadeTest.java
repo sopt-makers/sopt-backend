@@ -28,7 +28,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
-import org.sopt.app.application.soptamp.SoptampPointService;
 import org.sopt.app.application.soptamp.SoptampUserService;
 
 @ExtendWith(MockitoExtension.class)

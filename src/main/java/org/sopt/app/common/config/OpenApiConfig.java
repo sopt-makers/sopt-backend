@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn;
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.security.SecurityScheme;
+import io.swagger.v3.oas.annotations.servers.Server;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 
@@ -14,7 +15,10 @@ import org.springframework.stereotype.Component;
                 title = "SOPT APP Team API",
                 version = "v2",
                 description = "SOPT 공식 앱팀 API입니다."
-        )
+        ),
+        servers = {
+                @Server(url = "${app.base.url}")
+        }
 )
 @SecurityScheme(
         name = "Authorization",

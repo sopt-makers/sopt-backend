@@ -6,7 +6,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.sopt.app.common.config.QuerydslConfiguration;
-import org.sopt.app.domain.entity.soptamp.SoptampPoint;
 import org.sopt.app.interfaces.postgres.soptamp_point.SoptampPointRepository;
 import org.sopt.app.interfaces.postgres.soptamp_point.SoptampPointRepositoryImpl;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -51,16 +51,14 @@ public class PokeService {
         );
 
         if (!latestPokeFromPokedIsReplyFalse.isEmpty()) {
-            latestPokeFromPokedIsReplyFalse.get(0).activateReply();
+            latestPokeFromPokedIsReplyFalse.getFirst().activateReply();
         }
-
-        PokeHistory createdPoke = PokeHistory.builder()
+        return historyRepository.save(PokeHistory.builder()
                 .pokerId(pokerUserId)
                 .pokedId(pokedUserId)
                 .message(pokeMessage)
                 .isReply(false)
                 .isAnonymous(isAnonymous)
-                .build();
-        return historyRepository.save(createdPoke);
+                .build());
     }
 }

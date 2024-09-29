@@ -1,6 +1,6 @@
 package org.sopt.app.domain.entity.fortune;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
@@ -18,4 +18,5 @@ public class FortuneCard {
 
     private String imageUrl;
 
+    private String imageColorCode;
 }

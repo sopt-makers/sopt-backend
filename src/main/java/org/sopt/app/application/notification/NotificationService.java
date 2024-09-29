@@ -15,6 +15,7 @@ import org.sopt.app.domain.enums.NotificationType;
 import org.sopt.app.interfaces.postgres.NotificationRepository;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.notification.NotificationRequest;
+import org.sopt.app.presentation.notification.NotificationRequest.RegisterNotificationRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -44,8 +45,8 @@ public class NotificationService {
     }
 
     @Transactional
-    public void registerNotification(
-            NotificationRequest.RegisterNotificationRequest registerNotificationRequest
+    public List<Long> registerNotification(
+            RegisterNotificationRequest registerNotificationRequest
     ) {
         List<Long> playgroundIds = new ArrayList<>();
         if (registerNotificationRequest.getType().equals(NotificationType.SEND_ALL)) {
@@ -56,6 +57,7 @@ public class NotificationService {
                     .toList();
         }
         registerTo(playgroundIds, registerNotificationRequest);
+        return playgroundIds;
     }
     private void registerTo(List<Long> playgroundIds, NotificationRequest.RegisterNotificationRequest registerNotificationRequest) {
         val targetUserIds = userRepository.findAllIdByPlaygroundIdIn(playgroundIds);
