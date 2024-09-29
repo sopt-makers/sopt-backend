@@ -26,16 +26,4 @@ public class SoptampUserInfo {
                 .nickname(soptampUser.getNickname())
                 .build();
     }
-
-    @Getter
-    @Builder
-    public static class SoptampUserPlaygroundInfo {
-
-        private Long userId;
-        private Long playgroundId;
-        private String name;
-        private Integer generation;
-        private String part;
-    }
-
 }
