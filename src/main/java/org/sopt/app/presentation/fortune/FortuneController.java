@@ -36,7 +36,7 @@ public class FortuneController {
     ) {
         return ResponseEntity.ok(
                 FortuneResponse.of(
-                        fortuneProvider.getTodayFortuneByUserId(user.getId(), todayDate),
+                        fortuneProvider.getTodayFortuneWordByUserId(user.getId(), todayDate),
                         user.getUsername()
                 )
         );
