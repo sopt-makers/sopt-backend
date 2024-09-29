@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class RankFacade {
 
-    private final SoptampUserService soptampUserService;
     private final SoptampUserFinder soptampUserFinder;
 
 
@@ -40,8 +39,8 @@ public class RankFacade {
 
     @Transactional(readOnly = true)
     public List<PartRank> findAllPartRanks() {
-        List<PartPoint> partPoints = soptampUserService.findSumOfPointAllParts();
-        SoptampPartRankCalculator soptampPartRankCalculator = new SoptampPartRankCalculator(partPoints);
-        return soptampPartRankCalculator.findAllPartRanks();
+        List<SoptampUserInfo> soptampUserInfos = soptampUserFinder.findAllCurrentGenerationSoptampUsers();
+        SoptampPartRankCalculator soptampPartRankCalculator = new SoptampPartRankCalculator(soptampUserInfos);
+        return soptampPartRankCalculator.calculatePartRank();
     }
 }
