@@ -26,14 +26,6 @@ public class SoptampUserService {
     }
 
     @Transactional
-    public SoptampUserInfo editNickname(Long userId, String nickname) {
-        SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
-        soptampUser.updateNickname(nickname);
-        return SoptampUserInfo.of(soptampUser);
-    }
-
-    @Transactional
     public SoptampUserInfo editProfileMessage(Long userId, String profileMessage) {
         SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
