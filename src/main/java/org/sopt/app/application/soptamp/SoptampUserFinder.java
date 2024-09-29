@@ -19,13 +19,6 @@ public class SoptampUserFinder {
     @Value("${sopt.current.generation}")
     private Long currentGeneration;
 
-    public List<SoptampUserInfo> findAllBySoptampUserIds(List<Long> userIdList) {
-        return soptampUserRepository.findAllById(userIdList)
-                .stream()
-                .map(SoptampUserInfo::of)
-                .toList();
-    }
-
     public List<SoptampUserInfo> findAllCurrentGenerationSoptampUsers() {
         return soptampUserRepository.findAllByGeneration(currentGeneration)
                 .stream()
