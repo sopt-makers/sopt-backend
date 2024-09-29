@@ -1,8 +1,6 @@
 package org.sopt.app.application.user;
 
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
 public class UserInfo {
 
@@ -11,13 +9,6 @@ public class UserInfo {
     @ToString
     public static class Id {
         private Long id;
-    }
-
-    @Getter
-    @Builder
-    @ToString
-    public static class Token {
-        private String accessToken;
     }
 
     @Getter
@@ -34,13 +25,6 @@ public class UserInfo {
     public static class ProfileMessage {
 
         private String profileMessage;
-    }
-
-    @Getter
-    @Builder
-    @ToString
-    public static class IsOptIn {
-        private Boolean isOptIn;
     }
 
     @Getter
