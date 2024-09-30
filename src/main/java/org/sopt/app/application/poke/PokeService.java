@@ -23,7 +23,7 @@ public class PokeService {
     @Transactional(readOnly = true)
     public PokeInfo.PokeDetail getPokeDetail(Long pokeHistoryId) {
         PokeHistory latestPokeHistory = historyRepository.findById(pokeHistoryId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.POKE_HISTORY_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.POKE_HISTORY_NOT_FOUND));
         return PokeInfo.PokeDetail.builder()
                 .id(latestPokeHistory.getId())
                 .pokerId(latestPokeHistory.getPokerId())
@@ -35,7 +35,7 @@ public class PokeService {
     @Transactional
     public PokeHistory poke(Long pokerUserId, Long pokedUserId, String pokeMessage, Boolean isAnonymous) {
         User pokedUser = userRepository.findUserById(pokedUserId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
         PokeHistory pokeByApplyingReply = createPokeByApplyingReply(pokerUserId, pokedUserId, pokeMessage, isAnonymous);
 

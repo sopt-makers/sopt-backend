@@ -30,13 +30,13 @@ public class NotificationService {
     @Transactional(readOnly = true)
     public Notification findNotification(User user, String notificationId) {
         return notificationRepository.findByNotificationIdAndUserId(notificationId, user.getId())
-                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND));
     }
     @Transactional(readOnly = true)
     @Deprecated
     public Notification findNotificationDeprecated(User user, Long notificationId) {
         return notificationRepository.findByIdAndUserId(notificationId, user.getId())
-                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND));
     }
 
     @Transactional(readOnly = true)
@@ -98,7 +98,7 @@ public class NotificationService {
 
     private void updateSingleNotificationIsRead(User user, String notificationId) {
         val notification = notificationRepository.findByNotificationIdAndUserId(notificationId, user.getId())
-                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND));
         notification.updateIsRead();
         notificationRepository.save(notification);
     }
@@ -106,7 +106,7 @@ public class NotificationService {
     @Deprecated
     private void updateSingleNotificationIsReadDeprecated(User user, Long notificationId) {
         val notification = notificationRepository.findByIdAndUserId(notificationId, user.getId())
-                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND));
         notification.updateIsRead();
         notificationRepository.save(notification);
     }

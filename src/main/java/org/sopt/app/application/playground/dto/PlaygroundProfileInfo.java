@@ -93,7 +93,7 @@ public class PlaygroundProfileInfo {
             try {
                 return Long.parseLong(cardinalInfo.split(",")[0]);
             } catch (NumberFormatException e) {
-                throw new BadRequestException(ErrorCode.INVALID_PLAYGROUND_CARDINAL_INFO.getMessage());
+                throw new BadRequestException(ErrorCode.INVALID_PLAYGROUND_CARDINAL_INFO);
             }
         }
 

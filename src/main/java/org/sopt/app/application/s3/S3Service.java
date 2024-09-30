@@ -82,7 +82,7 @@ public class S3Service {
                                 .withCannedAcl(CannedAccessControlList.PublicRead));
                 return amazonS3.getUrl(bucket + "/mainpage/makers-app", fileName).toString();
             } catch (IOException e) {
-                throw new BadRequestException("요청이 처리 되지 않았습니다.");
+                throw new BadRequestException(ErrorCode.S3_IO_ERROR);
             }
         }).toList();
     }
@@ -93,12 +93,12 @@ public class S3Service {
 
     private String getFileExtension(String fileName) {
         if (fileName.isEmpty()) {
-            throw new BadRequestException("유효하지 않은 파일명입니다.");
+            throw new BadRequestException(ErrorCode.BAD_FILE_EXTENSTION);
         }
 
         val idxFileName = fileName.substring(fileName.lastIndexOf("."));
         if (!imageFileExtension.contains(idxFileName)) {
-            throw new BadRequestException("유효하지 않은 확장자입니다.");
+            throw new BadRequestException(ErrorCode.BAD_FILE_EXTENSTION);
         }
         return fileName.substring(fileName.lastIndexOf("."));
     }
@@ -114,7 +114,7 @@ public class S3Service {
             uri = amazonS3.generatePresignedUrl(folderURI,
                     randomFileName.toString(), now.plusHours(10).toDate(), HttpMethod.PUT).toURI();
         } catch (NullPointerException | URISyntaxException e) {
-            throw new BadRequestException(ErrorCode.PRE_SIGNED_URI_ERROR.getMessage());
+            throw new BadRequestException(ErrorCode.PRE_SIGNED_URI_ERROR);
         }
 
         val preSignedURL = uri.toString();

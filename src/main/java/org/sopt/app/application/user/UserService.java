@@ -19,7 +19,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private final UserRepository userRepository;
 
     @Transactional
@@ -68,14 +67,14 @@ public class UserService {
     @Transactional(readOnly = true)
     public AppAuthRequest.AccessTokenRequest getPlaygroundToken(UserInfo.Id userId) {
         val user = userRepository.findUserById(userId.getId())
-            .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_REFRESH_TOKEN.getMessage()));
+            .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_REFRESH_TOKEN));
         return new AccessTokenRequest(user.getPlaygroundToken());
     }
 
     @Transactional
     public void updatePlaygroundToken(UserInfo.Id userId, String playgroundToken) {
         val user = userRepository.findUserById(userId.getId())
-                .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_REFRESH_TOKEN.getMessage()));
+                .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_REFRESH_TOKEN));
         userRepository.save(
                 User.builder()
                         .id(user.getId())
@@ -88,7 +87,7 @@ public class UserService {
 
     public UserProfile getUserProfileOrElseThrow(Long userId) {
         val user = userRepository.findUserById(userId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
         return UserProfile.builder()
                         .userId(user.getId())
                         .name(user.getUsername())

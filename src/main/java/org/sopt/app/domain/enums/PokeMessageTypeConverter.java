@@ -12,7 +12,7 @@ public class PokeMessageTypeConverter implements AttributeConverter<PokeMessageT
     @Override
     public String convertToDatabaseColumn(PokeMessageType attribute) {
         if (Objects.isNull(attribute)) {
-            throw new BadRequestException(ErrorCode.POKE_MESSAGE_MUST_NOT_BE_NULL.getMessage());
+            throw new BadRequestException(ErrorCode.POKE_MESSAGE_MUST_NOT_BE_NULL);
         }
         return attribute.toString();
     }
@@ -20,7 +20,7 @@ public class PokeMessageTypeConverter implements AttributeConverter<PokeMessageT
     @Override
     public PokeMessageType convertToEntityAttribute(String dbData) {
         if (Objects.isNull(dbData) || dbData.isEmpty()) {
-            throw new BadRequestException(ErrorCode.POKE_MESSAGE_MUST_NOT_BE_NULL.getMessage());
+            throw new BadRequestException(ErrorCode.POKE_MESSAGE_MUST_NOT_BE_NULL);
         }
         return PokeMessageType.valueOf(dbData);
     }

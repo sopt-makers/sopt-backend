@@ -18,6 +18,7 @@ import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.AppToken;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.common.exception.UnauthorizedException;
+import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -83,9 +84,9 @@ public class JwtTokenService {
                 .getBody();
         return UserInfo.Id.builder().id(Long.parseLong(claims.getSubject())).build();
         } catch (ExpiredJwtException e) {
-            throw new UnauthorizedException("토큰이 만료되었습니다.");
+            throw new UnauthorizedException(ErrorCode.TOKEN_EXPIRED);
         } catch (Exception e) {
-            throw new UnauthorizedException("토큰이 유효하지 않습니다.");
+            throw new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN);
         }
     }
 

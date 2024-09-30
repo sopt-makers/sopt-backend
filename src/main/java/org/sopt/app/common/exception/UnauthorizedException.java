@@ -1,14 +1,14 @@
 package org.sopt.app.common.exception;
 
-import org.springframework.http.HttpStatus;
+import org.sopt.app.common.response.ErrorCode;
 
 public class UnauthorizedException extends BaseException {
 
     public UnauthorizedException() {
-        super(HttpStatus.UNAUTHORIZED);
+        super(ErrorCode.UNAUTHORIZED);
     }
 
-    public UnauthorizedException(String message) {
-        super(HttpStatus.UNAUTHORIZED, message);
+    public UnauthorizedException(ErrorCode errorCode) {
+        super(errorCode);
     }
 }
