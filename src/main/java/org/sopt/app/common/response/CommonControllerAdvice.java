@@ -1,7 +1,6 @@
 package org.sopt.app.common.response;
 
 import java.util.Arrays;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
@@ -20,20 +19,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class CommonControllerAdvice {
 
     @ExceptionHandler(value = BaseException.class)
-    public ResponseEntity onKnownException(HttpServletRequest req, BaseException baseException) {
-        final Long userId = getUserId();
-        val requestMethod = req.getMethod();
-        val requestUri = req.getRequestURI();
-        val baseExceptionMessage = baseException.getResponseMessage();
-        val baseExceptionStatusCode = baseException.getStatusCode();
-        final String message = getMessage(
-                baseException, userId, requestMethod, requestUri, baseExceptionMessage, baseExceptionStatusCode
-        );
-
-        SlackService.sendSlackMessage("Error", message);
-
-        return new ResponseEntity<>(CommonResponse.onFailure(baseExceptionStatusCode,
-                baseExceptionMessage), null, baseExceptionStatusCode);
+    public ResponseEntity<FailureResponse> onKnownException(BaseException baseException) {
+        SlackService.sendSlackMessage("Error", baseException.getMessage());
+        final ErrorCode errorCode = baseException.getErrorCode();
+        final FailureResponse response = FailureResponse.of(errorCode);
+        return new ResponseEntity<>(response,errorCode.getHttpStatus());
     }
 
     @NotNull

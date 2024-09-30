@@ -1,25 +1,19 @@
 package org.sopt.app.common.exception;
 
 import lombok.Getter;
-import org.springframework.http.HttpStatus;
+import org.sopt.app.common.response.ErrorCode;
 
 @Getter
 public class BaseException extends RuntimeException {
+    private final ErrorCode errorCode;
 
-    HttpStatus statusCode;
-    String responseMessage;
-
-    public BaseException() {
+    public BaseException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+        this.errorCode = errorCode;
     }
 
-    public BaseException(HttpStatus statusCode) {
-        super();
-        this.statusCode = statusCode;
-    }
-
-    public BaseException(HttpStatus statusCode, String responseMessage) {
-        super(responseMessage);
-        this.statusCode = statusCode;
-        this.responseMessage = responseMessage;
+    public BaseException(String message, ErrorCode errorCode) {
+        super(message);
+        this.errorCode = errorCode;
     }
 }
