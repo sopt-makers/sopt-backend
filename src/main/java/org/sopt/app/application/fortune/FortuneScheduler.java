@@ -8,7 +8,6 @@ import org.sopt.app.common.event.Events;
 import org.sopt.app.domain.enums.NotificationCategory;
 import org.sopt.app.domain.enums.NotificationType;
 import org.sopt.app.presentation.notification.NotificationRequest.RegisterNotificationRequest;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -16,8 +15,6 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class FortuneScheduler {
     private final NotificationService notificationService;
-    @Value("${app.base.url}")
-    private String baseUrl;
 
     @Scheduled(cron = "0 0 9 * * ?")
     public void runDailyFortuneCreation() {
@@ -35,7 +32,6 @@ public class FortuneScheduler {
                 .type(NotificationType.SEND_ALL)
                 .category(NotificationCategory.NEWS)
                 .deepLink("home/fortune")
-                .webLink("home/fortune")
                 .build();
     }
 }
