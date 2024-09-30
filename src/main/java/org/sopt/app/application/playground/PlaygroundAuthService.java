@@ -49,7 +49,7 @@ public class PlaygroundAuthService {
         try {
             return playgroundClient.getAccessToken(headers, codeRequest);
         } catch (Exception e) {
-            throw new BadRequestException(ErrorCode.INVALID_PLAYGROUND_CODE.getMessage());
+            throw new BadRequestException(ErrorCode.INVALID_PLAYGROUND_CODE);
         }
     }
 
@@ -58,9 +58,9 @@ public class PlaygroundAuthService {
         try {
             return playgroundClient.getPlaygroundMember(headers);
         } catch (ExpiredJwtException e) {
-            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
+            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN);
         } catch (Exception e) {
-            throw new BadRequestException(ErrorCode.PLAYGROUND_USER_NOT_EXISTS.getMessage());
+            throw new BadRequestException(ErrorCode.PLAYGROUND_USER_NOT_EXISTS);
         }
     }
 
@@ -71,7 +71,7 @@ public class PlaygroundAuthService {
         try {
             return playgroundClient.refreshPlaygroundToken(headers, tokenRequest);
         } catch (BadRequest | ExpiredJwtException badRequest) {
-            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
+            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN);
         }
     }
 
@@ -97,9 +97,9 @@ public class PlaygroundAuthService {
         try {
             return playgroundClient.getPlaygroundMemberProfiles(headers, playgroundId).get(0);
         } catch (BadRequest e) {
-            throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
+            throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS);
         } catch (ExpiredJwtException e) {
-            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
+            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN);
         }
     }
 
@@ -122,9 +122,9 @@ public class PlaygroundAuthService {
         try {
             return playgroundClient.getPlaygroundUserIds(requestHeader, currentGeneration);
         } catch (BadRequest e) {
-            throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
+            throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS);
         } catch (ExpiredJwtException e) {
-            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
+            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN);
         }
     }
 
@@ -137,9 +137,9 @@ public class PlaygroundAuthService {
             return playgroundClient.getPlaygroundMemberProfiles(requestHeader,
                     URLEncoder.encode(stringifyIds, StandardCharsets.UTF_8));
         } catch (BadRequest e) {
-            throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS.getMessage());
+            throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS);
         } catch (ExpiredJwtException e) {
-            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN.getMessage());
+            throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN);
         }
     }
 

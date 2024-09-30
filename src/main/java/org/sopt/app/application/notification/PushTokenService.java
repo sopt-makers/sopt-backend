@@ -46,7 +46,7 @@ public class PushTokenService {
     @Transactional(readOnly = true)
     public PushToken getDeviceToken(Long userId, String token) {
         return pushTokenRepository.findByUserIdAndToken(userId, token)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.PUSH_TOKEN_NOT_FOUND_FROM_LOCAL.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.PUSH_TOKEN_NOT_FOUND_FROM_LOCAL));
     }
 
     @Transactional(rollbackFor = BadRequestException.class)
@@ -68,9 +68,9 @@ public class PushTokenService {
                 return response.getBody();
             } catch (BadRequestException e) {
                 return PushTokenResponse.StatusResponse.builder()
-                        .status(e.getStatusCode().value())
+                        .status(e.getErrorCode().getHttpStatus().value())
                         .success(false)
-                        .message(e.getResponseMessage())
+                        .message(e.getErrorCode().getMessage())
                         .build();
             }
         }
@@ -95,9 +95,9 @@ public class PushTokenService {
             return response.getBody();
         } catch (BadRequestException e) {
             return PushTokenResponse.StatusResponse.builder()
-                    .status(e.getStatusCode().value())
+                    .status(e.getErrorCode().getHttpStatus().value())
                     .success(false)
-                    .message(e.getResponseMessage())
+                    .message(e.getErrorCode().getMessage())
                     .build();
         }
     }

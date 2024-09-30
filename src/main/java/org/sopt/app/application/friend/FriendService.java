@@ -94,7 +94,7 @@ public class FriendService {
 
     public void applyPokeCount(Long pokerId, Long pokedId) {
         Friend friendship = friendRepository.findByUserIdAndFriendUserId(pokerId, pokedId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND));
         friendship.addPokeCount();
     }
 
@@ -152,7 +152,7 @@ public class FriendService {
         val friends = friendRepository.findAllByUserIdAndFriendUserIdIn(userId, friendIdsPokeMe);
 
         if (friendIdsPokeMe.isEmpty() || friends.isEmpty()) {
-            throw new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND.getMessage());
+            throw new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND);
         }
 
         return friends.get(random.nextInt(friends.size())).getFriendUserId();

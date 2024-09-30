@@ -24,6 +24,6 @@ public enum Friendship {
         return Arrays.stream(values())
                 .filter(friendship -> friendship.getTypeFlag().equals(type))
                 .findFirst()
-                .orElseThrow(() -> new BadRequestException(ErrorCode.FRIENDSHIP_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.FRIENDSHIP_NOT_FOUND));
     }
 }

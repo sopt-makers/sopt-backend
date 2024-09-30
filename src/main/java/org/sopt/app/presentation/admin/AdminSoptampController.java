@@ -62,7 +62,7 @@ public class AdminSoptampController {
 
     private void validateAdmin(String password) {
         if (!password.equals(adminPassword)) {
-            throw new BadRequestException(ErrorCode.INVALID_APP_ADMIN_PASSWORD.getMessage());
+            throw new BadRequestException(ErrorCode.INVALID_APP_ADMIN_PASSWORD);
         }
     }
 }

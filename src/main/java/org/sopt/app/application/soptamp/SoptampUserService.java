@@ -21,14 +21,14 @@ public class SoptampUserService {
     @Transactional(readOnly = true)
     public SoptampUserInfo getSoptampUserInfo(Long userId) {
         SoptampUser user = soptampUserRepository.findByUserId(userId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         return SoptampUserInfo.of(user);
     }
 
     @Transactional
     public SoptampUserInfo editProfileMessage(Long userId, String profileMessage) {
         SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         soptampUser.updateProfileMessage(profileMessage);
         return SoptampUserInfo.of(soptampUser);
     }
@@ -55,21 +55,21 @@ public class SoptampUserService {
     @Transactional
     public void addPointByLevel(Long userId, Integer level) {
         SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         soptampUser.addPointsByLevel(level);
     }
 
     @Transactional
     public void subtractPointByLevel(Long userId, Integer level) {
         SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         soptampUser.subtractPointsByLevel(level);
     }
 
     @Transactional
     public void initPoint(Long userId) {
         SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         soptampUser.initTotalPoints();
         soptampUserRepository.save(soptampUser);
     }

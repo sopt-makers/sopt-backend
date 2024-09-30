@@ -27,6 +27,6 @@ public enum PokeMessageType {
         return Arrays.stream(values())
                 .filter(value -> value.parameter.equals(parameter))
                 .findFirst()
-                .orElseThrow(() -> new NotFoundException(ErrorCode.POKE_MESSAGE_TYPE_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.POKE_MESSAGE_TYPE_NOT_FOUND));
     }
 }

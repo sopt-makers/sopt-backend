@@ -31,10 +31,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     val authentication = jwtTokenService.getAuthentication(token);
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                 } catch (NotFoundException e) {
-                    throw new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN.getMessage());
+                    throw new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN);
                 }
             } else {
-                throw new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN.getMessage());
+                throw new UnauthorizedException(ErrorCode.INVALID_ACCESS_TOKEN);
             }
         }
         filterChain.doFilter(request, response);

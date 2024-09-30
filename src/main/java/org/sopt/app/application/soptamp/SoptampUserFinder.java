@@ -36,13 +36,13 @@ public class SoptampUserFinder {
     public SoptampUserInfo findSoptampUserByNickname(String nickname) {
         return SoptampUserInfo.of(
                 soptampUserRepository.findUserByNickname(nickname)
-                        .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()))
+                        .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND))
         );
     }
 
     public SoptampUserInfo findByNickname(String nickname) {
         SoptampUser soptampUser = soptampUserRepository.findUserByNickname(nickname)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         return SoptampUserInfo.of(soptampUser);
     }
 }

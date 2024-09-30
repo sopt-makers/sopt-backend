@@ -3,6 +3,7 @@ package org.sopt.app.application.fortune;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.fortune.UserFortune;
 import org.sopt.app.interfaces.postgres.fortune.FortuneCardRepository;
 import org.sopt.app.interfaces.postgres.fortune.FortuneWordRepository;
@@ -33,12 +34,12 @@ public class FortuneProvider {
 
         return fortuneWordRepository.findById(userFortune.getFortuneId())
                 .map(FortuneWordInfo::of)
-                .orElseThrow(() -> new BadRequestException("운세 ID에 해당하는 FortuneWord가 없습니다."));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.FORTUNE_NOT_FOUND));
     }
 
     public FortuneCardInfo getTodayFortuneCardByUserId(final Long userId) {
         return fortuneCardRepository.findByRelatedUserId(userId)
                 .map(FortuneCardInfo::of)
-                .orElseThrow(() -> new BadRequestException("유저에게 할당된 오늘의 운세가 없습니다."));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.FORTUNE_NOT_FOUND_FROM_USER));
     }
 }
