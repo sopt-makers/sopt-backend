@@ -1,27 +1,21 @@
 package org.sopt.app.application.poke;
 
+import jakarta.transaction.Transactional;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.sopt.app.common.utils.HttpHeadersUtils;
 import org.sopt.app.domain.enums.NotificationCategory;
 import org.sopt.app.presentation.poke.PokeRequest;
 import org.sopt.app.presentation.poke.PokeResponse;
-
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
-
-import jakarta.transaction.Transactional;
-import java.util.List;
-import java.util.UUID;
-
-import lombok.RequiredArgsConstructor;
-import lombok.val;
 
 @Component
 @RequiredArgsConstructor
@@ -52,8 +46,8 @@ public class PokeEventListener {
                 "home/poke/notification-list"
         );
     }
-    private ResponseEntity<PokeResponse.PokeAlarmStatusResponse> sendRequestToAlarmServer(HttpEntity requestEntity) {
-        return restTemplate.exchange(
+    private void sendRequestToAlarmServer(HttpEntity requestEntity) {
+        restTemplate.exchange(
                 baseURI,
                 HttpMethod.POST,
                 requestEntity,
