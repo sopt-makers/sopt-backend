@@ -5,32 +5,28 @@ import com.slack.api.model.Attachment;
 import com.slack.api.webhook.Payload;
 import java.util.List;
 import lombok.AccessLevel;
-import lombok.NoArgsConstructor;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
 @Slf4j
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@AllArgsConstructor(access = AccessLevel.PROTECTED)
+@RequiredArgsConstructor(access = AccessLevel.PROTECTED)
 public class SlackService {
 
     @Value("${webhook.slack.url}")
-    private static String SLACK_WEBHOOK_URL;
-
+    private String SLACK_WEBHOOK_URL;
     private static final Slack slackClient = Slack.getInstance();
 
-    public static void sendSlackMessage(String title, String message) {
-        try{
+    public void sendSlackMessage(List<Attachment> attachments) {
+        try {
             slackClient.send(SLACK_WEBHOOK_URL, Payload.builder()
-                    .text(title)
-                    .attachments(List.of(
-                        Attachment.builder()
-                                .color("#FF0000")
-                                .text(message)
-                                .build()
-                    ))
-                .build());
+                    .text("에러 알림")
+                    .attachments(attachments)
+                    .build());
         } catch (Exception e) {
             log.warn(e.getMessage());
         }
