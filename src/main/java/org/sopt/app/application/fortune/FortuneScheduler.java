@@ -2,6 +2,8 @@ package org.sopt.app.application.fortune;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.common.event.Events;
@@ -20,8 +22,11 @@ public class FortuneScheduler {
     public void runDailyFortuneCreation() {
         RegisterNotificationRequest registerNotificationRequest = createFortuneNotificationRequest();
         List<Long> playgroundIds = notificationService.registerNotification(registerNotificationRequest);
-        playgroundIds
-                .forEach(userId -> Events.raise(FortuneEvent.of(userId)));
+        try (ExecutorService executorService = Executors.newVirtualThreadPerTaskExecutor()) {
+            playgroundIds.forEach(userId ->
+                    executorService.submit(() -> Events.raise(FortuneEvent.of(userId)))
+            );
+        }
     }
 
     private RegisterNotificationRequest createFortuneNotificationRequest() {

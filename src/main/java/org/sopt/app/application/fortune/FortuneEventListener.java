@@ -1,17 +1,15 @@
 package org.sopt.app.application.fortune;
 
-import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.utils.HttpHeadersUtils;
 import org.sopt.app.domain.enums.NotificationCategory;
 import org.sopt.app.presentation.fortune.FortuneAlarmRequest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.context.event.EventListener;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 import org.springframework.web.client.RestTemplate;
 
 @Component
@@ -25,9 +23,7 @@ public class FortuneEventListener {
     @Value("${makers.push.server}")
     private String baseURI;
 
-    @Async
-    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @EventListener
     public void sendFortuneAlarm(FortuneEvent fortuneEvent) {
         HttpEntity<FortuneAlarmRequest> entity = new HttpEntity<>(
                 createBodyFor(fortuneEvent.getUserId()),
@@ -46,9 +42,9 @@ public class FortuneEventListener {
         );
     }
 
-    private ResponseEntity<FortuneAlarmRequest> sendRequestToAlarmServer(
+    private void sendRequestToAlarmServer(
             HttpEntity<FortuneAlarmRequest> requestEntity) {
-        return restTemplate.exchange(
+        restTemplate.exchange(
                 baseURI,
                 HttpMethod.POST,
                 requestEntity,
