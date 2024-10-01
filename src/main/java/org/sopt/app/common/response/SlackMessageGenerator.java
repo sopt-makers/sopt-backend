@@ -1,6 +1,9 @@
 package org.sopt.app.common.response;
 
 import com.slack.api.model.Attachment;
+import com.slack.api.model.Field;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import lombok.Getter;
 import org.springframework.stereotype.Service;
@@ -9,45 +12,36 @@ import org.springframework.stereotype.Service;
 @Service
 public class SlackMessageGenerator {
 
-    public static List<Attachment> generate(ExceptionWrapper exceptionWrapper, Long userId,String method, String requestUrl) {
-        // 예외 정보를 기반으로 Attachment 생성
-        Attachment exceptionClassAttachment = Attachment.builder()
-                .color("#FF0000") // 색상 설정 (빨간색)
-                .text("[ Exception Class ]: " + exceptionWrapper.getExceptionClassName())
-                .build();
-        Attachment exceptionUser = Attachment.builder()
+    public static List<Attachment> generate(ExceptionWrapper exceptionWrapper, Long userId, String method, String requestUrl) {
+        String requestTime = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss.SSS").format(LocalDateTime.now());
+        Attachment attachment = Attachment.builder()
                 .color("#FF0000")
-                .text("[ 유저 ID ]: " + userId)
+                .title(requestTime + " 발생 에러 로그")
+                .fields(List.of(
+                        generateSlackField("[ Exception Class ]", exceptionWrapper.getExceptionClassName()),
+                        generateSlackField("[ Exception Message ]", exceptionWrapper.getMessage())
+                ))
                 .build();
-        Attachment exceptionMethodAttachment = Attachment.builder()
-                .color("#FF0000")
-                .text("[ Exception Method ]: " + exceptionWrapper.getExceptionMethodName())
+        Attachment attachmentOther = Attachment.builder()
+                .color("#FFFF00")
+                .title("로그 첨부사항")
+                .fields(List.of(
+                        generateSlackField("[ 유저 ID ]", String.valueOf(userId)),
+                        generateSlackField("[ 메소드 타입 ]", method),
+                        generateSlackField("[ 요청 URL ]", requestUrl),
+                        generateSlackField("[ Exception Method ]", exceptionWrapper.getExceptionMethodName()),
+                        generateSlackField("[ Exception Line Number ]", String.valueOf(exceptionWrapper.getExceptionLineNumber()))
+                ))
                 .build();
-        Attachment exceptionLineNumberAttachment = Attachment.builder()
-                .color("#FF0000")
-                .text("[ Exception Line Number ]: " + exceptionWrapper.getExceptionLineNumber())
-                .build();
-        Attachment exceptionMessageAttachment = Attachment.builder()
-                .color("#FF0000")
-                .text("[ Exception Message ] : " + exceptionWrapper.getMessage())
-                .build();
-        Attachment excpetionMethodType = Attachment.builder()
-                .color("#FF0000")
-                .text("[ 메소드 타입 ] : " +method)
-                .build();
-        Attachment exceptionUrl = Attachment.builder()
-                .color("#FF0000")
-                .text("[ 요청 Url ] : " +requestUrl)
-                .build();
+        return List.of(attachment,attachmentOther);
+    }
 
-        return java.util.List.of(
-                exceptionClassAttachment,
-                exceptionUser,
-                exceptionMethodAttachment,
-                exceptionLineNumberAttachment,
-                exceptionMessageAttachment,
-                excpetionMethodType,
-                exceptionUrl
-        );
+    // Field 생성 메서드
+    private static Field generateSlackField(String title, String value) {
+        return Field.builder()
+                .title(title)
+                .value(value)
+                .valueShortEnough(false)
+                .build();
     }
 }

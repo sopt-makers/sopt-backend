@@ -28,7 +28,7 @@ public class SlackService {
                     .attachments(attachments)
                     .build());
         } catch (Exception e) {
-            log.warn(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 }
