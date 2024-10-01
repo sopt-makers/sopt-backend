@@ -8,6 +8,8 @@ import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.sopt.app.common.exception.BaseException;
+import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +31,7 @@ public class SlackService {
                     .build());
         } catch (Exception e) {
             log.error(e.getMessage());
+            throw new BaseException(ErrorCode.SLACK_ERROR);
         }
     }
 }
