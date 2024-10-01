@@ -5,7 +5,7 @@ on:
     branches: [ 'dev' ]
 
 env:
-  RESOURCE_PATH: ./src/main/resources/application-local.yml
+  RESOURCE_PATH: ./src/main/resources/application.yml
 
 jobs:
   build:
@@ -29,14 +29,14 @@ jobs:
 
       - name: mkdir resources folder
         run: |
-          touch ./src/main/resources/application-local.yml
+          touch ./src/main/resources/application.yml
           touch ./src/test/resources/application-test.yml
 
         shell: bash
 
       - name: copy yml file
         run: |
-          echo "${{ secrets.APPLICATION_LOCAL_YML }}" > ./src/main/resources/application-local.yml
+          echo "${{ secrets.APPLICATION_LOCAL_YML }}" > ./src/main/resources/application.yml
           echo "${{ secrets.APPLICATION_LOCAL_YML }}" > ./src/test/resources/application-test.yml
 
       - name: Grant execute permission for gradlew
