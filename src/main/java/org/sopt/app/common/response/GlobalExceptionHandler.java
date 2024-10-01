@@ -17,6 +17,8 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 @Slf4j
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    @SlackLogger
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<FailureResponse> handleValidationExceptions(MethodArgumentNotValidException e) {
         final BindingResult bindingResult = e.getBindingResult();
@@ -25,6 +27,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
     @ExceptionHandler(BindException.class)
+    @SlackLogger
     protected ResponseEntity<FailureResponse> handleBindException(final BindException e) {
         log.error(">>> handle: BindException ", e);
         final FailureResponse response = FailureResponse.of(ErrorCode.INVALID_PARAMETER,e.getBindingResult());
@@ -32,6 +35,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    @SlackLogger
     public ResponseEntity<FailureResponse> handleTypeMismatch(MethodArgumentTypeMismatchException e) {
         final String value = e.getValue() == null ? "" : e.getValue().toString();
         final List<FieldError> errors = FailureResponse.FieldError.of(e.getName(), value, e.getErrorCode());
@@ -39,6 +43,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    @SlackLogger
     protected ResponseEntity<FailureResponse> handleHttpRequestMethodNotSupportedException(final HttpRequestMethodNotSupportedException e) {
         log.error(">>> handle: HttpRequestMethodNotSupportedException ", e);
         final FailureResponse response = FailureResponse.of(ErrorCode.INVALID_METHOD);
@@ -46,6 +51,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
+    @SlackLogger
     protected ResponseEntity<FailureResponse> handleException(final Exception e) {
         log.error(">>> handle: Exception ", e);
         String errorMessage = e.getMessage() != null ? e.getMessage() : "Internal Server Error";
@@ -55,6 +61,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(RedisConnectionException.class)
+    @SlackLogger
     protected ResponseEntity<FailureResponse> handleRedisConnectionException(final RedisConnectionException e) {
         log.error(">>> handle: RedisConnectionException ", e);
         String errorMessage = "Redis connection error: " + e.getMessage();
