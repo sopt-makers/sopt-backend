@@ -8,7 +8,6 @@ import org.sopt.app.domain.entity.fortune.QFortuneCard;
 import org.sopt.app.domain.entity.fortune.QFortuneWord;
 import org.sopt.app.domain.entity.fortune.QUserFortune;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 @Repository
 @RequiredArgsConstructor
@@ -26,7 +25,7 @@ public class FortuneCardRepositoryImpl implements FortuneCardRepository {
                 queryFactory.select(fortuneCard)
                         .from(userFortune)
                         .join(fortuneWord)
-                        .on(userFortune.fortuneId.eq(fortuneWord.id))
+                        .on(userFortune.fortuneWordId.eq(fortuneWord.id))
                         .join(fortuneCard)
                         .on(fortuneWord.fortuneCardId.eq(fortuneCard.id))
                         .where(userFortune.userId.eq(userId))
