@@ -13,28 +13,43 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-public class FortuneProvider {
+public class FortuneService {
 
     private final FortuneCardRepository fortuneCardRepository;
     private final FortuneWordRepository fortuneWordRepository;
     private final UserFortuneRepository userFortuneRepository;
-    private final FortuneGenerator fortuneGenerator;
+    private final FortuneWordIdGenerator fortuneWordIdGenerator;
 
     @Transactional
     public FortuneWordInfo getTodayFortuneWordByUserId(final Long userId, final LocalDate todayDate) {
-        UserFortune userFortune = userFortuneRepository.findByUserId(userId)
-                .orElseGet(() -> {
-                    UserFortune generatedUserFortune = fortuneGenerator.generateNewUserFortune(userId, todayDate);
-                    return userFortuneRepository.save(generatedUserFortune);
-                });
+        UserFortune userFortune = this.getTodayUserFortune(userId, todayDate);
 
-        if(!userFortune.getCheckedAt().equals(todayDate)) {
-            fortuneGenerator.updateTodayUserFortune(userFortune, todayDate);
-        }
-
-        return fortuneWordRepository.findById(userFortune.getFortuneId())
+        return fortuneWordRepository.findById(userFortune.getFortuneWordId())
                 .map(FortuneWordInfo::of)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.FORTUNE_NOT_FOUND));
+    }
+
+    private UserFortune getTodayUserFortune(final Long userId, final LocalDate todayDate) {
+        return userFortuneRepository.findByUserId(userId)
+                .map(userFortune -> validate(userFortune, todayDate))
+                .orElseGet(() -> createNewUserFortune(userId, todayDate));
+    }
+
+    private UserFortune validate(UserFortune userFortune, LocalDate todayDate) {
+        if (!userFortune.getCheckedAt().equals(todayDate)) {
+            userFortune.updateTodayFortune(fortuneWordIdGenerator.generateRandomFortuneWordId(), todayDate);
+        }
+        return userFortune;
+    }
+
+    private UserFortune createNewUserFortune(Long userId, LocalDate todayDate) {
+        return userFortuneRepository.save(
+                UserFortune.builder()
+                        .userId(userId)
+                        .checkedAt(todayDate)
+                        .fortuneWordId(fortuneWordIdGenerator.generateRandomFortuneWordId())
+                        .build()
+        );
     }
 
     public FortuneCardInfo getTodayFortuneCardByUserId(final Long userId) {
