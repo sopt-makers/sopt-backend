@@ -28,7 +28,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("SUCCESS_등록된 유저가 없으면 플레이그라운드 아이디로 회원가입")
-    void SUCCESS_loginWithUserPlaygroundIdWithNoRegisteredUser() {
+    void SUCCESS_upsertNoRegisteredUser() {
         //given
         final Long anyUserId = anyLong();
         PlaygroundMain playgroundMemberResponse = PlaygroundMain.builder().id(anyUserId).build();
@@ -38,7 +38,7 @@ class UserServiceTest {
         when(userRepository.save(any(User.class))).thenReturn(User.builder().id(playgroundMemberResponse.getId()).build());
 
         Long expected = playgroundMemberResponse.getId();
-        Long result = userService.loginWithUserPlaygroundId(playgroundMemberResponse);
+        Long result = userService.upsertUser(playgroundMemberResponse);
 
         //then
         Assertions.assertEquals(expected, result);
@@ -46,7 +46,7 @@ class UserServiceTest {
 
     @Test
     @DisplayName("SUCCESS_등록된 유저가 있으면 플레이그라운드 아이디로 로그인")
-    void SUCCESS_loginWithUserPlaygroundIdWithRegisteredUser() {
+    void SUCCESS_upsertRegisteredUser() {
         //given
         final Long anyUserId = anyLong();
         PlaygroundMain playgroundMemberResponse = PlaygroundMain.builder().id(anyUserId).build();
@@ -57,7 +57,7 @@ class UserServiceTest {
         when(userRepository.findUserByPlaygroundId(anyUserId)).thenReturn(Optional.of(registeredUser));
         when(userRepository.save(any(User.class))).thenReturn(registeredUser);
 
-        Long result = userService.loginWithUserPlaygroundId(playgroundMemberResponse);
+        Long result = userService.upsertUser(playgroundMemberResponse);
 
         //then
         Assertions.assertEquals(anyUserId, result);
