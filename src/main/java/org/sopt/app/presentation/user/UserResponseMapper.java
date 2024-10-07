@@ -8,7 +8,6 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.operation.OperationInfo;
 import org.sopt.app.application.app_service.AppServiceInfo;
 import org.sopt.app.application.user.UserInfo;
-import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.user.UserResponse.AppService;
 
 @Mapper(
@@ -17,8 +16,6 @@ import org.sopt.app.presentation.user.UserResponse.AppService;
         unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface UserResponseMapper {
-
-    UserResponse.AppUser ofAppUser(User user);
 
     UserResponse.MainView ofMainView(PlaygroundProfileInfo.MainView user, OperationInfo.MainView operation,
             Boolean isAllConfirm);

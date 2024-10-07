@@ -28,18 +28,6 @@ public class UserController {
 
     private final SoptampUserService soptampUserService;
     private final SoptampFacade soptampFacade;
-    private final UserResponseMapper userResponseMapper;
-
-    @Operation(summary = "유저 정보 조회")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping(value = "")
-    public ResponseEntity<UserResponse.AppUser> getUserInfo(@AuthenticationPrincipal User user) {
-        val response = userResponseMapper.ofAppUser(user);
-        return ResponseEntity.ok(response);
-    }
 
     @Operation(summary = "솝탬프 정보 조회")
     @ApiResponses({
