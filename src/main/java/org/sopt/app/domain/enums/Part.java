@@ -22,4 +22,8 @@ public enum Part {
                  .sorted(Comparator.comparing(Part::getPartOrder))
                  .toList();
     }
+
+    public static List<Part> getPartsByReturnOrder() {
+        return List.of(Part.PLAN, Part.DESIGN, Part.WEB, Part.IOS, Part.ANDROID, Part.SERVER);
+    }
 }
