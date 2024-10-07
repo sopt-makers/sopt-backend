@@ -53,20 +53,6 @@ public class StampController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "스탬프 수정하기 - DEPRECATED")
-    @PutMapping("/{missionId}")
-    public ResponseEntity<StampResponse.StampId> editStampDeprecated(
-            @AuthenticationPrincipal User user,
-            @PathVariable Long missionId,
-            @RequestPart(value = "stampContent", required = false) StampRequest.EditStampRequest editStampRequest,
-            @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
-    ) {
-        val stamp = soptampFacade.editStamp(editStampRequest, user.getId(), missionId, multipartFiles);
-        val response = stampResponseMapper.of(stamp.getId());
-        return ResponseEntity.ok(response);
-    }
-
-
     @Operation(summary = "스탬프 등록하기")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
