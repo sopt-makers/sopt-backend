@@ -20,7 +20,7 @@ public enum PlaygroundPart {
 
     public static PlaygroundPart findPlaygroundPart(String partName) {
         return Arrays.stream(PlaygroundPart.values())
-                .filter(playgroundPart -> playgroundPart.partName.equals(partName))
+                .filter(playgroundPart -> playgroundPart.soptampNickname.equals(partName))
                 .findAny()
                 .orElse(PlaygroundPart.NONE);
     }

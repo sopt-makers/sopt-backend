@@ -40,7 +40,7 @@ public class AppAuthController {
     public ResponseEntity<AppAuthResponse> refreshToken(
             @Valid @RequestBody AppAuthRequest.RefreshRequest refreshRequest
     ) {
-        val response = authFacade.getRefreshToken(refreshRequest);
+        val response = authFacade.getRefreshToken(refreshRequest.getRefreshToken());
         return ResponseEntity.ok(response);
     }
 }
