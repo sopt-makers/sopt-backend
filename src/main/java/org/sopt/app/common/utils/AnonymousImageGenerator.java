@@ -1,20 +1,17 @@
 package org.sopt.app.common.utils;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
+import lombok.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AnonymousImageGenerator {
 
+    @Value("${cloud.aws.s3.uri}")
     private static String uri;
 
-    public static String getImageUrl(Boolean isAnonymous) {
+    public static String getImageUrl(boolean isAnonymous) {
         return isAnonymous ? uri + "anonymous.png" : "";
-    }
-
-    @Autowired
-    private void setBucket(Environment env) {
-        uri = env.getProperty("cloud.aws.s3.uri");
     }
 }
