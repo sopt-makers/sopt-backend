@@ -7,18 +7,13 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
-import org.sopt.app.application.user.UserInfo;
-import org.sopt.app.application.user.UserService;
-import org.sopt.app.common.exception.NotFoundException;
-import org.sopt.app.common.exception.UnauthorizedException;
+import org.sopt.app.application.user.*;
+import org.sopt.app.common.exception.*;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
 
@@ -42,11 +37,11 @@ class UserServiceTest {
         when(userRepository.findUserByPlaygroundId(anyUserId)).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenReturn(User.builder().id(playgroundMemberResponse.getId()).build());
 
-        UserInfo.Id expected = UserInfo.Id.builder().id(playgroundMemberResponse.getId()).build();
-        UserInfo.Id result = userService.loginWithUserPlaygroundId(playgroundMemberResponse);
+        Long expected = playgroundMemberResponse.getId();
+        Long result = userService.loginWithUserPlaygroundId(playgroundMemberResponse);
 
         //then
-        Assertions.assertEquals(expected.getId(), result.getId());
+        Assertions.assertEquals(expected, result);
     }
 
     @Test
@@ -62,11 +57,10 @@ class UserServiceTest {
         when(userRepository.findUserByPlaygroundId(anyUserId)).thenReturn(Optional.of(registeredUser));
         when(userRepository.save(any(User.class))).thenReturn(registeredUser);
 
-        UserInfo.Id expected = UserInfo.Id.builder().id(anyUserId).build();
-        UserInfo.Id result = userService.loginWithUserPlaygroundId(playgroundMemberResponse);
+        Long result = userService.loginWithUserPlaygroundId(playgroundMemberResponse);
 
         //then
-        Assertions.assertEquals(expected.getId(), result.getId());
+        Assertions.assertEquals(anyUserId, result);
     }
 
     @Test
@@ -85,14 +79,13 @@ class UserServiceTest {
         //given
         final Long anyUserId = anyLong();
         final String playgroundToken = "token";
-        final UserInfo.Id userId = UserInfo.Id.builder().id(anyUserId).build();
         User user = User.builder().id(anyUserId).playgroundToken(playgroundToken).build();
 
         //when
         when(userRepository.findUserById(anyUserId)).thenReturn(Optional.of(user));
 
         //then
-        Assertions.assertEquals(playgroundToken, userService.getPlaygroundToken(userId).getAccessToken());
+        Assertions.assertEquals(playgroundToken, userService.getPlaygroundToken(anyUserId).getAccessToken());
     }
 
     @Test
@@ -100,13 +93,12 @@ class UserServiceTest {
     void FAIL_getPlaygroundToken() {
         //given
         final Long anyUserId = anyLong();
-        final UserInfo.Id userId = UserInfo.Id.builder().id(anyUserId).build();
 
         //when
         when(userRepository.findUserById(anyUserId)).thenReturn(Optional.empty());
 
         //then
-        Assertions.assertThrows(UnauthorizedException.class, () -> userService.getPlaygroundToken(userId));
+        Assertions.assertThrows(UnauthorizedException.class, () -> userService.getPlaygroundToken(anyUserId));
     }
 
 
@@ -115,7 +107,6 @@ class UserServiceTest {
     void SUCCESS_updatePlaygroundToken() {
         //given
         final Long anyUserId = anyLong();
-        final UserInfo.Id userId = UserInfo.Id.builder().id(anyUserId).build();
         final String playgroundToken = "newToken";
 
         //when
@@ -123,7 +114,7 @@ class UserServiceTest {
         when(userRepository.save(any(User.class))).thenReturn(User.builder().id(anyUserId).playgroundToken(playgroundToken).build());
 
         //then
-        Assertions.assertDoesNotThrow(() -> userService.updatePlaygroundToken(userId, playgroundToken));
+        Assertions.assertDoesNotThrow(() -> userService.updatePlaygroundToken(anyUserId, playgroundToken));
     }
 
     @Test
@@ -131,14 +122,14 @@ class UserServiceTest {
     void FAIL_updatePlaygroundToken() {
         //given
         final Long anyUserId = anyLong();
-        final UserInfo.Id userId = UserInfo.Id.builder().id(anyUserId).build();
+
         final String playgroundToken = "newToken";
 
         //when
         when(userRepository.findUserById(anyUserId)).thenReturn(Optional.empty());
 
         //then
-        Assertions.assertThrows(UnauthorizedException.class, () -> userService.updatePlaygroundToken(userId, playgroundToken));
+        Assertions.assertThrows(UnauthorizedException.class, () -> userService.updatePlaygroundToken(anyUserId, playgroundToken));
     }
 
     @Test
@@ -155,8 +146,8 @@ class UserServiceTest {
         //when
         when(userRepository.findUserById(anyUserId)).thenReturn(Optional.of(user));
 
-        UserInfo.UserProfile result = userService.getUserProfileOrElseThrow(anyUserId);
-        UserInfo.UserProfile expected = UserInfo.UserProfile.builder().userId(anyUserId).name(username)
+        UserProfile result = userService.getUserProfileOrElseThrow(anyUserId);
+        UserProfile expected = UserProfile.builder().userId(anyUserId).name(username)
                 .playgroundId(playgroundId).build();
 
         //then
@@ -188,40 +179,15 @@ class UserServiceTest {
         //when
         when(userRepository.findAllByPlaygroundIdIn(playgroundIds)).thenReturn(users);
 
-        List<UserInfo.UserProfile> result = userService.getUserProfilesByPlaygroundIds(playgroundIds);
-        List<UserInfo.UserProfile> expected = List.of(
-                UserInfo.UserProfile.builder().userId(user1.getId()).name(user1.getUsername()).playgroundId(
+        List<UserProfile> result = userService.getUserProfilesByPlaygroundIds(playgroundIds);
+        List<UserProfile> expected = List.of(
+                UserProfile.builder().userId(user1.getId()).name(user1.getUsername()).playgroundId(
                         user1.getPlaygroundId()).build(),
-                UserInfo.UserProfile.builder().userId(user2.getId()).name(user2.getUsername()).playgroundId(
+                UserProfile.builder().userId(user2.getId()).name(user2.getUsername()).playgroundId(
                         user2.getPlaygroundId()).build()
         );
 
         //then
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
-    }
-
-    @Test
-    @DisplayName("SUCCESS_유저 아이디로 유저 프로필 조회")
-    void SUCCESS_getUserProfilesByUserIdsOrElseThrow() {
-        //given
-        final List<Long> userIds = List.of(1L, 2L);
-        final User user1 = User.builder().id(1L).username("user1").playgroundId(1L).build();
-        final User user2 = User.builder().id(2L).username("user2").playgroundId(2L).build();
-        final List<User> users = List.of(user1, user2);
-
-        //when
-        when(userRepository.findAllByIdIn(userIds)).thenReturn(users);
-
-        List<UserInfo.UserProfile> result = userService.getUserProfilesByUserIds(userIds);
-        List<UserInfo.UserProfile> expected = List.of(
-                UserInfo.UserProfile.builder().userId(user1.getId()).name(user1.getUsername()).playgroundId(
-                        user1.getPlaygroundId()).build(),
-                UserInfo.UserProfile.builder().userId(user2.getId()).name(user2.getUsername()).playgroundId(
-                        user2.getPlaygroundId()).build()
-        );
-
-        //then
-        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
-
     }
 }

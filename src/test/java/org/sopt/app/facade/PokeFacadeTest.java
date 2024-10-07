@@ -16,7 +16,7 @@ import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.friend.FriendService;
 import org.sopt.app.application.poke.*;
 import org.sopt.app.application.poke.PokeInfo.*;
-import org.sopt.app.application.user.UserInfo.UserProfile;
+import org.sopt.app.application.user.UserProfile;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.*;
 import org.sopt.app.domain.entity.Friend;

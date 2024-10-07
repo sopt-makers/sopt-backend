@@ -7,7 +7,7 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygrou
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundActivity;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfileOfRecommendedFriend;
-import org.sopt.app.application.user.UserInfo.UserProfile;
+import org.sopt.app.application.user.UserProfile;
 
 public class PokeFixture {
 

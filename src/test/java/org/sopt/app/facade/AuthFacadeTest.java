@@ -16,20 +16,16 @@ import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.soptamp.SoptampUserService;
-import org.sopt.app.application.user.UserInfo.Id;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
 import org.sopt.app.presentation.auth.AppAuthRequest.CodeRequest;
 import org.sopt.app.presentation.auth.AppAuthRequest.RefreshRequest;
-import org.sopt.app.presentation.auth.AppAuthResponse.Token;
-import org.sopt.app.presentation.auth.AppAuthResponseMapper;
+import org.sopt.app.presentation.auth.AppAuthResponse;
 
 @ExtendWith(MockitoExtension.class)
 class AuthFacadeTest {
 
-    @Mock
-    private AppAuthResponseMapper appAuthResponseMapper;
     @Mock
     private JwtTokenService jwtTokenService;
     @Mock
@@ -49,23 +45,20 @@ class AuthFacadeTest {
         AccessTokenRequest accessTokenRequest = new AccessTokenRequest("accessToken");
         RefreshedToken refreshedToken = RefreshedToken.builder().accessToken("refreshedToken").build();
         PlaygroundMain playgroundMain = PlaygroundMain.builder().name("name").status(UserStatus.ACTIVE).build();
-        Id userId = Id.builder().id(21L).build();
+        Long userId = 21L;
         Long soptampUserId = 5L;
         AppToken appToken = AppToken.builder().accessToken("appAccessToken").refreshToken("appRefreshToken").build();
-        Token token = new Token("appAccessToken", "appRefreshToken", null, null);
 
         when(playgroundAuthService.getPlaygroundAccessToken(codeRequest)).thenReturn(accessTokenRequest);
         when(playgroundAuthService.refreshPlaygroundToken(accessTokenRequest)).thenReturn(refreshedToken);
         when(playgroundAuthService.getPlaygroundInfo(refreshedToken.getAccessToken()))
                 .thenReturn(playgroundMain);
         when(userService.loginWithUserPlaygroundId(playgroundMain)).thenReturn(userId);
-        when(soptampUserService.createSoptampUser(playgroundMain.getName(), userId.getId()))
+        when(soptampUserService.createSoptampUser(playgroundMain.getName(), userId))
                 .thenReturn(soptampUserId);
         when(jwtTokenService.issueNewTokens(userId, playgroundMain)).thenReturn(appToken);
-        when(appAuthResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(),
-                playgroundMain.getAccessToken(), playgroundMain.getStatus())).thenReturn(token);
 
-        Token result = authFacade.loginWithPlayground(codeRequest);
+        AppAuthResponse result = authFacade.loginWithPlayground(codeRequest);
         Assertions.assertEquals(appToken.getAccessToken(), result.getAccessToken());
         Assertions.assertEquals(appToken.getRefreshToken(), result.getRefreshToken());
     }
@@ -77,10 +70,9 @@ class AuthFacadeTest {
         AccessTokenRequest accessTokenRequest = new AccessTokenRequest("accessToken");
         RefreshedToken refreshedToken = RefreshedToken.builder().accessToken("refreshedToken").build();
         PlaygroundMain playgroundMain = PlaygroundMain.builder().accessToken("accessToken").status(UserStatus.ACTIVE).build();
-        Id userId = Id.builder().id(21L).build();
+        Long userId = 21L;
         AppToken newAppToken = AppToken.builder().accessToken("newAppAccessToken").refreshToken("newAppRefreshToken")
                 .build();
-        Token token = new Token("newAppAccessToken", "newAppRefreshToken", null, null);
 
         when(jwtTokenService.getUserIdFromJwtToken(refreshRequest.getRefreshToken())).thenReturn(userId);
         when(userService.getPlaygroundToken(userId)).thenReturn(accessTokenRequest);
@@ -89,10 +81,9 @@ class AuthFacadeTest {
                 .thenReturn(playgroundMain);
         doNothing().when(userService).updatePlaygroundToken(userId, refreshedToken.getAccessToken());
         when(jwtTokenService.issueNewTokens(userId, playgroundMain)).thenReturn(newAppToken);
-        when(appAuthResponseMapper.of(newAppToken.getAccessToken(), newAppToken.getRefreshToken(),
-                refreshedToken.getAccessToken(), playgroundMain.getStatus())).thenReturn(token);
 
-        Token result = authFacade.getRefreshToken(refreshRequest);
+
+        AppAuthResponse result = authFacade.getRefreshToken(refreshRequest);
         Assertions.assertEquals(newAppToken.getAccessToken(), result.getAccessToken());
         Assertions.assertEquals(newAppToken.getRefreshToken(), result.getRefreshToken());
     }
