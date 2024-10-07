@@ -2,11 +2,7 @@ package org.sopt.app.domain.entity.poke;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.sopt.app.domain.entity.BaseEntity;
 import org.sopt.app.domain.enums.PokeMessageType;
 import org.sopt.app.domain.enums.PokeMessageTypeConverter;

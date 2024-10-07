@@ -2,25 +2,12 @@ package org.sopt.app.presentation.poke;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.sopt.app.application.poke.PokeInfo.PokeDetail;
-import org.sopt.app.application.poke.PokeInfo.PokedUserInfo;
+import lombok.*;
+import org.sopt.app.application.poke.PokeInfo.*;
 import org.sopt.app.domain.enums.FriendRecommendType;
 import org.sopt.app.common.utils.AnonymousImageGenerator;
 
 public class PokeResponse {
-
-    @Getter
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
-    public static class RandomInfoList {
-
-        private List<RandomInfo> randomInfoList;
-    }
 
     @Getter
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
@@ -269,30 +256,6 @@ public class PokeResponse {
         public static Friend of(Long friendId, Long playgroundId, String friendName, String friendProfileImage,
                 List<SimplePokeProfile> friendList) {
             return new Friend(friendId, playgroundId, friendName, friendProfileImage == null ? "" : friendProfileImage, friendList);
-        }
-    }
-
-    @Getter
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class PokeProfile {
-
-        @Schema(description = "유저 ID", example = "1")
-        private Long userId;
-        @Schema(description = "프로필 사진 URL", example = ".....")
-        private String profileImage;
-        @Schema(description = "유저 이름", example = "다혜다해")
-        private String name;
-        @Schema(description = "기수", example = "29")
-        private Long generation;
-        @Schema(description = "파트", example = "안드로이드")
-        private String part;
-        @Schema(description = "이미 오늘 찔렀는지에 대한 여부", example = "true")
-        private Boolean isAlreadyPoked;
-
-        public static PokeProfile of(
-                Long userId, String profileImage, String name, Long generation, String part, Boolean isAlreadyPoked
-        ) {
-            return new PokeProfile(userId, profileImage == null ? "" : profileImage, name, generation, part, isAlreadyPoked);
         }
     }
 

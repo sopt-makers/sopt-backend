@@ -13,15 +13,6 @@ public class AppAuthResponse {
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
-    public static class LoginResponse {
-
-        private Long userId;
-        private String profileMessage;
-    }
-
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class Token {
 
         @Schema(description = "앱 서버 AccessToken", example = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyMiIsImV4cCI6MTY4MDAxNDQzNn0.asdfasdfasdfasdfasdfasdf")

@@ -3,6 +3,7 @@ package org.sopt.app.presentation.notification;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PushTokenResponse {
 
     @Getter
@@ -21,17 +22,4 @@ public class PushTokenResponse {
         @Schema(description = "알림 서버 Response Message", example = "토큰 해지 성공")
         private String message;
     }
-
-    /**
-     * Register & Update & Delete API 에 대해서 모든 Response 형식 동일
-     */
-//    @Getter
-//    @Builder
-//    @ToString
-//    public static class TokenResponse {
-//
-//        private Long userId;
-//
-//        private String pushToken;
-//    }
 }

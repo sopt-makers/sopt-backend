@@ -16,9 +16,6 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
     @Query("SELECT f.friendUserId FROM Friend f WHERE f.userId = :userId")
     Set<Long> findAllOfFriendIdsByUserId(@Param("userId") Long userId);
 
-    @Query("SELECT f.userId FROM Friend f WHERE f.friendUserId = :friendId")
-    List<Long> findAllIfUserIdsByFriendId(Long friendId);
-
     List<Friend> findAllByFriendUserId(Long friendUserId);
 
     List<Friend> findAllByUserId(Long userId);

@@ -164,9 +164,9 @@ public class PokeFacade {
             return NEW_FRIEND_NO_MUTUAL;
         }
         if (mutualFriendNames.size() == 1) {
-            return String.format(NEW_FRIEND_ONE_MUTUAL, mutualFriendNames.get(0));
+            return String.format(NEW_FRIEND_ONE_MUTUAL, mutualFriendNames.getFirst());
         } else {
-            return String.format(NEW_FRIEND_MANY_MUTUAL, mutualFriendNames.get(0), mutualFriendNames.size() - 1);
+            return String.format(NEW_FRIEND_MANY_MUTUAL, mutualFriendNames.getFirst(), mutualFriendNames.size() - 1);
         }
     }
 
