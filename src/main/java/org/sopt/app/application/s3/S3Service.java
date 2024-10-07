@@ -1,13 +1,11 @@
 package org.sopt.app.application.s3;
 
 import com.amazonaws.*;
-import com.amazonaws.auth.*;
 import com.amazonaws.services.s3.*;
 import java.io.*;
 import java.net.*;
 import java.util.*;
 import lombok.*;
-import jakarta.annotation.PostConstruct;
 import org.joda.time.LocalDateTime;
 import org.slf4j.LoggerFactory;
 import org.sopt.app.common.exception.BadRequestException;
@@ -20,34 +18,13 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class S3Service {
 
-    @Value("${cloud.aws.credentials.access-key}")
-    private String accessKey;
-
-    @Value("${cloud.aws.credentials.secret-key}")
-    private String secretKey;
-
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
-
-    @Value("${cloud.aws.region.static}")
-    private String region;
 
     @Value("${cloud.aws.s3.uri}")
     private String baseURI;
 
-    private AmazonS3 amazonS3;
-
-
-    @PostConstruct
-    public AmazonS3 getAmazonS3() {
-        val awsCredentials = new BasicAWSCredentials(accessKey, secretKey);
-        AmazonS3 amazonS3 =  AmazonS3ClientBuilder.standard()
-                .withRegion(region)
-                .withCredentials(new AWSStaticCredentialsProvider(awsCredentials))
-                .build();
-        this.amazonS3 = amazonS3;
-        return amazonS3;
-    }
+    private final AmazonS3 amazonS3;
 
     public S3Info.PreSignedUrl getPreSignedUrl(String folderName) {
         val now = LocalDateTime.now();
