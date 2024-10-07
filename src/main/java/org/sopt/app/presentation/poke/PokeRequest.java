@@ -22,7 +22,7 @@ public class PokeRequest {
     }
 
     @Getter
-    @Builder
+    @Builder(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class PokeAlarmRequest {
 
