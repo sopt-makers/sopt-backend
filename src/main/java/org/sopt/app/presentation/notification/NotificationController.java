@@ -111,31 +111,6 @@ public class NotificationController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "알림 목록 조회 - DEPRECATED")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping(value = "")
-    @Deprecated
-    public ResponseEntity<List<NotificationResponse.NotificationSimpleDeprecated>> findNotificationListDeprecated(
-            @AuthenticationPrincipal User user,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
-        val result = notificationService.findNotificationList(user, pageable);
-        return ResponseEntity.ok(
-                result.stream()
-                        .map(notification -> NotificationResponse.NotificationSimpleDeprecated.of(
-                                notification.getId()
-                                , notification.getUserId()
-                                , notification.getTitle()
-                                , notification.getContent()
-                                , notification.getCategory().name()
-                                , notification.getIsRead()
-                                , notification.getCreatedAt()
-                        )).toList());
-    }
-
     @Operation(summary = "알림 읽음 여부 변경 - DEPRECATED")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
