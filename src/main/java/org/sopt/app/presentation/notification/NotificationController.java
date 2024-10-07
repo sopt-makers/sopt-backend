@@ -87,10 +87,9 @@ public class NotificationController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PostMapping("")
-    public ResponseEntity registerNotification(
+    public ResponseEntity<Object> registerNotification(
             @Valid @RequestBody NotificationRequest.RegisterNotificationRequest registerNotificationRequest
     ) {
-        // TODO : AppUser 가 아닌 외부 Client 로부터 인증 절차 없어도 되는지 논의 (ex. x-api-key, spring security 기능 등)
         notificationService.registerNotification(registerNotificationRequest);
         return ResponseEntity.ok().build();
     }
@@ -103,7 +102,7 @@ public class NotificationController {
     @PatchMapping(value = {
             "/read/{notificationId}", "/read"
     })
-    public ResponseEntity<NotificationDetail> updateNotificationIsRead(
+    public ResponseEntity<Object> updateNotificationIsRead(
             @AuthenticationPrincipal User user,
             @PathVariable(name = "notificationId", required = false) String notificationId
     ) {
