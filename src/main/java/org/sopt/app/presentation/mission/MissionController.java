@@ -43,7 +43,7 @@ public class MissionController {
     }
 
 
-    @Operation(summary = "미션 생성하기")
+    @Operation(summary = "[SERVER 편의 메서드] 미션 생성하기")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
