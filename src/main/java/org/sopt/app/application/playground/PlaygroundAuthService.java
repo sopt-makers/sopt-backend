@@ -14,7 +14,7 @@ import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.common.exception.*;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
-import org.sopt.app.presentation.auth.AppAuthRequest;
+import org.sopt.app.presentation.auth.AppAuthRequest.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
@@ -34,29 +34,17 @@ public class PlaygroundAuthService {
     @Value("${makers.playground.web-page}")
     private String playgroundWebPageUrl;
 
-
-    public PlaygroundMain getPlaygroundInfo(String token) {
-        val member = this.getPlaygroundMember(token);
-        val playgroundProfile = this.getPlaygroundMemberProfile(token, member.getId());
-        val generationList = this.getMemberGenerationList(playgroundProfile);
-        member.setAccessToken(token);
-        member.setStatus(this.getStatus(generationList));
-        return member;
-    }
-
-    public AppAuthRequest.AccessTokenRequest getPlaygroundAccessToken(AppAuthRequest.CodeRequest codeRequest) {
-        Map<String, String> headers = createDefaultHeader();
+    public AccessTokenRequest getPlaygroundAccessToken(CodeRequest codeRequest) {
         try {
-            return playgroundClient.getAccessToken(headers, codeRequest);
+            return playgroundClient.getAccessToken(createDefaultHeader(), codeRequest);
         } catch (Exception e) {
             throw new BadRequestException(ErrorCode.INVALID_PLAYGROUND_CODE);
         }
     }
 
-    private PlaygroundMain getPlaygroundMember(String accessToken) {
-        Map<String, String> headers = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
+    public PlaygroundMain getPlaygroundMember(String accessToken) {
         try {
-            return playgroundClient.getPlaygroundMember(headers);
+            return playgroundClient.getPlaygroundMember(createAuthorizationHeaderByUserPlaygroundToken(accessToken));
         } catch (ExpiredJwtException e) {
             throw new UnauthorizedException(ErrorCode.INVALID_PLAYGROUND_TOKEN);
         } catch (Exception e) {
@@ -64,7 +52,7 @@ public class PlaygroundAuthService {
         }
     }
 
-    public RefreshedToken refreshPlaygroundToken(AppAuthRequest.AccessTokenRequest tokenRequest) {
+    public RefreshedToken refreshPlaygroundToken(AccessTokenRequest tokenRequest) {
         Map<String, String> headers = createDefaultHeader();
         headers.put("x-api-key", apiKey);
         headers.put("x-request-from", requestFrom);
@@ -92,10 +80,14 @@ public class PlaygroundAuthService {
         return generationList.contains(currentGeneration) ? UserStatus.ACTIVE : UserStatus.INACTIVE;
     }
 
-    private PlaygroundProfile getPlaygroundMemberProfile(String accessToken, Long playgroundId) {
+    public UserStatus getStatus(Long latestGeneration) {
+        return latestGeneration.equals(currentGeneration) ? UserStatus.ACTIVE : UserStatus.INACTIVE;
+    }
+
+    public PlaygroundProfile getPlaygroundMemberProfile(String accessToken, Long playgroundId) {
         Map<String, String> headers = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         try {
-            return playgroundClient.getPlaygroundMemberProfiles(headers, playgroundId).get(0);
+            return playgroundClient.getPlaygroundMemberProfiles(headers, playgroundId).getFirst();
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS);
         } catch (ExpiredJwtException e) {

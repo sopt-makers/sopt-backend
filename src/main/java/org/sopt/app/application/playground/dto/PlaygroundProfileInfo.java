@@ -1,16 +1,9 @@
 package org.sopt.app.application.playground.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.util.Comparator;
-import java.util.List;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import jakarta.validation.constraints.NotNull;
+import java.util.*;
+import lombok.*;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
@@ -31,19 +24,40 @@ public class PlaygroundProfileInfo {
 
     @Getter
     @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class PlaygroundMain {
-
         private Long id;
         private String name;
         private Long generation;
         private String profileImage;
-        private Boolean hasProfile;
-        @Setter
-        private String accessToken;
-        @Setter
-        private UserStatus status;
+        private boolean hasProfile;
+    }
+
+    @Builder
+    public record LoginInfo(
+            @NotNull
+            Long playgroundId,
+            @NotNull
+            String name,
+            @NotNull
+            Long generation,
+            @NotNull
+            String profileImage,
+            boolean hasProfile,
+            @NotNull
+            String playgroundToken
+    ){
+        public static LoginInfo of(PlaygroundMain playgroundMain, String playgroundToken) {
+            return LoginInfo.builder()
+                    .playgroundId(playgroundMain.id)
+                    .name(playgroundMain.name)
+                    .generation(playgroundMain.generation)
+                    .profileImage(playgroundMain.profileImage)
+                    .hasProfile(playgroundMain.hasProfile)
+                    .playgroundToken(playgroundToken)
+                    .build();
+        }
+
     }
 
     public record MainView(
@@ -53,7 +67,6 @@ public class PlaygroundProfileInfo {
 
     @Getter
     @Builder
-    @ToString
     public static class MainViewUser {
 
         private UserStatus status;
@@ -64,7 +77,6 @@ public class PlaygroundProfileInfo {
 
     @Getter
     @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class PlaygroundProfile {
 
@@ -75,15 +87,12 @@ public class PlaygroundProfileInfo {
 
         public ActivityCardinalInfo getLatestActivity() {
             return activities.stream()
-                    .sorted(Comparator.comparing(ActivityCardinalInfo::getGeneration,
-                            Comparator.reverseOrder()))
-                    .toList()
-                    .get(0);
+                    .sorted(Comparator.comparing(ActivityCardinalInfo::getGeneration, Comparator.reverseOrder()))
+                    .toList().getFirst();
         }
     }
 
     @Getter
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class ActivityCardinalInfo {
 
@@ -100,15 +109,10 @@ public class PlaygroundProfileInfo {
         public String getPart() {
             return cardinalInfo.split(",")[1];
         }
-
-        public boolean isActualGeneration() {
-            return !cardinalInfo.endsWith(",");
-        }
     }
 
     @Getter
     @Builder
-    @NoArgsConstructor(access = AccessLevel.PUBLIC)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class OwnPlaygroundProfile {
 
@@ -122,58 +126,4 @@ public class PlaygroundProfileInfo {
                     .toList();
         }
     }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class PlaygroundProfileOfRecommendedFriendList {
-
-        private List<PlaygroundProfileOfRecommendedFriend> members;
-    }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @EqualsAndHashCode(of = {"playgroundId"})
-    public static class PlaygroundProfileOfRecommendedFriend {
-
-        @JsonProperty("id")
-        private Long playgroundId;
-        private String mbti;
-        private String university;
-        private String profileImage;
-        private String name;
-        private List<PlaygroundActivity> activities;
-    }
-
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PUBLIC)
-    public static class PlaygroundActivity {
-
-        private String part;
-        private Integer generation;
-    }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @ToString
-    public static class RecommendFriendFilter{
-
-        private String key;
-        private String value;
-    }
-
-    @Getter
-    @Builder
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class PlaygroundUserIds {
-        private List<Long> userIds;
-    }
-
 }

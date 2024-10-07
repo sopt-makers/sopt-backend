@@ -1,15 +1,14 @@
 package org.sopt.app.facade;
 
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import org.sopt.app.application.auth.JwtTokenService;
+import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.*;
 import org.sopt.app.application.playground.PlaygroundAuthService;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.user.UserService;
-import org.sopt.app.presentation.auth.AppAuthRequest;
-import org.sopt.app.presentation.auth.AppAuthRequest.RefreshRequest;
-import org.sopt.app.presentation.auth.AppAuthResponse.Token;
-import org.sopt.app.presentation.auth.AppAuthResponseMapper;
+import org.sopt.app.presentation.auth.AppAuthRequest.*;
+import org.sopt.app.presentation.auth.AppAuthResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,41 +19,48 @@ public class AuthFacade {
     private final JwtTokenService jwtTokenService;
     private final UserService userService;
     private final PlaygroundAuthService playgroundAuthService;
-    private final AppAuthResponseMapper authResponseMapper;
     private final SoptampUserService soptampUserService;
 
     @Transactional
-    public Token loginWithPlayground(AppAuthRequest.CodeRequest codeRequest) {
-        // PlayGround SSO Auth 를 통해 accessToken 받아옴
-        val temporaryToken = playgroundAuthService.getPlaygroundAccessToken(codeRequest);
-        // PlayGround Auth Access Token 받옴
-        val playgroundToken = playgroundAuthService.refreshPlaygroundToken(temporaryToken);
-        // PlayGround User Info 받아옴
-        val playgroundMember = playgroundAuthService.getPlaygroundInfo(playgroundToken.getAccessToken());
-        val userId = userService.loginWithUserPlaygroundId(playgroundMember);
-        soptampUserService.createSoptampUser(playgroundMember.getName(), userId.getId());
-
-        // Response 할 Body 생성
-        val appToken = jwtTokenService.issueNewTokens(userId, playgroundMember);
-        return authResponseMapper.of(
-            appToken.getAccessToken()
-            , appToken.getRefreshToken()
-            , playgroundMember.getAccessToken()
-            , playgroundMember.getStatus()
+    public AppAuthResponse loginWithPlayground(CodeRequest codeRequest) {
+        String playgroundToken = this.getPlaygroundTokenByPlaygroundLogin(codeRequest);
+        PlaygroundMain playgroundInfo = playgroundAuthService.getPlaygroundMember(playgroundToken);
+        PlaygroundProfile playgroundProfile = playgroundAuthService.getPlaygroundMemberProfile(
+                playgroundToken, playgroundInfo.getId()
         );
+
+        Long userId = userService.upsertUser(LoginInfo.of(playgroundInfo, playgroundToken));
+        soptampUserService.upsertSoptampUser(playgroundProfile, userId);
+
+        AppToken appToken = jwtTokenService.issueNewTokens(userId, playgroundInfo.getId());
+        return AppAuthResponse.builder()
+                .playgroundToken(playgroundToken)
+                .accessToken(appToken.getAccessToken())
+                .refreshToken(appToken.getRefreshToken())
+                .status(playgroundAuthService.getStatus(playgroundProfile.getLatestActivity().getGeneration()))
+                .build();
+    }
+
+    private String getPlaygroundTokenByPlaygroundLogin(CodeRequest codeRequest){
+        AccessTokenRequest temporaryToken = playgroundAuthService.getPlaygroundAccessToken(codeRequest);
+        return playgroundAuthService.refreshPlaygroundToken(temporaryToken).getAccessToken();
     }
 
     @Transactional
-    public Token getRefreshToken(RefreshRequest refreshRequest) {
-        val userId = jwtTokenService.getUserIdFromJwtToken(refreshRequest.getRefreshToken());
-        val existingToken = userService.getPlaygroundToken(userId);
-        val playgroundToken = playgroundAuthService.refreshPlaygroundToken(existingToken);
-        val playgroundMember = playgroundAuthService.getPlaygroundInfo(playgroundToken.getAccessToken());
-        userService.updatePlaygroundToken(userId, playgroundToken.getAccessToken());
+    public AppAuthResponse getRefreshToken(String refreshToken) {
+        Long userId = jwtTokenService.getUserIdFromJwtToken(refreshToken);
+        AccessTokenRequest existingToken = userService.getPlaygroundToken(userId);
+        String refreshedPlaygroundToken = playgroundAuthService.refreshPlaygroundToken(existingToken).getAccessToken();
+        PlaygroundMain playgroundInfo = playgroundAuthService.getPlaygroundMember(refreshedPlaygroundToken);
+        userService.updatePlaygroundToken(userId, refreshedPlaygroundToken);
 
-        val appToken = jwtTokenService.issueNewTokens(userId, playgroundMember);
-        return authResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(),
-            playgroundToken.getAccessToken(), playgroundMember.getStatus());
+        AppToken appToken = jwtTokenService.issueNewTokens(userId, playgroundInfo.getId());
+        return AppAuthResponse.builder()
+                .accessToken(appToken.getAccessToken())
+                .playgroundToken(refreshedPlaygroundToken)
+                .refreshToken(appToken.getRefreshToken())
+                .status(playgroundAuthService.getStatus(playgroundInfo.getGeneration()))
+                .build();
     }
 
 }

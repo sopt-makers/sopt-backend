@@ -12,7 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.joda.time.LocalDateTime;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.AppToken;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
@@ -37,8 +36,8 @@ public class JwtTokenService {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 
-    public AppToken issueNewTokens(Long userId, PlaygroundMain playgroundMember) {
-        val accessToken = this.encodeJwtToken(userId, playgroundMember.getId());
+    public AppToken issueNewTokens(Long userId, Long playgroundId) {
+        val accessToken = this.encodeJwtToken(userId, playgroundId);
         val refreshToken = this.encodeJwtRefreshToken(userId);
         return AppToken.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }

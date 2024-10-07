@@ -4,7 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.LoginInfo;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -22,25 +22,25 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public Long upsertUser(PlaygroundMain playgroundMemberResponse) {
-        Optional<User> user = userRepository.findUserByPlaygroundId(playgroundMemberResponse.getId());
+    public Long upsertUser(LoginInfo loginInfo) {
+        Optional<User> user = userRepository.findUserByPlaygroundId(loginInfo.playgroundId());
 
         if (user.isPresent()) {
-            return this.updateRegisteredUserInfo(user.get(), playgroundMemberResponse).getId();
+            return this.updateRegisteredUserInfo(user.get(), loginInfo).getId();
         }
-        return this.registerNewUser(playgroundMemberResponse).getId();
+        return this.registerNewUser(loginInfo).getId();
     }
 
-    private User updateRegisteredUserInfo(User registeredUser, PlaygroundMain playgroundInfo) {
-        registeredUser.updatePlaygroundUserInfo(playgroundInfo.getName(), playgroundInfo.getAccessToken());
+    private User updateRegisteredUserInfo(User registeredUser, LoginInfo loginInfo) {
+        registeredUser.updatePlaygroundUserInfo(loginInfo.name(), loginInfo.playgroundToken());
         return registeredUser;
     }
 
-    private User registerNewUser(PlaygroundMain playgroundInfo) {
+    private User registerNewUser(LoginInfo loginInfo) {
         User newUser = User.builder()
-                .username(playgroundInfo.getName())
-                .playgroundId(playgroundInfo.getId())
-                .playgroundToken(playgroundInfo.getAccessToken())
+                .username(loginInfo.name())
+                .playgroundId(loginInfo.playgroundId())
+                .playgroundToken(loginInfo.playgroundToken())
                 .build();
         return userRepository.save(newUser);
     }

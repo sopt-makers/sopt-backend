@@ -5,6 +5,7 @@ import lombok.*;
 import org.sopt.app.domain.enums.UserStatus;
 
 @Builder
+@Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AppAuthResponse {
     @Schema(description = "앱 서버 AccessToken", example = "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIyMiIsImV4cCI6MTY4MDAxNDQzNn0.asdfasdfasdfasdfasdfasdf")
