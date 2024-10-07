@@ -1,25 +1,13 @@
 package org.sopt.app.application.s3;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.HttpMethod;
-import com.amazonaws.auth.AWSStaticCredentialsProvider;
-import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.*;
+import com.amazonaws.auth.*;
+import com.amazonaws.services.s3.*;
+import java.io.*;
+import java.net.*;
+import java.util.*;
+import lombok.*;
 import jakarta.annotation.PostConstruct;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
 import org.joda.time.LocalDateTime;
 import org.slf4j.LoggerFactory;
 import org.sopt.app.common.exception.BadRequestException;
@@ -27,14 +15,10 @@ import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @RequiredArgsConstructor
 public class S3Service {
-
-    private final ArrayList<String> imageFileExtension = new ArrayList<>(
-            List.of(".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG"));
 
     @Value("${cloud.aws.credentials.access-key}")
     private String accessKey;
@@ -63,44 +47,6 @@ public class S3Service {
                 .build();
         this.amazonS3 = amazonS3;
         return amazonS3;
-    }
-
-    public List<String> uploadDeprecated(List<MultipartFile> multipartFiles) {
-        if (multipartFiles == null || multipartFiles.get(0).isEmpty()) {
-            return new ArrayList<>();
-        }
-
-        return multipartFiles.stream().map(file -> {
-            val fileName = createFileName(file.getOriginalFilename());
-            val objectMetadata = new ObjectMetadata();
-            objectMetadata.setContentLength(file.getSize());
-            objectMetadata.setContentType(file.getContentType());
-
-            try (InputStream inputStream = file.getInputStream()) {
-                amazonS3.putObject(
-                        new PutObjectRequest(bucket + "/mainpage/makers-app", fileName, inputStream, objectMetadata)
-                                .withCannedAcl(CannedAccessControlList.PublicRead));
-                return amazonS3.getUrl(bucket + "/mainpage/makers-app", fileName).toString();
-            } catch (IOException e) {
-                throw new BadRequestException(ErrorCode.S3_IO_ERROR);
-            }
-        }).toList();
-    }
-
-    private String createFileName(String fileName) {
-        return UUID.randomUUID().toString().concat(getFileExtension(fileName));
-    }
-
-    private String getFileExtension(String fileName) {
-        if (fileName.isEmpty()) {
-            throw new BadRequestException(ErrorCode.BAD_FILE_EXTENSTION);
-        }
-
-        val idxFileName = fileName.substring(fileName.lastIndexOf("."));
-        if (!imageFileExtension.contains(idxFileName)) {
-            throw new BadRequestException(ErrorCode.BAD_FILE_EXTENSTION);
-        }
-        return fileName.substring(fileName.lastIndexOf("."));
     }
 
     public S3Info.PreSignedUrl getPreSignedUrl(String folderName) {

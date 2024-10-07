@@ -66,16 +66,6 @@ public class SoptampFacade {
         return stampService.findStamp(missionId, userId);
     }
 
-    @Transactional
-    public StampInfo.Stamp editStamp(StampRequest.EditStampRequest editStampRequest, Long userId, Long missionId, List<MultipartFile> multipartFiles){
-        val stamp = stampService.editStampContentsDeprecated(editStampRequest, userId, missionId);
-        val imgPaths = s3Service.uploadDeprecated(multipartFiles);
-        if (!imgPaths.isEmpty()) {
-            stampService.editStampImagesDeprecated(stamp, imgPaths);
-        }
-        return stamp;
-    }
-
     public RankResponse.Detail findSoptampUserAndCompletedMissionByNickname(String nickname) {
         SoptampUserInfo soptampUserInfo = soptampUserFinder.findSoptampUserByNickname(nickname);
         List<Mission> missionList = missionService.getCompleteMission(soptampUserInfo.getUserId());
