@@ -1,20 +1,14 @@
 package org.sopt.app.common.config;
 
-
-import feign.Feign;
-import feign.Logger;
-import feign.codec.Decoder;
-import feign.codec.Encoder;
-import feign.jackson.JacksonDecoder;
-import feign.jackson.JacksonEncoder;
+import feign.*;
+import feign.codec.*;
+import feign.jackson.*;
 import feign.okhttp.OkHttpClient;
 import feign.slf4j.Slf4jLogger;
+import org.springframework.context.annotation.*;
 import org.sopt.app.application.playground.PlaygroundClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.retry.annotation.EnableRetry;
 
 @Configuration
 @EnableFeignClients

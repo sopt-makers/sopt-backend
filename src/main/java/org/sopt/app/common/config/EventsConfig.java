@@ -4,8 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.event.Events;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.*;
 
 @Configuration
 @RequiredArgsConstructor
