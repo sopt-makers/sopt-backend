@@ -3,7 +3,6 @@ package org.sopt.app.application.fortune;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.utils.HttpHeadersUtils;
-import org.sopt.app.domain.enums.NotificationCategory;
 import org.sopt.app.presentation.fortune.FortuneAlarmRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
