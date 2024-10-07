@@ -1,9 +1,7 @@
 package org.sopt.app.common.config;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
 import java.io.IOException;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -24,7 +22,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        val token = jwtTokenService.getToken((HttpServletRequest) request);
+        val token = jwtTokenService.getToken(request);
         if (token != null) {
             if (jwtTokenService.validateToken(token)) {
                 try {

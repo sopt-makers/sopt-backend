@@ -2,10 +2,7 @@ package org.sopt.app.application.poke;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.sopt.app.domain.entity.poke.PokeHistory;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
@@ -72,10 +69,11 @@ public class PokeInfo {
 
             if (size == 0) {
                 return NEW_FRIEND_NO_MUTUAL;
-            } else if (size == 1) {
-                return String.format(NEW_FRIEND_ONE_MUTUAL, mutualFriendNames.get(0));
+            }
+            if (size == 1) {
+                return String.format(NEW_FRIEND_ONE_MUTUAL, mutualFriendNames.getFirst());
             } else {
-                return String.format(NEW_FRIEND_MANY_MUTUAL, mutualFriendNames.get(0), size - 1);
+                return String.format(NEW_FRIEND_MANY_MUTUAL, mutualFriendNames.getFirst(), size - 1);
             }
         }
 
@@ -95,15 +93,4 @@ public class PokeInfo {
         private final String message;
 
     }
-
-    @Getter
-    @Builder
-    @ToString
-    public static class PokeMessageDetail {
-
-        private final Long id;
-        private final String content;
-
-    }
-
 }

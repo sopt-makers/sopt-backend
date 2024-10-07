@@ -5,10 +5,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.PutObjectResult;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -20,7 +18,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.s3.S3Info;
 import org.sopt.app.application.s3.S3Service;
 import org.sopt.app.common.exception.BadRequestException;
-import org.springframework.mock.web.MockMultipartFile;
 
 @ExtendWith(MockitoExtension.class)
 class S3ServiceTest {
@@ -30,55 +27,6 @@ class S3ServiceTest {
 
     @InjectMocks
     private S3Service s3Service;
-
-    @Test
-    @DisplayName("SUCCESS_업로드(DEPRECATED) 파일 리스트 null일 때")
-    void SUCCESS_uploadDeprecatedNull() {
-        List<String> result = s3Service.uploadDeprecated(null);
-        Assertions.assertEquals(0, result.size());
-    }
-
-    @Test
-    @DisplayName("SUCCESS_업로드(DEPRECATED) 파일 리스트 첫 원소 empty일 때")
-    void SUCCESS_uploadDeprecatedEmpty() {
-        List<String> result = s3Service.uploadDeprecated(
-                List.of(new MockMultipartFile("name", (byte[]) null))
-        );
-        Assertions.assertEquals(0, result.size());
-    }
-
-    @Test
-    @DisplayName("SUCCESS_업로드(DEPRECATED) 파일 리스트 not null일 때")
-    void SUCCESS_uploadDeprecatedNotNull() throws MalformedURLException {
-        when(s3Client.putObject(any())).thenReturn(new PutObjectResult());
-        when(s3Client.getUrl(any(), any())).thenReturn(new URL("http://url.com"));
-
-        List<String> result = s3Service.uploadDeprecated(
-                List.of(new MockMultipartFile("files", "image.jpg", "text/plain",
-                        "1234".getBytes(StandardCharsets.UTF_8)))
-        );
-        Assertions.assertEquals(1, result.size());
-    }
-
-    @Test()
-    @DisplayName("FAIL_업로드(DEPRECATED) 잘못된 파일명")
-    void FAIL_uploadDeprecatedInvalidFilename() {
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            s3Service.uploadDeprecated(
-                    List.of(new MockMultipartFile("files", "", "text/plain",
-                            "1234".getBytes(StandardCharsets.UTF_8))));
-        });
-    }
-
-    @Test
-    @DisplayName("FAIL_업로드(DEPRECATED) 잘못된 파일 확장자")
-    void FAIL_uploadDeprecatedInvalidExtension() {
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            s3Service.uploadDeprecated(
-                    List.of(new MockMultipartFile("files", "file.csv", "text/plain",
-                            "1234".getBytes(StandardCharsets.UTF_8))));
-        });
-    }
 
     @Test
     @DisplayName("SUCCESS_PreSignedUrl 조회 성공")

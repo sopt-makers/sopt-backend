@@ -1,9 +1,6 @@
 package org.sopt.app.common.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.IntStream;
 import lombok.NoArgsConstructor;
 
@@ -11,10 +8,6 @@ import lombok.NoArgsConstructor;
 public class RandomPicker {
 
     private static final Random random = new Random();
-
-    public static <T> List<T> pickRandom(Set<T> data, int pickLimit) {
-        return pickRandom(new ArrayList<>(data), pickLimit);
-    }
 
     public static <T> List<T> pickRandom(List<T> data, int pickLimit) {
         if (data.size() <= pickLimit) {

@@ -3,8 +3,7 @@ package org.sopt.app.domain.enums;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
+import jakarta.persistence.*;
 import java.util.Objects;
 
 @Converter

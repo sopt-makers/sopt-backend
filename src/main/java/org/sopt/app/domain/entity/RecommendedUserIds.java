@@ -1,10 +1,7 @@
 package org.sopt.app.domain.entity;
 
 import java.util.Set;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;

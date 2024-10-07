@@ -12,20 +12,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.mission.*;
-import org.sopt.app.application.s3.S3Service;
 import org.sopt.app.application.soptamp.*;
 import org.sopt.app.application.stamp.*;
 import org.sopt.app.common.fixtures.SoptampFixture;
 import org.sopt.app.presentation.stamp.StampRequest;
-import org.sopt.app.presentation.stamp.StampRequest.EditStampRequest;
 
 @ExtendWith(MockitoExtension.class)
 class SoptampFacadeTest {
 
     @Mock
     private StampService stampService;
-    @Mock
-    private S3Service s3Service;
     @Mock
     private MissionService missionService;
     @Mock
@@ -67,43 +63,6 @@ class SoptampFacadeTest {
 
         // then
         assertEquals(uploadedStamp, result);
-    }
-
-    @Test
-    @DisplayName("SUCCESS_스탬프 업로드하기(이전 버전)")
-    void uploadStampDeprecated() {
-        // given
-        final StampInfo.Stamp uploadedStamp = SoptampFixture.getStampInfo();
-        final StampRequest.RegisterStampRequest registerStampRequest = SoptampFixture.getRegisterStampRequest();
-        given(s3Service.uploadDeprecated(MULTIPART_FILE_LIST)).willReturn(SoptampFixture.STAMP_IMG_PATHS);
-        given(stampService.uploadStampDeprecated(registerStampRequest, STAMP_IMG_PATHS, SOPTAMP_USER_ID, MISSION_ID))
-                .willReturn(uploadedStamp);
-        given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
-
-        // when
-        StampInfo.Stamp result = soptampFacade.uploadStampDeprecated(
-                SOPTAMP_USER_ID, MISSION_ID, registerStampRequest, MULTIPART_FILE_LIST);
-
-        // then
-        assertEquals(uploadedStamp, result);
-    }
-
-    @Test
-    @DisplayName("SUCCESS_스탬프 수정하기")
-    void SUCCESS_editStamp() {
-        // given
-        final StampInfo.Stamp editedStamp = SoptampFixture.getStampInfo();
-        final EditStampRequest editStampRequest = SoptampFixture.getEditStampRequest();
-        given(stampService.editStampContentsDeprecated(editStampRequest, SOPTAMP_USER_ID, MISSION_ID))
-                .willReturn(editedStamp);
-        given(s3Service.uploadDeprecated(MULTIPART_FILE_LIST)).willReturn(SoptampFixture.STAMP_IMG_PATHS);
-
-        // when
-        StampInfo.Stamp result =
-                soptampFacade.editStamp(editStampRequest, SOPTAMP_USER_ID, MISSION_ID, MULTIPART_FILE_LIST);
-
-        // then
-        assertEquals(editedStamp, result);
     }
 
     @Test

@@ -2,28 +2,20 @@ package org.sopt.app.presentation.notification;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.val;
+import lombok.*;
 import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.domain.entity.User;
-import org.sopt.app.presentation.notification.NotificationResponse.NotificationDetail;
+import org.sopt.app.presentation.notification.NotificationResponse.NotificationSimple;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -44,17 +36,7 @@ public class NotificationController {
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         val result = notificationService.findNotificationList(user, pageable);
-        return ResponseEntity.ok(
-                result.stream()
-                        .map(notification -> NotificationResponse.NotificationSimple.of(
-                                notification.getNotificationId()
-                                , notification.getUserId()
-                                , notification.getTitle()
-                                , notification.getContent()
-                                , notification.getCategory().name()
-                                , notification.getIsRead()
-                                , notification.getCreatedAt()
-                        )).toList());
+        return ResponseEntity.ok(result.stream().map(NotificationSimple::of).toList());
     }
     @Operation(summary = "알림 상세 조회")
     @ApiResponses({
@@ -68,16 +50,7 @@ public class NotificationController {
     ) {
         val result = notificationService.findNotification(user, notificationId);
         return ResponseEntity.ok(
-                NotificationResponse.NotificationDetail.of(
-                        result.getNotificationId(),
-                        result.getUserId(),
-                        result.getTitle(),
-                        result.getContent(),
-                        result.getDeepLink(),
-                        result.getWebLink(),
-                        result.getCreatedAt(),
-                        result.getUpdatedAt()
-                )
+                NotificationResponse.NotificationDetail.of(result)
         );
     }
 
@@ -87,7 +60,7 @@ public class NotificationController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PostMapping("")
-    public ResponseEntity registerNotification(
+    public ResponseEntity<Object> registerNotification(
             @Valid @RequestBody NotificationRequest.RegisterNotificationRequest registerNotificationRequest
     ) {
         // TODO : AppUser 가 아닌 외부 Client 로부터 인증 절차 없어도 되는지 논의 (ex. x-api-key, spring security 기능 등)
@@ -103,62 +76,12 @@ public class NotificationController {
     @PatchMapping(value = {
             "/read/{notificationId}", "/read"
     })
-    public ResponseEntity<NotificationDetail> updateNotificationIsRead(
+    public ResponseEntity<Object> updateNotificationIsRead(
             @AuthenticationPrincipal User user,
             @PathVariable(name = "notificationId", required = false) String notificationId
     ) {
         notificationService.updateNotificationIsRead(user, notificationId);
         return ResponseEntity.ok().build();
-    }
-
-    @Operation(summary = "알림 목록 조회 - DEPRECATED")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping(value = "")
-    @Deprecated
-    public ResponseEntity<List<NotificationResponse.NotificationSimpleDeprecated>> findNotificationListDeprecated(
-            @AuthenticationPrincipal User user,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
-    ) {
-        val result = notificationService.findNotificationList(user, pageable);
-        return ResponseEntity.ok(
-                result.stream()
-                        .map(notification -> NotificationResponse.NotificationSimpleDeprecated.of(
-                                notification.getId()
-                                , notification.getUserId()
-                                , notification.getTitle()
-                                , notification.getContent()
-                                , notification.getCategory().name()
-                                , notification.getIsRead()
-                                , notification.getCreatedAt()
-                        )).toList());
-    }
-    @Operation(summary = "알림 상세 조회 - DEPRECATED")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping(value = "/{notificationId}")
-    @Deprecated
-    public ResponseEntity<NotificationResponse.NotificationDetailDeprecated> findNotificationDetailDeprecated(
-            @AuthenticationPrincipal User user,
-            @PathVariable("notificationId") Long notificationId
-    ) {
-        val result = notificationService.findNotificationDeprecated(user, notificationId);
-        return ResponseEntity.ok(
-                NotificationResponse.NotificationDetailDeprecated.of(
-                        result.getId(),
-                        result.getUserId(),
-                        result.getTitle(),
-                        result.getContent(),
-                        result.getDeepLink(),
-                        result.getWebLink(),
-                        result.getCreatedAt(),
-                        result.getUpdatedAt()
-                )
-        );
     }
 
     @Operation(summary = "알림 읽음 여부 변경 - DEPRECATED")
@@ -170,7 +93,7 @@ public class NotificationController {
             "/{notificationId}", ""
     })
     @Deprecated
-    public ResponseEntity<NotificationDetail> updateNotificationIsReadDeprecated(
+    public ResponseEntity<Object> updateNotificationIsReadDeprecated(
             @AuthenticationPrincipal User user,
             @PathVariable(name = "notificationId", required = false) Long notificationId
     ) {

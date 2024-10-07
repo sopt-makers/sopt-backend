@@ -1,6 +1,5 @@
 package org.sopt.app.presentation.mission;
 
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,11 +13,7 @@ import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.domain.entity.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -43,7 +38,7 @@ public class MissionController {
     }
 
 
-    @Operation(summary = "미션 생성하기")
+    @Operation(summary = "[SERVER 편의 메서드] 미션 생성하기")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
