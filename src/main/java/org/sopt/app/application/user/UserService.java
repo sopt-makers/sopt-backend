@@ -4,13 +4,11 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
-import org.sopt.app.application.user.UserInfo.UserProfile;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
-import org.sopt.app.presentation.auth.AppAuthRequest;
 import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,7 +20,7 @@ public class UserService {
     private final UserRepository userRepository;
 
     @Transactional
-    public UserInfo.Id loginWithUserPlaygroundId(
+    public Long loginWithUserPlaygroundId(
             PlaygroundProfileInfo.PlaygroundMain playgroundMemberResponse
     ) {
         val registeredUser = userRepository.findUserByPlaygroundId(
@@ -36,8 +34,7 @@ public class UserService {
             );
             userRepository.save(registeredUser.get());
 
-            return UserInfo.Id.builder()
-                    .id(registeredUser.get().getId()).build();
+            return registeredUser.get().getId();
         }
 
         val newUser = userRepository.save(
@@ -47,8 +44,7 @@ public class UserService {
                         playgroundMemberResponse.getAccessToken()
                 ));
 
-        return UserInfo.Id.builder()
-                .id(newUser.getId()).build();
+        return newUser.getId();
     }
 
     private User registerNewUser(String username, Long playgroundId, String playgroundToken) {
@@ -65,15 +61,15 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public AppAuthRequest.AccessTokenRequest getPlaygroundToken(UserInfo.Id userId) {
-        val user = userRepository.findUserById(userId.getId())
+    public AccessTokenRequest getPlaygroundToken(Long userId) {
+        val user = userRepository.findUserById(userId)
             .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_REFRESH_TOKEN));
         return new AccessTokenRequest(user.getPlaygroundToken());
     }
 
     @Transactional
-    public void updatePlaygroundToken(UserInfo.Id userId, String playgroundToken) {
-        val user = userRepository.findUserById(userId.getId())
+    public void updatePlaygroundToken(Long userId, String playgroundToken) {
+        val user = userRepository.findUserById(userId)
                 .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_REFRESH_TOKEN));
         userRepository.save(
                 User.builder()
@@ -103,16 +99,6 @@ public class UserService {
 
     public List<UserProfile> getUserProfilesByPlaygroundIds(List<Long> playgroundIds) {
         return userRepository.findAllByPlaygroundIdIn(playgroundIds).stream().map(
-                user -> UserProfile.builder()
-                        .userId(user.getId())
-                        .name(user.getUsername())
-                        .playgroundId(user.getPlaygroundId())
-                        .build()
-        ).toList();
-    }
-
-    public List<UserProfile> getUserProfilesByUserIds(List<Long> userIds) {
-        return userRepository.findAllByIdIn(userIds).stream().map(
                 user -> UserProfile.builder()
                         .userId(user.getId())
                         .name(user.getUsername())
