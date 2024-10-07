@@ -19,7 +19,6 @@ public class FortuneEventListener {
     private final RestTemplate restTemplate;
     private final HttpHeadersUtils headersUtils;
 
-
     @Value("${makers.push.server}")
     private String baseURI;
 
@@ -29,21 +28,20 @@ public class FortuneEventListener {
                 createBodyFor(fortuneEvent.getUserId()),
                 headersUtils.createHeadersForSend()
         );
-        sendRequestToAlarmServer(entity);
+        this.sendRequestToAlarmServer(entity);
     }
 
     private FortuneAlarmRequest createBodyFor(Long userId) {
-        return FortuneAlarmRequest.of(
-                List.of(String.valueOf(userId)),
-                "오늘의 솝마디",  // 메시지 제목
-                "오늘의 솝마디를 확인해보세요!",  // 메시지 내용
-                NotificationCategory.NEWS.name(),
-                "home/fortune"  // Fortune API로 연결되는 URL
-        );
+        return FortuneAlarmRequest.builder()
+                .userIds(List.of(String.valueOf(userId)))
+                .title("오늘의 솝마디")
+                .content("오늘의 솝마디를 확인해보세요!")
+                .category(NotificationCategory.NEWS.name())
+                .deepLink("home/fortune")
+                .build();
     }
 
-    private void sendRequestToAlarmServer(
-            HttpEntity<FortuneAlarmRequest> requestEntity) {
+    private void sendRequestToAlarmServer(HttpEntity<FortuneAlarmRequest> requestEntity) {
         restTemplate.exchange(
                 baseURI,
                 HttpMethod.POST,
