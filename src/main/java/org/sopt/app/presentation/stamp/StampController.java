@@ -53,20 +53,6 @@ public class StampController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "스탬프 등록하기 - DEPRECATED")
-    @PostMapping("/{missionId}")
-    @Transactional
-    public ResponseEntity<StampResponse.StampMain> registerStampDeprecated(
-            @AuthenticationPrincipal User user,
-            @PathVariable Long missionId,
-            @RequestPart("stampContent") StampRequest.RegisterStampRequest registerStampRequest,
-            @RequestPart(name = "imgUrl", required = false) List<MultipartFile> multipartFiles
-    ) {
-        val result = soptampFacade.uploadStampDeprecated(user.getId(), missionId, registerStampRequest, multipartFiles);
-        val response = stampResponseMapper.of(result);
-        return ResponseEntity.ok(response);
-    }
-
     @Operation(summary = "스탬프 수정하기 - DEPRECATED")
     @PutMapping("/{missionId}")
     public ResponseEntity<StampResponse.StampId> editStampDeprecated(

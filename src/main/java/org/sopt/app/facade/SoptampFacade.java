@@ -33,16 +33,6 @@ public class SoptampFacade {
     private final SoptampUserFinder soptampUserFinder;
 
     @Transactional
-    public StampInfo.Stamp uploadStampDeprecated(Long userId, Long missionId, RegisterStampRequest registerStampRequest, List<MultipartFile> multipartFileList){
-        stampService.checkDuplicateStamp(userId, missionId);
-        val imgPaths = s3Service.uploadDeprecated(multipartFileList);
-        val result = stampService.uploadStampDeprecated(registerStampRequest, imgPaths, userId, missionId);
-        val mission = missionService.getMissionById(missionId);
-        soptampUserService.addPointByLevel(userId, mission.getLevel());
-        return result;
-    }
-
-    @Transactional
     public StampInfo.Stamp uploadStamp(Long userId, RegisterStampRequest registerStampRequest){
         stampService.checkDuplicateStamp(userId, registerStampRequest.getMissionId());
         Stamp result = stampService.uploadStamp(registerStampRequest, userId);
