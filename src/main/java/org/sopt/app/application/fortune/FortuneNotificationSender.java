@@ -6,15 +6,14 @@ import org.sopt.app.common.utils.HttpHeadersUtils;
 import org.sopt.app.domain.enums.NotificationCategory;
 import org.sopt.app.presentation.fortune.FortuneAlarmRequest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.event.EventListener;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-@Component
+@Service
 @RequiredArgsConstructor
-public class FortuneEventListener {
+public class FortuneNotificationSender {
 
     private final RestTemplate restTemplate;
     private final HttpHeadersUtils headersUtils;
@@ -22,18 +21,17 @@ public class FortuneEventListener {
     @Value("${makers.push.server}")
     private String baseURI;
 
-    @EventListener
-    public void sendFortuneAlarm(FortuneEvent fortuneEvent) {
+    public void sendFortuneNotification(List<Long> playgroundIds) {
         HttpEntity<FortuneAlarmRequest> entity = new HttpEntity<>(
-                createBodyFor(fortuneEvent.getUserId()),
+                createBodyFor(playgroundIds),
                 headersUtils.createHeadersForSend()
         );
         this.sendRequestToAlarmServer(entity);
     }
 
-    private FortuneAlarmRequest createBodyFor(Long userId) {
+    private FortuneAlarmRequest createBodyFor(List<Long> playgroundIds) {
         return FortuneAlarmRequest.builder()
-                .userIds(List.of(String.valueOf(userId)))
+                .userIds(playgroundIds.stream().map(String::valueOf).toList())
                 .title("오늘의 솝마디")
                 .content("오늘의 솝마디를 확인해보세요!")
                 .category(NotificationCategory.NEWS.name())
