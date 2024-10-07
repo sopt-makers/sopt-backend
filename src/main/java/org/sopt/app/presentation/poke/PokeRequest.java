@@ -3,11 +3,7 @@ package org.sopt.app.presentation.poke;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PokeRequest {
@@ -26,9 +22,8 @@ public class PokeRequest {
     }
 
     @Getter
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    @Builder
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @ToString
     public static class PokeAlarmRequest {
 
         @Schema(description = "유저 아이디", example = "['1']")
@@ -50,9 +45,14 @@ public class PokeRequest {
         @Schema(description = "찌르기 알림 딥링크", example = "/home/poke")
         private String deepLink;
 
-        public static PokeRequest.PokeAlarmRequest of(List<String> userIds, String title, String content,
-                String category, String deepLink) {
-            return new PokeRequest.PokeAlarmRequest(userIds, title, content, category, deepLink);
+        public static PokeAlarmRequest of(Long userId) {
+            return PokeAlarmRequest.builder()
+                    .userIds(List.of(String.valueOf(userId)))
+                    .title("콕 찌르기")
+                    .content("누군가가 콕 찔렀어요. 확인해보세요!")
+                    .category("NEWS")
+                    .deepLink("home/poke/notification-list")
+                    .build();
         }
     }
 }

@@ -1,12 +1,10 @@
 package org.sopt.app.application.poke;
 
 import jakarta.transaction.Transactional;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.common.utils.HttpHeadersUtils;
-import org.sopt.app.domain.enums.NotificationCategory;
-import org.sopt.app.presentation.poke.PokeRequest;
+import org.sopt.app.presentation.poke.PokeRequest.PokeAlarmRequest;
 import org.sopt.app.presentation.poke.PokeResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -30,23 +28,14 @@ public class PokeEventListener {
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sendPokeAlarm(PokeEvent pokeEvent) {
-            val entity = new HttpEntity(
-                    createBodyFor(pokeEvent.getPokedUserId()),
+            val entity = new HttpEntity<>(
+                    PokeAlarmRequest.of(pokeEvent.getPokedUserId()),
                     headersUtils.createHeadersForSend()
             );
             sendRequestToAlarmServer(entity);
     }
 
-    private PokeRequest.PokeAlarmRequest createBodyFor(Long pokedUserId) {
-        return PokeRequest.PokeAlarmRequest.of(
-                List.of(String.valueOf(pokedUserId)),
-                "콕 찌르기",
-                "누군가가 콕 찔렀어요. 확인해보세요!",
-                NotificationCategory.NEWS.name(),
-                "home/poke/notification-list"
-        );
-    }
-    private void sendRequestToAlarmServer(HttpEntity requestEntity) {
+    private void sendRequestToAlarmServer(HttpEntity<PokeAlarmRequest> requestEntity) {
         restTemplate.exchange(
                 baseURI,
                 HttpMethod.POST,
