@@ -3,12 +3,10 @@ package org.sopt.app.common.response;
 import static org.sopt.app.common.response.ExceptionWrapper.extractExceptionWrapper;
 
 import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
+import lombok.*;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.*;
 import org.sopt.app.application.slack.SlackService;
 import org.sopt.app.domain.entity.User;
 import org.springframework.security.core.Authentication;
@@ -22,7 +20,7 @@ import org.springframework.stereotype.Component;
 public class SlackLoggerAspect {
 
     private final HttpServletRequest request;
-    private final SlackService slackServic;
+    private final SlackService slackService;
 
     private Long getUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -38,12 +36,12 @@ public class SlackLoggerAspect {
             return;
         }
 
-        if (args[0] instanceof Exception) {
-            String requestUrl = request.getRequestURI();  // 요청 URL
+        if (args[0] instanceof Exception e) {
+            String requestUrl = request.getRequestURI();
             String requestMethod = request.getMethod();
-            ExceptionWrapper exceptionWrapper = extractExceptionWrapper((Exception) args[0]);
-            slackServic.sendSlackMessage(SlackMessageGenerator.generate(exceptionWrapper,getUserId(),requestMethod,requestUrl));
-            return;
+            ExceptionWrapper exceptionWrapper = extractExceptionWrapper(e);
+            slackService.sendSlackMessage(
+                    SlackMessageGenerator.generate(exceptionWrapper,getUserId(),requestMethod,requestUrl));
         }
     }
 }
