@@ -2,10 +2,7 @@ package org.sopt.app.application.poke;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.sopt.app.domain.entity.poke.PokeHistory;
 
 @NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
