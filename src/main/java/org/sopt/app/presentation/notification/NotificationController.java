@@ -73,30 +73,14 @@ public class NotificationController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PatchMapping(value = {
-            "/read/{notificationId}", "/read"
+            "/read/{notificationId}", "/read",
+            "/{notificationId}", ""
     })
     public ResponseEntity<Object> updateNotificationIsRead(
             @AuthenticationPrincipal User user,
             @PathVariable(name = "notificationId", required = false) String notificationId
     ) {
         notificationService.updateNotificationIsRead(user, notificationId);
-        return ResponseEntity.ok().build();
-    }
-
-    @Operation(summary = "알림 읽음 여부 변경 - DEPRECATED")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @PatchMapping(value = {
-            "/{notificationId}", ""
-    })
-    @Deprecated
-    public ResponseEntity<Object> updateNotificationIsReadDeprecated(
-            @AuthenticationPrincipal User user,
-            @PathVariable(name = "notificationId", required = false) Long notificationId
-    ) {
-        notificationService.updateNotificationIsReadDeprecated(user, notificationId);
         return ResponseEntity.ok().build();
     }
 }
