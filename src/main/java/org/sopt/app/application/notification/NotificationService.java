@@ -39,9 +39,7 @@ public class NotificationService {
     }
 
     @Transactional
-    public List<Long> registerNotification(
-            RegisterNotificationRequest registerNotificationRequest
-    ) {
+    public void registerNotification(RegisterNotificationRequest registerNotificationRequest) {
         List<Long> playgroundIds = new ArrayList<>();
         if (registerNotificationRequest.getType().equals(NotificationType.SEND_ALL)) {
             playgroundIds = userRepository.findAllPlaygroundId();
@@ -51,7 +49,6 @@ public class NotificationService {
                     .toList();
         }
         registerTo(playgroundIds, registerNotificationRequest);
-        return playgroundIds;
     }
     private void registerTo(List<Long> playgroundIds, NotificationRequest.RegisterNotificationRequest registerNotificationRequest) {
         val targetUserIds = userRepository.findAllIdByPlaygroundIdIn(playgroundIds);

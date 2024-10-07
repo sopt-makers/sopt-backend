@@ -4,11 +4,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.*;
+import org.sopt.app.domain.enums.NotificationCategory;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PUBLIC)
 public class FortuneAlarmRequest {
 
     @Schema(description = "유저 아이디", example = "[1]")
@@ -30,14 +31,13 @@ public class FortuneAlarmRequest {
     @Schema(description = "오늘의 솝마디 알림 딥링크")
     private String deepLink;
 
-    public static FortuneAlarmRequest of(List<String> userIds, String title, String content,
-                                         String category, String deepLink) {
+    public static FortuneAlarmRequest of(List<Long> userIds){
         return FortuneAlarmRequest.builder()
-                .category(category)
-                .content(content)
-                .deepLink(deepLink)
-                .title(title)
-                .userIds(userIds)
+                .userIds(userIds.stream().map(String::valueOf).toList())
+                .title("오늘의 솝마디")
+                .content("오늘의 솝마디를 확인해보세요!")
+                .category(NotificationCategory.NEWS.name())
+                .deepLink("home/fortune")
                 .build();
     }
 }

@@ -63,7 +63,6 @@ public class NotificationController {
     public ResponseEntity<Object> registerNotification(
             @Valid @RequestBody NotificationRequest.RegisterNotificationRequest registerNotificationRequest
     ) {
-        // TODO : AppUser 가 아닌 외부 Client 로부터 인증 절차 없어도 되는지 논의 (ex. x-api-key, spring security 기능 등)
         notificationService.registerNotification(registerNotificationRequest);
         return ResponseEntity.ok().build();
     }
