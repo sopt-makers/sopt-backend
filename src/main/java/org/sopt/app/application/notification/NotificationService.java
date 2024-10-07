@@ -32,12 +32,6 @@ public class NotificationService {
         return notificationRepository.findByNotificationIdAndUserId(notificationId, user.getId())
                 .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND));
     }
-    @Transactional(readOnly = true)
-    @Deprecated
-    public Notification findNotificationDeprecated(User user, Long notificationId) {
-        return notificationRepository.findByIdAndUserId(notificationId, user.getId())
-                .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND));
-    }
 
     @Transactional(readOnly = true)
     public List<Notification> findNotificationList(User user, Pageable pageable) {

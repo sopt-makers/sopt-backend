@@ -135,31 +135,6 @@ public class NotificationController {
                                 , notification.getCreatedAt()
                         )).toList());
     }
-    @Operation(summary = "알림 상세 조회 - DEPRECATED")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping(value = "/{notificationId}")
-    @Deprecated
-    public ResponseEntity<NotificationResponse.NotificationDetailDeprecated> findNotificationDetailDeprecated(
-            @AuthenticationPrincipal User user,
-            @PathVariable("notificationId") Long notificationId
-    ) {
-        val result = notificationService.findNotificationDeprecated(user, notificationId);
-        return ResponseEntity.ok(
-                NotificationResponse.NotificationDetailDeprecated.of(
-                        result.getId(),
-                        result.getUserId(),
-                        result.getTitle(),
-                        result.getContent(),
-                        result.getDeepLink(),
-                        result.getWebLink(),
-                        result.getCreatedAt(),
-                        result.getUpdatedAt()
-                )
-        );
-    }
 
     @Operation(summary = "알림 읽음 여부 변경 - DEPRECATED")
     @ApiResponses({
