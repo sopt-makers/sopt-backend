@@ -23,20 +23,10 @@ public class FortuneNotificationSender {
 
     public void sendFortuneNotification(List<Long> playgroundIds) {
         HttpEntity<FortuneAlarmRequest> entity = new HttpEntity<>(
-                createBodyFor(playgroundIds),
+                FortuneAlarmRequest.of(playgroundIds),
                 headersUtils.createHeadersForSend()
         );
         this.sendRequestToAlarmServer(entity);
-    }
-
-    private FortuneAlarmRequest createBodyFor(List<Long> playgroundIds) {
-        return FortuneAlarmRequest.builder()
-                .userIds(playgroundIds.stream().map(String::valueOf).toList())
-                .title("오늘의 솝마디")
-                .content("오늘의 솝마디를 확인해보세요!")
-                .category(NotificationCategory.NEWS.name())
-                .deepLink("home/fortune")
-                .build();
     }
 
     private void sendRequestToAlarmServer(HttpEntity<FortuneAlarmRequest> requestEntity) {
