@@ -28,7 +28,7 @@ public class UserFacade {
         val mainViewUser = playgroundAuthService.getPlaygroundUserForMainView(user.getPlaygroundToken(),
                 user.getPlaygroundId());
         val dummyOperation = OperationInfo.MainView.builder().announcement("공지다!").attendanceScore(2D).build();
-        val mainViewNotification = notificationService.getNotificationConfirmStatus(user);
+        val mainViewNotification = notificationService.getNotificationConfirmStatus(user.getId());
         return userResponseMapper.ofMainView(mainViewUser, dummyOperation, mainViewNotification);
     }
 
