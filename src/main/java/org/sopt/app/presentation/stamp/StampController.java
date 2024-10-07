@@ -53,22 +53,6 @@ public class StampController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "스탬프 조회하기 - DEPRECATED")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "400", description = "no stamp", content = @Content),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping("/mission/{missionId}")
-    public ResponseEntity<StampResponse.StampMain> findStampByMissionAndUserIdDeprecated(
-            @AuthenticationPrincipal User user,
-            @PathVariable Long missionId
-    ) {
-        val result = stampService.findStamp(missionId, user.getId());
-        val response = stampResponseMapper.of(result);
-        return ResponseEntity.ok(response);
-    }
-
     @Operation(summary = "스탬프 등록하기 - DEPRECATED")
     @PostMapping("/{missionId}")
     @Transactional
