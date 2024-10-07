@@ -5,17 +5,14 @@ import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.playground.PlaygroundAuthService;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
 import org.sopt.app.application.playground.user_finder.PlaygroundUserIdsProvider;
-import org.sopt.app.application.user.UserInfo.UserProfile;
+import org.sopt.app.application.user.UserProfile;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.common.utils.RandomPicker;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.FriendRecommendType;
-import org.sopt.app.presentation.poke.PokeResponse.RecommendedFriendsByType;
-import org.sopt.app.presentation.poke.PokeResponse.RecommendedFriendsRequest;
-import org.sopt.app.presentation.poke.PokeResponse.SimplePokeProfile;
+import org.sopt.app.presentation.poke.PokeResponse.*;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -27,8 +24,7 @@ public class FriendRecommender {
     private final FriendService friendService;
     private final PlaygroundUserIdsProvider playgroundUserIdsProvider;
 
-    public RecommendedFriendsRequest recommendFriendsByTypeList(
-            List<FriendRecommendType> typeList, int size, User user) {
+    public RecommendedFriendsRequest recommendFriendsByTypeList(List<FriendRecommendType> typeList, int size, User user) {
         typeList = this.adjustTypeList(typeList);
 
         OwnPlaygroundProfile ownProfile = playgroundAuthService.getOwnPlaygroundProfile(user.getPlaygroundToken());

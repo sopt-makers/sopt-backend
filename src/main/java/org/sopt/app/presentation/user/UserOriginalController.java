@@ -27,7 +27,6 @@ public class UserOriginalController {
 
     private final PlaygroundAuthService playgroundAuthService;
     private final UserResponseMapper userResponseMapper;
-
     private final UserFacade userFacade;
 
     @Operation(summary = "메인 뷰 조회")
@@ -54,8 +53,8 @@ public class UserOriginalController {
     public ResponseEntity<UserResponse.Generation> getGenerationInfo(
             @AuthenticationPrincipal User user
     ) {
-        val generationUser = playgroundAuthService.getPlaygroundUserActiveInfo(
-                user.getPlaygroundToken(), user.getPlaygroundId());
+        val generationUser =
+                playgroundAuthService.getPlaygroundUserActiveInfo(user.getPlaygroundToken(), user.getPlaygroundId());
         val response = userResponseMapper.ofGeneration(generationUser);
         return ResponseEntity.ok(response);
     }
