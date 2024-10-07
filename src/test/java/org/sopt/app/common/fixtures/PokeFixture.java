@@ -2,11 +2,7 @@ package org.sopt.app.common.fixtures;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundActivity;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfileOfRecommendedFriend;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
 import org.sopt.app.application.user.UserProfile;
 
 public class PokeFixture {
@@ -50,23 +46,5 @@ public class PokeFixture {
                 .university(UNIVERSITY)
                 .activities(List.of(new ActivityCardinalInfo(GENERATION + "," + PART)))
                 .build();
-    }
-
-    public static List<PlaygroundProfileOfRecommendedFriend> createSameMbtiPlaygroundProfileOfRecommendedFriend(List<Long> playgroundIds, String mbti, Integer generation) {
-        return playgroundIds.stream().map(playgroundId ->
-                PlaygroundProfileOfRecommendedFriend.builder()
-                        .playgroundId(playgroundId)
-                        .mbti(mbti)
-                        .activities(List.of(new PlaygroundActivity(PART,generation)))
-                        .build()).toList();
-    }
-
-    public static List<PlaygroundProfileOfRecommendedFriend> createSameUniversityPlaygroundProfileOfRecommendedFriend(List<Long> playgroundIds, String university, Integer generation) {
-        return playgroundIds.stream().map(playgroundId ->
-                PlaygroundProfileOfRecommendedFriend.builder()
-                        .playgroundId(playgroundId)
-                        .university(university)
-                        .activities(List.of(new PlaygroundActivity(PART,generation)))
-                        .build()).toList();
     }
 }

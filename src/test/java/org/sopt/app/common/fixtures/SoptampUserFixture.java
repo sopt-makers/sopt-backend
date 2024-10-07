@@ -3,21 +3,28 @@ package org.sopt.app.common.fixtures;
 import java.util.List;
 import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
+import org.sopt.app.domain.enums.PlaygroundPart;
 
 public class SoptampUserFixture {
 
     public static final SoptampUser SOPTAMP_USER_1 =
-            SoptampUser.builder().id(1L).userId(10L).nickname("서버유저").totalPoints(100L).build();
+            SoptampUser.builder().id(1L).userId(10L).nickname("서버유저").totalPoints(100L)
+                    .generation(35L).part(PlaygroundPart.SERVER.getPartName()).build();
     public static final SoptampUser SOPTAMP_USER_2 =
-            SoptampUser.builder().id(2L).userId(20L).nickname("안드유저").totalPoints(200L).build();
+            SoptampUser.builder().id(2L).userId(20L).nickname("안드유저").generation(35L).totalPoints(200L)
+                    .generation(35L).part(PlaygroundPart.ANDROID.getPartName()).build();
     public static final SoptampUser SOPTAMP_USER_3 =
-            SoptampUser.builder().id(3L).userId(30L).nickname("아요유저").totalPoints(300L).build();
+            SoptampUser.builder().id(3L).userId(30L).nickname("아요유저").generation(35L).totalPoints(300L)
+                    .generation(35L).part(PlaygroundPart.IOS.getPartName()).build();
     public static final SoptampUser SOPTAMP_USER_4 =
-            SoptampUser.builder().id(4L).userId(40L).nickname("디자인유저").totalPoints(300L).build();
+            SoptampUser.builder().id(4L).userId(40L).nickname("디자인유저").generation(35L).totalPoints(300L)
+                    .generation(35L).part(PlaygroundPart.DESIGN.getPartName()).build();
     public static final SoptampUser SOPTAMP_USER_5 =
-            SoptampUser.builder().id(5L).userId(50L).nickname("서버유저A").totalPoints(500L).build();
+            SoptampUser.builder().id(5L).userId(50L).nickname("서버유저A").generation(35L).totalPoints(500L)
+                    .generation(35L).part(PlaygroundPart.SERVER.getPartName()).build();
     public static final SoptampUser SOPTAMP_USER_6 =
-            SoptampUser.builder().id(6L).userId(60L).nickname("서버유저B").totalPoints(600L).build();
+            SoptampUser.builder().id(6L).userId(60L).nickname("서버유저B").generation(35L).totalPoints(600L)
+                    .generation(35L).part(PlaygroundPart.SERVER.getPartName()).build();
 
     public static final SoptampUserInfo SOPTAMP_USER_INFO_1 = SoptampUserInfo.builder()
             .id(SOPTAMP_USER_1.getId())

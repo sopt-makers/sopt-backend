@@ -11,6 +11,7 @@ import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.LoginInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
 import org.sopt.app.application.user.*;
 import org.sopt.app.common.exception.*;
@@ -32,13 +33,14 @@ class UserServiceTest {
         //given
         final Long anyUserId = anyLong();
         PlaygroundMain playgroundMemberResponse = PlaygroundMain.builder().id(anyUserId).build();
+        LoginInfo loginInfo = LoginInfo.of(playgroundMemberResponse, "token");
 
         //when
         when(userRepository.findUserByPlaygroundId(anyUserId)).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenReturn(User.builder().id(playgroundMemberResponse.getId()).build());
 
         Long expected = playgroundMemberResponse.getId();
-        Long result = userService.upsertUser(playgroundMemberResponse);
+        Long result = userService.upsertUser(loginInfo);
 
         //then
         Assertions.assertEquals(expected, result);
@@ -50,14 +52,14 @@ class UserServiceTest {
         //given
         final Long anyUserId = anyLong();
         PlaygroundMain playgroundMemberResponse = PlaygroundMain.builder().id(anyUserId).build();
+        LoginInfo loginInfo = LoginInfo.of(playgroundMemberResponse, "token");
 
         User registeredUser = User.builder().id(anyUserId).build();
 
         //when
         when(userRepository.findUserByPlaygroundId(anyUserId)).thenReturn(Optional.of(registeredUser));
-        when(userRepository.save(any(User.class))).thenReturn(registeredUser);
 
-        Long result = userService.upsertUser(playgroundMemberResponse);
+        Long result = userService.upsertUser(loginInfo);
 
         //then
         Assertions.assertEquals(anyUserId, result);
@@ -111,7 +113,6 @@ class UserServiceTest {
 
         //when
         when(userRepository.findUserById(anyUserId)).thenReturn(Optional.of(User.builder().id(anyUserId).build()));
-        when(userRepository.save(any(User.class))).thenReturn(User.builder().id(anyUserId).playgroundToken(playgroundToken).build());
 
         //then
         Assertions.assertDoesNotThrow(() -> userService.updatePlaygroundToken(anyUserId, playgroundToken));
