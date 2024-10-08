@@ -29,11 +29,11 @@ public class PokeHistory extends BaseEntity {
 
     @NotNull
     @ColumnDefault("false")
-    private boolean isReply;
+    private Boolean isReply;
 
     @NotNull
     @ColumnDefault("false")
-    private boolean isAnonymous;
+    private Boolean isAnonymous;
 
     public void activateReply() {
         this.isReply = true;
