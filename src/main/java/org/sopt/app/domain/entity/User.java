@@ -1,5 +1,6 @@
 package org.sopt.app.domain.entity;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,11 +22,14 @@ public class User extends BaseEntity implements UserDetails {
     @Column(name = "user_id")
     private Long id;
 
+    @NotNull
     private String username;
 
+    @NotNull
     @Column(unique = true)
     private Long playgroundId;
 
+    @NotNull
     private String playgroundToken;
 
     @Builder
