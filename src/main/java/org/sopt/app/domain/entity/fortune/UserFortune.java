@@ -20,13 +20,13 @@ public class UserFortune {
     private Long userId;
 
     @NotNull
-    private Long fortuneId;
+    private Long fortuneWordId;
 
     @NotNull
     private LocalDate checkedAt;
 
-    public void updateTodayFortune(final Long fortuneId, final LocalDate checkedAt) {
-        this.fortuneId = fortuneId;
+    public void updateTodayFortune(final Long fortuneWordId, final LocalDate checkedAt) {
+        this.fortuneWordId = fortuneWordId;
         this.checkedAt = checkedAt;
     }
 }

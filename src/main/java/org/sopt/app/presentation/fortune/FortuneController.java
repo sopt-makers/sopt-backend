@@ -1,7 +1,7 @@
 package org.sopt.app.presentation.fortune;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import org.sopt.app.application.fortune.FortuneProvider;
+import org.sopt.app.application.fortune.FortuneService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,7 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 @SecurityRequirement(name = "Authorization")
 public class FortuneController {
 
-    private final FortuneProvider fortuneProvider;
+    private final FortuneService fortuneService;
 
     @Operation(summary = "오늘의 솝마디 조회")
     @ApiResponses({
@@ -36,7 +36,7 @@ public class FortuneController {
     ) {
         return ResponseEntity.ok(
                 FortuneResponse.of(
-                        fortuneProvider.getTodayFortuneWordByUserId(user.getId(), todayDate),
+                        fortuneService.getTodayFortuneWordByUserId(user.getId(), todayDate),
                         user.getUsername()
                 )
         );
@@ -54,7 +54,7 @@ public class FortuneController {
     ) {
         return ResponseEntity.ok(
                 FortuneCardResponse.of(
-                        fortuneProvider.getTodayFortuneCardByUserId(user.getId())
+                        fortuneService.getTodayFortuneCardByUserId(user.getId())
                 )
         );
     }
