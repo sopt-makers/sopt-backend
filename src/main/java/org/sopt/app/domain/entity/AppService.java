@@ -9,7 +9,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AppService extends BaseEntity {
+public class AppService{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
