@@ -1,6 +1,7 @@
 package org.sopt.app.domain.entity.soptamp;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.sopt.app.domain.entity.BaseEntity;
 import org.sopt.app.domain.enums.PlaygroundPart;
@@ -16,16 +17,22 @@ public class SoptampUser extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     private Long userId;
 
+    @NotNull
     private String profileMessage;
 
+    @NotNull
     private Long totalPoints;
 
+    @NotNull
     private String nickname;
 
+    @NotNull
     private Long generation;
 
+    @NotNull
     private String part;
 
     public void initTotalPoints() {
