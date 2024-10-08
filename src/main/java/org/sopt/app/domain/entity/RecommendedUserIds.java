@@ -1,5 +1,6 @@
 package org.sopt.app.domain.entity;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.Set;
 import lombok.*;
 import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
@@ -13,8 +14,10 @@ import org.springframework.data.redis.core.RedisHash;
 public class RecommendedUserIds {
 
     @Id
+    @NotNull
     private String condition;
 
+    @NotNull
     private Set<Long> userIds;
 
     public RecommendedUserIds(final PlaygroundUserFindCondition request, final Set<Long> userIds) {
