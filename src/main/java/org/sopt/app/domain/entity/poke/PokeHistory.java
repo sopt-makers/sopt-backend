@@ -3,6 +3,7 @@ package org.sopt.app.domain.entity.poke;
 import lombok.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import org.hibernate.annotations.ColumnDefault;
 import org.sopt.app.domain.entity.BaseEntity;
 
 @Getter
@@ -22,13 +23,17 @@ public class PokeHistory extends BaseEntity {
     @NotNull
     private Long pokedId;
 
+    @NotNull
     @Column(columnDefinition = "TEXT")
     private String message;
 
-    private Boolean isReply;
+    @NotNull
+    @ColumnDefault("false")
+    private boolean isReply;
 
     @NotNull
-    private Boolean isAnonymous;
+    @ColumnDefault("false")
+    private boolean isAnonymous;
 
     public void activateReply() {
         this.isReply = true;
