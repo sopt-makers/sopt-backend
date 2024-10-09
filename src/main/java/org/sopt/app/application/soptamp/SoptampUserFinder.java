@@ -19,25 +19,18 @@ public class SoptampUserFinder {
     @Value("${sopt.current.generation}")
     private Long currentGeneration;
 
-    public List<SoptampUserInfo> findAllCurrentGenerationSoptampUsers() {
+    public List<SoptampUserInfo> findAllOfCurrentGeneration() {
         return soptampUserRepository.findAllByGeneration(currentGeneration)
                 .stream()
                 .map(SoptampUserInfo::of)
                 .toList();
     }
 
-    public List<SoptampUserInfo> findSoptampUserIdByPart(Part part) {
+    public List<SoptampUserInfo> findAllByPartAndCurrentGeneration(Part part) {
         return soptampUserRepository.findAllByNicknameStartingWithAndGeneration(part.getPartName(), currentGeneration)
                 .stream()
                 .map(SoptampUserInfo::of)
                 .toList();
-    }
-
-    public SoptampUserInfo findSoptampUserByNickname(String nickname) {
-        return SoptampUserInfo.of(
-                soptampUserRepository.findUserByNickname(nickname)
-                        .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND))
-        );
     }
 
     public SoptampUserInfo findByNickname(String nickname) {

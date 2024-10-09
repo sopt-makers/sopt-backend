@@ -1,8 +1,10 @@
 package org.sopt.app.facade;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,25 +13,22 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.auth.JwtTokenService;
-import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.AppToken;
-import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
+import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.*;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
 import org.sopt.app.application.playground.PlaygroundAuthService;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.soptamp.SoptampUserService;
-import org.sopt.app.application.user.UserInfo.Id;
 import org.sopt.app.application.user.UserService;
+import org.sopt.app.common.fixtures.SoptampUserFixture;
+import org.sopt.app.common.fixtures.UserFixture;
 import org.sopt.app.domain.enums.UserStatus;
-import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
-import org.sopt.app.presentation.auth.AppAuthRequest.CodeRequest;
-import org.sopt.app.presentation.auth.AppAuthRequest.RefreshRequest;
-import org.sopt.app.presentation.auth.AppAuthResponse.Token;
-import org.sopt.app.presentation.auth.AppAuthResponseMapper;
+import org.sopt.app.presentation.auth.AppAuthRequest.*;
+import org.sopt.app.presentation.auth.AppAuthResponse;
 
 @ExtendWith(MockitoExtension.class)
 class AuthFacadeTest {
 
-    @Mock
-    private AppAuthResponseMapper appAuthResponseMapper;
     @Mock
     private JwtTokenService jwtTokenService;
     @Mock
@@ -48,51 +47,45 @@ class AuthFacadeTest {
         CodeRequest codeRequest = new CodeRequest("code");
         AccessTokenRequest accessTokenRequest = new AccessTokenRequest("accessToken");
         RefreshedToken refreshedToken = RefreshedToken.builder().accessToken("refreshedToken").build();
-        PlaygroundMain playgroundMain = PlaygroundMain.builder().name("name").status(UserStatus.ACTIVE).build();
-        Id userId = Id.builder().id(21L).build();
-        Long soptampUserId = 5L;
+        Long userId = SoptampUserFixture.SOPTAMP_USER_1.getUserId();
+        Long playgroundId = UserFixture.myPlaygroundId;
         AppToken appToken = AppToken.builder().accessToken("appAccessToken").refreshToken("appRefreshToken").build();
-        Token token = new Token("appAccessToken", "appRefreshToken", null, null);
-
+        when(playgroundAuthService.getPlaygroundMember(refreshedToken.getAccessToken())).thenReturn(PlaygroundMain.builder().id(playgroundId).build());
         when(playgroundAuthService.getPlaygroundAccessToken(codeRequest)).thenReturn(accessTokenRequest);
         when(playgroundAuthService.refreshPlaygroundToken(accessTokenRequest)).thenReturn(refreshedToken);
-        when(playgroundAuthService.getPlaygroundInfo(refreshedToken.getAccessToken()))
-                .thenReturn(playgroundMain);
-        when(userService.loginWithUserPlaygroundId(playgroundMain)).thenReturn(userId);
-        when(soptampUserService.createSoptampUser(playgroundMain.getName(), userId.getId()))
-                .thenReturn(soptampUserId);
-        when(jwtTokenService.issueNewTokens(userId, playgroundMain)).thenReturn(appToken);
-        when(appAuthResponseMapper.of(appToken.getAccessToken(), appToken.getRefreshToken(),
-                playgroundMain.getAccessToken(), playgroundMain.getStatus())).thenReturn(token);
+        when(playgroundAuthService.getPlaygroundMemberProfile(refreshedToken.getAccessToken(), playgroundId))
+                .thenReturn(PlaygroundProfile.builder().activities(List.of(new ActivityCardinalInfo("35,서버"))).build());
+        when(userService.upsertUser(any())).thenReturn(userId);
+        when(jwtTokenService.issueNewTokens(userId, playgroundId)).thenReturn(appToken);
+        when(playgroundAuthService.getStatus(any())).thenReturn(UserStatus.ACTIVE);
 
-        Token result = authFacade.loginWithPlayground(codeRequest);
+        AppAuthResponse result = authFacade.loginWithPlayground(codeRequest);
         Assertions.assertEquals(appToken.getAccessToken(), result.getAccessToken());
         Assertions.assertEquals(appToken.getRefreshToken(), result.getRefreshToken());
+        Assertions.assertEquals(refreshedToken.getAccessToken(), result.getPlaygroundToken());
+        Assertions.assertEquals(UserStatus.ACTIVE, result.getStatus());
     }
 
     @Test
     @DisplayName("SUCCESS_인증 회원 토큰 리프레시")
     void SUCCESS_getRefreshToken() {
-        RefreshRequest refreshRequest = new RefreshRequest("refreshToken");
+        String refreshToken =  "refreshToken";
         AccessTokenRequest accessTokenRequest = new AccessTokenRequest("accessToken");
         RefreshedToken refreshedToken = RefreshedToken.builder().accessToken("refreshedToken").build();
-        PlaygroundMain playgroundMain = PlaygroundMain.builder().accessToken("accessToken").status(UserStatus.ACTIVE).build();
-        Id userId = Id.builder().id(21L).build();
+
+        Long userId = UserFixture.myAppUserId;
+        Long playgroundId = UserFixture.myPlaygroundId;
         AppToken newAppToken = AppToken.builder().accessToken("newAppAccessToken").refreshToken("newAppRefreshToken")
                 .build();
-        Token token = new Token("newAppAccessToken", "newAppRefreshToken", null, null);
 
-        when(jwtTokenService.getUserIdFromJwtToken(refreshRequest.getRefreshToken())).thenReturn(userId);
+        when(jwtTokenService.getUserIdFromJwtToken(refreshToken)).thenReturn(userId);
         when(userService.getPlaygroundToken(userId)).thenReturn(accessTokenRequest);
         when(playgroundAuthService.refreshPlaygroundToken(accessTokenRequest)).thenReturn(refreshedToken);
-        when(playgroundAuthService.getPlaygroundInfo(refreshedToken.getAccessToken()))
-                .thenReturn(playgroundMain);
+        when(playgroundAuthService.getPlaygroundMember(refreshedToken.getAccessToken())).thenReturn(PlaygroundMain.builder().id(playgroundId).build());
         doNothing().when(userService).updatePlaygroundToken(userId, refreshedToken.getAccessToken());
-        when(jwtTokenService.issueNewTokens(userId, playgroundMain)).thenReturn(newAppToken);
-        when(appAuthResponseMapper.of(newAppToken.getAccessToken(), newAppToken.getRefreshToken(),
-                refreshedToken.getAccessToken(), playgroundMain.getStatus())).thenReturn(token);
+        when(jwtTokenService.issueNewTokens(userId, playgroundId)).thenReturn(newAppToken);
 
-        Token result = authFacade.getRefreshToken(refreshRequest);
+        AppAuthResponse result = authFacade.getRefreshToken(refreshToken);
         Assertions.assertEquals(newAppToken.getAccessToken(), result.getAccessToken());
         Assertions.assertEquals(newAppToken.getRefreshToken(), result.getRefreshToken());
     }

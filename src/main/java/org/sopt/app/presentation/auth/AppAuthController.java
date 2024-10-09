@@ -2,11 +2,9 @@ package org.sopt.app.presentation.auth;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.*;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
+import lombok.*;
 import org.sopt.app.facade.AuthFacade;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +23,7 @@ public class AppAuthController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PostMapping(value = "/playground")
-    public ResponseEntity<AppAuthResponse.Token> playgroundLogin(
+    public ResponseEntity<AppAuthResponse> playgroundLogin(
             @Valid @RequestBody AppAuthRequest.CodeRequest codeRequest
     ) {
         val response = authFacade.loginWithPlayground(codeRequest);
@@ -39,10 +37,10 @@ public class AppAuthController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PatchMapping(value = "/refresh")
-    public ResponseEntity<AppAuthResponse.Token> refreshToken(
+    public ResponseEntity<AppAuthResponse> refreshToken(
             @Valid @RequestBody AppAuthRequest.RefreshRequest refreshRequest
     ) {
-        val response = authFacade.getRefreshToken(refreshRequest);
+        val response = authFacade.getRefreshToken(refreshRequest.getRefreshToken());
         return ResponseEntity.ok(response);
     }
 }

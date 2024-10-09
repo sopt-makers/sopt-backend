@@ -32,13 +32,20 @@ public class SoptampUser extends BaseEntity {
         this.totalPoints = 0L;
     }
 
-    public void updateNickname(String nickname) {
-        this.nickname = nickname;
+    public static SoptampUser createNewSoptampUser(Long userId, String nickname, Long generation, PlaygroundPart part) {
+        return SoptampUser.builder()
+                .userId(userId)
+                .nickname(nickname)
+                .generation(generation)
+                .part(part.getPartName())
+                .totalPoints(0L)
+                .profileMessage("")
+                .build();
     }
 
     public void updateGenerationAndPart(Long generation, PlaygroundPart part) {
         this.generation = generation;
-        this.part = part.name();
+        this.part = part.getPartName();
     }
 
     public void addPointsByLevel(Integer level) {

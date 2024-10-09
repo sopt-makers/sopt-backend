@@ -59,7 +59,7 @@ public class SoptampFacade {
     }
 
     public RankResponse.Detail findSoptampUserAndCompletedMissionByNickname(String nickname) {
-        SoptampUserInfo soptampUserInfo = soptampUserFinder.findSoptampUserByNickname(nickname);
+        SoptampUserInfo soptampUserInfo = soptampUserFinder.findByNickname(nickname);
         List<Mission> missionList = missionService.getCompleteMission(soptampUserInfo.getUserId());
 
         return rankResponseMapper.of(soptampUserInfo, missionList);

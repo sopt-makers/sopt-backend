@@ -39,6 +39,10 @@ public class User extends BaseEntity implements UserDetails {
         this.playgroundToken = playgroundToken;
     }
 
+    public void updatePlaygroundToken(String playgroundToken) {
+        this.playgroundToken = playgroundToken;
+    }
+
     // UserDetails Override Methods
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

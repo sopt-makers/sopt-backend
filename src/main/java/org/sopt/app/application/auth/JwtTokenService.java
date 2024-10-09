@@ -1,9 +1,6 @@
 package org.sopt.app.application.auth;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Header;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
@@ -15,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.joda.time.LocalDateTime;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.AppToken;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
-import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,48 +36,47 @@ public class JwtTokenService {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
     }
 
-    public AppToken issueNewTokens(UserInfo.Id userId,
-            PlaygroundProfileInfo.PlaygroundMain playgroundMember) {
-        val accessToken = this.encodeJwtToken(userId, playgroundMember.getId());
+    public AppToken issueNewTokens(Long userId, Long playgroundId) {
+        val accessToken = this.encodeJwtToken(userId, playgroundId);
         val refreshToken = this.encodeJwtRefreshToken(userId);
         return AppToken.builder().accessToken(accessToken).refreshToken(refreshToken).build();
     }
 
-    private String encodeJwtToken(UserInfo.Id userId, Long playgroundId) {
+    private String encodeJwtToken(Long userId, Long playgroundId) {
         val now = LocalDateTime.now();
 
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuer("sopt-makers")
                 .setIssuedAt(now.toDate())
-                .setSubject(userId.getId().toString())
+                .setSubject(userId.toString())
                 .setExpiration(now.plusDays(1).toDate())
-                .claim("id", userId.getId())
+                .claim("id", userId)
                 .claim("playgroundId", playgroundId)
                 .claim("roles", "USER")
                 .signWith(getSigningKey(JWT_SECRET), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    private String encodeJwtRefreshToken(UserInfo.Id userId) {
+    private String encodeJwtRefreshToken(Long userId) {
         val now = LocalDateTime.now();
         return Jwts.builder()
                 .setIssuedAt(now.toDate())
-                .setSubject(userId.getId().toString())
+                .setSubject(userId.toString())
                 .setExpiration(now.plusDays(30).toDate())
-                .claim("id", userId.getId())
+                .claim("id", userId)
                 .claim("roles", "USER")
                 .signWith(getSigningKey(JWT_SECRET), SignatureAlgorithm.HS256)
                 .compact();
     }
 
-    public UserInfo.Id getUserIdFromJwtToken(String token) {
+    public Long getUserIdFromJwtToken(String token) {
         try {
             val claims = Jwts.parser()
                 .setSigningKey(this.encodeKey(JWT_SECRET))
                 .parseClaimsJws(token)
                 .getBody();
-        return UserInfo.Id.builder().id(Long.parseLong(claims.getSubject())).build();
+        return Long.parseLong(claims.getSubject());
         } catch (ExpiredJwtException e) {
             throw new UnauthorizedException(ErrorCode.TOKEN_EXPIRED);
         } catch (Exception e) {
@@ -91,17 +85,14 @@ public class JwtTokenService {
     }
 
     public Authentication getAuthentication(String token) {
-        val userDetails = customUserDetailsService.loadUserByUsername(
-                this.getUserIdFromJwtToken(token).getId().toString());
-        return new UsernamePasswordAuthenticationToken(userDetails, "",
-                userDetails.getAuthorities());
+        val userDetails = customUserDetailsService.loadUserByUsername(this.getUserIdFromJwtToken(token).toString());
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
 
     public Boolean validateToken(String token) {
         try {
-            val claims = Jwts.parser()
-                    .setSigningKey(this.encodeKey(JWT_SECRET)).parseClaimsJws(token);
+            val claims = Jwts.parser().setSigningKey(this.encodeKey(JWT_SECRET)).parseClaimsJws(token);
 
             return !claims.getBody().getExpiration().before(new Date());
         } catch (Exception e) {

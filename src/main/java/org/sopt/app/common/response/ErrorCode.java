@@ -32,6 +32,7 @@ public enum ErrorCode {
     // USER
     USER_NOT_FOUND("존재하지 않는 유저입니다.", HttpStatus.NOT_FOUND),
     DUPLICATE_NICKNAME("사용 중인 닉네임입니다.", HttpStatus.CONFLICT),
+    NICKNAME_IS_FULL("사용 가능한 닉네임이 없습니다.", HttpStatus.CONFLICT),
     USER_GENERATION_INFO_NOT_FOUND("기수 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     // MISSION

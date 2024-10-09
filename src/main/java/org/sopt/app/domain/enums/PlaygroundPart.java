@@ -15,12 +15,12 @@ public enum PlaygroundPart {
     SERVER("서버", "서버"),
     NONE("미상", "선배"),
     ;
-    String partName;
-    String soptampNickname;
+    final String partName;
+    final String soptampNickname;
 
     public static PlaygroundPart findPlaygroundPart(String partName) {
         return Arrays.stream(PlaygroundPart.values())
-                .filter(playgroundPart -> playgroundPart.partName.equals(partName))
+                .filter(playgroundPart -> playgroundPart.soptampNickname.equals(partName))
                 .findAny()
                 .orElse(PlaygroundPart.NONE);
     }

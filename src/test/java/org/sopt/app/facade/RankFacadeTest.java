@@ -29,7 +29,7 @@ class RankFacadeTest {
     @DisplayName("SUCCESS_현재 기수의 솝탬프 유저 랭킹 조회")
     void SUCCESS_findCurrentRanks() {
         //given
-        given(soptampUserFinder.findAllCurrentGenerationSoptampUsers()).willReturn(SOPTAMP_USER_INFO_LIST);
+        given(soptampUserFinder.findAllOfCurrentGeneration()).willReturn(SOPTAMP_USER_INFO_LIST);
 
         // when
         List<Main> result = rankFacade.findCurrentRanks();
@@ -65,7 +65,7 @@ class RankFacadeTest {
     @DisplayName("SUCCESS 파트별 현재 기수의 솝탬프 유저 랭킹 조회")
     void findCurrentRanksByPart() {
         // given
-        given(soptampUserFinder.findSoptampUserIdByPart(Part.SERVER)).willReturn(SERVER_PART_SOPTAMP_USER_INFO_LIST);
+        given(soptampUserFinder.findAllByPartAndCurrentGeneration(Part.SERVER)).willReturn(SERVER_PART_SOPTAMP_USER_INFO_LIST);
         // when
         List<Main> result = rankFacade.findCurrentRanksByPart(Part.SERVER);
         List<Main> expected = List.of(
@@ -90,7 +90,7 @@ class RankFacadeTest {
     @DisplayName("SUCCESS 파트끼리의 솝탬프 포인트 랭킹 조회")
     void findAllPartRanks() {
         // given
-        given(soptampUserFinder.findAllCurrentGenerationSoptampUsers()).willReturn(SOPTAMP_USER_INFO_LIST);
+        given(soptampUserFinder.findAllOfCurrentGeneration()).willReturn(SOPTAMP_USER_INFO_LIST);
         // when
         List<PartRank> result = rankFacade.findAllPartRanks();
         List<PartRank> expected = List.of( // 기-디-웹-아-안-서 순서

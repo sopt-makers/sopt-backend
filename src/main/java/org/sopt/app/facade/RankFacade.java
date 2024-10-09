@@ -20,21 +20,21 @@ public class RankFacade {
 
     @Transactional(readOnly = true)
     public List<Main> findCurrentRanks() {
-        List<SoptampUserInfo> soptampUserInfos = soptampUserFinder.findAllCurrentGenerationSoptampUsers();
+        List<SoptampUserInfo> soptampUserInfos = soptampUserFinder.findAllOfCurrentGeneration();
         SoptampUserRankCalculator soptampUserRankCalculator = new SoptampUserRankCalculator(soptampUserInfos);
         return soptampUserRankCalculator.calculateRank();
     }
 
     @Transactional(readOnly = true)
     public List<Main> findCurrentRanksByPart(Part part) {
-        List<SoptampUserInfo> soptampUserInfos = soptampUserFinder.findSoptampUserIdByPart(part);
+        List<SoptampUserInfo> soptampUserInfos = soptampUserFinder.findAllByPartAndCurrentGeneration(part);
         SoptampUserRankCalculator soptampUserRankCalculator = new SoptampUserRankCalculator(soptampUserInfos);
         return soptampUserRankCalculator.calculateRank();
     }
 
     @Transactional(readOnly = true)
     public List<PartRank> findAllPartRanks() {
-        List<SoptampUserInfo> soptampUserInfos = soptampUserFinder.findAllCurrentGenerationSoptampUsers();
+        List<SoptampUserInfo> soptampUserInfos = soptampUserFinder.findAllOfCurrentGeneration();
         SoptampPartRankCalculator soptampPartRankCalculator = new SoptampPartRankCalculator(soptampUserInfos);
         return soptampPartRankCalculator.calculatePartRank();
     }

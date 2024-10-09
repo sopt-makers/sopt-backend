@@ -3,7 +3,7 @@ package org.sopt.app.application.friend;
 import java.util.List;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.application.user.UserInfo.UserProfile;
+import org.sopt.app.application.user.UserProfile;
 
 @RequiredArgsConstructor
 public class FriendFilter {

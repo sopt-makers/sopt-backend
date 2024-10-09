@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotNull;
 
 import lombok.*;
+import org.sopt.app.domain.entity.Notification;
 import org.sopt.app.domain.enums.NotificationCategory;
 import org.sopt.app.domain.enums.NotificationType;
 
@@ -53,5 +54,19 @@ public class NotificationRequest {
         @Schema(description = "알림 고유값")
         @JsonProperty(value = "id")
         private String notificationId;
+
+        public Notification toEntity(RegisterNotificationRequest request, Long userId) {
+            return Notification.builder()
+                    .userId(userId)
+                    .title(request.title)
+                    .content(request.content)
+                    .type(request.type)
+                    .category(request.category)
+                    .deepLink(request.deepLink)
+                    .webLink(request.webLink)
+                    .notificationId(request.notificationId)
+                    .isRead(false)
+                    .build();
+        }
     }
 }
