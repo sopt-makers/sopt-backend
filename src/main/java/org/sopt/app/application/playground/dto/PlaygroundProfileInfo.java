@@ -31,7 +31,7 @@ public class PlaygroundProfileInfo {
         private String name;
         private Long generation;
         private String profileImage;
-        private Boolean hasProfile;
+        private boolean hasProfile;
     }
 
     @Builder
