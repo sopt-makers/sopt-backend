@@ -50,7 +50,8 @@ class AuthFacadeTest {
         Long userId = SoptampUserFixture.SOPTAMP_USER_1.getUserId();
         Long playgroundId = UserFixture.myPlaygroundId;
         AppToken appToken = AppToken.builder().accessToken("appAccessToken").refreshToken("appRefreshToken").build();
-        when(playgroundAuthService.getPlaygroundMember(refreshedToken.getAccessToken())).thenReturn(PlaygroundMain.builder().id(playgroundId).build());
+        when(playgroundAuthService.getPlaygroundMember(refreshedToken.getAccessToken()))
+                .thenReturn(PlaygroundMain.builder().id(playgroundId).hasProfile(true).build());
         when(playgroundAuthService.getPlaygroundAccessToken(codeRequest)).thenReturn(accessTokenRequest);
         when(playgroundAuthService.refreshPlaygroundToken(accessTokenRequest)).thenReturn(refreshedToken);
         when(playgroundAuthService.getPlaygroundMemberProfile(refreshedToken.getAccessToken(), playgroundId))

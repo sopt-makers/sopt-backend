@@ -32,7 +32,7 @@ class UserServiceTest {
     void SUCCESS_upsertNoRegisteredUser() {
         //given
         final Long anyUserId = anyLong();
-        PlaygroundMain playgroundMemberResponse = PlaygroundMain.builder().id(anyUserId).build();
+        PlaygroundMain playgroundMemberResponse = PlaygroundMain.builder().id(anyUserId).hasProfile(true).build();
         LoginInfo loginInfo = LoginInfo.of(playgroundMemberResponse, "token");
 
         //when
@@ -51,7 +51,7 @@ class UserServiceTest {
     void SUCCESS_upsertRegisteredUser() {
         //given
         final Long anyUserId = anyLong();
-        PlaygroundMain playgroundMemberResponse = PlaygroundMain.builder().id(anyUserId).build();
+        PlaygroundMain playgroundMemberResponse = PlaygroundMain.builder().id(anyUserId).hasProfile(true).build();
         LoginInfo loginInfo = LoginInfo.of(playgroundMemberResponse, "token");
 
         User registeredUser = User.builder().id(anyUserId).build();
