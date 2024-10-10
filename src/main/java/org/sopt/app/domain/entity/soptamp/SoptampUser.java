@@ -10,6 +10,7 @@ import org.sopt.app.domain.enums.PlaygroundPart;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(schema = "app_dev")
 public class SoptampUser extends BaseEntity {
 
     @Id
