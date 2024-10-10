@@ -95,6 +95,7 @@ public class PlaygroundProfileInfo {
     }
 
     @Getter
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class ActivityCardinalInfo {
 
