@@ -24,13 +24,14 @@ public class PlaygroundProfileInfo {
 
     @Getter
     @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class PlaygroundMain {
         private Long id;
         private String name;
         private Long generation;
         private String profileImage;
-        private boolean hasProfile;
+        private Boolean hasProfile;
     }
 
     @Builder
@@ -77,6 +78,7 @@ public class PlaygroundProfileInfo {
 
     @Getter
     @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class PlaygroundProfile {
 
@@ -93,6 +95,7 @@ public class PlaygroundProfileInfo {
     }
 
     @Getter
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class ActivityCardinalInfo {
 
@@ -113,6 +116,7 @@ public class PlaygroundProfileInfo {
 
     @Getter
     @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class OwnPlaygroundProfile {
 
