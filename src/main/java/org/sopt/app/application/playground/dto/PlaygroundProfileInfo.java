@@ -24,6 +24,7 @@ public class PlaygroundProfileInfo {
 
     @Getter
     @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class PlaygroundMain {
         private Long id;
@@ -77,6 +78,7 @@ public class PlaygroundProfileInfo {
 
     @Getter
     @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class PlaygroundProfile {
 
@@ -113,6 +115,7 @@ public class PlaygroundProfileInfo {
 
     @Getter
     @Builder
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class OwnPlaygroundProfile {
 
