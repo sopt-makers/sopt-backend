@@ -30,9 +30,11 @@ public class Notification extends BaseEntity{
     @Column(name = "notification_title", columnDefinition = "TEXT")
     private String title;
 
+    @NotNull
     @Column(name = "notification_content", columnDefinition = "TEXT")
     private String content;
 
+    @NotNull
     @Column(name = "notification_type")
     @Enumerated(EnumType.STRING)
     private NotificationType type;

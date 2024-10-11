@@ -8,7 +8,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
-public class MainDescription extends BaseEntity {
+public class MainDescription{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
