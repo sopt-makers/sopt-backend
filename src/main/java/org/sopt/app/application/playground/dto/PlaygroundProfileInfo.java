@@ -29,7 +29,7 @@ public class PlaygroundProfileInfo {
     public static class PlaygroundMain {
         private Long id;
         private String name;
-        private Long generation;
+        private Long latestGeneration;
         private String profileImage;
         private boolean hasProfile;
     }
@@ -52,7 +52,7 @@ public class PlaygroundProfileInfo {
             return LoginInfo.builder()
                     .playgroundId(playgroundMain.id)
                     .name(playgroundMain.name)
-                    .generation(playgroundMain.generation)
+                    .generation(playgroundMain.latestGeneration)
                     .profileImage(playgroundMain.profileImage)
                     .hasProfile(playgroundMain.hasProfile)
                     .playgroundToken(playgroundToken)
