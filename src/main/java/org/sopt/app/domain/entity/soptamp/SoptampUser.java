@@ -26,6 +26,7 @@ public class SoptampUser extends BaseEntity {
 
     private Long generation;
 
+    @Enumerated(EnumType.STRING)
     private PlaygroundPart part;
 
     public void initTotalPoints() {
