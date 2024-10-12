@@ -132,7 +132,7 @@ class SoptampUserServiceTest {
         verify(soptampUserRepository, times(1)).save(captor.capture());
         assertThat(captor.getValue().getUserId()).isEqualTo(userId);
         assertThat(captor.getValue().getNickname()).isEqualTo(expectedNickname);
-        assertThat(captor.getValue().getPart()).isEqualTo(profile.getLatestActivity());
+        assertThat(captor.getValue().getPart().getPartName()).isEqualTo(profile.getLatestActivity().getPart());
         assertThat(captor.getValue().getGeneration()).isEqualTo(profile.getLatestActivity().getGeneration());
     }
 
@@ -160,7 +160,7 @@ class SoptampUserServiceTest {
         verify(soptampUserRepository, times(1)).save(captor.capture());
         assertThat(captor.getValue().getUserId()).isEqualTo(userId);
         assertThat(captor.getValue().getNickname()).isEqualTo(expectedNickname);
-        assertThat(captor.getValue().getPart()).isEqualTo(profile.getLatestActivity());
+        assertThat(captor.getValue().getPart().getPartName()).isEqualTo(profile.getLatestActivity().getPart());
         assertThat(captor.getValue().getGeneration()).isEqualTo(profile.getLatestActivity().getGeneration());
     }
 
