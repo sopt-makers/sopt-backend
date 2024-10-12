@@ -132,7 +132,7 @@ class SoptampUserServiceTest {
         verify(soptampUserRepository, times(1)).save(captor.capture());
         assertThat(captor.getValue().getUserId()).isEqualTo(userId);
         assertThat(captor.getValue().getNickname()).isEqualTo(expectedNickname);
-        assertThat(captor.getValue().getPart()).isEqualTo(profile.getLatestActivity().getPart());
+        assertThat(captor.getValue().getPart()).isEqualTo(profile.getLatestActivity());
         assertThat(captor.getValue().getGeneration()).isEqualTo(profile.getLatestActivity().getGeneration());
     }
 
@@ -160,7 +160,7 @@ class SoptampUserServiceTest {
         verify(soptampUserRepository, times(1)).save(captor.capture());
         assertThat(captor.getValue().getUserId()).isEqualTo(userId);
         assertThat(captor.getValue().getNickname()).isEqualTo(expectedNickname);
-        assertThat(captor.getValue().getPart()).isEqualTo(profile.getLatestActivity().getPart());
+        assertThat(captor.getValue().getPart()).isEqualTo(profile.getLatestActivity());
         assertThat(captor.getValue().getGeneration()).isEqualTo(profile.getLatestActivity().getGeneration());
     }
 
@@ -194,7 +194,7 @@ class SoptampUserServiceTest {
         soptampUserService.upsertSoptampUser(profile, userId);
 
         //then
-        verify(existingUser, times(1)).updateGenerationAndPart(36L, PlaygroundPart.IOS);
+        verify(existingUser, times(1)).updateChangedGenerationInfo(anyLong(), any(), anyString());
     }
 
     @Test
@@ -214,7 +214,7 @@ class SoptampUserServiceTest {
 
         //then
         verify(soptampUserRepository, times(1)).findByUserId(userId);
-        verify(existingUser, never()).updateGenerationAndPart(anyLong(), any());
+        verify(existingUser, never()).updateChangedGenerationInfo(anyLong(), any(), anyString());
         verify(soptampUserRepository, never()).save(any(SoptampUser.class));
     }
 
