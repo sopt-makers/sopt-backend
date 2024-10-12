@@ -59,7 +59,7 @@ public class AuthFacade {
                 .accessToken(appToken.getAccessToken())
                 .playgroundToken(refreshedPlaygroundToken)
                 .refreshToken(appToken.getRefreshToken())
-                .status(playgroundAuthService.getStatus(playgroundInfo.getGeneration()))
+                .status(playgroundAuthService.getStatus(playgroundInfo.getLatestGeneration()))
                 .build();
     }
 

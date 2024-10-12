@@ -1,6 +1,7 @@
 package org.sopt.app.application.poke;
 
 import java.util.*;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.domain.entity.poke.PokeMessage;
@@ -32,7 +33,7 @@ public class PokeMessageService {
         Collections.shuffle(messages, new Random());
         return messages.stream()
                 .limit(MESSAGES_QUANTITY_AT_ONCE)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     public PokeMessage getFixedMessage() {

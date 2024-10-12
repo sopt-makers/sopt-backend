@@ -10,7 +10,6 @@ import org.sopt.app.domain.enums.PlaygroundPart;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(schema = "app_dev")
 public class SoptampUser extends BaseEntity {
 
     @Id
@@ -27,7 +26,7 @@ public class SoptampUser extends BaseEntity {
 
     private Long generation;
 
-    private String part;
+    private PlaygroundPart part;
 
     public void initTotalPoints() {
         this.totalPoints = 0L;
@@ -38,15 +37,16 @@ public class SoptampUser extends BaseEntity {
                 .userId(userId)
                 .nickname(nickname)
                 .generation(generation)
-                .part(part.getPartName())
+                .part(part)
                 .totalPoints(0L)
                 .profileMessage("")
                 .build();
     }
 
-    public void updateGenerationAndPart(Long generation, PlaygroundPart part) {
+    public void updateChangedGenerationInfo(Long generation, PlaygroundPart part, String nickname) {
         this.generation = generation;
-        this.part = part.getPartName();
+        this.part = part;
+        this.nickname = nickname;
     }
 
     public void addPointsByLevel(Integer level) {
