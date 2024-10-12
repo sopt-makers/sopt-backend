@@ -39,7 +39,7 @@ public enum ErrorCode {
     MISSION_NOT_FOUND("존재하지 않는 미션입니다.", HttpStatus.NOT_FOUND),
 
     // STAMP
-    STAMP_NOT_FOUND("존재하지 않는 스탬프입니다.", HttpStatus.NOT_FOUND),
+    STAMP_NOT_FOUND("존재하지 않는 스탬프입니다.", HttpStatus.BAD_REQUEST),
     DUPLICATE_STAMP("이미 해당 미션에 대한 스탬프가 존재합니다.", HttpStatus.CONFLICT),
     INVALID_STAMP_ACTIVITY_DATE("스탬프 활동 날짜가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
     INVALID_STAMP_CONTENTS("스탬프 내용이 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
