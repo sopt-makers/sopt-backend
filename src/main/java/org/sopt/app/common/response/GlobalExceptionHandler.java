@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(response, HttpStatus.METHOD_NOT_ALLOWED);
     }
 
-    @ExceptionHandler(Exception.class)
+//    @ExceptionHandler(Exception.class)
     @SlackLogger
     protected ResponseEntity<FailureResponse> handleException(final Exception e) {
         log.error(">>> handle: Exception ", e);
