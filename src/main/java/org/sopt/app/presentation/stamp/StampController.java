@@ -5,27 +5,17 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import java.util.List;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.SoptampFacade;
+import org.sopt.app.presentation.stamp.StampResponse.SoptampReportResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
@@ -110,5 +100,15 @@ public class StampController {
     public ResponseEntity<Void> deleteStampByUserId(@AuthenticationPrincipal User user) {
         soptampFacade.deleteStampAll(user.getId());
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "솝탬프 신고 URL 조회하기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/report")
+    public ResponseEntity<SoptampReportResponse> getReportUrl(){
+        return ResponseEntity.ok(soptampFacade.getReportUrl());
     }
 }

@@ -40,4 +40,9 @@ public class StampResponse {
         @Schema(description = "스탬프 아이디", example = "1")
         private Long stampId;
     }
+
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    public static class SoptampReportResponse{
+        private String reportUrl;
+    }
 }
