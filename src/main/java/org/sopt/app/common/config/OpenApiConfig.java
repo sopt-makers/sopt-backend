@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
                 description = "SOPT 공식 앱팀 API입니다."
         ),
         servers = {
-                @Server(url = "${app.base.url}")
+                @Server(url = "${makers.app.base.url}")
         }
 )
 @SecurityScheme(
