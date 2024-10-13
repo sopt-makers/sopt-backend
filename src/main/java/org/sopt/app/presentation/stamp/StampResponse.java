@@ -41,6 +41,7 @@ public class StampResponse {
         private Long stampId;
     }
 
+    @Getter
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class SoptampReportResponse{
         private String reportUrl;
