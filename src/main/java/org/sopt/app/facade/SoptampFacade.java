@@ -11,6 +11,8 @@ import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.presentation.rank.*;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
+import org.sopt.app.presentation.stamp.StampResponse.SoptampReportResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,9 @@ public class SoptampFacade {
     private final SoptampUserService soptampUserService;
     private final RankResponseMapper rankResponseMapper;
     private final SoptampUserFinder soptampUserFinder;
+
+    @Value("${makers.app.soptamp.report.url}")
+    private String formUrl;
 
     @Transactional
     public Stamp uploadStamp(Long userId, RegisterStampRequest registerStampRequest){
@@ -63,5 +68,9 @@ public class SoptampFacade {
         List<Mission> missionList = missionService.getCompleteMission(soptampUserInfo.getUserId());
 
         return rankResponseMapper.of(soptampUserInfo, missionList);
+    }
+
+    public SoptampReportResponse getReportUrl(){
+        return new SoptampReportResponse(formUrl);
     }
 }
