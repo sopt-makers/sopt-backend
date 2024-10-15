@@ -34,11 +34,4 @@ public enum PlaygroundPart {
                 .findAny()
                 .orElse(PlaygroundPart.NONE);
     }
-
-    public static PlaygroundPart findPlaygroundPartByShortedPartName(String shortedPartName) {
-        return Arrays.stream(PlaygroundPart.values())
-                .filter(playgroundPart -> playgroundPart.shortedPartName.equals(shortedPartName))
-                .findAny()
-                .orElse(PlaygroundPart.NONE);
-    }
 }
