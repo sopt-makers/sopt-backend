@@ -10,6 +10,10 @@ public enum PlaygroundPart {
     PRESIDENT("회장", "회장"),
     VICE_PRESIDENT("부회장", "부회장"),
     GENERAL_AFFAIR("총무", "총무"),
+    MEDIA_TEAM_LEADER("미디어 팀장", "미팀장"),
+    OPERATIONS_TEAM_LEADER("운영 팀장", "운팀장"),
+    MAKERS_TEAM_LEADER("메이커스 팀장", "메팀장"),
+
     PLAN("기획", "기획"),
     PLAN_PART_LEADER("기획 파트장", "기획파트장"),
     DESIGN("디자인", "디자인"),
