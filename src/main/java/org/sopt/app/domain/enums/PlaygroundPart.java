@@ -26,6 +26,7 @@ public enum PlaygroundPart {
     WEB_PART_LEADER("웹 파트장", "웹파트장"),
     SERVER("서버", "서버"),
     SERVER_PART_LEADER("서버 파트장", "서버파트장"),
+    // 파트장이 솝탬프 파트별 랭킹에 관여할 수 있으려면 각 파트의 shortedPartName이 접두사로 필요하다
 
     NONE("미상", "선배"),
     ;
