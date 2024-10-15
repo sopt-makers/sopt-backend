@@ -154,4 +154,8 @@ public class PlaygroundAuthService {
     private String convertPlaygroundWebPageUrl(Long postId) {
         return playgroundWebPageUrl + "/?feed=" + postId;
     }
+
+    public boolean isCurrentGeneration(Long generation) {
+        return generation.equals(currentGeneration);
+    }
 }
