@@ -1,11 +1,14 @@
 package org.sopt.app.application.playground.dto;
 
+import static org.sopt.app.domain.enums.PlaygroundPart.findPlaygroundPart;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import java.util.*;
 import lombok.*;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
+import org.sopt.app.domain.enums.PlaygroundPart;
 import org.sopt.app.domain.enums.UserStatus;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -99,7 +102,8 @@ public class PlaygroundProfileInfo {
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class ActivityCardinalInfo {
 
-        private String cardinalInfo;
+        private String cardinalInfo; // "{generation},{part}"
+        // part = 기획, 디자인, 서버, 안드로이드, iOS, 웹 / 회장, 부회장, 총무, {team} 팀장, {part} 파트장,
 
         public Long getGeneration() {
             try {
@@ -109,8 +113,8 @@ public class PlaygroundProfileInfo {
             }
         }
 
-        public String getPart() {
-            return cardinalInfo.split(",")[1];
+        public PlaygroundPart getPlaygroundPart() {
+            return findPlaygroundPart(cardinalInfo.split(",")[1]);
         }
     }
 
