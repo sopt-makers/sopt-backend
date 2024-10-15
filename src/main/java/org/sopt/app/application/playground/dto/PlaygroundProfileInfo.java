@@ -1,6 +1,6 @@
 package org.sopt.app.application.playground.dto;
 
-import static org.sopt.app.domain.enums.PlaygroundPart.findPlaygroundPart;
+import static org.sopt.app.domain.enums.PlaygroundPart.findPlaygroundPartByPartName;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
@@ -114,7 +114,7 @@ public class PlaygroundProfileInfo {
         }
 
         public PlaygroundPart getPlaygroundPart() {
-            return findPlaygroundPart(cardinalInfo.split(",")[1]);
+            return findPlaygroundPartByPartName(cardinalInfo.split(",")[1]);
         }
     }
 
