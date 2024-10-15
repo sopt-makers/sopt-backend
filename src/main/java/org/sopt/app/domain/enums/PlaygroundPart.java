@@ -7,6 +7,9 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum PlaygroundPart {
+    PRESIDENT("회장", "회장"),
+    VICE_PRESIDENT("부회장", "부회장"),
+    GENERAL_AFFAIR("총무", "총무"),
     PLAN("기획", "기획"),
     PLAN_PART_LEADER("기획 파트장", "기획파트장"),
     DESIGN("디자인", "디자인"),
@@ -19,16 +22,22 @@ public enum PlaygroundPart {
     WEB_PART_LEADER("웹 파트장", "웹파트장"),
     SERVER("서버", "서버"),
     SERVER_PART_LEADER("서버 파트장", "서버파트장"),
-    PRESIDENT("회장", "회장"),
-    VICE_PRESIDENT("부회장", "부회장"),
+
     NONE("미상", "선배"),
     ;
     final String partName;
-    final String soptampNickname;
+    final String shortedPartName;
 
-    public static PlaygroundPart findPlaygroundPart(String partName) {
+    public static PlaygroundPart findPlaygroundPartByPartName(String partName) {
         return Arrays.stream(PlaygroundPart.values())
-                .filter(playgroundPart -> playgroundPart.soptampNickname.equals(partName))
+                .filter(playgroundPart -> playgroundPart.partName.equals(partName))
+                .findAny()
+                .orElse(PlaygroundPart.NONE);
+    }
+
+    public static PlaygroundPart findPlaygroundPartByShortedPartName(String shortedPartName) {
+        return Arrays.stream(PlaygroundPart.values())
+                .filter(playgroundPart -> playgroundPart.shortedPartName.equals(shortedPartName))
                 .findAny()
                 .orElse(PlaygroundPart.NONE);
     }
