@@ -71,7 +71,7 @@ public class FriendRecommender {
                     playgroundProfile.getProfileImage(),
                     userProfile.getName(),
                     playgroundProfile.getLatestActivity().getGeneration(),
-                    playgroundProfile.getLatestActivity().getPart()
+                    playgroundProfile.getLatestActivity().getPlaygroundPart().getPartName()
             );
         }).toList();
     }

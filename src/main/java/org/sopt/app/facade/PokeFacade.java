@@ -131,8 +131,8 @@ public class PokeFacade {
                         friendProfile.getProfileImage(),
                         friendProfile.getName(),
                         "",
-                        friendProfile.getActivities().get(0).getGeneration(),
-                        friendProfile.getActivities().get(0).getPart(),
+                        friendProfile.getActivities().getFirst().getGeneration(),
+                        friendProfile.getActivities().getFirst().getPlaygroundPart().getPartName(),
                         friendRelationInfo.getPokeNum(),
                         friendRelationInfo.getRelationName(),
                         createMutualFriendNames(user.getId(), friendId),
@@ -245,7 +245,7 @@ public class PokeFacade {
                 .name(pokedUserPlaygroundProfile.getName())
                 .profileImage(pokedUserPlaygroundProfile.getProfileImage())
                 .generation(latestActivity.getGeneration())
-                .part(latestActivity.getPart())
+                .part(latestActivity.getPlaygroundPart().getPartName())
                 .relation(relationInfo)
                 .mutualFriendNames(mutualFriendNames)
                 .build();
