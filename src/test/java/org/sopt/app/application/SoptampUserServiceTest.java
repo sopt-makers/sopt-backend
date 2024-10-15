@@ -28,7 +28,6 @@ import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
-import org.sopt.app.domain.enums.PlaygroundPart;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -124,7 +123,7 @@ class SoptampUserServiceTest {
         Long userId = 1L;
         //when
         soptampUserService.upsertSoptampUser(profile, userId);
-        String expectedNickname = profile.getLatestActivity().getPart() + profile.getName();
+        String expectedNickname = profile.getLatestActivity().getPlaygroundPart().getShortedPartName()+ profile.getName();
 
         //then
         ArgumentCaptor<SoptampUser> captor = ArgumentCaptor.forClass(SoptampUser.class);
@@ -132,7 +131,8 @@ class SoptampUserServiceTest {
         verify(soptampUserRepository, times(1)).save(captor.capture());
         assertThat(captor.getValue().getUserId()).isEqualTo(userId);
         assertThat(captor.getValue().getNickname()).isEqualTo(expectedNickname);
-        assertThat(captor.getValue().getPart().getPartName()).isEqualTo(profile.getLatestActivity().getPart());
+        assertThat(captor.getValue().getPart().getPartName())
+                .isEqualTo(profile.getLatestActivity().getPlaygroundPart().getPartName());
         assertThat(captor.getValue().getGeneration()).isEqualTo(profile.getLatestActivity().getGeneration());
     }
 
@@ -145,14 +145,17 @@ class SoptampUserServiceTest {
                 .activities(List.of(new ActivityCardinalInfo("35,서버")))
                 .build();
         given(soptampUserRepository.findByUserId(anyLong())).willReturn(Optional.empty());
-        given(soptampUserRepository.existsByNickname(profile.getLatestActivity().getPart() + profile.getName()))
+        given(soptampUserRepository.existsByNickname(
+                profile.getLatestActivity().getPlaygroundPart().getShortedPartName() + profile.getName()))
                 .willReturn(true);
-        given(soptampUserRepository.existsByNickname(profile.getLatestActivity().getPart() + profile.getName() + 'A'))
+        given(soptampUserRepository.existsByNickname(
+                profile.getLatestActivity().getPlaygroundPart().getShortedPartName() + profile.getName() + 'A'))
                 .willReturn(true);
 
         //when
         soptampUserService.upsertSoptampUser(profile, userId);
-        String expectedNickname = profile.getLatestActivity().getPart() + profile.getName() + 'B';
+        String expectedNickname =
+                profile.getLatestActivity().getPlaygroundPart().getShortedPartName() + profile.getName() + 'B';
 
         //then
         ArgumentCaptor<SoptampUser> captor = ArgumentCaptor.forClass(SoptampUser.class);
@@ -160,7 +163,8 @@ class SoptampUserServiceTest {
         verify(soptampUserRepository, times(1)).save(captor.capture());
         assertThat(captor.getValue().getUserId()).isEqualTo(userId);
         assertThat(captor.getValue().getNickname()).isEqualTo(expectedNickname);
-        assertThat(captor.getValue().getPart().getPartName()).isEqualTo(profile.getLatestActivity().getPart());
+        assertThat(captor.getValue().getPart().getPartName())
+                .isEqualTo(profile.getLatestActivity().getPlaygroundPart().getPartName());
         assertThat(captor.getValue().getGeneration()).isEqualTo(profile.getLatestActivity().getGeneration());
     }
 
