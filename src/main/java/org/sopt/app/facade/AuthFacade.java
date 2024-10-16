@@ -28,16 +28,19 @@ public class AuthFacade {
         PlaygroundProfile playgroundProfile = playgroundAuthService.getPlaygroundMemberProfile(
                 playgroundToken, playgroundInfo.getId()
         );
+        Long latestGeneration = playgroundProfile.getLatestActivity().getGeneration();
 
         Long userId = userService.upsertUser(LoginInfo.of(playgroundInfo, playgroundToken));
-        soptampUserService.upsertSoptampUser(playgroundProfile, userId);
+        if(playgroundAuthService.isCurrentGeneration(latestGeneration)){
+            soptampUserService.upsertSoptampUser(playgroundProfile, userId);
+        }
 
         AppToken appToken = jwtTokenService.issueNewTokens(userId, playgroundInfo.getId());
         return AppAuthResponse.builder()
                 .playgroundToken(playgroundToken)
                 .accessToken(appToken.getAccessToken())
                 .refreshToken(appToken.getRefreshToken())
-                .status(playgroundAuthService.getStatus(playgroundProfile.getLatestActivity().getGeneration()))
+                .status(playgroundAuthService.getStatus(latestGeneration))
                 .build();
     }
 

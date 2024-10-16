@@ -1,7 +1,7 @@
 package org.sopt.app.application.soptamp;
 
 import static org.sopt.app.domain.entity.soptamp.SoptampUser.createNewSoptampUser;
-import static org.sopt.app.domain.enums.PlaygroundPart.findPlaygroundPart;
+import static org.sopt.app.domain.enums.PlaygroundPart.findPlaygroundPartByPartName;
 
 import java.util.*;
 import lombok.*;
@@ -10,6 +10,7 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundP
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
+import org.sopt.app.domain.enums.PlaygroundPart;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,19 +51,19 @@ public class SoptampUserService {
 
     private void updateSoptampUser(SoptampUser registeredUser, PlaygroundProfile profile){
         ActivityCardinalInfo lastActivity = profile.getLatestActivity();
-        String uniqueNickname = generateUniqueNickname(profile.getName(), lastActivity.getPart());
+        String uniqueNickname = generateUniqueNickname(profile.getName(), lastActivity.getPlaygroundPart());
         registeredUser.updateChangedGenerationInfo(
                 lastActivity.getGeneration(),
-                findPlaygroundPart(lastActivity.getPart()),
+                findPlaygroundPartByPartName(lastActivity.getPlaygroundPart().getPartName()),
                 uniqueNickname
         );
     }
 
     private void createSoptampUser(PlaygroundProfile profile, Long userId) {
         ActivityCardinalInfo lastActivity = profile.getLatestActivity();
-        String uniqueNickname = generateUniqueNickname(profile.getName(), lastActivity.getPart());
-        SoptampUser newSoptampUser = createNewSoptampUser(userId, uniqueNickname,
-                lastActivity.getGeneration(), findPlaygroundPart(lastActivity.getPart()));
+        PlaygroundPart part = lastActivity.getPlaygroundPart();
+        String uniqueNickname = generateUniqueNickname(profile.getName(), part);
+        SoptampUser newSoptampUser = createNewSoptampUser(userId, uniqueNickname, lastActivity.getGeneration(), part);
         soptampUserRepository.save(newSoptampUser);
     }
 
@@ -70,8 +71,9 @@ public class SoptampUserService {
         return !registeredUser.getGeneration().equals(profileGeneration);
     }
 
-    private String generateUniqueNickname(String nickname, String part) {
-        StringBuilder uniqueNickname = new StringBuilder().append(part).append(nickname);
+    private String generateUniqueNickname(String nickname, PlaygroundPart part) {
+        String prefixPartName = part.getShortedPartName();
+        StringBuilder uniqueNickname = new StringBuilder().append(prefixPartName).append(nickname);
         if (soptampUserRepository.existsByNickname(uniqueNickname.toString())) {
             return addSuffixToNickname(uniqueNickname);
         }
