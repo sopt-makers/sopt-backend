@@ -52,6 +52,7 @@ public class SoptampUserService {
     private void updateSoptampUser(SoptampUser registeredUser, PlaygroundProfile profile){
         ActivityCardinalInfo lastActivity = profile.getLatestActivity();
         String uniqueNickname = generateUniqueNickname(profile.getName(), lastActivity.getPlaygroundPart());
+        registeredUser.initTotalPoints();
         registeredUser.updateChangedGenerationInfo(
                 lastActivity.getGeneration(),
                 findPlaygroundPartByPartName(lastActivity.getPlaygroundPart().getPartName()),
