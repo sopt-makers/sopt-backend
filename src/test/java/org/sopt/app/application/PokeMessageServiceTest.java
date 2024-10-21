@@ -14,12 +14,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.poke.PokeMessageService;
-import org.sopt.app.domain.entity.PokeMessage;
+import org.sopt.app.domain.entity.poke.PokeMessage;
 import org.sopt.app.domain.enums.PokeMessageType;
 import org.sopt.app.interfaces.postgres.PokeMessageRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class PokeMessageServiceTest {
+class PokeMessageServiceTest {
 
     private static final String MESSAGES_HEADER_FOR_POKE = "함께 보낼 메시지를 선택해주세요";
     private static final String MESSAGES_HEADER_FOR_REPLY = "답장하고 싶은 메시지를 선택해주세요";

@@ -2,7 +2,9 @@ package org.sopt.app.common.utils;
 
 import java.security.SecureRandom;
 import java.util.List;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class AnonymousNameGenerator {
 
     private static final SecureRandom random = new SecureRandom();

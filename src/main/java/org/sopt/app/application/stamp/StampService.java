@@ -3,13 +3,13 @@ package org.sopt.app.application.stamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.common.event.Events;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
-import org.sopt.app.domain.entity.Stamp;
+import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
@@ -26,7 +26,7 @@ public class StampService {
     @Transactional(readOnly = true)
     public StampInfo.Stamp findStamp(Long missionId, Long userId) {
         val entity = stampRepository.findByUserIdAndMissionId(userId, missionId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND));
         validateStampInfo(entity);
         return StampInfo.Stamp.builder()
                 .id(entity.getId())
@@ -90,7 +90,7 @@ public class StampService {
             Long missionId) {
 
         val stamp = stampRepository.findByUserIdAndMissionId(userId, missionId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND));
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());
         }
@@ -106,7 +106,7 @@ public class StampService {
             Long userId) {
 
         val stamp = stampRepository.findByUserIdAndMissionId(userId, editStampRequest.getMissionId())
-                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND));
         if (StringUtils.hasText(editStampRequest.getContents())) {
             stamp.changeContents(editStampRequest.getContents());
         }
@@ -114,7 +114,7 @@ public class StampService {
             stamp.changeImages(List.of(editStampRequest.getImage()));
         }
         if (editStampRequest.getActivityDate() == null) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE.getMessage());
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE);
         }
         stamp.changeActivityDate(editStampRequest.getActivityDate());
         return StampInfo.Stamp.builder()
@@ -125,14 +125,14 @@ public class StampService {
     @Transactional
     public void editStampImagesDeprecated(StampInfo.Stamp stamp, List<String> imgPaths) {
         val oldStamp = stampRepository.findById(stamp.getId())
-                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND));
         oldStamp.changeImages(imgPaths);
     }
 
     @Transactional(readOnly = true)
     public void checkDuplicateStamp(Long userId, Long missionId) {
         if (stampRepository.findByUserIdAndMissionId(userId, missionId).isPresent()) {
-            throw new BadRequestException(ErrorCode.DUPLICATE_STAMP.getMessage());
+            throw new BadRequestException(ErrorCode.DUPLICATE_STAMP);
         }
     }
 
@@ -140,7 +140,7 @@ public class StampService {
     public void deleteStampById(Long stampId) {
 
         val stamp = stampRepository.findById(stampId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND));
         stampRepository.deleteById(stampId);
 
         Events.raise(new StampDeletedEvent(stamp.getImages()));
@@ -157,19 +157,19 @@ public class StampService {
 
     private void validateStampInfo(Stamp entity) {
         if (entity.getId() == null) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_ID.getMessage());
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_ID);
         }
         if (!StringUtils.hasText(entity.getContents())) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_CONTENTS.getMessage());
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_CONTENTS);
         }
         if (entity.getImages().isEmpty()) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_IMAGES.getMessage());
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_IMAGES);
         }
         if (entity.getActivityDate() == null) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE.getMessage());
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE);
         }
         if (entity.getMissionId() == null) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_MISSION_ID.getMessage());
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_MISSION_ID);
         }
     }
 
@@ -188,7 +188,7 @@ public class StampService {
 
     public Long getMissionIdByStampId(Long stampId) {
         return stampRepository.findById(stampId)
-                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND.getMessage()))
+                .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND))
                 .getMissionId();
     }
 

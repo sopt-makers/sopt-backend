@@ -4,7 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 
 import lombok.*;
+import org.sopt.app.domain.entity.Notification;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class NotificationResponse {
 
     @Getter
@@ -34,17 +36,15 @@ public class NotificationResponse {
         @Schema(description = "알림 생성 일시", example = "2023-03-29T18:39:42.106369")
         private LocalDateTime createdAt;
 
-        public static NotificationSimple of(
-                String notificationId
-                , Long userId
-                , String title
-                , String content
-                , String category
-                , Boolean isRead
-                , LocalDateTime createdAt
-        ) {
+        public static NotificationSimple of(Notification notification){
             return new NotificationSimple(
-                    notificationId, userId, title, content, category, isRead, createdAt
+                    notification.getNotificationId()
+                    , notification.getUserId()
+                    , notification.getTitle()
+                    , notification.getContent()
+                    , notification.getCategory().name()
+                    , notification.getIsRead()
+                    , notification.getCreatedAt()
             );
         }
     }
@@ -72,18 +72,16 @@ public class NotificationResponse {
         @Schema(description = "알림 수정 일시", example = "2023-03-29T18:39:42.106369")
         private LocalDateTime updatedAt;
 
-        public static NotificationDetail of(
-                String notificationId
-                , Long userId
-                , String title
-                , String content
-                , String deepLink
-                , String webLink
-                , LocalDateTime createdAt
-                , LocalDateTime updatedAt
-        ) {
+        public static NotificationDetail of(Notification notification){
             return new NotificationDetail(
-                    notificationId, userId, title, content, deepLink, webLink, createdAt, updatedAt
+                    notification.getNotificationId()
+                    , notification.getUserId()
+                    , notification.getTitle()
+                    , notification.getContent()
+                    , notification.getDeepLink()
+                    , notification.getWebLink()
+                    , notification.getCreatedAt()
+                    , notification.getUpdatedAt()
             );
         }
     }
@@ -104,89 +102,4 @@ public class NotificationResponse {
             );
         }
     }
-
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @ToString
-    @Deprecated
-    public static class NotificationSimpleDeprecated {
-
-        @Schema(description = "알림 아이디", example = "1")
-        private Long id;
-
-        @Schema(description = "앱 유저 아이디", example = "1")
-        private Long userId;
-
-        @Schema(description = "알림 제목", example = "공지다!")
-        private String title;
-
-        @Schema(description = "알림 내용", example = "공지 내용은 앱팀 최고입니다.")
-        private String content;
-
-        @Schema(description = "알림 카테고리", example = "NOTICE")
-        private String category;
-
-        @Schema(description = "알림 읽음 여부", example = "true")
-        private Boolean isRead;
-
-        @Schema(description = "알림 생성 일시", example = "2023-03-29T18:39:42.106369")
-        private LocalDateTime createdAt;
-
-        public static NotificationSimpleDeprecated of(
-                Long notificationId
-                , Long userId
-                , String title
-                , String content
-                , String category
-                , Boolean isRead
-                , LocalDateTime createdAt
-        ) {
-            return new NotificationSimpleDeprecated(
-                    notificationId, userId, title, content, category, isRead, createdAt
-            );
-        }
-    }
-
-    @Getter
-    @NoArgsConstructor(access = AccessLevel.PRIVATE)
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    @ToString
-    @Deprecated
-    public static class NotificationDetailDeprecated {
-
-        @Schema(description = "알림 아이디", example = "1")
-        private Long id;
-        @Schema(description = "유저 아이디", example = "1")
-        private Long userId;
-        @Schema(description = "알림 제목", example = "공지다!")
-        private String title;
-        @Schema(description = "알림 내용", example = "공지 내용은 앱팀 최고입니다.")
-        private String content;
-        @Schema(description = "알림 첨부 딥링크")
-        private String deepLink;
-        @Schema(description = "알림 첨부 웹링크")
-        private String webLink;
-        @Schema(description = "알림 생성 일시", example = "2023-03-29T18:39:42.106369")
-        private LocalDateTime createdAt;
-        @Schema(description = "알림 수정 일시", example = "2023-03-29T18:39:42.106369")
-        private LocalDateTime updatedAt;
-
-        public static NotificationDetailDeprecated of(
-                Long notificationId
-                , Long userId
-                , String title
-                , String content
-                , String deepLink
-                , String webLink
-                , LocalDateTime createdAt
-                , LocalDateTime updatedAt
-        ) {
-            return new NotificationDetailDeprecated(
-                    notificationId, userId, title, content, deepLink, webLink, createdAt, updatedAt
-            );
-        }
-    }
-
-
 }

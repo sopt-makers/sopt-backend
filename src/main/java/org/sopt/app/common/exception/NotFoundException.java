@@ -1,11 +1,13 @@
 package org.sopt.app.common.exception;
 
-import org.springframework.http.HttpStatus;
+import org.sopt.app.common.response.ErrorCode;
 
 public class NotFoundException extends BaseException {
-
-    public NotFoundException(String message) {
-        super(HttpStatus.NOT_FOUND, message);
+    public NotFoundException() {
+        super(ErrorCode.ENTITY_NOT_FOUND);
     }
 
+    public NotFoundException(ErrorCode errorCode) {
+        super(errorCode);
+    }
 }

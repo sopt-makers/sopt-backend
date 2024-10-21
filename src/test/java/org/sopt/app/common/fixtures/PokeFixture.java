@@ -2,18 +2,14 @@ package org.sopt.app.common.fixtures;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundActivity;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfileOfRecommendedFriend;
-import org.sopt.app.application.user.UserInfo.UserProfile;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
+import org.sopt.app.application.user.UserProfile;
 
 public class PokeFixture {
 
     public static final String MBTI = "ENFP";
     public static final String UNIVERSITY = "테스트대학교";
-    public static final Integer GENERATION = 33;
+    public static final Long GENERATION = 33L;
     public static final String PART = "서버";
 
     public static List<PlaygroundProfile> createPlaygroundProfileList(
@@ -50,23 +46,5 @@ public class PokeFixture {
                 .university(UNIVERSITY)
                 .activities(List.of(new ActivityCardinalInfo(GENERATION + "," + PART)))
                 .build();
-    }
-
-    public static List<PlaygroundProfileOfRecommendedFriend> createSameMbtiPlaygroundProfileOfRecommendedFriend(List<Long> playgroundIds, String mbti, Integer generation) {
-        return playgroundIds.stream().map(playgroundId ->
-                PlaygroundProfileOfRecommendedFriend.builder()
-                        .playgroundId(playgroundId)
-                        .mbti(mbti)
-                        .activities(List.of(new PlaygroundActivity(PART,generation)))
-                        .build()).toList();
-    }
-
-    public static List<PlaygroundProfileOfRecommendedFriend> createSameUniversityPlaygroundProfileOfRecommendedFriend(List<Long> playgroundIds, String university, Integer generation) {
-        return playgroundIds.stream().map(playgroundId ->
-                PlaygroundProfileOfRecommendedFriend.builder()
-                        .playgroundId(playgroundId)
-                        .university(university)
-                        .activities(List.of(new PlaygroundActivity(PART,generation)))
-                        .build()).toList();
     }
 }

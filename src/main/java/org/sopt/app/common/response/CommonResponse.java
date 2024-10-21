@@ -1,6 +1,8 @@
 package org.sopt.app.common.response;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -8,8 +10,9 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @EqualsAndHashCode
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder(access = AccessLevel.PROTECTED)
 public class CommonResponse<T> {
 
     HttpStatus statusCode;

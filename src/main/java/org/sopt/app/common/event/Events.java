@@ -2,8 +2,10 @@ package org.sopt.app.common.event;
 
 import static java.util.Objects.nonNull;
 
+import lombok.NoArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 
+@NoArgsConstructor(access = lombok.AccessLevel.PRIVATE)
 public class Events {
 
     private static ApplicationEventPublisher publisher;

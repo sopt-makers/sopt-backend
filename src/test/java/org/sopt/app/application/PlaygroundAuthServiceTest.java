@@ -2,13 +2,8 @@ package org.sopt.app.application;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
-import static org.sopt.app.common.fixtures.PokeFixture.GENERATION;
-import static org.sopt.app.common.fixtures.PokeFixture.MBTI;
-import static org.sopt.app.common.fixtures.PokeFixture.UNIVERSITY;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import java.util.List;
@@ -20,20 +15,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActiveUserIds;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.MainView;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.MainViewUser;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundMain;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.PlaygroundProfile;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.UserActiveInfo;
-import org.sopt.app.application.auth.PlaygroundAuthService;
-import org.sopt.app.application.auth.dto.RecommendedFriendInfo.PlaygroundUserIds;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
+import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.domain.enums.UserStatus;
-import org.sopt.app.interfaces.external.PlaygroundClient;
+import org.sopt.app.application.playground.PlaygroundClient;
 import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
 import org.sopt.app.presentation.auth.AppAuthRequest.CodeRequest;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -49,46 +36,6 @@ class PlaygroundAuthServiceTest {
     private PlaygroundAuthService playgroundAuthService;
 
     private final String token = "header.payload.signature";
-
-    // getPlaygroundInfo
-    @Test
-    @DisplayName("SUCCESS_플레이그라운드 정보 조회")
-    void SUCCESS_getPlaygroundInfo() {
-        // given
-        ActivityCardinalInfo activityCardinalInfo = new ActivityCardinalInfo("29,서버");
-        PlaygroundProfileInfo.PlaygroundProfile playgroundProfile = PlaygroundProfile.builder()
-                .activities(List.of(activityCardinalInfo))
-                .profileImage("profileImage")
-                .name("name")
-                .build();
-        PlaygroundMain playgroundMain = PlaygroundMain.builder().name("name").id(1L).build();
-
-        // when
-        when(playgroundClient.getPlaygroundMember(any())).thenReturn(playgroundMain);
-        when(playgroundClient.getSinglePlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
-        PlaygroundMain result = playgroundAuthService.getPlaygroundInfo(token);
-
-        // then
-        assertEquals(token, result.getAccessToken());
-        assertEquals(playgroundMain.getName(), result.getName());
-        assertEquals(UserStatus.INACTIVE, result.getStatus());
-    }
-
-    @Test
-    @DisplayName("FAIL_플레이그라운드 정보 조회 BadRequestException")
-    void FAIL_getPlaygroundInfoBadRequestException() {
-        when(playgroundClient.getPlaygroundMember(any())).thenThrow(BadRequest.class);
-
-        Assertions.assertThrows(BadRequestException.class, () -> playgroundAuthService.getPlaygroundInfo(token));
-    }
-
-    @Test
-    @DisplayName("FAIL_플레이그라운드 정보 조회 UnauthorizedException")
-    void FAIL_getPlaygroundInfoExpiredJwtUnauthorizedException() {
-        when(playgroundClient.getPlaygroundMember(any())).thenThrow(ExpiredJwtException.class);
-
-        Assertions.assertThrows(UnauthorizedException.class, () -> playgroundAuthService.getPlaygroundInfo(token));
-    }
 
     // getPlaygroundAccessToken
     @Test
@@ -154,7 +101,7 @@ class PlaygroundAuthServiceTest {
     @DisplayName("SUCCESS_플레이그라운드 이미지 있는 유저 메인 뷰 조회")
     void SUCCESS_getPlaygroundUserForMainViewWithProfileImage() {
         ActivityCardinalInfo activityCardinalInfo = new ActivityCardinalInfo("29,서버");
-        PlaygroundProfileInfo.PlaygroundProfile playgroundProfile = PlaygroundProfile.builder()
+        PlaygroundProfile playgroundProfile = PlaygroundProfile.builder()
                 .activities(List.of(activityCardinalInfo))
                 .profileImage("profileImage")
                 .name("name")
@@ -162,7 +109,7 @@ class PlaygroundAuthServiceTest {
         MainViewUser mainViewUser = MainViewUser.builder().name("name").profileImage("profileImage").build();
         MainView mainView = new MainView(mainViewUser);
 
-        when(playgroundClient.getSinglePlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
+        when(playgroundClient.getPlaygroundMemberProfiles(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         MainView result = playgroundAuthService.getPlaygroundUserForMainView(token, 1L);
         assertEquals(mainView.user().getName(), result.user().getName());
@@ -172,7 +119,7 @@ class PlaygroundAuthServiceTest {
     @DisplayName("SUCCESS_플레이그라운드 이미지 없는 유저 메인 뷰 조회")
     void SUCCESS_getPlaygroundUserForMainViewWithoutProfileImage() {
         ActivityCardinalInfo activityCardinalInfo = new ActivityCardinalInfo("1,서버");
-        PlaygroundProfileInfo.PlaygroundProfile playgroundProfile = PlaygroundProfile.builder()
+        PlaygroundProfile playgroundProfile = PlaygroundProfile.builder()
                 .activities(List.of(activityCardinalInfo))
                 .profileImage(null)
                 .name("name")
@@ -183,7 +130,7 @@ class PlaygroundAuthServiceTest {
                 .generationList(List.of(1L))
                 .build());
 
-        when(playgroundClient.getSinglePlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
+        when(playgroundClient.getPlaygroundMemberProfiles(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         MainView result = playgroundAuthService.getPlaygroundUserForMainView(token, 1L);
         assertEquals(mainView.user().getName(), result.user().getName());
@@ -195,12 +142,12 @@ class PlaygroundAuthServiceTest {
     void SUCCESS_getPlaygroundUserActiveInfoActive() {
         // given
         ActivityCardinalInfo activityCardinalInfo = new ActivityCardinalInfo("1,서버");
-        PlaygroundProfileInfo.PlaygroundProfile playgroundProfile =
-                PlaygroundProfile.builder().activities(List.of(activityCardinalInfo)).build();
+        PlaygroundProfile playgroundProfile = PlaygroundProfile.builder()
+                .activities(List.of(activityCardinalInfo)).build();
         ReflectionTestUtils.setField(playgroundAuthService, "currentGeneration", 1L);
 
         // when
-        when(playgroundClient.getSinglePlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
+        when(playgroundClient.getPlaygroundMemberProfiles(any(), anyLong())).thenReturn(List.of(playgroundProfile));
         UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
 
         // then
@@ -210,9 +157,9 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("SUCCESS_플레이그라운드 비활동 유저 활동 정보 조회")
     void SUCCESS_getPlaygroundUserActiveInfoInactive() {
-        PlaygroundProfileInfo.PlaygroundProfile playgroundProfile = PlaygroundProfile.builder().activities(List.of()).build();
+        PlaygroundProfile playgroundProfile = PlaygroundProfile.builder().activities(List.of()).build();
 
-        when(playgroundClient.getSinglePlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
+        when(playgroundClient.getPlaygroundMemberProfiles(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
         assertEquals(UserStatus.INACTIVE, result.status());
@@ -221,10 +168,9 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("SUCCESS_플레이그라운드 엠티 유저 활동 정보 조회")
     void SUCCESS_getPlaygroundUserActiveInfoEmptyList() {
-        PlaygroundProfileInfo.PlaygroundProfile playgroundProfile =
-                PlaygroundProfile.builder().activities(List.of()).build();
+        PlaygroundProfile playgroundProfile = PlaygroundProfile.builder().activities(List.of()).build();
 
-        when(playgroundClient.getSinglePlaygroundMemberProfile(any(), anyLong())).thenReturn(List.of(playgroundProfile));
+        when(playgroundClient.getPlaygroundMemberProfiles(any(), anyLong())).thenReturn(List.of(playgroundProfile));
 
         UserActiveInfo result = playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L);
         assertEquals(UserStatus.INACTIVE, result.status());
@@ -233,7 +179,7 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("FAIL_플레이그라운드 프로필을 등록하지 않은 유저 활동 정보 조회 BadRequestException")
     void FAIL_getPlaygroundUserActiveInfoNotRegisteredBadRequestException() {
-        when(playgroundClient.getSinglePlaygroundMemberProfile(any(), anyLong())).thenThrow(BadRequest.class);
+        when(playgroundClient.getPlaygroundMemberProfiles(any(), anyLong())).thenThrow(BadRequest.class);
 
         Assertions.assertThrows(BadRequestException.class,
                 () -> playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L));
@@ -242,7 +188,7 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("FAIL_플레이그라운드 토큰이 만료된 유저 활동 정보 조회 UnauthorizedException")
     void FAIL_getPlaygroundUserActiveInfoExpiredJwtUnauthorizedException() {
-        when(playgroundClient.getSinglePlaygroundMemberProfile(any(), anyLong())).thenThrow(ExpiredJwtException.class);
+        when(playgroundClient.getPlaygroundMemberProfiles(any(), anyLong())).thenThrow(ExpiredJwtException.class);
 
         Assertions.assertThrows(UnauthorizedException.class,
                 () -> playgroundAuthService.getPlaygroundUserActiveInfo(token, 1L));
@@ -252,7 +198,7 @@ class PlaygroundAuthServiceTest {
     @Test
     @DisplayName("SUCCESS_플레이그라운드 유저 아이디 조회")
     void SUCCESS_getPlayGroundUserIds() {
-        PlaygroundProfileInfo.ActiveUserIds userIds = new ActiveUserIds(List.of(1L));
+        ActiveUserIds userIds = new ActiveUserIds(List.of(1L));
 
         when(playgroundClient.getPlaygroundUserIds(any(), any())).thenReturn(userIds);
 
@@ -283,7 +229,7 @@ class PlaygroundAuthServiceTest {
     void SUCCESS_getPlaygroundMemberProfiles() {
         PlaygroundProfile playgroundProfile = PlaygroundProfile.builder().name("name").build();
 
-        when(playgroundClient.getPlaygroundMemberProfiles(any(), any())).thenReturn(List.of(playgroundProfile));
+        when(playgroundClient.getPlaygroundMemberProfiles(any(), anyString())).thenReturn(List.of(playgroundProfile));
 
         List<PlaygroundProfile> result = playgroundAuthService.getPlaygroundMemberProfiles(token, List.of());
         Assertions.assertEquals(1, result.size());
@@ -295,7 +241,7 @@ class PlaygroundAuthServiceTest {
     void FAIL_getPlaygroundMemberProfilesNotRegisteredBadRequestException() {
         List<Long> memberIds = List.of();
 
-        when(playgroundClient.getPlaygroundMemberProfiles(any(), any())).thenThrow(BadRequest.class);
+        when(playgroundClient.getPlaygroundMemberProfiles(any(), anyString())).thenThrow(BadRequest.class);
 
         Assertions.assertThrows(BadRequestException.class,
                 () -> playgroundAuthService.getPlaygroundMemberProfiles(token, memberIds));
@@ -306,7 +252,7 @@ class PlaygroundAuthServiceTest {
     void FAIL_getPlaygroundMemberProfilesExpiredJwtUnauthorizedException() {
         List<Long> memberIds = List.of();
 
-        when(playgroundClient.getPlaygroundMemberProfiles(any(), any())).thenThrow(ExpiredJwtException.class);
+        when(playgroundClient.getPlaygroundMemberProfiles(any(), anyString())).thenThrow(ExpiredJwtException.class);
 
         Assertions.assertThrows(UnauthorizedException.class,
                 () -> playgroundAuthService.getPlaygroundMemberProfiles(token, memberIds));
@@ -319,39 +265,5 @@ class PlaygroundAuthServiceTest {
 
         // then
         assertDoesNotThrow(() -> playgroundAuthService.getOwnPlaygroundProfile(token));
-    }
-
-    @Test
-    @DisplayName("SUCCESS_같은 기수의 플레이그라운드 프로필 조회")
-    void SUCCESS_getPlaygroundIdsForSameGeneration() {
-        // given & when
-
-        given(playgroundClient.getPlaygroundUserIdsForSameRecommendType(any(), any()))
-                .willReturn(new PlaygroundUserIds(List.of()));
-
-        // then
-        assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundIdsForSameGeneration(List.of(GENERATION)));
-    }
-
-    @Test
-    @DisplayName("SUCCESS_같은 MBTI의 플레이그라운드 프로필 조회")
-    void SUCCESS_getPlaygroundProfilesForSameMbtiAndGeneration() {
-        // given & when
-        given(playgroundClient.getPlaygroundUserIdsForSameRecommendType(any(), any()))
-                .willReturn(new PlaygroundUserIds(List.of()));
-
-        // then
-        assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundIdsForSameMbti(GENERATION, MBTI));
-    }
-
-    @Test
-    @DisplayName("SUCCESS_같은 대학교의 플레이그라운드 프로필 조회")
-    void SUCCESS_getPlaygroundProfilesForSameUniversityAndGeneration() {
-        // given & when
-        given(playgroundClient.getPlaygroundUserIdsForSameRecommendType(any(), any()))
-                .willReturn(new PlaygroundUserIds(List.of()));
-
-        // then
-        assertDoesNotThrow(() -> playgroundAuthService.getPlaygroundIdsForSameUniversity(GENERATION, UNIVERSITY));
     }
 }

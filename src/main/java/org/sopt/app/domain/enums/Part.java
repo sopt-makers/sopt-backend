@@ -1,10 +1,7 @@
 package org.sopt.app.domain.enums;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import java.util.*;
+import lombok.*;
 
 @AllArgsConstructor
 @Getter
@@ -24,5 +21,9 @@ public enum Part {
          return Arrays.stream(Part.class.getEnumConstants())
                  .sorted(Comparator.comparing(Part::getPartOrder))
                  .toList();
+    }
+
+    public static List<Part> getPartsByReturnOrder() {
+        return List.of(Part.PLAN, Part.DESIGN, Part.WEB, Part.IOS, Part.ANDROID, Part.SERVER);
     }
 }

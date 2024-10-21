@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.event.Events;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
-import org.sopt.app.domain.entity.PokeHistory;
+import org.sopt.app.domain.entity.poke.PokeHistory;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.PokeHistoryRepository;
 import org.sopt.app.interfaces.postgres.UserRepository;
@@ -23,7 +23,7 @@ public class PokeService {
     @Transactional(readOnly = true)
     public PokeInfo.PokeDetail getPokeDetail(Long pokeHistoryId) {
         PokeHistory latestPokeHistory = historyRepository.findById(pokeHistoryId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.POKE_HISTORY_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.POKE_HISTORY_NOT_FOUND));
         return PokeInfo.PokeDetail.builder()
                 .id(latestPokeHistory.getId())
                 .pokerId(latestPokeHistory.getPokerId())
@@ -35,7 +35,7 @@ public class PokeService {
     @Transactional
     public PokeHistory poke(Long pokerUserId, Long pokedUserId, String pokeMessage, Boolean isAnonymous) {
         User pokedUser = userRepository.findUserById(pokedUserId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND.getMessage()));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
         PokeHistory pokeByApplyingReply = createPokeByApplyingReply(pokerUserId, pokedUserId, pokeMessage, isAnonymous);
 
@@ -51,16 +51,14 @@ public class PokeService {
         );
 
         if (!latestPokeFromPokedIsReplyFalse.isEmpty()) {
-            latestPokeFromPokedIsReplyFalse.get(0).activateReply();
+            latestPokeFromPokedIsReplyFalse.getFirst().activateReply();
         }
-
-        PokeHistory createdPoke = PokeHistory.builder()
+        return historyRepository.save(PokeHistory.builder()
                 .pokerId(pokerUserId)
                 .pokedId(pokedUserId)
                 .message(pokeMessage)
                 .isReply(false)
                 .isAnonymous(isAnonymous)
-                .build();
-        return historyRepository.save(createdPoke);
+                .build());
     }
 }
