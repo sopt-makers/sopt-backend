@@ -85,13 +85,13 @@ public class PushTokenService {
     // 유효하지 않은 토큰으로 인해 BadRequest가 발생하더라도 넘어가야함.(Local 에는 모든 토큰을 쌓아놓기 때문에)
     @Transactional
     public PushTokenResponse.StatusResponse deleteDeviceToken(PushToken pushToken) {
+        pushTokenRepository.delete(pushToken);
         try {
             val entity = new HttpEntity(
                     createBodyFor(pushToken),
                     createHeadersFor(ACTION_DELETE, pushToken.getPlatform().name())
             );
             val response = sendRequestToPushServer(entity);
-            pushTokenRepository.delete(pushToken);
             return response.getBody();
         } catch (BadRequestException e) {
             return PushTokenResponse.StatusResponse.builder()
@@ -103,14 +103,12 @@ public class PushTokenService {
     }
 
     @Transactional
-    public void deleteAllDeviceTokenOf(User user) {
-        // 기존에 저장되어 있던 Tokens -> 알림 서버에 삭제 요청
-        List<PushToken> userTokens = pushTokenRepository.findAllByUserId(user.getId());
+    public void deleteAllDeviceTokenOf(Long userId) {
+        List<PushToken> userTokens = pushTokenRepository.findAllByUserId(userId);
         if (!userTokens.isEmpty()) {
             for (PushToken token : userTokens) {
-                deleteDeviceToken(token);
+                this.deleteDeviceToken(token);
             }
-            // 우선 서비스 DB에 있는 모든 토큰 지워버리기
             pushTokenRepository.deleteAll(userTokens);
         }
     }
