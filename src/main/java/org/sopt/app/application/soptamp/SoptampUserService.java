@@ -122,4 +122,8 @@ public class SoptampUserService {
         soptampUserList.forEach(SoptampUser::initTotalPoints);
         soptampUserRepository.saveAll(soptampUserList);
     }
+
+    public void deleteSoptampUser(Long userId) {
+        soptampUserRepository.deleteByUserId(userId);
+    }
 }
