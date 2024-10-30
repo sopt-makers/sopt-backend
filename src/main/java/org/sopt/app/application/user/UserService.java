@@ -11,6 +11,7 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,11 +44,6 @@ public class UserService {
                 .playgroundToken(loginInfo.playgroundToken())
                 .build();
         return userRepository.save(newUser);
-    }
-
-    @Transactional
-    public void deleteUser(User user) {
-        userRepository.delete(user);
     }
 
     @Transactional(readOnly = true)
@@ -86,5 +82,10 @@ public class UserService {
 
     public boolean isUserExist(Long userId) {
         return userRepository.existsById(userId);
+    }
+
+    @EventListener(UserWithdrawEvent.class)
+    public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
+        userRepository.deleteById(event.getUserId());
     }
 }
