@@ -83,4 +83,9 @@ public class NotificationService {
                 .toList();
         return unreadNotificationList.isEmpty();
     }
+
+    @Transactional
+    public void deleteAllNotificationsByUserId(Long userId) {
+        notificationRepository.deleteByUserId(userId);
+    }
 }
