@@ -5,6 +5,7 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.LoginInfo;
+import org.sopt.app.common.event.Events;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserService {
 
@@ -46,7 +48,6 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
-    @Transactional(readOnly = true)
     public AccessTokenRequest getPlaygroundToken(Long userId) {
         val user = userRepository.findUserById(userId)
                 .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_REFRESH_TOKEN));
@@ -84,8 +85,9 @@ public class UserService {
         return userRepository.existsById(userId);
     }
 
-    @EventListener(UserWithdrawEvent.class)
-    public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
-        userRepository.deleteById(event.getUserId());
+    @Transactional
+    public void withdrawUser(Long userId) {
+        Events.raise(new UserWithdrawEvent(userId));
+        userRepository.deleteById(userId);
     }
 }
