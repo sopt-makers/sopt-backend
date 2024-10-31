@@ -5,14 +5,12 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.LoginInfo;
-import org.sopt.app.common.event.Events;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
-import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -83,11 +81,5 @@ public class UserService {
 
     public boolean isUserExist(Long userId) {
         return userRepository.existsById(userId);
-    }
-
-    @Transactional
-    public void withdrawUser(Long userId) {
-        Events.raise(new UserWithdrawEvent(userId));
-        userRepository.deleteById(userId);
     }
 }

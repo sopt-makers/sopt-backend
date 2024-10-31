@@ -7,12 +7,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.notification.PushTokenService;
-import org.sopt.app.application.stamp.StampService;
-import org.sopt.app.application.user.UserService;
+import org.sopt.app.application.user.UserWithdrawService;
 import org.sopt.app.domain.entity.PushToken;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.notification.PushTokenRequest;
-import org.sopt.app.presentation.notification.PushTokenResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +23,7 @@ import jakarta.validation.Valid;
 @SecurityRequirement(name = "Authorization")
 public class UserWithdrawController {
 
-    private final UserService userService;
-    private final StampService stampService;
+    private final UserWithdrawService userWithdrawService;
     private final PushTokenService pushTokenService;
 
 
@@ -56,7 +53,7 @@ public class UserWithdrawController {
     })
     @DeleteMapping(value = "")
     public ResponseEntity<Void> withdraw(@AuthenticationPrincipal User user) {
-        userService.withdrawUser(user.getId());
+        userWithdrawService.withdrawUser(user.getId());
         return ResponseEntity.ok().build();
     }
 }
