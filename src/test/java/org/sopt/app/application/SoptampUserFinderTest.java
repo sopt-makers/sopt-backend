@@ -68,10 +68,6 @@ class SoptampUserFinderTest {
         Mockito.when(soptampUserRepository.findUserByNickname(anyNickname)).thenReturn(Optional.empty());
 
         //then
-        Assertions.assertThrows(BadRequestException.class, () -> {
-            soptampUserFinder.findByNickname(anyNickname);
-        });
+        Assertions.assertThrows(BadRequestException.class, () -> soptampUserFinder.findByNickname(anyNickname));
     }
-
-
 }
