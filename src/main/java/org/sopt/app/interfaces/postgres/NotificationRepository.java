@@ -5,6 +5,8 @@ import java.util.Optional;
 import org.sopt.app.domain.entity.Notification;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface NotificationRepository extends JpaRepository<Notification, Long> {
 
@@ -14,5 +16,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     Optional<Notification> findByNotificationIdAndUserId(String notificationId, Long userId);
 
-    void deleteByUserId(Long userId);
+    @Query("DELETE FROM Notification n WHERE n.userId = :userId")
+    void deleteByUserIdInQuery(@Param("userId") Long userId);
 }

@@ -5,6 +5,7 @@ import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.user.UserWithdrawEvent;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Notification;
@@ -13,6 +14,7 @@ import org.sopt.app.domain.enums.NotificationType;
 import org.sopt.app.interfaces.postgres.NotificationRepository;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.notification.NotificationRequest.RegisterNotificationRequest;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -84,8 +86,8 @@ public class NotificationService {
         return unreadNotificationList.isEmpty();
     }
 
-    @Transactional
-    public void deleteAllNotificationsByUserId(Long userId) {
-        notificationRepository.deleteByUserId(userId);
+    @EventListener(UserWithdrawEvent.class)
+    public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
+        notificationRepository.deleteByUserIdInQuery(event.getUserId());
     }
 }
