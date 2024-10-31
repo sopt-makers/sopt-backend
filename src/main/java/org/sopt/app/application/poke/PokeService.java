@@ -2,7 +2,7 @@ package org.sopt.app.application.poke;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.common.event.Events;
+import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.poke.PokeHistory;
@@ -19,6 +19,7 @@ public class PokeService {
 
     private final UserRepository userRepository;
     private final PokeHistoryRepository historyRepository;
+    private final EventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public PokeInfo.PokeDetail getPokeDetail(Long pokeHistoryId) {
@@ -39,7 +40,7 @@ public class PokeService {
 
         PokeHistory pokeByApplyingReply = createPokeByApplyingReply(pokerUserId, pokedUserId, pokeMessage, isAnonymous);
 
-        Events.raise(PokeEvent.of(pokedUser.getPlaygroundId()));
+        eventPublisher.raise(PokeEvent.of(pokedUser.getPlaygroundId()));
         return pokeByApplyingReply;
     }
 
