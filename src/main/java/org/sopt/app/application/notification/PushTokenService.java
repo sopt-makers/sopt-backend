@@ -2,15 +2,17 @@ package org.sopt.app.application.notification;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.user.UserWithdrawEvent;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.PushToken;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.PushTokenPlatform;
 import org.sopt.app.interfaces.postgres.PushTokenRepository;
-import org.sopt.app.presentation.notification.PushTokenRequest;
+import org.sopt.app.presentation.notification.PushTokenRequest.PushTokenManageRequest;
 import org.sopt.app.presentation.notification.PushTokenResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.event.EventListener;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,7 +61,7 @@ public class PushTokenService {
                     .platform(PushTokenPlatform.valueOf(platform))
                     .build();
             try {
-                val entity = new HttpEntity(
+                val entity = new HttpEntity<>(
                         createBodyFor(registerToken),
                         createHeadersFor(ACTION_REGISTER, platform)
                 );
@@ -80,21 +82,20 @@ public class PushTokenService {
                 .message("토큰 등록 성공")
                 .build();
     }
-
-
+    
     // 유효하지 않은 토큰으로 인해 BadRequest가 발생하더라도 넘어가야함.(Local 에는 모든 토큰을 쌓아놓기 때문에)
     @Transactional
-    public PushTokenResponse.StatusResponse deleteDeviceToken(PushToken pushToken) {
+    public void deleteDeviceToken(PushToken pushToken) {
         pushTokenRepository.delete(pushToken);
         try {
-            val entity = new HttpEntity(
+            val entity = new HttpEntity<>(
                     createBodyFor(pushToken),
                     createHeadersFor(ACTION_DELETE, pushToken.getPlatform().name())
             );
             val response = sendRequestToPushServer(entity);
-            return response.getBody();
+            response.getBody();
         } catch (BadRequestException e) {
-            return PushTokenResponse.StatusResponse.builder()
+            PushTokenResponse.StatusResponse.builder()
                     .status(e.getErrorCode().getHttpStatus().value())
                     .success(false)
                     .message(e.getErrorCode().getMessage())
@@ -102,9 +103,20 @@ public class PushTokenService {
         }
     }
 
-    @Transactional
-    public void deleteAllDeviceTokenOf(Long userId) {
-        List<PushToken> userTokens = pushTokenRepository.findAllByUserId(userId);
+    private ResponseEntity<PushTokenResponse.StatusResponse> sendRequestToPushServer(
+            HttpEntity<PushTokenManageRequest> requestEntity
+    ) {
+        return restTemplate.exchange(
+                baseURI,
+                HttpMethod.POST,
+                requestEntity,
+                PushTokenResponse.StatusResponse.class
+        );
+    }
+
+    @EventListener(UserWithdrawEvent.class)
+    public void deleteAllDeviceTokenOf(final UserWithdrawEvent event) {
+        List<PushToken> userTokens = pushTokenRepository.findAllByUserId(event.getUserId());
         if (!userTokens.isEmpty()) {
             for (PushToken token : userTokens) {
                 this.deleteDeviceToken(token);
@@ -124,18 +136,10 @@ public class PushTokenService {
         return headers;
     }
 
-    private PushTokenRequest.PushTokenManageRequest createBodyFor(PushToken pushToken) {
-        return new PushTokenRequest.PushTokenManageRequest(
+    private PushTokenManageRequest createBodyFor(PushToken pushToken) {
+        return new PushTokenManageRequest(
                 List.of(String.valueOf(pushToken.getPlaygroundId())),
                 pushToken.getToken()
-        );
-    }
-    private ResponseEntity<PushTokenResponse.StatusResponse> sendRequestToPushServer(HttpEntity requestEntity) {
-        return restTemplate.exchange(
-                baseURI,
-                HttpMethod.POST,
-                requestEntity,
-                PushTokenResponse.StatusResponse.class
         );
     }
 }
