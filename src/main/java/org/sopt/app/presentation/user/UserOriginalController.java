@@ -8,12 +8,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.auth.PlaygroundAuthService;
-import org.sopt.app.application.auth.dto.PlaygroundPostInfo.PlaygroundPost;
+import org.sopt.app.application.playground.PlaygroundAuthService;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPost;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.UserFacade;
 import org.sopt.app.presentation.user.UserResponse.AppService;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +27,6 @@ public class UserOriginalController {
 
     private final PlaygroundAuthService playgroundAuthService;
     private final UserResponseMapper userResponseMapper;
-
     private final UserFacade userFacade;
 
     @Operation(summary = "메인 뷰 조회")
@@ -55,8 +53,8 @@ public class UserOriginalController {
     public ResponseEntity<UserResponse.Generation> getGenerationInfo(
             @AuthenticationPrincipal User user
     ) {
-        val generationUser = playgroundAuthService.getPlaygroundUserActiveInfo(
-                user.getPlaygroundToken(), user.getPlaygroundId());
+        val generationUser =
+                playgroundAuthService.getPlaygroundUserActiveInfo(user.getPlaygroundToken(), user.getPlaygroundId());
         val response = userResponseMapper.ofGeneration(generationUser);
         return ResponseEntity.ok(response);
     }

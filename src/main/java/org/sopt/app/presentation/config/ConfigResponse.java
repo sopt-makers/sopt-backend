@@ -1,10 +1,9 @@
 package org.sopt.app.presentation.config;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.ToString;
+import lombok.*;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ConfigResponse {
 
     @Getter

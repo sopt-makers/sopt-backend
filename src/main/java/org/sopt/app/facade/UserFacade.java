@@ -3,7 +3,7 @@ package org.sopt.app.facade;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.auth.PlaygroundAuthService;
+import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.application.operation.OperationInfo;
 import org.sopt.app.application.app_service.AppServiceService;
@@ -28,7 +28,7 @@ public class UserFacade {
         val mainViewUser = playgroundAuthService.getPlaygroundUserForMainView(user.getPlaygroundToken(),
                 user.getPlaygroundId());
         val dummyOperation = OperationInfo.MainView.builder().announcement("공지다!").attendanceScore(2D).build();
-        val mainViewNotification = notificationService.getNotificationConfirmStatus(user);
+        val mainViewNotification = notificationService.getNotificationConfirmStatus(user.getId());
         return userResponseMapper.ofMainView(mainViewUser, dummyOperation, mainViewNotification);
     }
 

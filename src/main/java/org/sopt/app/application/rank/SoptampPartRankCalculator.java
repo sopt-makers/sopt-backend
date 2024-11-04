@@ -1,38 +1,32 @@
 package org.sopt.app.application.rank;
 
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.application.soptamp.SoptampPointInfo.PartPoint;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
+import org.sopt.app.application.soptamp.SoptampUserInfo;
+import org.sopt.app.domain.enums.Part;
 
 
-@RequiredArgsConstructor
+@RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 public class SoptampPartRankCalculator {
 
-    private final List<PartPoint> partPoints;
+    private final List<SoptampUserInfo> userInfos;
 
-    public List<PartRank> findAllPartRanks() {
+    private final PartScores partScores = new PartScores();
 
-        return partPoints.stream().map(this::createPartRank).toList();
+    public List<PartRank> calculatePartRank() {
+        userInfos.forEach(this::calculatePartScore);
+        return Part.getPartsByReturnOrder().stream().map(part -> PartRank.builder()
+                .part(part.getPartName())
+                .rank(partScores.getRank(part))
+                .points(partScores.getPoints(part))
+                .build()).toList();
     }
 
-    private PartRank createPartRank(PartPoint targetPartPoint) {
-
-        return PartRank.builder()
-                .part(targetPartPoint.part().getPartName())
-                .rank(getTargetPartRank(targetPartPoint))
-                .points(targetPartPoint.points())
-                .build();
-    }
-
-    private int getTargetPartRank(PartPoint targetPartPoint) {
-        int rankPoint = 1;
-
-        for (PartPoint comparisonPartPoint : partPoints) {
-            if (targetPartPoint.points() < comparisonPartPoint.points()) {
-                rankPoint++;
-            }
-        }
-        return rankPoint;
+    private void calculatePartScore(SoptampUserInfo userInfo) {
+        Part.getAllParts().stream()
+                .filter(part -> userInfo.getNickname().startsWith(part.getPartName()))
+                .forEach(part -> partScores.addPartScore(part, userInfo.getTotalPoints()));
     }
 }

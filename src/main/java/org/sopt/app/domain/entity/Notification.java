@@ -1,34 +1,33 @@
 package org.sopt.app.domain.entity;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.sopt.app.domain.enums.NotificationCategory;
 import org.sopt.app.domain.enums.NotificationType;
 
 @Entity
-@Table(name = "notifications", schema = "app_dev")
 @Getter
 @Builder
-@NoArgsConstructor
+@Table(name = "notifications") // 예약어로 인한 테이블명 변경
 @AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Notification extends BaseEntity{
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
+    @NotNull
     private Long userId;
 
-    @Column(name = "notification_id", nullable = false)
+    @NotNull
     private String notificationId;
 
-    @Column(name = "notification_title", columnDefinition = "TEXT", nullable = false)
+    @NotNull
+    @Column(name = "notification_title", columnDefinition = "TEXT")
     private String title;
 
     @Column(name = "notification_content", columnDefinition = "TEXT")
@@ -38,20 +37,18 @@ public class Notification extends BaseEntity{
     @Enumerated(EnumType.STRING)
     private NotificationType type;
 
-    @Column(name = "notification_category", nullable = false)
+    @NotNull
+    @Column(name = "notification_category")
     @Enumerated(EnumType.STRING)
     private NotificationCategory category;
 
-    @Column(name = "deep_link")
     private String deepLink;
 
-    @Column(name = "web_link")
     private String webLink;
 
-    @Column(nullable = false, name = "is_read")
+    @NotNull
     @ColumnDefault("false")
     private Boolean isRead;
-
 
     public void updateIsRead() {
         this.isRead = true;

@@ -53,7 +53,6 @@ public class UserResponse {
 
     }
 
-
     @Getter
     @Builder
     @ToString
@@ -97,16 +96,6 @@ public class UserResponse {
     @Getter
     @Builder
     @ToString
-    public static class IsOptIn {
-
-        @Schema(description = "유저 알림 수신 동의 여부", example = "false")
-        private Boolean isOptIn;
-    }
-
-
-    @Getter
-    @Builder
-    @ToString
     public static class Generation {
 
         @Schema(description = "현재 솝트 기수", example = "33")
@@ -126,6 +115,5 @@ public class UserResponse {
         private Boolean activeUser;
         @Schema(description = "비활동 기수 유저", example = "false")
         private Boolean inactiveUser;
-
     }
 }

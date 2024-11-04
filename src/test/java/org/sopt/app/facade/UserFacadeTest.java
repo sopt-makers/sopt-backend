@@ -1,24 +1,20 @@
 package org.sopt.app.facade;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo;
-import org.sopt.app.application.auth.dto.PlaygroundProfileInfo.MainView;
-import org.sopt.app.application.auth.PlaygroundAuthService;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.MainView;
+import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.application.operation.OperationInfo;
-import org.sopt.app.domain.entity.User;
+import org.sopt.app.common.fixtures.UserFixture;
 import org.sopt.app.presentation.user.UserResponse;
 import org.sopt.app.presentation.user.UserResponse.Operation;
 import org.sopt.app.presentation.user.UserResponseMapper;
@@ -52,7 +48,7 @@ class UserFacadeTest {
 
         //when
         when(playgroundAuthService.getPlaygroundUserForMainView(anyString(), anyLong())).thenReturn(playgroundAuthInfo);
-        when(notificationService.getNotificationConfirmStatus(any(User.class))).thenReturn(isNotificationConfirm);
+        when(notificationService.getNotificationConfirmStatus(anyLong())).thenReturn(isNotificationConfirm);
         when(userResponseMapper.ofMainView(any(MainView.class), any(OperationInfo.MainView.class),
                 anyBoolean())).thenReturn(mainViewResponse);
 
@@ -61,12 +57,7 @@ class UserFacadeTest {
                 .operation(mainViewResponse.getOperation())
                 .isAllConfirm(mainViewResponse.getIsAllConfirm())
                 .build();
-        UserResponse.MainView result = userFacade.getMainViewInfo(
-                User.builder()
-                        .playgroundToken(anyString())
-                        .playgroundId(anyLong())
-                        .build()
-        );
+        UserResponse.MainView result = userFacade.getMainViewInfo(UserFixture.createMyAppUser());
 
         //then
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);

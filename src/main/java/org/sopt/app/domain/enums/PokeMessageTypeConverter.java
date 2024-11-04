@@ -3,8 +3,7 @@ package org.sopt.app.domain.enums;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 
-import javax.persistence.AttributeConverter;
-import javax.persistence.Converter;
+import jakarta.persistence.*;
 import java.util.Objects;
 
 @Converter
@@ -12,7 +11,7 @@ public class PokeMessageTypeConverter implements AttributeConverter<PokeMessageT
     @Override
     public String convertToDatabaseColumn(PokeMessageType attribute) {
         if (Objects.isNull(attribute)) {
-            throw new BadRequestException(ErrorCode.POKE_MESSAGE_MUST_NOT_BE_NULL.getMessage());
+            throw new BadRequestException(ErrorCode.POKE_MESSAGE_MUST_NOT_BE_NULL);
         }
         return attribute.toString();
     }
@@ -20,7 +19,7 @@ public class PokeMessageTypeConverter implements AttributeConverter<PokeMessageT
     @Override
     public PokeMessageType convertToEntityAttribute(String dbData) {
         if (Objects.isNull(dbData) || dbData.isEmpty()) {
-            throw new BadRequestException(ErrorCode.POKE_MESSAGE_MUST_NOT_BE_NULL.getMessage());
+            throw new BadRequestException(ErrorCode.POKE_MESSAGE_MUST_NOT_BE_NULL);
         }
         return PokeMessageType.valueOf(dbData);
     }

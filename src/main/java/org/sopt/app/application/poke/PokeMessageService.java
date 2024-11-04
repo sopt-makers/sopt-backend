@@ -1,12 +1,10 @@
 package org.sopt.app.application.poke;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.domain.entity.PokeMessage;
+import org.sopt.app.domain.entity.poke.PokeMessage;
 import org.sopt.app.domain.enums.PokeMessageType;
 import org.sopt.app.interfaces.postgres.PokeMessageRepository;
 import org.springframework.stereotype.Service;

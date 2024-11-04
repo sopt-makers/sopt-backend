@@ -18,7 +18,7 @@ import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.interfaces.postgres.MainDescriptionRepository;
 
 @ExtendWith(MockitoExtension.class)
-public class DescriptionServiceTest {
+class DescriptionServiceTest {
 
     @Mock
     private MainDescriptionRepository mainDescriptionRepository;
@@ -27,7 +27,7 @@ public class DescriptionServiceTest {
     private DescriptionService descriptionService;
 
     @BeforeEach
-    private void beforeTest() {
+    public void beforeTest() {
         when(mainDescriptionRepository.findAll()).thenReturn(List.of(
                 MainDescription.builder()
                         .id(1L)

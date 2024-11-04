@@ -1,13 +1,6 @@
 package org.sopt.app.application.soptamp;
 
-import java.util.List;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.sopt.app.domain.entity.Mission;
-import org.sopt.app.domain.entity.SoptampPoint;
+import lombok.*;
 import org.sopt.app.domain.enums.Part;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -29,33 +22,6 @@ public class SoptampPointInfo {
                     soptampUserInfo.getNickname(),
                     soptampUserInfo.getTotalPoints(),
                     soptampUserInfo.getProfileMessage()
-            );
-        }
-    }
-
-    @Getter
-    public static class Detail {
-
-        private String nickname;
-        private String profileMessage;
-        private List<Mission> userMissions;
-    }
-
-    @Getter
-    @Builder
-    @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class Point {
-        private Long id;
-        private Long generation;
-        private Long soptampUserId;
-        private Long points;
-
-        public static Point of(SoptampPoint soptampPoint) {
-            return new Point(
-                    soptampPoint.getId(),
-                    soptampPoint.getGeneration(),
-                    soptampPoint.getSoptampUserId(),
-                    soptampPoint.getPoints()
             );
         }
     }

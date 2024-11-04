@@ -29,17 +29,6 @@ public class RankController {
     private final SoptampFacade soptampFacade;
     private final RankResponseMapper rankResponseMapper;
 
-    @Operation(summary = "랭킹 목록 조회")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping("")
-    public ResponseEntity<List<RankResponse.RankMain>> findAllRanks() {
-        val result = rankFacade.findAllSoptampUserRanks();
-        return ResponseEntity.ok(rankResponseMapper.of(result));
-    }
-
     @Operation(summary = "현재 기수 랭킹 목록 조회")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "success"),

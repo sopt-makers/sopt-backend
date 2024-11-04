@@ -1,10 +1,13 @@
 package org.sopt.app.application.mission;
 
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MissionInfo {
 
     @Getter

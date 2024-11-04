@@ -5,7 +5,7 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.sopt.app.application.mission.MissionInfo;
-import org.sopt.app.domain.entity.Mission;
+import org.sopt.app.domain.entity.soptamp.Mission;
 
 @Mapper(
         componentModel = "spring",
