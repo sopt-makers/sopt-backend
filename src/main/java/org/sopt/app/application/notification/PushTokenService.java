@@ -59,7 +59,7 @@ public class PushTokenService {
                     .platform(PushTokenPlatform.valueOf(platform))
                     .build();
             try {
-                val entity = new HttpEntity(
+                val entity = new HttpEntity<>(
                         createBodyFor(registerToken),
                         createHeadersFor(ACTION_REGISTER, platform)
                 );
@@ -86,7 +86,7 @@ public class PushTokenService {
     @Transactional
     public PushTokenResponse.StatusResponse deleteDeviceToken(PushToken pushToken) {
         try {
-            val entity = new HttpEntity(
+            val entity = new HttpEntity<>(
                     createBodyFor(pushToken),
                     createHeadersFor(ACTION_DELETE, pushToken.getPlatform().name())
             );

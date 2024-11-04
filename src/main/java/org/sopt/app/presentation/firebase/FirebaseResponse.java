@@ -2,11 +2,13 @@ package org.sopt.app.presentation.firebase;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 
-
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class FirebaseResponse {
 
     @Getter

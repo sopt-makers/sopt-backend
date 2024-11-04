@@ -27,8 +27,8 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundP
 import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.exception.BadRequestException;
-import org.sopt.app.domain.entity.soptamp.SoptampUser;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
+import org.sopt.app.domain.entity.soptamp.SoptampUser;
 
 @ExtendWith(MockitoExtension.class)
 class SoptampUserServiceTest {
