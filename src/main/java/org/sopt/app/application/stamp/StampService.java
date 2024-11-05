@@ -6,13 +6,15 @@ import java.util.List;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.common.event.Events;
+import org.sopt.app.application.user.UserWithdrawEvent;
+import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -22,6 +24,7 @@ import org.springframework.util.StringUtils;
 public class StampService {
 
     private final StampRepository stampRepository;
+    private final EventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public StampInfo.Stamp findStamp(Long missionId, Long userId) {
@@ -143,7 +146,7 @@ public class StampService {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND));
         stampRepository.deleteById(stampId);
 
-        Events.raise(new StampDeletedEvent(stamp.getImages()));
+        eventPublisher.raise(new StampDeletedEvent(stamp.getImages()));
     }
 
     @Transactional
@@ -152,7 +155,12 @@ public class StampService {
 
         val imageUrls = stampRepository.findAllByUserId(userId).stream().map(Stamp::getImages)
                 .flatMap(Collection::stream).toList();
-        Events.raise(new StampDeletedEvent(imageUrls));
+        eventPublisher.raise(new StampDeletedEvent(imageUrls));
+    }
+
+    @EventListener(UserWithdrawEvent.class)
+    public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
+        this.deleteAllStamps(event.getUserId());
     }
 
     private void validateStampInfo(Stamp entity) {

@@ -1,16 +1,14 @@
 package org.sopt.app.application.poke;
 
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import lombok.RequiredArgsConstructor;
-import lombok.val;
+import java.util.*;
+import lombok.*;
 import org.sopt.app.application.poke.PokeInfo.PokeHistoryInfo;
+import org.sopt.app.application.user.UserWithdrawEvent;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.poke.PokeHistory;
 import org.sopt.app.interfaces.postgres.PokeHistoryRepository;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -79,5 +77,11 @@ public class PokeHistoryService {
     public List<PokeHistoryInfo> getAllPokeHistoryByUsers(Long userId, Long friendUserId) {
         val pokeHistories = pokeHistoryRepository.findAllPokeHistoryByUsers(userId, friendUserId);
         return pokeHistories.stream().map(PokeHistoryInfo::from).toList();
+    }
+
+    @EventListener(UserWithdrawEvent.class)
+    public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
+        pokeHistoryRepository.deleteAllByPokerIdInQuery(event.getUserId());
+        pokeHistoryRepository.deleteAllByPokedIdInQuery(event.getUserId());
     }
 }

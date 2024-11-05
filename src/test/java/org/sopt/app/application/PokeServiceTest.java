@@ -4,6 +4,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
@@ -16,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.poke.PokeInfo.PokeDetail;
 import org.sopt.app.application.poke.PokeService;
+import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.domain.entity.poke.PokeHistory;
 import org.sopt.app.domain.entity.User;
@@ -30,6 +34,9 @@ class PokeServiceTest {
 
     @Mock
     private PokeHistoryRepository pokeHistoryRepository;
+
+    @Mock
+    private EventPublisher eventPublisher;
 
     @InjectMocks
     private PokeService pokeService;
@@ -81,6 +88,20 @@ class PokeServiceTest {
 
         PokeHistory result = pokeService.poke(2L, 1L, "message", false);
         assertNull(result);
+    }
+
+    @Test
+    void SUCCESS_찌르기_실행시_PokeEvent발생() {
+        // given
+        User user = User.builder().id(1L).build();
+        given(userRepository.findUserById(any())).willReturn(Optional.of(user));
+        given(pokeHistoryRepository.findAllByPokerIdAndPokedIdAndIsReplyIsFalse(anyLong(), anyLong())).willReturn(List.of());
+
+        // when
+        pokeService.poke(2L, 1L, "message", false);
+
+        // then
+        verify(eventPublisher).raise(any());
     }
 
     @Test

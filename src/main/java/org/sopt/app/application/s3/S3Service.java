@@ -8,10 +8,11 @@ import java.util.*;
 import lombok.*;
 import org.joda.time.LocalDateTime;
 import org.slf4j.LoggerFactory;
+import org.sopt.app.application.stamp.StampDeletedEvent;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -49,8 +50,12 @@ public class S3Service {
                 .build();
     }
 
-    @Async
-    public void deleteFiles(List<String> fileUrls, String folderName) {
+    @EventListener(StampDeletedEvent.class)
+    public void handleStampDeletedEvent(StampDeletedEvent event) {
+        this.deleteFiles(event.getFileUrls(), "stamp");
+    }
+
+    private void deleteFiles(List<String> fileUrls, String folderName) {
         val folderURI = bucket + "/mainpage/makers-app-img/" + folderName;
         val fileNameList = getFileNameList(fileUrls);
         fileNameList.forEach(file -> deleteFile(folderURI, file));

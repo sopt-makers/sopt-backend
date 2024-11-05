@@ -5,12 +5,14 @@ import java.util.*;
 import java.util.Map.Entry;
 import org.jetbrains.annotations.NotNull;
 import org.sopt.app.application.poke.PokeInfo.Relationship;
+import org.sopt.app.application.user.UserWithdrawEvent;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.common.utils.AnonymousNameGenerator;
 import org.sopt.app.domain.entity.Friend;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.interfaces.postgres.FriendRepository;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -168,5 +170,11 @@ public class FriendService {
 
     public Set<Long> findAllFriendIdsByUserId(Long userId) {
         return friendRepository.findAllOfFriendIdsByUserId(userId);
+    }
+
+    @EventListener(UserWithdrawEvent.class)
+    public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
+        friendRepository.deleteAllByFriendUserIdInQuery(event.getUserId());
+        friendRepository.deleteAllByUserIdInQuery(event.getUserId());
     }
 }

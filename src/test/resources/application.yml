@@ -1,9 +1,15 @@
 spring:
-  application:
-    name: app-server
+  config:
+    import: optional:configserver:http://127.0.0.1:8087
+  cloud:
+    config:
+      uri: http://127.0.0.1:8087
+      name: application
   profiles:
     active: test
 
-springdoc:
-  swagger-ui:
-    path: /swagger-ui.html
+management:
+  endpoints:
+    web:
+      exposure:
+        include: refresh

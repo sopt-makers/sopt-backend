@@ -2,15 +2,12 @@ package org.sopt.app.application.stamp;
 
 import java.util.List;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.event.Event;
 
 @Getter
+@RequiredArgsConstructor
 public class StampDeletedEvent extends Event {
 
-    private List<String> fileUrls;
-
-    public StampDeletedEvent(List<String> fileUrls) {
-        super();
-        this.fileUrls = fileUrls;
-    }
+    private final List<String> fileUrls;
 }

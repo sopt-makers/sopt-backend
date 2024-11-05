@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class UserService {
 
@@ -45,12 +46,6 @@ public class UserService {
         return userRepository.save(newUser);
     }
 
-    @Transactional
-    public void deleteUser(User user) {
-        userRepository.delete(user);
-    }
-
-    @Transactional(readOnly = true)
     public AccessTokenRequest getPlaygroundToken(Long userId) {
         val user = userRepository.findUserById(userId)
                 .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_REFRESH_TOKEN));

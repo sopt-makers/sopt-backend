@@ -7,12 +7,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.notification.PushTokenService;
-import org.sopt.app.application.stamp.StampService;
-import org.sopt.app.application.user.UserService;
+import org.sopt.app.application.user.UserWithdrawService;
 import org.sopt.app.domain.entity.PushToken;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.notification.PushTokenRequest;
-import org.sopt.app.presentation.notification.PushTokenResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +23,7 @@ import jakarta.validation.Valid;
 @SecurityRequirement(name = "Authorization")
 public class UserWithdrawController {
 
-    private final UserService userService;
-    private final StampService stampService;
+    private final UserWithdrawService userWithdrawService;
     private final PushTokenService pushTokenService;
 
 
@@ -36,7 +33,7 @@ public class UserWithdrawController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @DeleteMapping(value = "/logout")
-    public ResponseEntity<PushTokenResponse.StatusResponse> logout(
+    public ResponseEntity<Void> logout(
             @AuthenticationPrincipal User user,
             @Valid @RequestBody PushTokenRequest.DeleteRequest deleteRequest
     ) {
@@ -55,15 +52,8 @@ public class UserWithdrawController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @DeleteMapping(value = "")
-    public ResponseEntity<UserResponse.AppUser> withdraw(@AuthenticationPrincipal User user) {
-        // TODO: S3 이미지 삭제
-        // TODO: 알림 서버 FCM Token 삭제 요청 => pushTokenService#deleteAllDeviceTokenOf 구현이 완료되어야함.
-        // 스탬프 정보 삭제
-        stampService.deleteAllStamps(user.getId());
-        // 푸시 토큰 일괄 삭제
-        pushTokenService.deleteAllDeviceTokenOf(user);
-        // 유저 정보 삭제
-        userService.deleteUser(user);
+    public ResponseEntity<Void> withdraw(@AuthenticationPrincipal User user) {
+        userWithdrawService.withdrawUser(user.getId());
         return ResponseEntity.ok().build();
     }
 }
