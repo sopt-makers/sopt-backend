@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.facade.DescriptionFacade;
+import org.sopt.app.facade.HomeFacade;
 import org.sopt.app.domain.entity.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "Authorization")
 public class DescriptionController {
 
-    private final DescriptionFacade descriptionFacade;
+    private final HomeFacade homeFacade;
 
     @Operation(summary = "메인 문구 조회")
     @ApiResponses({
@@ -31,7 +31,7 @@ public class DescriptionController {
     public ResponseEntity<DescriptionResponse.MainDescription> getMainDescription(
         @AuthenticationPrincipal User user
     ) {
-        val response = descriptionFacade.getMainDescriptionForUser(user);
+        val response = homeFacade.getMainDescriptionForUser(user);
         return ResponseEntity.ok(
             DescriptionResponse.MainDescription.builder()
                 .topDescription(response.getTopDescription())
