@@ -20,7 +20,7 @@ import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.UserStatus;
 
 @ExtendWith(MockitoExtension.class)
-class DescriptionFacadeTest {
+class HomeFacadeTest {
 
     @Mock
     private DescriptionService descriptionService;
@@ -29,7 +29,7 @@ class DescriptionFacadeTest {
     private PlaygroundAuthService playgroundAuthService;
 
     @InjectMocks
-    private DescriptionFacade descriptionFacade;
+    private HomeFacade homeFacade;
 
     @Test
     @DisplayName("SUCCESS_활동 유저 메인 문구 조회")
@@ -42,7 +42,7 @@ class DescriptionFacadeTest {
                 .thenReturn(DescriptionInfo.MainDescription.builder().topDescription("activeTop")
                         .bottomDescription("activeBottom").build());
 
-        MainDescription result = descriptionFacade.getMainDescriptionForUser(user);
+        MainDescription result = homeFacade.getMainDescriptionForUser(user);
         Assertions.assertEquals("activeTop", result.getTopDescription());
         Assertions.assertEquals("activeBottom", result.getBottomDescription());
     }
@@ -58,7 +58,7 @@ class DescriptionFacadeTest {
                 .thenReturn(DescriptionInfo.MainDescription.builder().topDescription("inactiveTop")
                         .bottomDescription("inactiveBottom").build());
 
-        MainDescription result = descriptionFacade.getMainDescriptionForUser(user);
+        MainDescription result = homeFacade.getMainDescriptionForUser(user);
         Assertions.assertEquals("inactiveTop", result.getTopDescription());
         Assertions.assertEquals("inactiveBottom", result.getBottomDescription());
     }
