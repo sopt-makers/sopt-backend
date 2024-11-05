@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Deprecated
 public class DescriptionInfo {
 
     @Getter
