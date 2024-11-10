@@ -4,6 +4,7 @@ import lombok.*;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
+import org.sopt.app.domain.enums.CalendarType;
 
 @Getter
 @Entity
@@ -33,4 +34,8 @@ public class Calendar {
 
     @NotNull
     private LocalDate endDate;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    private CalendarType type;
 }
