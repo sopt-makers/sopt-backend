@@ -54,7 +54,7 @@ public class CalendarServiceImpl implements CalendarService {
         LocalDate now = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDate();
 
         return this.getAllCurrentGenerationCalendar().stream()
-                .filter(calendar -> calendar.getEndDate().isAfter(now))
+                .filter(calendar -> !calendar.getStartDate().isBefore(now))
                 .findFirst().map(RecentCalendarResponse::of)
                 .orElseGet(() -> RecentCalendarResponse.createEmptyCalendar(now));
     }
