@@ -1,7 +1,7 @@
 package org.sopt.app.application.calendar;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.interfaces.CalendarRepository;
+import org.sopt.app.interfaces.postgres.CalendarRepository;
 import org.sopt.app.presentation.calendar.AllCalendarResponse;
 import org.sopt.app.presentation.calendar.CalendarResponse;
 import org.springframework.beans.factory.annotation.Value;
