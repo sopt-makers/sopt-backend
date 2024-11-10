@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.*;
 
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class AppServiceResponse {
+public class AppServiceEntryStatusResponse {
 
     private final AppServiceName serviceName;
     private final boolean displayAlarmBadge;

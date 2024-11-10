@@ -3,6 +3,7 @@ package org.sopt.app.facade;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.app_service.AppServiceEntryStatusResponse;
 import org.sopt.app.application.home.ActivityDurationCalculator;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.description.DescriptionInfo.MainDescription;
@@ -35,5 +36,9 @@ public class HomeFacade {
                 user.getUsername(),
                 calculator.getActivityDuration()
         );
+    }
+
+    public AppServiceEntryStatusResponse checkAppServiceEntryStatus(User user) {
+        return null;
     }
 }
