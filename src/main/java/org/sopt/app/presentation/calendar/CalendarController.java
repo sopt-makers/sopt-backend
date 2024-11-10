@@ -24,7 +24,7 @@ public class CalendarController {
     @GetMapping("/all")
     public ResponseEntity<AllCalendarResponse> getAllCalendar() {
         return ResponseEntity.ok(
-            calendarService.getAllCalendar()
+            calendarService.getAllCurrentGenerationCalendar()
         );
     }
 }
