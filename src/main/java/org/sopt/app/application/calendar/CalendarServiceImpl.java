@@ -3,6 +3,7 @@ package org.sopt.app.application.calendar;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.domain.cache.CachedAllCalendarResponse;
+import org.sopt.app.domain.cache.Calendars;
 import org.sopt.app.interfaces.postgres.CalendarRepository;
 import org.sopt.app.interfaces.postgres.redis.CachedCalendarRepository;
 import org.sopt.app.presentation.calendar.AllCalendarResponse;
@@ -27,18 +28,20 @@ public class CalendarServiceImpl implements CalendarService {
 
         Optional<CachedAllCalendarResponse> cachedCalendar = cachedCalendarRepository.findById(currentGeneration);
 
-        return cachedCalendar.orElseGet(this::cacheAllCalendarResponse).getCalendars();
+        return new AllCalendarResponse(
+                cachedCalendar.orElseGet(this::cacheAllCalendarResponse)
+                        .getCalendars().calendars().stream()
+                        .map(CalendarResponse::of)
+                        .toList()
+        );
     }
 
     private CachedAllCalendarResponse cacheAllCalendarResponse() {
-        AllCalendarResponse allCalendarResponse = new AllCalendarResponse(
-                calendarRepository.findAllByGenerationOrderByStartDate(currentGeneration)
-                        .stream().map(CalendarResponse::of)
-                        .toList()
-        );
-
         return cachedCalendarRepository.save(
-                new CachedAllCalendarResponse(currentGeneration, allCalendarResponse)
+                new CachedAllCalendarResponse(
+                        currentGeneration,
+                        new Calendars(calendarRepository.findAllByGenerationOrderByStartDate(currentGeneration))
+                )
         );
     }
 }
