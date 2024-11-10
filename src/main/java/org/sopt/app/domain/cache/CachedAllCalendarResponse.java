@@ -1,7 +1,6 @@
 package org.sopt.app.domain.cache;
 
 import lombok.*;
-import org.sopt.app.presentation.calendar.AllCalendarResponse;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
@@ -14,5 +13,5 @@ public class CachedAllCalendarResponse {
     @Id
     private Integer generation;
 
-    private AllCalendarResponse calendars;
+    private Calendars calendars;
 }
