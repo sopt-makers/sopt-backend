@@ -15,7 +15,7 @@ public class AppServiceInfo {
     @ToString
     public static class AppService {
 
-        private String serviceName;
+        private AppServiceName serviceName;
         private Boolean activeUser;
         private Boolean inactiveUser;
 

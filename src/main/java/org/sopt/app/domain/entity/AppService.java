@@ -3,6 +3,7 @@ package org.sopt.app.domain.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.sopt.app.application.app_service.AppServiceName;
 
 @Getter
 @Entity
@@ -16,7 +17,8 @@ public class AppService extends BaseEntity {
     private Long id;
 
     @NotNull
-    private String serviceName;
+    @Enumerated(EnumType.STRING)
+    private AppServiceName serviceName;
 
     @NotNull
     private Boolean activeUser;
