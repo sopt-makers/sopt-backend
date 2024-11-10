@@ -66,6 +66,7 @@ public class UserOriginalController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping(value = "/app-service")
+    @Deprecated
     public ResponseEntity<List<AppService>> getAppServiceInfo() {
         val response = userFacade.getAppServiceInfo();
         return ResponseEntity.ok(response);
