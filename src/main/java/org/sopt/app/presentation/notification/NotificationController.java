@@ -6,9 +6,11 @@ import io.swagger.v3.oas.annotations.responses.*;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import jakarta.validation.Valid;
+import java.util.Objects;
 import lombok.*;
 import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.enums.NotificationCategory;
 import org.sopt.app.presentation.notification.NotificationResponse.NotificationSimple;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -33,10 +35,16 @@ public class NotificationController {
     @GetMapping(value = "/all")
     public ResponseEntity<List<NotificationResponse.NotificationSimple>> findNotificationList(
             @AuthenticationPrincipal User user,
+            @RequestParam(name = "category", required = false) NotificationCategory category,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        val result = notificationService.findNotificationList(user, pageable);
-        return ResponseEntity.ok(result.stream().map(NotificationSimple::of).toList());
+        if(Objects.isNull(category)) {
+            val result = notificationService.findNotificationList(user.getId(), pageable);
+            return ResponseEntity.ok(result.stream().map(NotificationSimple::of).toList());
+        } else {
+            val result = notificationService.findNotificationListByCategory(user.getId(), pageable, category);
+            return ResponseEntity.ok(result.stream().map(NotificationSimple::of).toList());
+        }
     }
     @Operation(summary = "알림 상세 조회")
     @ApiResponses({

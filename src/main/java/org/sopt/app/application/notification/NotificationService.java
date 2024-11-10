@@ -10,6 +10,7 @@ import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Notification;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.enums.NotificationCategory;
 import org.sopt.app.domain.enums.NotificationType;
 import org.sopt.app.interfaces.postgres.NotificationRepository;
 import org.sopt.app.interfaces.postgres.UserRepository;
@@ -33,8 +34,15 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
-    public List<Notification> findNotificationList(User user, Pageable pageable) {
-        return notificationRepository.findAllByUserId(user.getId(), pageable);
+    public List<Notification> findNotificationList(Long userId, Pageable pageable) {
+        return notificationRepository.findAllByUserId(userId, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Notification> findNotificationListByCategory(
+            Long userId, Pageable pageable, NotificationCategory category
+    ) {
+        return notificationRepository.findAllByUserIdAndCategory(userId, pageable, category);
     }
 
     @Transactional
