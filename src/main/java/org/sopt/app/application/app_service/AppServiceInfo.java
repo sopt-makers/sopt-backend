@@ -6,9 +6,9 @@ import lombok.*;
 @ToString
 public class AppServiceInfo {
 
-    private AppServiceName serviceName;
-    private Boolean activeUser;
-    private Boolean inactiveUser;
+    private final AppServiceName serviceName;
+    private final Boolean activeUser;
+    private final Boolean inactiveUser;
 
     @Builder
     private AppServiceInfo(AppServiceName serviceName, Boolean activeUser, Boolean inactiveUser) {
