@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.calendar.CalendarService;
 import org.springframework.http.ResponseEntity;
@@ -22,7 +23,7 @@ public class CalendarController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/all")
-    public ResponseEntity<AllCalendarResponse> getAllCalendar() {
+    public ResponseEntity<List<CalendarResponse>> getAllCalendar() {
         return ResponseEntity.ok(
             calendarService.getAllCurrentGenerationCalendar()
         );

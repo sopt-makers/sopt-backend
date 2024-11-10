@@ -1,7 +1,8 @@
 package org.sopt.app.application.calendar;
 
-import org.sopt.app.presentation.calendar.AllCalendarResponse;
+import java.util.List;
+import org.sopt.app.presentation.calendar.CalendarResponse;
 
 public interface CalendarService {
-    AllCalendarResponse getAllCurrentGenerationCalendar();
+    List<CalendarResponse> getAllCurrentGenerationCalendar();
 }
