@@ -4,14 +4,15 @@ import java.time.LocalDate;
 import lombok.*;
 import org.sopt.app.domain.entity.Calendar;
 
+@Getter
 @Builder
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class CalendarResponse {
+    private final String title;
     private final LocalDate startDate;
     private final LocalDate endDate;
-    private final String title;
-    private final boolean isOneDaySchedule;
-    private final boolean isOnlyActiveGeneration;
+    private final Boolean isOneDaySchedule;
+    private final Boolean isOnlyActiveGeneration;
 
     public static CalendarResponse of(Calendar calendar) {
         return CalendarResponse.builder()
