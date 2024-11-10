@@ -13,10 +13,10 @@ public class AppServiceService {
 
     private final AppServiceRepository appServiceRepository;
 
-    public List<AppServiceInfo.AppService> getAllAppService() {
+    public List<AppServiceInfo> getAllAppService() {
         return appServiceRepository.findAll().stream()
                 .sorted(Comparator.comparing(AppService::getCreatedAt).reversed())
-                .map(appService -> AppServiceInfo.AppService.builder()
+                .map(appService -> AppServiceInfo.builder()
                         .serviceName(appService.getServiceName())
                         .activeUser(appService.getActiveUser())
                         .inactiveUser(appService.getInactiveUser())

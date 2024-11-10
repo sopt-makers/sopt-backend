@@ -23,5 +23,5 @@ public interface UserResponseMapper {
 
     UserResponse.Generation ofGeneration(PlaygroundProfileInfo.UserActiveInfo userActiveInfo);
 
-    List<AppService> ofAppServiceList(List<AppServiceInfo.AppService> appServiceList);
+    List<AppService> ofAppServiceList(List<AppServiceInfo> appServiceList);
 }

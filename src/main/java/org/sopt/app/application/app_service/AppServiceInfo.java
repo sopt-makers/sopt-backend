@@ -1,23 +1,19 @@
 package org.sopt.app.application.app_service;
 
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 
-@NoArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
+@ToString
 public class AppServiceInfo {
 
-    @Getter
+    private AppServiceName serviceName;
+    private Boolean activeUser;
+    private Boolean inactiveUser;
+
     @Builder
-    @ToString
-    public static class AppService {
-
-        private AppServiceName serviceName;
-        private Boolean activeUser;
-        private Boolean inactiveUser;
-
+    private AppServiceInfo(AppServiceName serviceName, Boolean activeUser, Boolean inactiveUser) {
+        this.serviceName = serviceName;
+        this.activeUser = activeUser;
+        this.inactiveUser = inactiveUser;
     }
 }
