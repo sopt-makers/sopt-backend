@@ -17,7 +17,12 @@ public class AppServiceBadgeService {
             final AppServiceInfo appServiceInfo, final Long userId
     ) {
         AppServiceBadgeManager badgeManager = badgeManagerMap.get(appServiceInfo.getServiceName().getBadgeManagerName());
-        AppServiceBadgeInfo badgeInfo = badgeManager.acquireAppServiceBadgeInfo(appServiceInfo, userId);
+
+        if(badgeManager == null) {
+            badgeManager = badgeManagerMap.get("defaultBadgeManager");
+        }
+
+        AppServiceBadgeInfo badgeInfo = badgeManager.acquireAppServiceBadgeInfo(userId);
         return AppServiceEntryStatusResponse.createAppServiceEntryStatus(appServiceInfo, badgeInfo);
     }
 }
