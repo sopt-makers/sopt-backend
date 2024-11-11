@@ -35,7 +35,8 @@ public class UserFacade {
     @Transactional(readOnly = true)
     @Deprecated
     public List<AppService> getAppServiceInfo() {
-        val appServiceList = appServiceService.getAllAppService();
-        return userResponseMapper.ofAppServiceList(appServiceList);
+        return appServiceService.getAllAppService().stream()
+                .map(AppService::of)
+                .toList();
     }
 }

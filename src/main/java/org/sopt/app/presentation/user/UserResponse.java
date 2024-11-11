@@ -2,11 +2,8 @@ package org.sopt.app.presentation.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
+import lombok.*;
+import org.sopt.app.application.app_service.AppServiceInfo;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserResponse {
@@ -56,15 +53,6 @@ public class UserResponse {
     @Getter
     @Builder
     @ToString
-    public static class AppUser {
-
-        @Schema(description = "유저 닉네임", example = "김앱짱")
-        private String username;
-    }
-
-    @Getter
-    @Builder
-    @ToString
     public static class Soptamp {
 
         @Schema(description = "유저 닉네임", example = "김앱짱")
@@ -73,15 +61,6 @@ public class UserResponse {
         private Long points;
         @Schema(description = "유저 프로필 메세지", example = "1등이 되고 말거야!")
         private String profileMessage;
-    }
-
-    @Getter
-    @Builder
-    @ToString
-    public static class Nickname {
-
-        @Schema(description = "유저 닉네임", example = "김앱짱")
-        private String nickname;
     }
 
     @Getter
@@ -115,5 +94,13 @@ public class UserResponse {
         private Boolean activeUser;
         @Schema(description = "비활동 기수 유저", example = "false")
         private Boolean inactiveUser;
+
+        public static AppService of(final AppServiceInfo appServiceInfo) {
+            return AppService.builder()
+                    .serviceName(appServiceInfo.getServiceName().name())
+                    .activeUser(appServiceInfo.getActiveUser())
+                    .inactiveUser(appServiceInfo.getInactiveUser())
+                    .build();
+        }
     }
 }
