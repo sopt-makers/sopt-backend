@@ -18,11 +18,11 @@ public class AppServiceEntryStatusResponse {
     public static AppServiceEntryStatusResponse createAppServiceEntryStatus (
             AppServiceInfo appServiceInfo, AppServiceBadgeInfo badgeInfo
     ) {
-        if (badgeInfo.displayMessage()){
+        if (badgeInfo.getDisplayMessage()){
             return createAppServiceEntryStatusByDisPlayMessage(appServiceInfo);
         }
-        if(badgeInfo.displayAlarmBadge()){
-            return createAppServiceEntryStatusByDisPlayAlarmBadge(appServiceInfo, badgeInfo.alarmBadge());
+        if(badgeInfo.getDisplayAlarmBadge()){
+            return createAppServiceEntryStatusByDisPlayAlarmBadge(appServiceInfo, badgeInfo.getAlarmBadge());
         }
         return createDefaultAppServiceEntryStatus(appServiceInfo);
     }
