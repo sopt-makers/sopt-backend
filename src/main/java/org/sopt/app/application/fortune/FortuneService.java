@@ -1,10 +1,12 @@
 package org.sopt.app.application.fortune;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.user.UserWithdrawEvent;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
+import org.sopt.app.common.utils.CurrentDate;
 import org.sopt.app.domain.entity.fortune.UserFortune;
 import org.sopt.app.interfaces.postgres.fortune.FortuneCardRepository;
 import org.sopt.app.interfaces.postgres.fortune.FortuneWordRepository;
@@ -63,5 +65,11 @@ public class FortuneService {
     @EventListener(UserWithdrawEvent.class)
     public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
         userFortuneRepository.deleteAllByUserIdInQuery(event.getUserId());
+    }
+
+    public boolean isExistTodayFortune(final Long userId) {
+        return userFortuneRepository.findByUserId(userId)
+                .map(userFortune -> userFortune.getCheckedAt().equals(CurrentDate.now))
+                .orElse(false);
     }
 }
