@@ -15,7 +15,19 @@ public class AppServiceEntryStatusResponse {
     private final List<String> messages;
     private final List<String> messageColors;
 
-    public static AppServiceEntryStatusResponse createAppServiceEntryStatusByDisPlayMessage(
+    public static AppServiceEntryStatusResponse createAppServiceEntryStatus (
+            AppServiceInfo appServiceInfo, AppServiceBadgeInfo badgeInfo
+    ) {
+        if (badgeInfo.displayMessage()){
+            return createAppServiceEntryStatusByDisPlayMessage(appServiceInfo);
+        }
+        if(badgeInfo.displayAlarmBadge()){
+            return createAppServiceEntryStatusByDisPlayAlarmBadge(appServiceInfo, badgeInfo.alarmBadge());
+        }
+        return createDefaultAppServiceEntryStatus(appServiceInfo);
+    }
+
+    private static AppServiceEntryStatusResponse createAppServiceEntryStatusByDisPlayMessage(
             AppServiceInfo appServiceInfo
     ) {
         return AppServiceEntryStatusResponse.builder()
@@ -28,7 +40,7 @@ public class AppServiceEntryStatusResponse {
                 .build();
     }
 
-    public static AppServiceEntryStatusResponse createAppServiceEntryStatusByDisPlayAlarmBadge(
+    private static AppServiceEntryStatusResponse createAppServiceEntryStatusByDisPlayAlarmBadge(
             AppServiceInfo appServiceInfo, String alarmBadge
     ) {
         return AppServiceEntryStatusResponse.builder()
@@ -41,7 +53,7 @@ public class AppServiceEntryStatusResponse {
                 .build();
     }
 
-    public static AppServiceEntryStatusResponse createDefaultAppServiceEntryStatus(
+    private static AppServiceEntryStatusResponse createDefaultAppServiceEntryStatus(
             AppServiceInfo appServiceInfo
     ) {
         return AppServiceEntryStatusResponse.builder()
