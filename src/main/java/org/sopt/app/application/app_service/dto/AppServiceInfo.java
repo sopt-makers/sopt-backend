@@ -1,7 +1,8 @@
-package org.sopt.app.application.app_service;
+package org.sopt.app.application.app_service.dto;
 
 import java.util.List;
 import lombok.*;
+import org.sopt.app.application.app_service.AppServiceName;
 import org.sopt.app.domain.entity.AppService;
 
 @Getter

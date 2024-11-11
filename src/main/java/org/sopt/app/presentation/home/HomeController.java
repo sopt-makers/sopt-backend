@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.application.app_service.AppServiceEntryStatusResponse;
+import org.sopt.app.application.app_service.dto.AppServiceEntryStatusResponse;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.HomeFacade;
 import org.springframework.http.ResponseEntity;

@@ -3,7 +3,7 @@ package org.sopt.app.presentation.user;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import lombok.*;
-import org.sopt.app.application.app_service.AppServiceInfo;
+import org.sopt.app.application.app_service.dto.AppServiceInfo;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserResponse {

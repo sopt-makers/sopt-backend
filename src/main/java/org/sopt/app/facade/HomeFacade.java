@@ -4,6 +4,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.app_service.*;
+import org.sopt.app.application.app_service.dto.AppServiceEntryStatusResponse;
+import org.sopt.app.application.app_service.dto.AppServiceInfo;
 import org.sopt.app.application.home.ActivityDurationCalculator;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.description.DescriptionInfo.MainDescription;
