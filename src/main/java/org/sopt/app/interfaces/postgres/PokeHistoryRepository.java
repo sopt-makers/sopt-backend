@@ -34,4 +34,6 @@ public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> 
 
     @Query("SELECT ph FROM PokeHistory ph WHERE ((ph.pokerId = :userId AND ph.pokedId = :friendId) OR (ph.pokerId = :friendId AND ph.pokedId = :userId)) ORDER BY ph.createdAt DESC")
     List<PokeHistory> findAllPokeHistoryByUsers(@Param("userId") Long userId, @Param("friendId") Long friendId);
+
+    Long countByPokedIdAndIsReplyIsFalse(Long pokedId);
 }
