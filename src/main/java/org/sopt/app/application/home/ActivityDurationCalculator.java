@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
+import org.sopt.app.common.utils.CurrentDate;
 
 @RequiredArgsConstructor
 public class ActivityDurationCalculator {
@@ -39,8 +40,7 @@ public class ActivityDurationCalculator {
     }
 
     private int calculateMonthDifference(LocalDate startDate) {
-        LocalDate currentDate = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDate();
-        Period period = Period.between(startDate, currentDate);
+        Period period = Period.between(startDate, CurrentDate.now);
         int monthDifference = period.getYears() * 12 + period.getMonths();
         return monthDifference + 1;
     }
