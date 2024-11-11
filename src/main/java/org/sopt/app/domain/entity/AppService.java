@@ -7,7 +7,6 @@ import java.util.List;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.Type;
-import org.sopt.app.application.app_service.AppServiceName;
 
 @Getter
 @Entity
@@ -21,8 +20,7 @@ public class AppService extends BaseEntity {
     private Long id;
 
     @NotNull
-    @Enumerated(EnumType.STRING)
-    private AppServiceName serviceName;
+    private String serviceName;
 
     @NotNull
     private Boolean activeUser;

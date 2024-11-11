@@ -2,7 +2,6 @@ package org.sopt.app.application.app_service.dto;
 
 import java.util.List;
 import lombok.*;
-import org.sopt.app.application.app_service.AppServiceName;
 import org.sopt.app.domain.entity.AppService;
 
 @Getter
@@ -11,7 +10,7 @@ import org.sopt.app.domain.entity.AppService;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AppServiceInfo {
 
-    private final AppServiceName serviceName;
+    private final String serviceName;
     private final Boolean activeUser;
     private final Boolean inactiveUser;
     private final List<String> messages;

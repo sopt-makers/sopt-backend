@@ -97,7 +97,7 @@ public class UserResponse {
 
         public static AppService of(final AppServiceInfo appServiceInfo) {
             return AppService.builder()
-                    .serviceName(appServiceInfo.getServiceName().name())
+                    .serviceName(appServiceInfo.getServiceName())
                     .activeUser(appServiceInfo.getActiveUser())
                     .inactiveUser(appServiceInfo.getInactiveUser())
                     .build();

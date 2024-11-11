@@ -16,12 +16,9 @@ public class AppServiceService {
 
     public List<AppServiceInfo> getAllAppService() {
         return appServiceRepository.findAll().stream()
+                .filter(appService -> !AppServiceName.of(appService.getServiceName()).equals(AppServiceName.OTHERS))
                 .sorted(Comparator.comparing(AppService::getCreatedAt).reversed())
-                .map(appService -> AppServiceInfo.builder()
-                        .serviceName(appService.getServiceName())
-                        .activeUser(appService.getActiveUser())
-                        .inactiveUser(appService.getInactiveUser())
-                        .build())
+                .map(AppServiceInfo::of)
                 .toList();
     }
 }

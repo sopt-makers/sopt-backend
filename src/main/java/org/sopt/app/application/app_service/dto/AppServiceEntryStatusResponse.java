@@ -2,14 +2,13 @@ package org.sopt.app.application.app_service.dto;
 
 import java.util.List;
 import lombok.*;
-import org.sopt.app.application.app_service.AppServiceName;
 
 @Builder
 @Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AppServiceEntryStatusResponse {
 
-    private final AppServiceName serviceName;
+    private final String serviceName;
     private final Boolean displayAlarmBadge;
     private final String alarmBadge;
     private final Boolean displayMessage;
