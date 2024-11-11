@@ -32,13 +32,13 @@ public class AppService extends BaseEntity {
 
     @NotNull
     @Column(columnDefinition = "text[]")
-    @ColumnDefault("{}")
+    @ColumnDefault("'{}'::text[]")
     @Type(value= ListArrayType.class)
     private List<String> messages;
 
     @NotNull
     @Column(columnDefinition = "text[]")
-    @ColumnDefault("{}")
+    @ColumnDefault("'{}'::text[]")
     @Type(value= ListArrayType.class)
     private List<String> messageColors;
 }
