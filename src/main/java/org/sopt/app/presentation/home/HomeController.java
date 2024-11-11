@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.app_service.AppServiceEntryStatusResponse;
 import org.sopt.app.domain.entity.User;
@@ -43,7 +44,7 @@ public class HomeController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/app-service")
-    public ResponseEntity<AppServiceEntryStatusResponse> getAppService(
+    public ResponseEntity<List<AppServiceEntryStatusResponse>> getAppService(
             @AuthenticationPrincipal User user
     ) {
         return ResponseEntity.ok(

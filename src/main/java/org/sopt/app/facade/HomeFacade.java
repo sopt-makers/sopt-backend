@@ -38,7 +38,7 @@ public class HomeFacade {
         );
     }
 
-    public AppServiceEntryStatusResponse checkAppServiceEntryStatus(User user) {
+    public List<AppServiceEntryStatusResponse> checkAppServiceEntryStatus(User user) {
         return null;
     }
 }
