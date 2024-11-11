@@ -1,13 +1,14 @@
 package org.sopt.app.application.calendar;
 
-import java.util.List;
-import java.util.Optional;
+import java.time.*;
+import java.util.*;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.domain.cache.CachedAllCalendarResponse;
-import org.sopt.app.domain.cache.Calendars;
+import org.sopt.app.domain.cache.*;
+import org.sopt.app.domain.entity.Calendar;
 import org.sopt.app.interfaces.postgres.CalendarRepository;
 import org.sopt.app.interfaces.postgres.redis.CachedCalendarRepository;
 import org.sopt.app.presentation.calendar.CalendarResponse;
+import org.sopt.app.presentation.calendar.RecentCalendarResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,22 +25,37 @@ public class CalendarServiceImpl implements CalendarService {
 
     @Override
     @Transactional
-    public List<CalendarResponse> getAllCurrentGenerationCalendar() {
+    public List<CalendarResponse> getAllCurrentGenerationCalendarResponse() {
 
-        Optional<CachedAllCalendarResponse> cachedCalendar = cachedCalendarRepository.findById(currentGeneration);
-
-        return cachedCalendar.orElseGet(this::cacheAllCalendarResponse)
-                .getCalendars().calendars().stream()
+        return this.getAllCurrentGenerationCalendar().stream()
                 .map(CalendarResponse::of)
                 .toList();
     }
 
-    private CachedAllCalendarResponse cacheAllCalendarResponse() {
-        return cachedCalendarRepository.save(
-                new CachedAllCalendarResponse(
-                        currentGeneration,
-                        new Calendars(calendarRepository.findAllByGenerationOrderByStartDate(currentGeneration))
-                )
-        );
+    private List<Calendar> getAllCurrentGenerationCalendar() {
+        Optional<CachedAllCalendarResponse> cachedCalendar = cachedCalendarRepository.findById(currentGeneration);
+
+        if (cachedCalendar.isPresent()) {
+            return cachedCalendar.get().getCalendars().calendars();
+        }
+
+        return this.cacheAllCalendarResponse();
+    }
+
+    private List<Calendar> cacheAllCalendarResponse() {
+        List<Calendar> calendars = calendarRepository.findAllByGenerationOrderByStartDate(currentGeneration);
+        cachedCalendarRepository.save(new CachedAllCalendarResponse(currentGeneration, new Calendars(calendars)));
+        return calendars;
+    }
+
+    @Override
+    @Transactional
+    public RecentCalendarResponse getRecentCalendarResponse() {
+        LocalDate now = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDate();
+
+        return this.getAllCurrentGenerationCalendar().stream()
+                .filter(calendar -> !calendar.getStartDate().isBefore(now))
+                .findFirst().map(RecentCalendarResponse::of)
+                .orElseGet(() -> RecentCalendarResponse.createEmptyCalendar(now));
     }
 }

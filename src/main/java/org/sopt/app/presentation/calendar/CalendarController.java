@@ -25,7 +25,19 @@ public class CalendarController {
     @GetMapping("/all")
     public ResponseEntity<List<CalendarResponse>> getAllCalendar() {
         return ResponseEntity.ok(
-            calendarService.getAllCurrentGenerationCalendar()
+            calendarService.getAllCurrentGenerationCalendarResponse()
+        );
+    }
+
+    @Operation(summary = "최근 일정 보기")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/recent")
+    public ResponseEntity<RecentCalendarResponse> getRecentCalendar() {
+        return ResponseEntity.ok(
+                calendarService.getRecentCalendarResponse()
         );
     }
 }
