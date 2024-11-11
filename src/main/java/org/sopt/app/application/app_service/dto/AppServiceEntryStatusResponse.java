@@ -5,23 +5,24 @@ import lombok.*;
 import org.sopt.app.application.app_service.AppServiceName;
 
 @Builder
+@Getter
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class AppServiceEntryStatusResponse {
 
     private final AppServiceName serviceName;
-    private final boolean displayAlarmBadge;
+    private final Boolean displayAlarmBadge;
     private final String alarmBadge;
-    private final boolean displayMessage;
+    private final Boolean displayMessage;
     private final List<String> messages;
     private final List<String> messageColors;
 
     public static AppServiceEntryStatusResponse createAppServiceEntryStatus (
             AppServiceInfo appServiceInfo, AppServiceBadgeInfo badgeInfo
     ) {
-        if (badgeInfo.getDisplayMessage()){
+        if (badgeInfo.getDisplayMessage().equals(Boolean.TRUE)){
             return createAppServiceEntryStatusByDisPlayMessage(appServiceInfo);
         }
-        if(badgeInfo.getDisplayAlarmBadge()){
+        if(badgeInfo.getDisplayAlarmBadge().equals(Boolean.TRUE)){
             return createAppServiceEntryStatusByDisPlayAlarmBadge(appServiceInfo, badgeInfo.getAlarmBadge());
         }
         return createDefaultAppServiceEntryStatus(appServiceInfo);
