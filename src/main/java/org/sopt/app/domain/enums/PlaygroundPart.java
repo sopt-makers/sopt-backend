@@ -39,4 +39,16 @@ public enum PlaygroundPart {
                 .findAny()
                 .orElse(PlaygroundPart.NONE);
     }
+
+    public static Part toPart(PlaygroundPart playgroundPart) {
+        return switch (playgroundPart) {
+            case PLAN, PLAN_PART_LEADER -> Part.PLAN;
+            case DESIGN, DESIGN_PART_LEADER -> Part.DESIGN;
+            case ANDROID, ANDROID_PART_LEADER -> Part.ANDROID;
+            case IOS, IOS_PART_LEADER -> Part.IOS;
+            case WEB, WEB_PART_LEADER -> Part.WEB;
+            case SERVER, SERVER_PART_LEADER -> Part.SERVER;
+            default -> null;
+        };
+    }
 }
