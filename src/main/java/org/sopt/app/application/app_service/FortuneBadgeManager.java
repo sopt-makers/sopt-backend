@@ -16,8 +16,8 @@ public class FortuneBadgeManager implements AppServiceBadgeManager {
     @Override
     public AppServiceBadgeInfo acquireAppServiceBadgeInfo(final Long userId) {
         if(fortuneService.isExistTodayFortune(userId)){
-            return AppServiceBadgeInfo.createWithEnabledDisPlayMessage();
+            return AppServiceBadgeInfo.createWithAllDisabled();
         }
-        return AppServiceBadgeInfo.createWithAllDisabled();
+        return AppServiceBadgeInfo.createWithEnabledDisPlayMessage();
     }
 }
