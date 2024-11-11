@@ -1,7 +1,6 @@
 package org.sopt.app.application.soptamp;
 
 import lombok.*;
-import org.sopt.app.domain.enums.Part;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SoptampPointInfo {
@@ -33,9 +32,5 @@ public class SoptampPointInfo {
         private String part;
         private Integer rank;
         private Long points;
-    }
-
-    public record PartPoint(Part part, Long points) {
-
     }
 }
