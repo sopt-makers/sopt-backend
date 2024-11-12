@@ -5,7 +5,9 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.sopt.app.application.app_service.dto.AppServiceEntryStatusResponse;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.HomeFacade;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +34,21 @@ public class HomeController {
     ) {
         return ResponseEntity.ok(
                 homeFacade.getHomeMainDescription(user)
+        );
+    }
+
+    @Operation(summary = "앱 서비스 진입 여부 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/app-service")
+    public ResponseEntity<List<AppServiceEntryStatusResponse>> getAppService(
+            @AuthenticationPrincipal User user
+    ) {
+        return ResponseEntity.ok(
+                homeFacade.checkAppServiceEntryStatus(user)
         );
     }
 }

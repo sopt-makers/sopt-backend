@@ -1,8 +1,12 @@
 package org.sopt.app.domain.entity;
 
+import io.hypersistence.utils.hibernate.type.array.ListArrayType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import java.util.List;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Type;
 
 @Getter
 @Entity
@@ -23,4 +27,16 @@ public class AppService extends BaseEntity {
 
     @NotNull
     private Boolean inactiveUser;
+
+    @NotNull
+    @Column(columnDefinition = "text[]")
+    @ColumnDefault("'{}'::text[]")
+    @Type(value= ListArrayType.class)
+    private List<String> messages;
+
+    @NotNull
+    @Column(columnDefinition = "text[]")
+    @ColumnDefault("'{}'::text[]")
+    @Type(value= ListArrayType.class)
+    private List<String> messageColors;
 }

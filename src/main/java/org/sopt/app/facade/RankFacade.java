@@ -38,4 +38,13 @@ public class RankFacade {
         SoptampPartRankCalculator soptampPartRankCalculator = new SoptampPartRankCalculator(soptampUserInfos);
         return soptampPartRankCalculator.calculatePartRank();
     }
+
+    @Transactional(readOnly = true)
+    public PartRank findPartRank(Part part) {
+        List<SoptampUserInfo> soptampUserInfos = soptampUserFinder.findAllByPartAndCurrentGeneration(part);
+        SoptampPartRankCalculator soptampPartRankCalculator = new SoptampPartRankCalculator(soptampUserInfos);
+        return soptampPartRankCalculator.calculatePartRank().stream()
+                .filter(partRank -> partRank.getPart().equals(part.getPartName()))
+                .findFirst().orElseThrow();
+    }
 }

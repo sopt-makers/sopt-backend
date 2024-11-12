@@ -84,4 +84,8 @@ public class PokeHistoryService {
         pokeHistoryRepository.deleteAllByPokerIdInQuery(event.getUserId());
         pokeHistoryRepository.deleteAllByPokedIdInQuery(event.getUserId());
     }
+
+    public Long getUnRepliedPokeMeSize(Long userId) {
+        return pokeHistoryRepository.countByPokedIdAndIsReplyIsFalse(userId);
+    }
 }
