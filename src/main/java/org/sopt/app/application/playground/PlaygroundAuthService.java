@@ -182,22 +182,10 @@ public class PlaygroundAuthService {
         final Map<String, String> accessToken = createAuthorizationHeaderByUserPlaygroundToken(playgroundToken);
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
             List<String> categories = List.of("SOPT 활동", "자유", "파트");
-
-            CompletableFuture<RecentPostsResponse> hotPostFuture = CompletableFuture.supplyAsync(() -> {
-                PlaygroundPostResponse hotpost = playgroundClient.getPlaygroundHotPost(accessToken);
-                return RecentPostsResponse.builder()
-                        .category("HOT")
-                        .isHotPost(true)
-                        .content(hotpost.content())
-                        .title(hotpost.title())
-                        .id(hotpost.postId())
-                        .build();
-            }, executor);
+            CompletableFuture<RecentPostsResponse> hotPostFuture = CompletableFuture.supplyAsync(() ->
+                    RecentPostsResponse.of(playgroundClient.getPlaygroundHotPost(accessToken)), executor);
             List<CompletableFuture<RecentPostsResponse>> categoryFutures = categories.stream()
-                    .map(category -> CompletableFuture.supplyAsync(() -> {
-                        RecentPostsResponse recentPosts = playgroundClient.getRecentPosts(accessToken, category);
-                        return recentPosts;
-                    }, executor))
+                    .map(category -> CompletableFuture.supplyAsync(() -> playgroundClient.getRecentPosts(accessToken, category), executor))
                     .toList();
             List<CompletableFuture<RecentPostsResponse>> allFutures = new ArrayList<>(categoryFutures);
             allFutures.addFirst(hotPostFuture);

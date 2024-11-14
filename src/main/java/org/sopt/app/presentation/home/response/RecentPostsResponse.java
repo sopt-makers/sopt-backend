@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
 
 @Data
 @Builder
@@ -15,4 +16,14 @@ public class RecentPostsResponse {
     private String category;
     private String content;
     private boolean isHotPost;
+
+    public static RecentPostsResponse of(PlaygroundPostResponse playgroundPostResponse) {
+        return RecentPostsResponse.builder()
+                .id(playgroundPostResponse.postId())
+                .title(playgroundPostResponse.title())
+                .category("HOT")
+                .content(playgroundPostResponse.content())
+                .isHotPost(true)
+                .build();
+    }
 }
