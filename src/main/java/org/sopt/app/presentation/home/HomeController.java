@@ -66,9 +66,9 @@ public class HomeController {
             @AuthenticationPrincipal User user
     ) {
         return ResponseEntity.ok(
-                homeFacade.getRecentPosts(user)
+                homeFacade.getRecentPosts(user));
     }
-    
+
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "401", description = "token error", content = @Content),
