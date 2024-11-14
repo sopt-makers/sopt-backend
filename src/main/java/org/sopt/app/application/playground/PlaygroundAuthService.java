@@ -165,13 +165,8 @@ public class PlaygroundAuthService {
         Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         PlayGroundEmploymentResponse postInfo = playgroundClient.getPlaygroundEmploymentPost(requestHeader,16,10,0);
         return postInfo.posts().stream()
-                .map(post -> EmploymentPostResponse.builder()
-                        .id(post.id())
-                        .categoryName(post.categoryName())
-                        .title(post.title())
-                        .content(post.content())
-                        .images(post.images())
-                        .build())
+                .map(EmploymentPostResponse::of)
                 .collect(Collectors.toList());
     }
+
 }
