@@ -8,6 +8,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
+import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.*;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
@@ -15,6 +16,7 @@ import org.sopt.app.common.exception.*;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.auth.AppAuthRequest.*;
+import org.sopt.app.presentation.home.response.EmploymentPostResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
@@ -158,4 +160,13 @@ public class PlaygroundAuthService {
     public boolean isCurrentGeneration(Long generation) {
         return generation.equals(currentGeneration);
     }
+
+    public List<EmploymentPostResponse> getPlaygroundEmploymentPost(String accessToken) {
+        Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
+        PlayGroundEmploymentResponse postInfo = playgroundClient.getPlaygroundEmploymentPost(requestHeader,16,10,0);
+        return postInfo.posts().stream()
+                .map(EmploymentPostResponse::of)
+                .collect(Collectors.toList());
+    }
+
 }

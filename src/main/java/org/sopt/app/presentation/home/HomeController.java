@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.app_service.dto.AppServiceEntryStatusResponse;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.HomeFacade;
+import org.sopt.app.presentation.home.response.EmploymentPostResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -49,6 +50,21 @@ public class HomeController {
     ) {
         return ResponseEntity.ok(
                 homeFacade.checkAppServiceEntryStatus(user)
+        );
+    }
+
+    @Operation(summary = "최근 채용탭 10개 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/employments")
+    public ResponseEntity<List<EmploymentPostResponse>> getEmploymentPosts(
+            @AuthenticationPrincipal User user
+    ) {
+        return ResponseEntity.ok(
+                homeFacade.getHomeEmploymentPost(user)
         );
     }
 }
