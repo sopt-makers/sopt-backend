@@ -1,8 +1,8 @@
 package org.sopt.app.application.calendar;
 
-import java.time.*;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
+import org.sopt.app.common.utils.CurrentDate;
 import org.sopt.app.domain.cache.*;
 import org.sopt.app.domain.entity.Calendar;
 import org.sopt.app.interfaces.postgres.CalendarRepository;
@@ -26,10 +26,14 @@ public class CalendarServiceImpl implements CalendarService {
     @Override
     @Transactional
     public List<CalendarResponse> getAllCurrentGenerationCalendarResponse() {
-
-        return this.getAllCurrentGenerationCalendar().stream()
-                .map(CalendarResponse::of)
-                .toList();
+        List<Calendar> calendars = this.getAllCurrentGenerationCalendar();
+        Optional<Calendar> recentCalendar = this.getRecentCalendar(calendars);
+        return recentCalendar.map(value -> calendars.stream()
+                .map(calendar -> CalendarResponse.of(calendar, calendar.getId().equals(value.getId())))
+                .toList())
+                .orElseGet(() -> this.getAllCurrentGenerationCalendar().stream()
+                .map(calendar -> CalendarResponse.of(calendar, false))
+                .toList());
     }
 
     private List<Calendar> getAllCurrentGenerationCalendar() {
@@ -48,14 +52,17 @@ public class CalendarServiceImpl implements CalendarService {
         return calendars;
     }
 
+    private Optional<Calendar> getRecentCalendar(List<Calendar> calendars) {
+        return calendars.stream()
+                .filter(calendar -> !calendar.getStartDate().isBefore(CurrentDate.now))
+                .findFirst();
+    }
+
     @Override
     @Transactional
     public RecentCalendarResponse getRecentCalendarResponse() {
-        LocalDate now = ZonedDateTime.now(ZoneId.of("Asia/Seoul")).toLocalDate();
-
-        return this.getAllCurrentGenerationCalendar().stream()
-                .filter(calendar -> !calendar.getStartDate().isBefore(now))
-                .findFirst().map(RecentCalendarResponse::of)
-                .orElseGet(() -> RecentCalendarResponse.createEmptyCalendar(now));
+        List<Calendar> calendars = this.getAllCurrentGenerationCalendar();
+        return this.getRecentCalendar(calendars).map(RecentCalendarResponse::of)
+                .orElseGet(() -> RecentCalendarResponse.of(calendars.getLast()));
     }
 }
