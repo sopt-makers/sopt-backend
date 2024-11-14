@@ -1,21 +1,36 @@
 package org.sopt.app.application.playground;
 
-import static org.sopt.app.application.playground.PlaygroundHeaderCreator.*;
+import static org.sopt.app.application.playground.PlaygroundHeaderCreator.createAuthorizationHeaderByUserPlaygroundToken;
+import static org.sopt.app.application.playground.PlaygroundHeaderCreator.createDefaultHeader;
 
-import lombok.*;
 import io.jsonwebtoken.ExpiredJwtException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
-import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
-import org.sopt.app.application.playground.dto.PlaygroundPostInfo.*;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
-import org.sopt.app.common.exception.*;
+import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPost;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActiveUserIds;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.MainView;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.MainViewUser;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.UserActiveInfo;
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
-import org.sopt.app.presentation.auth.AppAuthRequest.*;
+import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
+import org.sopt.app.presentation.auth.AppAuthRequest.CodeRequest;
+import org.sopt.app.presentation.home.response.CoffeeChatResponse;
 import org.sopt.app.presentation.home.response.EmploymentPostResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -166,7 +181,14 @@ public class PlaygroundAuthService {
         PlayGroundEmploymentResponse postInfo = playgroundClient.getPlaygroundEmploymentPost(requestHeader,16,10,0);
         return postInfo.posts().stream()
                 .map(EmploymentPostResponse::of)
-                .collect(Collectors.toList());
+                .toList();
     }
 
+    public List<CoffeeChatResponse> getCoffeeChatList(String accessToken) {
+        Map<String, String> headers = PlaygroundHeaderCreator.createAuthorizationHeaderByUserPlaygroundToken(accessToken);
+        return playgroundClient.getCoffeeChatList(headers).coffeeChatList().stream()
+                .filter(member -> !member.isBlind())
+                .map(CoffeeChatResponse::of)
+                .toList();
+    }
 }
