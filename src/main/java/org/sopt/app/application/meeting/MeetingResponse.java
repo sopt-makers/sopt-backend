@@ -11,9 +11,10 @@ public record MeetingResponse(
     String imageUrl,
     Boolean canJoinOnlyActiveGeneration
 ) {
-    public static MeetingResponse eventActiveDummy() {
+    @Deprecated
+    public static MeetingResponse eventActiveDummy(Long id) {
         return MeetingResponse.builder()
-                .meetingId(1L)
+                .meetingId(id)
                 .title("[35기 솝커톤] 서버 파트 신청")
                 .category(MeetingCategory.EVENT)
                 .status(MeetingStatus.ACTIVE)
@@ -22,9 +23,10 @@ public record MeetingResponse(
                 .build();
     }
 
-    public static MeetingResponse studyRecruitingDummy() {
+    @Deprecated
+    public static MeetingResponse studyRecruitingDummy(Long id) {
         return MeetingResponse.builder()
-                .meetingId(2L)
+                .meetingId(id)
                 .title("모집중이고 활동 기수만 참여하는 스터디")
                 .category(MeetingCategory.STUDY)
                 .status(MeetingStatus.RECRUITING)
@@ -33,9 +35,10 @@ public record MeetingResponse(
                 .build();
     }
 
-    public static MeetingResponse studyPreRecruitingDummy() {
+    @Deprecated
+    public static MeetingResponse studyPreRecruitingDummy(Long id) {
         return MeetingResponse.builder()
-                .meetingId(3L)
+                .meetingId(id)
                 .title("모집 이전이고 모든 기수가 참여하는 스터디")
                 .category(MeetingCategory.STUDY)
                 .status(MeetingStatus.PRE_RECRUITING)
@@ -44,9 +47,10 @@ public record MeetingResponse(
                 .build();
     }
 
-    public static MeetingResponse studyClosedDummy() {
+    @Deprecated
+    public static MeetingResponse studyClosedDummy(Long id) {
         return MeetingResponse.builder()
-                .meetingId(4L)
+                .meetingId(id)
                 .title("모집이 끝나고 모든 기수가 참여하는 스터디")
                 .category(MeetingCategory.STUDY)
                 .status(MeetingStatus.CLOSED)
@@ -55,9 +59,10 @@ public record MeetingResponse(
                 .build();
     }
 
-    public static MeetingResponse studyActiveDummy() {
+    @Deprecated
+    public static MeetingResponse studyActiveDummy(Long id) {
         return MeetingResponse.builder()
-                .meetingId(5L)
+                .meetingId(id)
                 .title("활동중이고 활동 기수만 참여하는 스터디")
                 .category(MeetingCategory.STUDY)
                 .status(MeetingStatus.ACTIVE)
