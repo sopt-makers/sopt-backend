@@ -13,6 +13,7 @@ import org.sopt.app.application.description.DescriptionService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.home.HomeDescriptionResponse;
+import org.sopt.app.presentation.home.response.RecentPostsResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -66,5 +67,16 @@ public class HomeFacade {
         }
 
         return false;
+    }
+
+    public List<RecentPostsResponse> getRecentPosts(User user) {
+        return playgroundAuthService.getRecentPosts(user.getPlaygroundToken()).stream()
+                .map(post -> RecentPostsResponse.builder()
+                        .id(post.getId())
+                        .title(post.getTitle())
+                        .category(post.getCategory())
+                        .isHotPost(post.isHotPost())
+                        .build()
+                ).toList();
     }
 }
