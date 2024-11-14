@@ -17,8 +17,6 @@ public class CoffeeChatResponse {
     private String organization;
     private String companyJob;
     private List<String> soptActivities;
-    private boolean isMine;
-    private boolean isBlind;
 
     public static CoffeeChatResponse of(PlayGroundCoffeeChatResponse playGroundCoffeeChatResponse){
         return CoffeeChatResponse.builder()
