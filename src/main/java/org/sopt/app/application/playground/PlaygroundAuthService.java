@@ -16,6 +16,9 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.*;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPost;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
@@ -31,9 +34,9 @@ import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
-import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
-import org.sopt.app.presentation.auth.AppAuthRequest.CodeRequest;
 import org.sopt.app.presentation.home.response.RecentPostsResponse;
+import org.sopt.app.presentation.auth.AppAuthRequest.*;
+import org.sopt.app.presentation.home.response.EmploymentPostResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
@@ -195,5 +198,13 @@ public class PlaygroundAuthService {
                             .collect(Collectors.toList()))
                     .join();
         }
+    }
+  
+    public List<EmploymentPostResponse> getPlaygroundEmploymentPost(String accessToken) {
+        Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
+        PlayGroundEmploymentResponse postInfo = playgroundClient.getPlaygroundEmploymentPost(requestHeader,16,10,0);
+        return postInfo.posts().stream()
+                .map(EmploymentPostResponse::of)
+                .collect(Collectors.toList());
     }
 }

@@ -14,6 +14,7 @@ import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.home.HomeDescriptionResponse;
 import org.sopt.app.presentation.home.response.RecentPostsResponse;
+import org.sopt.app.presentation.home.response.EmploymentPostResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -79,4 +80,9 @@ public class HomeFacade {
                         .build()
                 ).toList();
     }
+  
+    public List<EmploymentPostResponse> getHomeEmploymentPost(User  user) {
+        return playgroundAuthService.getPlaygroundEmploymentPost(user.getPlaygroundToken());
+    }
+
 }
