@@ -13,14 +13,16 @@ public class CalendarResponse {
     private final LocalDate endDate;
     private final Boolean isOneDaySchedule;
     private final Boolean isOnlyActiveGeneration;
+    private final Boolean isRecentSchedule;
 
-    public static CalendarResponse of(Calendar calendar) {
+    public static CalendarResponse of(Calendar calendar, Boolean isRecentSchedule) {
         return CalendarResponse.builder()
                 .startDate(calendar.getStartDate())
                 .endDate(calendar.getEndDate())
                 .title(calendar.getTitle())
                 .isOneDaySchedule(calendar.getIsOneDaySchedule())
                 .isOnlyActiveGeneration(calendar.getIsOnlyActiveGeneration())
+                .isRecentSchedule(isRecentSchedule)
                 .build();
     }
 }
