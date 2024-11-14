@@ -7,6 +7,7 @@ import feign.RequestLine;
 import java.util.List;
 import java.util.Map;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
+import org.sopt.app.application.playground.dto.PlayGroundCoffeeChatWrapper;
 import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActiveUserIds;
@@ -58,4 +59,7 @@ public interface PlaygroundClient {
                                                              @Param int categoryId,
                                                              @Param int limit,
                                                              @Param int cursor);
+
+    @RequestLine("GET /api/v1/members/coffeechat")
+    PlayGroundCoffeeChatWrapper getCoffeeChatList(@HeaderMap Map<String, String> headers);
 }
