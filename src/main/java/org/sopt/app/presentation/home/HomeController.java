@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.app_service.dto.AppServiceEntryStatusResponse;
+import org.sopt.app.application.meeting.MeetingResponse;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.HomeFacade;
 import org.sopt.app.presentation.home.response.RecentPostsResponse;
@@ -80,6 +81,35 @@ public class HomeController {
     ) {
         return ResponseEntity.ok(
                 homeFacade.getHomeEmploymentPost(user)
+        );
+    }
+
+    @Operation(summary = "전체 모임 확인")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/meeting/all")
+    public ResponseEntity<List<MeetingResponse>> getAllMeeting(
+            @AuthenticationPrincipal User user,
+            @RequestParam(value = "page") final int page,
+            @RequestParam(value = "take") final int take,
+            @RequestParam(value = "category") final String category
+    ) {
+        return ResponseEntity.ok(
+                List.of(
+                        MeetingResponse.eventActiveDummy(1L),
+                        MeetingResponse.studyRecruitingDummy(2L),
+                        MeetingResponse.studyPreRecruitingDummy(3L),
+                        MeetingResponse.studyClosedDummy(4L),
+                        MeetingResponse.studyActiveDummy(5L),
+                        MeetingResponse.eventActiveDummy(6L),
+                        MeetingResponse.studyRecruitingDummy(7L),
+                        MeetingResponse.studyPreRecruitingDummy(8L),
+                        MeetingResponse.studyClosedDummy(9L),
+                        MeetingResponse.studyActiveDummy(10L)
+                )
         );
     }
 }
