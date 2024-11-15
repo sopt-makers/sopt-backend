@@ -15,8 +15,8 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundM
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
 import org.sopt.app.application.playground.dto.RecommendedFriendInfo.PlaygroundUserIds;
-import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
-import org.sopt.app.presentation.auth.AppAuthRequest.CodeRequest;
+import org.sopt.app.presentation.auth.AppAuthRequest.*;
+import org.sopt.app.presentation.home.response.RecentPostsResponse;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -52,6 +52,9 @@ public interface PlaygroundClient {
 
     @RequestLine("GET /api/v1/community/posts/hot")
     PlaygroundPostResponse getPlaygroundHotPost(@HeaderMap Map<String, String> headers);
+
+    @RequestLine("GET /internal/api/v1/community/post/recent?category={category}")
+    RecentPostsResponse getRecentPosts(@HeaderMap Map<String, String> headers, @Param("category") String category);
 
     @RequestLine("GET /api/v1/community/posts?categoryId={categoryId}&limit={limit}&cursor={cursor}")
     PlayGroundEmploymentResponse getPlaygroundEmploymentPost(@HeaderMap Map<String, String> headers,

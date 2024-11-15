@@ -1,22 +1,42 @@
 package org.sopt.app.application.playground;
 
-import static org.sopt.app.application.playground.PlaygroundHeaderCreator.*;
+import static org.sopt.app.application.playground.PlaygroundHeaderCreator.createAuthorizationHeaderByUserPlaygroundToken;
+import static org.sopt.app.application.playground.PlaygroundHeaderCreator.createDefaultHeader;
 
-import lombok.*;
 import io.jsonwebtoken.ExpiredJwtException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
-import org.sopt.app.application.playground.dto.PlaygroundPostInfo.*;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
-import org.sopt.app.common.exception.*;
+import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
+import org.sopt.app.application.playground.dto.PlayGroundPostCategory;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPost;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActiveUserIds;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.MainView;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.MainViewUser;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.UserActiveInfo;
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
-import org.sopt.app.presentation.auth.AppAuthRequest.*;
+import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
+import org.sopt.app.presentation.auth.AppAuthRequest.CodeRequest;
 import org.sopt.app.presentation.home.response.EmploymentPostResponse;
+import org.sopt.app.presentation.home.response.RecentPostsResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
@@ -161,6 +181,25 @@ public class PlaygroundAuthService {
         return generation.equals(currentGeneration);
     }
 
+    public List<RecentPostsResponse> getRecentPosts(String playgroundToken) {
+        final Map<String, String> accessToken = createAuthorizationHeaderByUserPlaygroundToken(playgroundToken);
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            List<PlayGroundPostCategory> categories = List.of(PlayGroundPostCategory.SOPT_ACTIVITY, PlayGroundPostCategory.FREE, PlayGroundPostCategory.PART);
+            CompletableFuture<RecentPostsResponse> hotPostFuture = CompletableFuture.supplyAsync(() ->
+                    RecentPostsResponse.of(playgroundClient.getPlaygroundHotPost(accessToken)), executor);
+            List<CompletableFuture<RecentPostsResponse>> categoryFutures = categories.stream()
+                    .map(category -> CompletableFuture.supplyAsync(() -> playgroundClient.getRecentPosts(accessToken, category.getDisplayName()), executor))
+                    .toList();
+            List<CompletableFuture<RecentPostsResponse>> allFutures = new ArrayList<>(categoryFutures);
+            allFutures.addFirst(hotPostFuture);
+            CompletableFuture<Void> allOf = CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0]));
+            return allOf.thenApply(v -> allFutures.stream()
+                            .map(CompletableFuture::join)
+                            .toList())
+                    .join();
+        }
+    }
+  
     public List<EmploymentPostResponse> getPlaygroundEmploymentPost(String accessToken) {
         Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         PlayGroundEmploymentResponse postInfo = playgroundClient.getPlaygroundEmploymentPost(requestHeader,16,10,0);
@@ -168,5 +207,4 @@ public class PlaygroundAuthService {
                 .map(EmploymentPostResponse::of)
                 .collect(Collectors.toList());
     }
-
 }
