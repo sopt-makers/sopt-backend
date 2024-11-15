@@ -8,9 +8,11 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.app_service.dto.AppServiceEntryStatusResponse;
+import org.sopt.app.application.meeting.MeetingResponse;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.HomeFacade;
 import org.sopt.app.presentation.home.response.CoffeeChatResponse;
+import org.sopt.app.presentation.home.response.RecentPostsResponse;
 import org.sopt.app.presentation.home.response.EmploymentPostResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -56,7 +58,21 @@ public class HomeController {
         );
     }
 
+    
     @Operation(summary = "최근 채용탭 10개 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/posts")
+    public ResponseEntity<List<RecentPostsResponse>> getRecentPost(
+            @AuthenticationPrincipal User user
+    ) {
+        return ResponseEntity.ok(
+                homeFacade.getRecentPosts(user));
+    }
+
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "401", description = "token error", content = @Content),
@@ -83,6 +99,35 @@ public class HomeController {
     ) {
         return ResponseEntity.ok(
                 homeFacade.getCoffeeChatList(user)
+             );
+    }
+  
+    @Operation(summary = "전체 모임 확인")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/meeting/all")
+    public ResponseEntity<List<MeetingResponse>> getAllMeeting(
+            @AuthenticationPrincipal User user,
+            @RequestParam(value = "page") final int page,
+            @RequestParam(value = "take") final int take,
+            @RequestParam(value = "category") final String category
+    ) {
+        return ResponseEntity.ok(
+                List.of(
+                        MeetingResponse.eventActiveDummy(1L),
+                        MeetingResponse.studyRecruitingDummy(2L),
+                        MeetingResponse.studyPreRecruitingDummy(3L),
+                        MeetingResponse.studyClosedDummy(4L),
+                        MeetingResponse.studyActiveDummy(5L),
+                        MeetingResponse.eventActiveDummy(6L),
+                        MeetingResponse.studyRecruitingDummy(7L),
+                        MeetingResponse.studyPreRecruitingDummy(8L),
+                        MeetingResponse.studyClosedDummy(9L),
+                        MeetingResponse.studyActiveDummy(10L)
+                )
         );
     }
 }
