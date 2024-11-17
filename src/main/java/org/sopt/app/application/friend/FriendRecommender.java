@@ -60,23 +60,16 @@ public class FriendRecommender {
     }
 
     private List<SimplePokeProfile> makeSimplePokeProfilesForNotFriend(
-            List<PlaygroundProfile> playgroundProfiles, List<UserProfile> userProfiles) {
-
+            List<PlaygroundProfile> playgroundProfiles, List<UserProfile> userProfiles
+    ) {
         return userProfiles.stream()
                 .map(userProfile -> playgroundProfiles.stream()
                         .filter(profile -> profile.getMemberId().equals(userProfile.getPlaygroundId()))
                         .findFirst()
-                        .map(playgroundProfile -> SimplePokeProfile.createNonFriendPokeProfile(
-                                userProfile.getUserId(),
-                                userProfile.getPlaygroundId(),
-                                playgroundProfile.getProfileImage(),
-                                userProfile.getName(),
-                                playgroundProfile.getLatestActivity().getGeneration(),
-                                playgroundProfile.getLatestActivity().getPlaygroundPart().getPartName()
-                        ))
+                        .map(playgroundProfile ->
+                                SimplePokeProfile.createNonFriendPokeProfile(playgroundProfile, userProfile))
                 )
-                .filter(Optional::isPresent)
-                .map(Optional::get)
+                .filter(Optional::isPresent).map(Optional::get)
                 .toList();
     }
 
