@@ -3,7 +3,9 @@ package org.sopt.app.presentation.poke;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import lombok.*;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.poke.PokeInfo.*;
+import org.sopt.app.application.user.UserProfile;
 import org.sopt.app.domain.enums.FriendRecommendType;
 import org.sopt.app.common.utils.AnonymousImageGenerator;
 
@@ -196,21 +198,16 @@ public class PokeResponse {
         }
 
         public static SimplePokeProfile createNonFriendPokeProfile(
-                Long userId,
-                Long playgroundId,
-                String profileImage,
-                String name,
-                Long generation,
-                String part
+                PlaygroundProfile playgroundProfile, UserProfile userProfile
         ) {
             return new SimplePokeProfile(
-                    userId,
-                    playgroundId,
-                    profileImage == null ? "" : profileImage,
-                    name,
+                    userProfile.getUserId(),
+                    userProfile.getPlaygroundId(),
+                    playgroundProfile.getProfileImage() == null ? "" : playgroundProfile.getProfileImage(),
+                    userProfile.getName(),
                     "",
-                    generation,
-                    part,
+                    playgroundProfile.getLatestActivity().getGeneration(),
+                    playgroundProfile.getLatestActivity().getPlaygroundPart().getPartName(),
                     0,
                     "",
                     "",
