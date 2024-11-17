@@ -2,6 +2,7 @@ package org.sopt.app.application.friend;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.playground.PlaygroundAuthService;
@@ -24,7 +25,8 @@ public class FriendRecommender {
     private final FriendService friendService;
     private final PlaygroundUserIdsProvider playgroundUserIdsProvider;
 
-    public RecommendedFriendsRequest recommendFriendsByTypeList(List<FriendRecommendType> typeList, int size, User user) {
+    public RecommendedFriendsRequest recommendFriendsByTypeList(List<FriendRecommendType> typeList, int size,
+            User user) {
         typeList = this.adjustTypeList(typeList);
 
         OwnPlaygroundProfile ownProfile = playgroundAuthService.getOwnPlaygroundProfile(user.getPlaygroundToken());
@@ -60,20 +62,22 @@ public class FriendRecommender {
     private List<SimplePokeProfile> makeSimplePokeProfilesForNotFriend(
             List<PlaygroundProfile> playgroundProfiles, List<UserProfile> userProfiles) {
 
-        return userProfiles.stream().map(userProfile -> {
-            PlaygroundProfile playgroundProfile = playgroundProfiles.stream()
-                    .filter(profile -> profile.getMemberId().equals(userProfile.getPlaygroundId()))
-                    .findFirst().orElseThrow();
-
-            return SimplePokeProfile.createNonFriendPokeProfile(
-                    userProfile.getUserId(),
-                    userProfile.getPlaygroundId(),
-                    playgroundProfile.getProfileImage(),
-                    userProfile.getName(),
-                    playgroundProfile.getLatestActivity().getGeneration(),
-                    playgroundProfile.getLatestActivity().getPlaygroundPart().getPartName()
-            );
-        }).toList();
+        return userProfiles.stream()
+                .map(userProfile -> playgroundProfiles.stream()
+                        .filter(profile -> profile.getMemberId().equals(userProfile.getPlaygroundId()))
+                        .findFirst()
+                        .map(playgroundProfile -> SimplePokeProfile.createNonFriendPokeProfile(
+                                userProfile.getUserId(),
+                                userProfile.getPlaygroundId(),
+                                playgroundProfile.getProfileImage(),
+                                userProfile.getName(),
+                                playgroundProfile.getLatestActivity().getGeneration(),
+                                playgroundProfile.getLatestActivity().getPlaygroundPart().getPartName()
+                        ))
+                )
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList();
     }
 
     private List<UserProfile> getRecommendableUserProfiles(
@@ -84,7 +88,8 @@ public class FriendRecommender {
         } else {
             playgroundIds = playgroundUserIdsProvider.findPlaygroundIdsByType(ownProfile, type);
         }
-        List<UserProfile> unFilteredUserProfiles = userService.getUserProfilesByPlaygroundIds(List.copyOf(playgroundIds));
+        List<UserProfile> unFilteredUserProfiles = userService.getUserProfilesByPlaygroundIds(
+                List.copyOf(playgroundIds));
         return friendFilter.excludeAlreadyFriendUserIds(unFilteredUserProfiles);
     }
 
