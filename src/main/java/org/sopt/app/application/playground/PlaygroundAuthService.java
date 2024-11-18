@@ -19,6 +19,7 @@ import lombok.val;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
 import org.sopt.app.application.playground.dto.PlayGroundPostCategory;
+import org.sopt.app.application.playground.dto.PlayGroundPostDetailResponse;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPost;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActiveUserIds;
@@ -198,6 +199,29 @@ public class PlaygroundAuthService {
                             .toList())
                     .join();
         }
+    }
+
+    public List<RecentPostsResponse> getRecentPostsWithMemberInfo(String playgroundToken) {
+        final Map<String, String> accessToken = createAuthorizationHeaderByUserPlaygroundToken(playgroundToken);
+        List<RecentPostsResponse> recentPosts = getRecentPosts(playgroundToken);
+
+        for (RecentPostsResponse post : recentPosts) {
+            Long postId = post.getId();
+            PlayGroundPostDetailResponse postDetail = playgroundClient.getPlayGroundPostDetail(accessToken, postId);
+            if (postDetail.member() != null) {
+                String profileImage = postDetail.member().profileImage();
+                String name = postDetail.member().name();
+                post.setProfileImage(profileImage);
+                post.setName(name);
+            } else if (postDetail.anonymousProfile() != null) {
+                String profileImage = postDetail.anonymousProfile().profileImgUrl();
+                String name = postDetail.anonymousProfile().nickname();
+                post.setProfileImage(profileImage);
+                post.setName(name);
+            }
+
+        }
+        return recentPosts;
     }
   
     public List<EmploymentPostResponse> getPlaygroundEmploymentPost(String accessToken) {
