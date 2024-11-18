@@ -75,7 +75,7 @@ public class HomeFacade {
     }
   
     public List<EmploymentPostResponse> getHomeEmploymentPost(User  user) {
-        return playgroundAuthService.getPlaygroundEmploymentPost(user.getPlaygroundToken());
+        return playgroundAuthService.getPlaygroundEmploymentPostWithMemberInfo(user.getPlaygroundToken());
     }
 
 }
