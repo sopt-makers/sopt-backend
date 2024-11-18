@@ -30,6 +30,7 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygrou
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.UserActiveInfo;
+import org.sopt.app.application.playground.dto.PostWithMemberInfo;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -202,33 +203,39 @@ public class PlaygroundAuthService {
     }
 
     public List<RecentPostsResponse> getRecentPostsWithMemberInfo(String playgroundToken) {
-        final Map<String, String> accessToken = createAuthorizationHeaderByUserPlaygroundToken(playgroundToken);
         List<RecentPostsResponse> recentPosts = getRecentPosts(playgroundToken);
-
-        for (RecentPostsResponse post : recentPosts) {
-            Long postId = post.getId();
-            PlayGroundPostDetailResponse postDetail = playgroundClient.getPlayGroundPostDetail(accessToken, postId);
-            if (postDetail.member() != null) {
-                String profileImage = postDetail.member().profileImage();
-                String name = postDetail.member().name();
-                post.setProfileImage(profileImage);
-                post.setName(name);
-            } else if (postDetail.anonymousProfile() != null) {
-                String profileImage = postDetail.anonymousProfile().profileImgUrl();
-                String name = postDetail.anonymousProfile().nickname();
-                post.setProfileImage(profileImage);
-                post.setName(name);
-            }
-
-        }
-        return recentPosts;
+        return getPostsWithMemberInfo(playgroundToken, recentPosts);
     }
   
     public List<EmploymentPostResponse> getPlaygroundEmploymentPost(String accessToken) {
         Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         PlayGroundEmploymentResponse postInfo = playgroundClient.getPlaygroundEmploymentPost(requestHeader,16,10,0);
         return postInfo.posts().stream()
-                .map(EmploymentPostResponse::of)
-                .collect(Collectors.toList());
+                .map(EmploymentPostResponse::of).toList();
+    }
+
+    public List<EmploymentPostResponse> getPlaygroundEmploymentPostWithMemberInfo(String playgroundToken) {
+        List<EmploymentPostResponse> employmentPosts = getPlaygroundEmploymentPost(playgroundToken);
+        return getPostsWithMemberInfo(playgroundToken, employmentPosts);
+    }
+
+    private <T extends PostWithMemberInfo> void addMemberInfoToPost(T post, PlayGroundPostDetailResponse postDetail) {
+        if (postDetail.member() != null) {
+            post.setProfileImage(postDetail.member().profileImage());
+            post.setName(postDetail.member().name());
+        } else if (postDetail.anonymousProfile() != null) {
+            post.setProfileImage(postDetail.anonymousProfile().profileImgUrl());
+            post.setName(postDetail.anonymousProfile().nickname());
+        }
+    }
+
+    private <T extends PostWithMemberInfo> List<T> getPostsWithMemberInfo(String playgroundToken, List<T> posts) {
+        final Map<String, String> accessToken = createAuthorizationHeaderByUserPlaygroundToken(playgroundToken);
+        for (T post : posts) {
+            Long postId = post.getId();
+            PlayGroundPostDetailResponse postDetail = playgroundClient.getPlayGroundPostDetail(accessToken, postId);
+            addMemberInfoToPost(post, postDetail);
+        }
+        return posts;
     }
 }
