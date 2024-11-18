@@ -13,6 +13,8 @@ import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPost
 public class RecentPostsResponse {
     private Long id;
     private String title;
+    private String profileImage;
+    private String name;
     private String category;
     private String content;
     private boolean isHotPost;
