@@ -4,16 +4,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
 import org.sopt.app.application.playground.dto.PostWithMemberInfo;
 
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@NoArgsConstructor
 public class RecentPostsResponse implements PostWithMemberInfo {
-    @Setter
     private Long id;
     private String title;
     private String profileImage;
@@ -21,7 +19,8 @@ public class RecentPostsResponse implements PostWithMemberInfo {
     private String category;
     private String content;
     private Boolean isHotPost;
-
+    
+    
     public static RecentPostsResponse of(PlaygroundPostResponse playgroundPostResponse) {
         return RecentPostsResponse.builder()
                 .id(playgroundPostResponse.postId())
@@ -32,13 +31,16 @@ public class RecentPostsResponse implements PostWithMemberInfo {
                 .build();
     }
 
-    @Override
-    public void setProfileImage(String profileImage) {
-        this.profileImage = profileImage;
+    public RecentPostsResponse withMemberDetail(String name, String profileImage) {
+        return RecentPostsResponse.builder()
+                .id(this.id)
+                .title(this.title)
+                .profileImage(profileImage)
+                .name(name)
+                .category(this.category)
+                .content(this.content)
+                .isHotPost(this.isHotPost)
+                .build();
     }
 
-    @Override
-    public void setName(String name) {
-        this.name = name;
-    }
 }

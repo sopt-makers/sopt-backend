@@ -4,6 +4,7 @@ import static org.sopt.app.application.playground.PlaygroundHeaderCreator.create
 import static org.sopt.app.application.playground.PlaygroundHeaderCreator.createDefaultHeader;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.persistence.EntityNotFoundException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -219,23 +220,23 @@ public class PlaygroundAuthService {
         return getPostsWithMemberInfo(playgroundToken, employmentPosts);
     }
 
-    private <T extends PostWithMemberInfo> void addMemberInfoToPost(T post, PlayGroundPostDetailResponse postDetail) {
+    private <T extends PostWithMemberInfo> T addMemberInfoToPost(T post, PlayGroundPostDetailResponse postDetail) {
         if (postDetail.member() != null) {
-            post.setProfileImage(postDetail.member().profileImage());
-            post.setName(postDetail.member().name());
+            return (T) post.withMemberDetail(postDetail.member().name(), postDetail.member().profileImage());
         } else if (postDetail.anonymousProfile() != null) {
-            post.setProfileImage(postDetail.anonymousProfile().profileImgUrl());
-            post.setName(postDetail.anonymousProfile().nickname());
+            return (T) post.withMemberDetail(postDetail.anonymousProfile().nickname(), postDetail.anonymousProfile().profileImgUrl());
         }
+        throw new EntityNotFoundException("Member not found");
     }
 
     private <T extends PostWithMemberInfo> List<T> getPostsWithMemberInfo(String playgroundToken, List<T> posts) {
         final Map<String, String> accessToken = createAuthorizationHeaderByUserPlaygroundToken(playgroundToken);
+        List<T> mutablePosts = new ArrayList<>();
         for (T post : posts) {
             Long postId = post.getId();
             PlayGroundPostDetailResponse postDetail = playgroundClient.getPlayGroundPostDetail(accessToken, postId);
-            addMemberInfoToPost(post, postDetail);
+            mutablePosts.add(addMemberInfoToPost(post, postDetail));
         }
-        return posts;
+        return mutablePosts;
     }
 }
