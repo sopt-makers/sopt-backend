@@ -20,7 +20,7 @@ public class RecentPostsResponse implements PostWithMemberInfo {
     private String name;
     private String category;
     private String content;
-    private boolean isHotPost;
+    private Boolean isHotPost;
 
     public static RecentPostsResponse of(PlaygroundPostResponse playgroundPostResponse) {
         return RecentPostsResponse.builder()
