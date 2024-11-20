@@ -18,6 +18,6 @@ public class FortuneBadgeManager implements AppServiceBadgeManager {
         if(fortuneService.isExistTodayFortune(userId)){
             return AppServiceBadgeInfo.createWithAllDisabled();
         }
-        return AppServiceBadgeInfo.createWithEnabledDisPlayMessage();
+        return AppServiceBadgeInfo.createWithEnabledDisPlayAlarmBadge("N");
     }
 }
