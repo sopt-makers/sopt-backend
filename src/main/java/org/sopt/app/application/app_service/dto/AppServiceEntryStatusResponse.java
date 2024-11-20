@@ -11,6 +11,8 @@ public class AppServiceEntryStatusResponse {
     private final String serviceName;
     private final Boolean displayAlarmBadge;
     private final String alarmBadge;
+    private final String iconUrl;
+    private final String deepLink;
 
     public static AppServiceEntryStatusResponse createAppServiceEntryStatus (
             AppServiceInfo appServiceInfo, AppServiceBadgeInfo badgeInfo
@@ -19,6 +21,8 @@ public class AppServiceEntryStatusResponse {
                 .serviceName(AppServiceName.of(appServiceInfo.getServiceName()).getExposedName())
                 .displayAlarmBadge(badgeInfo.getDisplayAlarmBadge())
                 .alarmBadge(badgeInfo.getAlarmBadge())
+                .iconUrl(appServiceInfo.getIconUrl())
+                .deepLink(appServiceInfo.getDeepLink())
                 .build();
     }
 }
