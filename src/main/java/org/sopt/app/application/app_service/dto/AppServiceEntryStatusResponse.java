@@ -1,6 +1,7 @@
 package org.sopt.app.application.app_service.dto;
 
 import lombok.*;
+import org.sopt.app.application.app_service.AppServiceName;
 
 @Builder
 @Getter
@@ -14,29 +15,10 @@ public class AppServiceEntryStatusResponse {
     public static AppServiceEntryStatusResponse createAppServiceEntryStatus (
             AppServiceInfo appServiceInfo, AppServiceBadgeInfo badgeInfo
     ) {
-        if(badgeInfo.getDisplayAlarmBadge().equals(Boolean.TRUE)){
-            return createAppServiceEntryStatusByDisPlayAlarmBadge(appServiceInfo, badgeInfo.getAlarmBadge());
-        }
-        return createDefaultAppServiceEntryStatus(appServiceInfo);
-    }
-
-    private static AppServiceEntryStatusResponse createAppServiceEntryStatusByDisPlayAlarmBadge(
-            AppServiceInfo appServiceInfo, String alarmBadge
-    ) {
         return AppServiceEntryStatusResponse.builder()
-                .serviceName(appServiceInfo.getServiceName())
-                .displayAlarmBadge(true)
-                .alarmBadge(alarmBadge)
-                .build();
-    }
-
-    private static AppServiceEntryStatusResponse createDefaultAppServiceEntryStatus(
-            AppServiceInfo appServiceInfo
-    ) {
-        return AppServiceEntryStatusResponse.builder()
-                .serviceName(appServiceInfo.getServiceName())
-                .displayAlarmBadge(false)
-                .alarmBadge("")
+                .serviceName(AppServiceName.of(appServiceInfo.getServiceName()).getExposedName())
+                .displayAlarmBadge(badgeInfo.getDisplayAlarmBadge())
+                .alarmBadge(badgeInfo.getAlarmBadge())
                 .build();
     }
 }
