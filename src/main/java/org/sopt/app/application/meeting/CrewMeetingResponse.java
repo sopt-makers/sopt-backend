@@ -3,9 +3,9 @@ package org.sopt.app.application.meeting;
 import java.util.List;
 
 public record CrewMeetingResponse(
-        List<Meeting> meetings
+        List<CrewMeeting> meetings
 ) {
-    public record Meeting(
+    public record CrewMeeting(
         Long id,
         String title,
         Boolean canJoinOnlyActiveGeneration,

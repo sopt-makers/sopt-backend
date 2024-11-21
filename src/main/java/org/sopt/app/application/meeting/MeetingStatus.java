@@ -1,8 +1,7 @@
 package org.sopt.app.application.meeting;
 
 public enum MeetingStatus {
-    RECRUITING,
-    PRE_RECRUITING,
-    CLOSED,
-    ACTIVE
+    APPLY_ABLE,
+    BEFORE_START,
+    RECRUITMENT_COMPLETE
 }
