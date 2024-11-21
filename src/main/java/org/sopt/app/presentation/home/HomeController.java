@@ -12,12 +12,13 @@ import org.sopt.app.application.meeting.MeetingResponse;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.HomeFacade;
 import org.sopt.app.presentation.home.response.CoffeeChatResponse;
-import org.sopt.app.presentation.home.response.RecentPostsResponse;
 import org.sopt.app.presentation.home.response.EmploymentPostResponse;
+import org.sopt.app.presentation.home.response.RecentPostsResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
