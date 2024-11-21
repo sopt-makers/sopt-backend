@@ -17,8 +17,12 @@ public class PokeBadgeManager implements AppServiceBadgeManager {
     public AppServiceBadgeInfo acquireAppServiceBadgeInfo(final Long userId) {
         Long unRepliedPokeMeSize = pokeHistoryService.getUnRepliedPokeMeSize(userId);
         if(unRepliedPokeMeSize > 0) {
-            return AppServiceBadgeInfo.createWithEnabledDisPlayAlarmBadge(unRepliedPokeMeSize.toString());
+            return AppServiceBadgeInfo.createWithEnabledDisPlayAlarmBadge(limitLessThanTwoNumbers(unRepliedPokeMeSize));
         }
         return AppServiceBadgeInfo.createWithAllDisabled();
+    }
+
+    private String limitLessThanTwoNumbers(final Long number) {
+        return number > 9 ? "9+" : number.toString();
     }
 }

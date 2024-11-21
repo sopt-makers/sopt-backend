@@ -1,6 +1,5 @@
 package org.sopt.app.application.app_service.dto;
 
-import java.util.List;
 import lombok.*;
 import org.sopt.app.domain.entity.AppService;
 
@@ -13,16 +12,16 @@ public class AppServiceInfo {
     private final String serviceName;
     private final Boolean activeUser;
     private final Boolean inactiveUser;
-    private final List<String> messages;
-    private final List<String> messageColors;
+    private final String iconUrl;
+    private final String deepLink;
 
     public static AppServiceInfo of(final AppService appService) {
         return AppServiceInfo.builder()
                 .serviceName(appService.getServiceName())
                 .activeUser(appService.getActiveUser())
                 .inactiveUser(appService.getInactiveUser())
-                .messages(appService.getMessages())
-                .messageColors(appService.getMessageColors())
+                .iconUrl(appService.getIconUrl())
+                .deepLink(appService.getDeepLink())
                 .build();
     }
 }
