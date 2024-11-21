@@ -11,8 +11,7 @@ import org.sopt.app.application.app_service.dto.AppServiceEntryStatusResponse;
 import org.sopt.app.application.meeting.MeetingResponse;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.HomeFacade;
-import org.sopt.app.presentation.home.response.RecentPostsResponse;
-import org.sopt.app.presentation.home.response.EmploymentPostResponse;
+import org.sopt.app.presentation.home.response.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -98,18 +97,7 @@ public class HomeController {
             @RequestParam(value = "category") final String category
     ) {
         return ResponseEntity.ok(
-                List.of(
-                        MeetingResponse.eventActiveDummy(1L),
-                        MeetingResponse.studyRecruitingDummy(2L),
-                        MeetingResponse.studyPreRecruitingDummy(3L),
-                        MeetingResponse.studyClosedDummy(4L),
-                        MeetingResponse.studyActiveDummy(5L),
-                        MeetingResponse.eventActiveDummy(6L),
-                        MeetingResponse.studyRecruitingDummy(7L),
-                        MeetingResponse.studyPreRecruitingDummy(8L),
-                        MeetingResponse.studyClosedDummy(9L),
-                        MeetingResponse.studyActiveDummy(10L)
-                )
+                homeFacade.getAllMeetings(new MeetingParamRequest(user.getPlaygroundId(), page, take, category))
         );
     }
 }
