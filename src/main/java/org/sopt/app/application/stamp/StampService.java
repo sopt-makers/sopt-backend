@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.sopt.app.application.user.UserWithdrawEvent;
 import org.sopt.app.common.event.EventPublisher;
@@ -21,6 +22,7 @@ import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class StampService {
 
     private final StampRepository stampRepository;
@@ -40,6 +42,24 @@ public class StampService {
                 .updatedAt(entity.getUpdatedAt())
                 .missionId(entity.getMissionId())
                 .build();
+    }
+
+    private void validateStampInfo(Stamp entity) {
+        if (!StringUtils.hasText(entity.getContents())) {
+            if(entity.getContents().isEmpty()) {
+                log.warn("Stamp ID-{}: stamp contents is empty", entity.getId());
+            }
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_CONTENTS);
+        }
+        if (entity.getImages().isEmpty()) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_IMAGES);
+        }
+        if (entity.getActivityDate() == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE);
+        }
+        if (entity.getMissionId() == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_MISSION_ID);
+        }
     }
 
     @Transactional
@@ -161,24 +181,6 @@ public class StampService {
     @EventListener(UserWithdrawEvent.class)
     public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
         this.deleteAllStamps(event.getUserId());
-    }
-
-    private void validateStampInfo(Stamp entity) {
-        if (entity.getId() == null) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_ID);
-        }
-        if (!StringUtils.hasText(entity.getContents())) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_CONTENTS);
-        }
-        if (entity.getImages().isEmpty()) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_IMAGES);
-        }
-        if (entity.getActivityDate() == null) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE);
-        }
-        if (entity.getMissionId() == null) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_MISSION_ID);
-        }
     }
 
     private Stamp convertStampImgDeprecated(

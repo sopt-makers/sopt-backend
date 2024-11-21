@@ -24,7 +24,7 @@ public class SoptampBadgeManager implements AppServiceBadgeManager {
             return AppServiceBadgeInfo.createWithAllDisabled();
         }
         return AppServiceBadgeInfo.createWithEnabledDisPlayAlarmBadge(
-                rankFacade.findPartRank(part).getRank().toString()
+                rankFacade.findPartRank(part).getRank().toString() + "위"
         );
     }
 }

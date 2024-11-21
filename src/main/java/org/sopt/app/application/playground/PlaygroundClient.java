@@ -9,6 +9,7 @@ import java.util.Map;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.playground.dto.PlayGroundCoffeeChatWrapper;
 import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
+import org.sopt.app.application.playground.dto.PlayGroundPostDetailResponse;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActiveUserIds;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
@@ -65,4 +66,8 @@ public interface PlaygroundClient {
 
     @RequestLine("GET /api/v1/members/coffeechat")
     PlayGroundCoffeeChatWrapper getCoffeeChatList(@HeaderMap Map<String, String> headers);
+  
+    @RequestLine("GET /api/v1/community/posts/{postId}")
+    PlayGroundPostDetailResponse getPlayGroundPostDetail(@HeaderMap Map<String, String> headers,
+                                                         @Param Long postId);
 }

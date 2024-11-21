@@ -1,6 +1,7 @@
 package org.sopt.app.presentation.stamp;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -36,6 +37,7 @@ public class StampRequest {
         private String image;
         @Schema(description = "스탬프 내용", example = "스탬프 찍었다!")
         @NotNull(message = "contents may not be null")
+        @NotEmpty(message = "contents may not be empty")
         private String contents;
         @Schema(description = "활동 날짜", example = "2024.04.08")
         @NotNull(message = "activity date may not be null")

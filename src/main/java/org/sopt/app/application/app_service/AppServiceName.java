@@ -6,11 +6,12 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum AppServiceName {
-    POKE("POKE","pokeBadgeManager"),
-    SOPTAMP("SOPTAMP","soptampBadgeManager"),
-    FORTUNE("FORTUNE","fortuneBadgeManager"),
-    OTHERS("OTHERS","defaultBadgeManager");
+    POKE("콕찌르기", "POKE","pokeBadgeManager"),
+    SOPTAMP("솝탬프", "SOPTAMP","soptampBadgeManager"),
+    FORTUNE("솝마디", "FORTUNE","fortuneBadgeManager"),
+    OTHERS("", "OTHERS","defaultBadgeManager");
 
+    private final String exposedName;
     private final String serviceName;
     private final String badgeManagerName;
 

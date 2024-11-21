@@ -1,5 +1,7 @@
 package org.sopt.app.facade;
 
+import static org.sopt.app.common.utils.HtmlTagWrapper.wrapWithTag;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -43,7 +45,7 @@ public class HomeFacade {
                 .getAllGenerations();
         ActivityDurationCalculator calculator = ActivityDurationCalculator.of(ownGenerations);
         return HomeDescriptionResponse.of(
-                user.getUsername(),
+                wrapWithTag(user.getUsername(), "b"),
                 calculator.getActivityDuration()
         );
     }
@@ -73,18 +75,11 @@ public class HomeFacade {
     }
 
     public List<RecentPostsResponse> getRecentPosts(User user) {
-        return playgroundAuthService.getRecentPosts(user.getPlaygroundToken()).stream()
-                .map(post -> RecentPostsResponse.builder()
-                        .id(post.getId())
-                        .title(post.getTitle())
-                        .category(post.getCategory())
-                        .isHotPost(post.isHotPost())
-                        .build()
-                ).toList();
+        return playgroundAuthService.getRecentPostsWithMemberInfo(user.getPlaygroundToken());
     }
   
     public List<EmploymentPostResponse> getHomeEmploymentPost(User  user) {
-        return playgroundAuthService.getPlaygroundEmploymentPost(user.getPlaygroundToken());
+        return playgroundAuthService.getPlaygroundEmploymentPostWithMemberInfo(user.getPlaygroundToken());
     }
 
     @Transactional(readOnly = true)
