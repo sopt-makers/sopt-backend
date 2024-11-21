@@ -18,7 +18,7 @@ public class ClientConfig {
     @Value("${makers.playground.server}")
     private String playgroundEndPoint;
 
-    @Value("${makers.playground.server}")
+    @Value("${makers.crew.server}")
     private String crewEndPoint;
 
     @Bean
