@@ -1,5 +1,7 @@
 package org.sopt.app.facade;
 
+import static org.sopt.app.common.utils.HtmlTagWrapper.wrapWithTag;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -41,7 +43,7 @@ public class HomeFacade {
                 .getAllGenerations();
         ActivityDurationCalculator calculator = ActivityDurationCalculator.of(ownGenerations);
         return HomeDescriptionResponse.of(
-                user.getUsername(),
+                wrapWithTag(user.getUsername(), "b"),
                 calculator.getActivityDuration()
         );
     }
