@@ -1,19 +1,13 @@
 package org.sopt.app.application.playground;
 
 
-import feign.HeaderMap;
-import feign.Param;
-import feign.RequestLine;
-import java.util.List;
-import java.util.Map;
-import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
+import feign.*;
+import java.util.*;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
 import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActiveUserIds;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
+import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.playground.dto.RecommendedFriendInfo.PlaygroundUserIds;
 import org.sopt.app.presentation.auth.AppAuthRequest.*;
 import org.sopt.app.presentation.home.response.RecentPostsResponse;
