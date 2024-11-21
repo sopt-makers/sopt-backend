@@ -73,18 +73,11 @@ public class HomeFacade {
     }
 
     public List<RecentPostsResponse> getRecentPosts(User user) {
-        return playgroundAuthService.getRecentPosts(user.getPlaygroundToken()).stream()
-                .map(post -> RecentPostsResponse.builder()
-                        .id(post.getId())
-                        .title(post.getTitle())
-                        .category(post.getCategory())
-                        .isHotPost(post.isHotPost())
-                        .build()
-                ).toList();
+        return playgroundAuthService.getRecentPostsWithMemberInfo(user.getPlaygroundToken());
     }
   
     public List<EmploymentPostResponse> getHomeEmploymentPost(User  user) {
-        return playgroundAuthService.getPlaygroundEmploymentPost(user.getPlaygroundToken());
+        return playgroundAuthService.getPlaygroundEmploymentPostWithMemberInfo(user.getPlaygroundToken());
     }
 
 }

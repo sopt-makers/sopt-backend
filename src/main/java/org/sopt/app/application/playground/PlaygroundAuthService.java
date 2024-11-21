@@ -4,6 +4,7 @@ import static org.sopt.app.application.playground.PlaygroundHeaderCreator.create
 import static org.sopt.app.application.playground.PlaygroundHeaderCreator.createDefaultHeader;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.persistence.EntityNotFoundException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import lombok.val;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
 import org.sopt.app.application.playground.dto.PlayGroundPostCategory;
+import org.sopt.app.application.playground.dto.PlayGroundPostDetailResponse;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPost;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActiveUserIds;
@@ -29,6 +31,7 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygrou
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.UserActiveInfo;
+import org.sopt.app.application.playground.dto.PostWithMemberInfo;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -199,12 +202,41 @@ public class PlaygroundAuthService {
                     .join();
         }
     }
+
+    public List<RecentPostsResponse> getRecentPostsWithMemberInfo(String playgroundToken) {
+        List<RecentPostsResponse> recentPosts = getRecentPosts(playgroundToken);
+        return getPostsWithMemberInfo(playgroundToken, recentPosts);
+    }
   
     public List<EmploymentPostResponse> getPlaygroundEmploymentPost(String accessToken) {
         Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         PlayGroundEmploymentResponse postInfo = playgroundClient.getPlaygroundEmploymentPost(requestHeader,16,10,0);
         return postInfo.posts().stream()
-                .map(EmploymentPostResponse::of)
-                .collect(Collectors.toList());
+                .map(EmploymentPostResponse::of).toList();
+    }
+
+    public List<EmploymentPostResponse> getPlaygroundEmploymentPostWithMemberInfo(String playgroundToken) {
+        List<EmploymentPostResponse> employmentPosts = getPlaygroundEmploymentPost(playgroundToken);
+        return getPostsWithMemberInfo(playgroundToken, employmentPosts);
+    }
+
+    private <T extends PostWithMemberInfo> T addMemberInfoToPost(T post, PlayGroundPostDetailResponse postDetail) {
+        if (postDetail.member() != null) {
+            return (T) post.withMemberDetail(postDetail.member().name(), postDetail.member().profileImage());
+        } else if (postDetail.anonymousProfile() != null) {
+            return (T) post.withMemberDetail(postDetail.anonymousProfile().nickname(), postDetail.anonymousProfile().profileImgUrl());
+        }
+        throw new EntityNotFoundException("Member not found");
+    }
+
+    private <T extends PostWithMemberInfo> List<T> getPostsWithMemberInfo(String playgroundToken, List<T> posts) {
+        final Map<String, String> accessToken = createAuthorizationHeaderByUserPlaygroundToken(playgroundToken);
+        List<T> mutablePosts = new ArrayList<>();
+        for (T post : posts) {
+            Long postId = post.getId();
+            PlayGroundPostDetailResponse postDetail = playgroundClient.getPlayGroundPostDetail(accessToken, postId);
+            mutablePosts.add(addMemberInfoToPost(post, postDetail));
+        }
+        return mutablePosts;
     }
 }
