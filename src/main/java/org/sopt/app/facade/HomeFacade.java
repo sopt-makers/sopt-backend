@@ -90,6 +90,7 @@ public class HomeFacade {
     public List<MeetingResponse> getAllMeetings(MeetingParamRequest request) {
         return meetingService.getAllMeetings(request)
                 .meetings().stream()
+                .filter(crewMeeting -> !crewMeeting.isBlockedMeeting())
                 .map(MeetingResponse::of)
                 .toList();
     }
