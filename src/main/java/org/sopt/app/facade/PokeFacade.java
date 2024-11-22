@@ -259,4 +259,8 @@ public class PokeFacade {
     public boolean getIsNewUser(Long userId) {
         return friendService.getIsNewUser(userId);
     }
+
+    public Long getUserPokeCount(Long userId) {
+        return pokeService.getUserPokeCount(userId);
+    }
 }

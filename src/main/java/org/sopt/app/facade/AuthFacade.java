@@ -2,12 +2,17 @@ package org.sopt.app.facade;
 
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.auth.JwtTokenService;
-import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.*;
+import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.AppToken;
 import org.sopt.app.application.playground.PlaygroundAuthService;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.LoginInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.application.poke.PokeService;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.user.UserService;
-import org.sopt.app.presentation.auth.AppAuthRequest.*;
+import org.sopt.app.domain.entity.User;
+import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
+import org.sopt.app.presentation.auth.AppAuthRequest.CodeRequest;
 import org.sopt.app.presentation.auth.AppAuthResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,6 +25,7 @@ public class AuthFacade {
     private final UserService userService;
     private final PlaygroundAuthService playgroundAuthService;
     private final SoptampUserService soptampUserService;
+    private final PokeService pokeService;
 
     @Transactional
     public AppAuthResponse loginWithPlayground(CodeRequest codeRequest) {
@@ -66,4 +72,11 @@ public class AuthFacade {
                 .build();
     }
 
+    public int getUserSoptLevel(User user) {
+        return playgroundAuthService.getUserSoptLevel(user);
+    }
+
+    public PlaygroundProfile getUserDetails(User user) {
+        return playgroundAuthService.getPlayGroundProfile(user.getPlaygroundToken());
+    }
 }
