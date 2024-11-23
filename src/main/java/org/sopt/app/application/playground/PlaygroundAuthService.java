@@ -7,6 +7,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.persistence.EntityNotFoundException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -38,6 +39,7 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
 import org.sopt.app.presentation.auth.AppAuthRequest.CodeRequest;
+import org.sopt.app.presentation.home.response.CoffeeChatResponse;
 import org.sopt.app.presentation.home.response.EmploymentPostResponse;
 import org.sopt.app.presentation.home.response.RecentPostsResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -212,7 +214,16 @@ public class PlaygroundAuthService {
         Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         PlayGroundEmploymentResponse postInfo = playgroundClient.getPlaygroundEmploymentPost(requestHeader,16,10,0);
         return postInfo.posts().stream()
-                .map(EmploymentPostResponse::of).toList();
+                .map(EmploymentPostResponse::of)
+                .toList();
+    }
+
+    public List<CoffeeChatResponse> getCoffeeChatList(String accessToken) {
+        Map<String, String> headers = PlaygroundHeaderCreator.createAuthorizationHeaderByUserPlaygroundToken(accessToken);
+        return playgroundClient.getCoffeeChatList(headers).coffeeChatList().stream()
+                .filter(member -> !member.isBlind())
+                .map(CoffeeChatResponse::of)
+                .toList();
     }
 
     public List<EmploymentPostResponse> getPlaygroundEmploymentPostWithMemberInfo(String playgroundToken) {

@@ -5,16 +5,18 @@ import static org.sopt.app.common.utils.HtmlTagWrapper.wrapWithTag;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.app_service.*;
+import org.sopt.app.application.app_service.AppServiceBadgeService;
+import org.sopt.app.application.app_service.AppServiceService;
 import org.sopt.app.application.app_service.dto.AppServiceEntryStatusResponse;
 import org.sopt.app.application.app_service.dto.AppServiceInfo;
-import org.sopt.app.application.home.ActivityDurationCalculator;
-import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.description.DescriptionInfo.MainDescription;
 import org.sopt.app.application.description.DescriptionService;
+import org.sopt.app.application.home.ActivityDurationCalculator;
+import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.home.HomeDescriptionResponse;
+import org.sopt.app.presentation.home.response.CoffeeChatResponse;
 import org.sopt.app.presentation.home.response.RecentPostsResponse;
 import org.sopt.app.presentation.home.response.EmploymentPostResponse;
 import org.springframework.stereotype.Service;
@@ -80,4 +82,8 @@ public class HomeFacade {
         return playgroundAuthService.getPlaygroundEmploymentPostWithMemberInfo(user.getPlaygroundToken());
     }
 
+    @Transactional(readOnly = true)
+    public List<CoffeeChatResponse> getCoffeeChatList(User user) {
+        return playgroundAuthService.getCoffeeChatList(user.getPlaygroundToken());
+    }
 }
