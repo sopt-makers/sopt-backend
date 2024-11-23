@@ -1,4 +1,4 @@
-package org.sopt.app.presentation.home;
+package org.sopt.app.presentation.home.response;
 
 import lombok.*;
 
