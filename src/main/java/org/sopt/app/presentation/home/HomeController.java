@@ -55,7 +55,7 @@ public class HomeController {
     }
 
     
-    @Operation(summary = "최근 채용탭 10개 조회")
+    @Operation(summary = "최근 게시물 카테고리별 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "401", description = "token error", content = @Content),
@@ -69,6 +69,7 @@ public class HomeController {
                 homeFacade.getRecentPosts(user));
     }
 
+    @Operation(summary = "최근 채용탭 10개 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "401", description = "token error", content = @Content),
@@ -81,6 +82,21 @@ public class HomeController {
         return ResponseEntity.ok(
                 homeFacade.getHomeEmploymentPost(user)
         );
+    }
+
+    @Operation(summary = "커피챗 리스트 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/coffeechat")
+    public ResponseEntity<List<CoffeeChatResponse>> getCoffeeChatList(
+            @AuthenticationPrincipal User user
+    ) {
+        return ResponseEntity.ok(
+                homeFacade.getCoffeeChatList(user)
+             );
     }
 
     @Operation(summary = "전체 모임 확인")

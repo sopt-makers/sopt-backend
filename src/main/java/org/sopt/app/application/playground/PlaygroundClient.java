@@ -3,11 +3,13 @@ package org.sopt.app.application.playground;
 
 import feign.*;
 import java.util.*;
+import org.sopt.app.application.playground.dto.PlayGroundCoffeeChatWrapper;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
+import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
+import org.sopt.app.application.playground.dto.PlayGroundPostDetailResponse;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
 import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
-import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.playground.dto.RecommendedFriendInfo.PlaygroundUserIds;
 import org.sopt.app.presentation.auth.AppAuthRequest.*;
 import org.sopt.app.presentation.home.response.RecentPostsResponse;
@@ -55,4 +57,11 @@ public interface PlaygroundClient {
                                                              @Param int categoryId,
                                                              @Param int limit,
                                                              @Param int cursor);
+
+    @RequestLine("GET /api/v1/members/coffeechat")
+    PlayGroundCoffeeChatWrapper getCoffeeChatList(@HeaderMap Map<String, String> headers);
+
+    @RequestLine("GET /api/v1/community/posts/{postId}")
+    PlayGroundPostDetailResponse getPlayGroundPostDetail(@HeaderMap Map<String, String> headers,
+                                                         @Param Long postId);
 }

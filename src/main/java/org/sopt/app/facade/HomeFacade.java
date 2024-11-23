@@ -1,19 +1,22 @@
 package org.sopt.app.facade;
 
+import static org.sopt.app.common.utils.HtmlTagWrapper.wrapWithTag;
+
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.app_service.*;
 import org.sopt.app.application.app_service.dto.*;
+import org.sopt.app.application.description.DescriptionInfo.MainDescription;
+import org.sopt.app.application.description.DescriptionService;
 import org.sopt.app.application.home.ActivityDurationCalculator;
 import org.sopt.app.application.meeting.*;
 import org.sopt.app.application.playground.PlaygroundAuthService;
-import org.sopt.app.application.description.DescriptionInfo.MainDescription;
-import org.sopt.app.application.description.DescriptionService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.home.response.HomeDescriptionResponse;
 import org.sopt.app.presentation.home.MeetingParamRequest;
+import org.sopt.app.presentation.home.response.CoffeeChatResponse;
 import org.sopt.app.presentation.home.response.RecentPostsResponse;
 import org.sopt.app.presentation.home.response.EmploymentPostResponse;
 import org.springframework.stereotype.Service;
@@ -43,7 +46,7 @@ public class HomeFacade {
                 .getAllGenerations();
         ActivityDurationCalculator calculator = ActivityDurationCalculator.of(ownGenerations);
         return HomeDescriptionResponse.of(
-                user.getUsername(),
+                wrapWithTag(user.getUsername(), "b"),
                 calculator.getActivityDuration()
         );
     }
@@ -73,18 +76,16 @@ public class HomeFacade {
     }
 
     public List<RecentPostsResponse> getRecentPosts(User user) {
-        return playgroundAuthService.getRecentPosts(user.getPlaygroundToken()).stream()
-                .map(post -> RecentPostsResponse.builder()
-                        .id(post.getId())
-                        .title(post.getTitle())
-                        .category(post.getCategory())
-                        .isHotPost(post.isHotPost())
-                        .build()
-                ).toList();
+        return playgroundAuthService.getRecentPostsWithMemberInfo(user.getPlaygroundToken());
     }
   
     public List<EmploymentPostResponse> getHomeEmploymentPost(User  user) {
-        return playgroundAuthService.getPlaygroundEmploymentPost(user.getPlaygroundToken());
+        return playgroundAuthService.getPlaygroundEmploymentPostWithMemberInfo(user.getPlaygroundToken());
+    }
+
+    @Transactional(readOnly = true)
+    public List<CoffeeChatResponse> getCoffeeChatList(User user) {
+        return playgroundAuthService.getCoffeeChatList(user.getPlaygroundToken());
     }
 
     public List<MeetingResponse> getAllMeetings(MeetingParamRequest request) {
