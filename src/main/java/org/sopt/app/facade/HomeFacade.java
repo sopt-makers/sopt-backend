@@ -14,11 +14,8 @@ import org.sopt.app.application.meeting.*;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.UserStatus;
-import org.sopt.app.presentation.home.response.HomeDescriptionResponse;
+import org.sopt.app.presentation.home.response.*;
 import org.sopt.app.presentation.home.MeetingParamRequest;
-import org.sopt.app.presentation.home.response.CoffeeChatResponse;
-import org.sopt.app.presentation.home.response.RecentPostsResponse;
-import org.sopt.app.presentation.home.response.EmploymentPostResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +47,7 @@ public class HomeFacade {
                 calculator.getActivityDuration()
         );
     }
-
+    @Transactional(readOnly = true)
     public List<AppServiceEntryStatusResponse> checkAppServiceEntryStatus(User user) {
 
         return appServiceService.getAllAppService().stream()
