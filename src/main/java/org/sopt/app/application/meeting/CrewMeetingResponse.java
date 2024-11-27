@@ -12,7 +12,7 @@ public record CrewMeetingResponse(
         MeetingStatus status,
         String imageUrl,
         String category,
-        List<String> joinableParts,
+        List<CrewPart> joinableParts,
         Boolean isBlockedMeeting
     ){
 

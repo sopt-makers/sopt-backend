@@ -22,10 +22,14 @@ public record MeetingResponse(
                 .title(crewMeeting.title())
                 .category(crewMeeting.category())
                 .canJoinOnlyActiveGeneration(crewMeeting.canJoinOnlyActiveGeneration())
-                .joinableParts(crewMeeting.joinableParts())
+                .joinableParts(convertToExposedPartName(crewMeeting.joinableParts()))
                 .canJoinAllParts(crewMeeting.joinableParts().size() == Part.values().length)
                 .status(crewMeeting.status())
                 .imageUrl(crewMeeting.imageUrl())
                 .build();
+    }
+
+    private static List<String> convertToExposedPartName(List<CrewPart> crewPart) {
+        return crewPart.stream().map(CrewPart::getPartName).toList();
     }
 }
