@@ -10,7 +10,7 @@ public enum CrewPart {
     DESIGN("디자인"),
     WEB("웹"),
     IOS("iOS"),
-    ANDROID("안드로이드"),
+    ANDROID("Android"),
     SERVER("서버")
     ;
 
