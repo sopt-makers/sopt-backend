@@ -127,28 +127,26 @@ public class UserResponse {
             private String soptLevel;
             @Schema(description = "유저 소개", example = "false")
             private String profileMessage;
+            @Schema(description = "솝트와", example = "37개월")
+            private String during;
+            private List<String> icons;
+            private Boolean isActive;
 
-        public static SoptLog of(final String userName, final String profileImage, final PlaygroundPart part, final String pokeCount, final String soptampRank, final String soptLevel, final String profileMessage) {
-            return SoptLog.builder()
-                    .userName(userName)
-                    .profileImage(profileImage)
-                    .part(part)
-                    .pokeCount(pokeCount)
-                    .soptampRank(soptampRank)
-                    .soptLevel(soptLevel)
-                    .profileMessage(profileMessage)
-                    .build();
-        }
-        public static SoptLog of(int soptLevel, Long pokeCount, Long soptampRank, PlaygroundProfile playgroundProfile) {
-            return  SoptLog.builder()
-                    .soptLevel("LV." + soptLevel)
-                    .pokeCount(pokeCount.toString())
-                    .soptampRank(soptampRank.toString())
-                    .userName(playgroundProfile.getName())
-                    .profileImage(playgroundProfile.getProfileImage())
-                    .part(playgroundProfile.getLatestActivity().getPlaygroundPart())
-                    .profileMessage(playgroundProfile.getIntroduction())
-                    .build();
-        }
+            public static SoptLog of(int soptLevel, Long pokeCount, Long soptampRank, Long during, Boolean isActive,
+                                     List<String> icons,
+                                     PlaygroundProfile playgroundProfile) {
+                return SoptLog.builder()
+                        .soptLevel("Lv." + soptLevel)
+                        .pokeCount(pokeCount + "회")
+                        .soptampRank(soptampRank != null ? soptampRank +"등" : null)
+                        .userName(playgroundProfile.getName())
+                        .profileImage(playgroundProfile.getProfileImage())
+                        .part(playgroundProfile.getLatestActivity().getPlaygroundPart())
+                        .profileMessage(playgroundProfile.getIntroduction())
+                        .during(during != null ? during + "개월": null)
+                        .isActive(isActive)
+                        .icons(icons)
+                        .build();
+            }
     }
 }

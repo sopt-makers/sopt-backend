@@ -1,5 +1,6 @@
 package org.sopt.app.facade;
 
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.auth.JwtTokenService;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.AppToken;
@@ -11,6 +12,7 @@ import org.sopt.app.application.poke.PokeService;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.enums.IconType;
 import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
 import org.sopt.app.presentation.auth.AppAuthRequest.CodeRequest;
 import org.sopt.app.presentation.auth.AppAuthResponse;
@@ -78,5 +80,13 @@ public class AuthFacade {
 
     public PlaygroundProfile getUserDetails(User user) {
         return playgroundAuthService.getPlayGroundProfile(user.getPlaygroundToken());
+    }
+
+    public Long getDuration(Long Mygeneration, Long generation) {
+        return userService.getDuration(Mygeneration, generation);
+    }
+
+    public List<String> getIcons(IconType iconType) {
+        return userService.getIcons(iconType);
     }
 }

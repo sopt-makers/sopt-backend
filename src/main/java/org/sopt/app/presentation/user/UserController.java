@@ -6,17 +6,20 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.enums.IconType;
 import org.sopt.app.facade.AuthFacade;
 import org.sopt.app.facade.PokeFacade;
 import org.sopt.app.facade.RankFacade;
 import org.sopt.app.facade.SoptampFacade;
 import org.sopt.app.presentation.user.UserResponse.SoptLog;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +40,8 @@ public class UserController {
     private final AuthFacade authFacade;
     private final PokeFacade pokeFacade;
     private final RankFacade rankFacade;
+    @Value("${sopt.current.generation}")
+    private Long generation;
 
     @Operation(summary = "솝탬프 정보 조회")
     @ApiResponses({
@@ -80,8 +85,16 @@ public class UserController {
     public ResponseEntity<UserResponse.SoptLog> getUserSoptLog(@AuthenticationPrincipal User user) {
         int soptLevel = authFacade.getUserSoptLevel(user);
         Long pokeCount = pokeFacade.getUserPokeCount(user.getId());
-        Long soptampRank = rankFacade.findUserRank(user.getId());
         PlaygroundProfile playgroundProfile = authFacade.getUserDetails(user);
-        return ResponseEntity.ok(SoptLog.of(soptLevel, pokeCount, soptampRank, playgroundProfile));
+        Long soptampRank = null;
+        Long soptDuring = null;
+        Boolean isActive = playgroundProfile.getLatestActivity().getGeneration() == generation;
+        if (isActive) {
+            soptampRank = rankFacade.findUserRank(user.getId());
+        } else {
+            soptDuring = authFacade.getDuration(playgroundProfile.getLatestActivity().getGeneration(), generation);
+        }
+        List<String> icons = authFacade.getIcons(isActive ? IconType.ACTIVE : IconType.INACTIVE);
+        return ResponseEntity.ok(SoptLog.of(soptLevel, pokeCount, soptampRank, soptDuring,isActive,icons, playgroundProfile));
     }
 }
