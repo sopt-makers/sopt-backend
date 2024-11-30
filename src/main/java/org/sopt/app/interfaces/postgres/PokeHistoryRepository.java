@@ -1,5 +1,6 @@
 package org.sopt.app.interfaces.postgres;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import org.sopt.app.domain.entity.poke.PokeHistory;
 import org.springframework.data.domain.Page;
@@ -36,4 +37,6 @@ public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> 
     List<PokeHistory> findAllPokeHistoryByUsers(@Param("userId") Long userId, @Param("friendId") Long friendId);
 
     Long countByPokedIdAndIsReplyIsFalse(Long pokedId);
+
+    Long countByPokerIdOrPokedId(@NotNull Long pokerId, @NotNull Long pokedId);
 }

@@ -38,13 +38,14 @@ class PokeFacadeTest {
     private final UserProfile userProfile3 = UserProfile.builder().userId(3L).name("name3").playgroundId(3L).build();
     private final List<UserProfile> userProfileList = List.of(userProfile2, userProfile3);
     private final ActivityCardinalInfo activityCardinalInfo = new ActivityCardinalInfo("34,서버");
+    private final String instruction = "test";
     private final List<PlaygroundProfile> playgroundProfileList = List.of(
-            new PlaygroundProfile(2L, "name2", "image", List.of(activityCardinalInfo)),
-            new PlaygroundProfile(3L, "name3", "image", List.of(activityCardinalInfo))
+            new PlaygroundProfile(2L, "name2", "image", instruction,List.of(activityCardinalInfo)),
+            new PlaygroundProfile(3L, "name3", "image", instruction,List.of(activityCardinalInfo))
     );
     private final List<PlaygroundProfile> playgroundProfileListWithoutImage = List.of(
-            new PlaygroundProfile(2L, "name2", "", List.of(activityCardinalInfo)),
-            new PlaygroundProfile(3L, "name3", "", List.of(activityCardinalInfo))
+            new PlaygroundProfile(2L, "name2", "", instruction,List.of(activityCardinalInfo)),
+            new PlaygroundProfile(3L, "name3", "", instruction,List.of(activityCardinalInfo))
     );
     private final PokeHistory pokeHistory2 = PokeHistory.builder().id(2L).pokedId(1L).pokerId(2L).isReply(false)
             .isAnonymous(false).build();

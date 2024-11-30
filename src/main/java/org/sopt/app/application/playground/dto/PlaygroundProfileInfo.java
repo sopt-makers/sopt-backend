@@ -88,6 +88,7 @@ public class PlaygroundProfileInfo {
         private Long memberId;
         private String name;
         private String profileImage;
+        private String introduction;
         private List<ActivityCardinalInfo> activities;
 
         public ActivityCardinalInfo getLatestActivity() {

@@ -62,4 +62,8 @@ public class PokeService {
                 .isAnonymous(isAnonymous)
                 .build());
     }
+
+    public Long getUserPokeCount(Long userId) {
+        return historyRepository.countByPokerIdOrPokedId(userId, userId);
+    }
 }
