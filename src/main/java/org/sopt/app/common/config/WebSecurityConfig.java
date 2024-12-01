@@ -30,6 +30,7 @@ public class WebSecurityConfig {
     };
 
     private static final String[] other = {
+            "/error",
             "/api/v1/**",
             "/api/v2/health/**",
             "/api/v2/auth/**",
