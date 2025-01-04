@@ -12,7 +12,7 @@ public class FortuneScheduler {
     private final UserService userService;
     private final FortuneNotificationSender fortuneNotificationSender;
 
-    @Scheduled(cron = "0 0 9 * * ?")
+    @Scheduled(cron = "0 0 9 ? * MON")
     public void runDailyFortuneCreation() {
         List<Long> playgroundIds = userService.getAllPlaygroundIds();
         fortuneNotificationSender.sendFortuneNotification(playgroundIds);
