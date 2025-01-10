@@ -20,6 +20,13 @@ public class UserResponse {
         @Schema(description = "알림 전체 읽음 여부", example = "false")
         private Boolean isAllConfirm;
 
+        public static MainView unauthenticatedMainView() {
+            return MainView.builder()
+                    .user(Playground.unauthenticatedUser())
+                    .operation(Operation.defaultOperation())
+                    .isAllConfirm(false)
+                    .build();
+        }
     }
 
     @Getter
@@ -36,6 +43,15 @@ public class UserResponse {
         @Schema(description = "유저 활동 기수 정보", example = "[32,30,29]")
         private List<Long> generationList;
 
+        public static Playground unauthenticatedUser() {
+            return Playground.builder()
+                    .status("UNAUTHENTICATED")
+                    .name("")
+                    .profileImage("")
+                    .generationList(List.of())
+                    .build();
+        }
+
     }
 
     @Getter
@@ -48,6 +64,12 @@ public class UserResponse {
         @Schema(description = "솝트 공지", example = "공지다!")
         private String announcement;
 
+        public static Operation defaultOperation() {
+            return Operation.builder()
+                    .attendanceScore(0D)
+                    .announcement("")
+                    .build();
+        }
     }
 
     @Getter

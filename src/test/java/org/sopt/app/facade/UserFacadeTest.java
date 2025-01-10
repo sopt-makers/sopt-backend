@@ -13,7 +13,6 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.MainView;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.notification.NotificationService;
-import org.sopt.app.application.operation.OperationInfo;
 import org.sopt.app.common.fixtures.UserFixture;
 import org.sopt.app.presentation.user.UserResponse;
 import org.sopt.app.presentation.user.UserResponse.Operation;
@@ -49,8 +48,8 @@ class UserFacadeTest {
         //when
         when(playgroundAuthService.getPlaygroundUserForMainView(anyString(), anyLong())).thenReturn(playgroundAuthInfo);
         when(notificationService.getNotificationConfirmStatus(anyLong())).thenReturn(isNotificationConfirm);
-        when(userResponseMapper.ofMainView(any(MainView.class), any(OperationInfo.MainView.class),
-                anyBoolean())).thenReturn(mainViewResponse);
+        when(userResponseMapper.ofMainView(any(MainView.class), any(UserResponse.Operation.class), anyBoolean()))
+                .thenReturn(mainViewResponse);
 
         UserResponse.MainView expected = UserResponse.MainView.builder()
                 .user(mainViewResponse.getUser())
