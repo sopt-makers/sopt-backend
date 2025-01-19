@@ -6,10 +6,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.sopt.app.application.fortune.FortuneService;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.domain.entity.User;
@@ -26,6 +28,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -40,6 +43,8 @@ public class UserController {
     private final AuthFacade authFacade;
     private final PokeFacade pokeFacade;
     private final RankFacade rankFacade;
+    private final FortuneService fortuneService;
+
     @Value("${sopt.current.generation}")
     private Long generation;
 
@@ -52,10 +57,10 @@ public class UserController {
     public ResponseEntity<UserResponse.Soptamp> getSoptampInfo(@AuthenticationPrincipal User user) {
         val soptampUser = soptampUserService.getSoptampUserInfo(user.getId());
         val response = UserResponse.Soptamp.builder()
-            .nickname(soptampUser.getNickname())
-            .profileMessage(soptampUser.getProfileMessage())
-            .points(soptampUser.getTotalPoints())
-            .build();
+                .nickname(soptampUser.getNickname())
+                .profileMessage(soptampUser.getProfileMessage())
+                .points(soptampUser.getTotalPoints())
+                .build();
         return ResponseEntity.ok(response);
     }
 
@@ -69,10 +74,11 @@ public class UserController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody UserRequest.EditProfileMessageRequest editProfileMessageRequest
     ) {
-        val result = soptampFacade.editSoptampUserProfileMessage(user.getId(), editProfileMessageRequest.getProfileMessage());
+        val result = soptampFacade.editSoptampUserProfileMessage(user.getId(),
+                editProfileMessageRequest.getProfileMessage());
         val response = UserResponse.ProfileMessage.builder()
-            .profileMessage(result.getProfileMessage())
-            .build();
+                .profileMessage(result.getProfileMessage())
+                .build();
         return ResponseEntity.ok(response);
     }
 
@@ -82,19 +88,25 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping(value = "/sopt-log")
-    public ResponseEntity<UserResponse.SoptLog> getUserSoptLog(@AuthenticationPrincipal User user) {
+    public ResponseEntity<UserResponse.SoptLog> getUserSoptLog(
+            @AuthenticationPrincipal User user, @RequestParam(required = false, value = "ko") boolean partTypeToKorean
+    ) {
         int soptLevel = authFacade.getUserSoptLevel(user);
         Long pokeCount = pokeFacade.getUserPokeCount(user.getId());
         PlaygroundProfile playgroundProfile = authFacade.getUserDetails(user);
         Long soptampRank = null;
         Long soptDuring = null;
         Boolean isActive = playgroundProfile.getLatestActivity().getGeneration() == generation;
+        boolean isFortuneChecked = fortuneService.isExistTodayFortune((user.getId()));
+        String fortuneText = isFortuneChecked?fortuneService.getTodayFortuneWordByUserId(user.getId(), LocalDate.now()).title():"오늘 내 운세는?";
         if (isActive) {
             soptampRank = rankFacade.findUserRank(user.getId());
         } else {
             soptDuring = authFacade.getDuration(playgroundProfile.getLatestActivity().getGeneration(), generation);
         }
         List<String> icons = authFacade.getIcons(isActive ? IconType.ACTIVE : IconType.INACTIVE);
-        return ResponseEntity.ok(SoptLog.of(soptLevel, pokeCount, soptampRank, soptDuring,isActive,icons, playgroundProfile));
+        return ResponseEntity.ok(
+                SoptLog.of(soptLevel, pokeCount, soptampRank, soptDuring, isActive, icons, playgroundProfile,
+                        partTypeToKorean,isFortuneChecked, fortuneText));
     }
 }
