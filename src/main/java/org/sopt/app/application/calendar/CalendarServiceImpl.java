@@ -1,5 +1,7 @@
 package org.sopt.app.application.calendar;
 
+import static org.sopt.app.presentation.calendar.DateFormatter.formatDateRange;
+
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.utils.CurrentDate;
@@ -28,12 +30,19 @@ public class CalendarServiceImpl implements CalendarService {
     public List<CalendarResponse> getAllCurrentGenerationCalendarResponse() {
         List<Calendar> calendars = this.getAllCurrentGenerationCalendar();
         Optional<Calendar> recentCalendar = this.getRecentCalendar(calendars);
+
         return recentCalendar.map(value -> calendars.stream()
-                .map(calendar -> CalendarResponse.of(calendar, calendar.getId().equals(value.getId())))
-                .toList())
-                .orElseGet(() -> this.getAllCurrentGenerationCalendar().stream()
-                .map(calendar -> CalendarResponse.of(calendar, false))
-                .toList());
+                        .map(calendar -> CalendarResponse.of(
+                                calendar,
+                                formatDateRange(calendar),
+                                calendar.getId().equals(value.getId())
+                        )).toList())
+                .orElseGet(() -> calendars.stream()
+                        .map(calendar -> CalendarResponse.of(
+                                calendar,
+                                formatDateRange(calendar),
+                                false
+                        )).toList());
     }
 
     private List<Calendar> getAllCurrentGenerationCalendar() {
