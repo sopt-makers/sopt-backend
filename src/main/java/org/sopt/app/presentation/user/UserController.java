@@ -6,20 +6,32 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
+import java.time.LocalDate;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.sopt.app.application.fortune.FortuneService;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.enums.IconType;
+import org.sopt.app.facade.AuthFacade;
+import org.sopt.app.facade.PokeFacade;
+import org.sopt.app.facade.RankFacade;
 import org.sopt.app.facade.SoptampFacade;
+import org.sopt.app.presentation.user.UserResponse.SoptLog;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v2/user")
@@ -28,6 +40,13 @@ public class UserController {
 
     private final SoptampUserService soptampUserService;
     private final SoptampFacade soptampFacade;
+    private final AuthFacade authFacade;
+    private final PokeFacade pokeFacade;
+    private final RankFacade rankFacade;
+    private final FortuneService fortuneService;
+
+    @Value("${sopt.current.generation}")
+    private Long generation;
 
     @Operation(summary = "솝탬프 정보 조회")
     @ApiResponses({
@@ -38,10 +57,10 @@ public class UserController {
     public ResponseEntity<UserResponse.Soptamp> getSoptampInfo(@AuthenticationPrincipal User user) {
         val soptampUser = soptampUserService.getSoptampUserInfo(user.getId());
         val response = UserResponse.Soptamp.builder()
-            .nickname(soptampUser.getNickname())
-            .profileMessage(soptampUser.getProfileMessage())
-            .points(soptampUser.getTotalPoints())
-            .build();
+                .nickname(soptampUser.getNickname())
+                .profileMessage(soptampUser.getProfileMessage())
+                .points(soptampUser.getTotalPoints())
+                .build();
         return ResponseEntity.ok(response);
     }
 
@@ -55,11 +74,39 @@ public class UserController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody UserRequest.EditProfileMessageRequest editProfileMessageRequest
     ) {
-        val result = soptampFacade.editSoptampUserProfileMessage(user.getId(), editProfileMessageRequest.getProfileMessage());
+        val result = soptampFacade.editSoptampUserProfileMessage(user.getId(),
+                editProfileMessageRequest.getProfileMessage());
         val response = UserResponse.ProfileMessage.builder()
-            .profileMessage(result.getProfileMessage())
-            .build();
+                .profileMessage(result.getProfileMessage())
+                .build();
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "유저 솝트로그 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping(value = "/sopt-log")
+    public ResponseEntity<UserResponse.SoptLog> getUserSoptLog(
+            @AuthenticationPrincipal User user, @RequestParam(required = false, value = "ko") boolean partTypeToKorean
+    ) {
+        int soptLevel = authFacade.getUserSoptLevel(user);
+        Long pokeCount = pokeFacade.getUserPokeCount(user.getId());
+        PlaygroundProfile playgroundProfile = authFacade.getUserDetails(user);
+        Long soptampRank = null;
+        Long soptDuring = null;
+        Boolean isActive = playgroundProfile.getLatestActivity().getGeneration() == generation;
+        boolean isFortuneChecked = fortuneService.isExistTodayFortune((user.getId()));
+        String fortuneText = isFortuneChecked?fortuneService.getTodayFortuneWordByUserId(user.getId(), LocalDate.now()).title():"오늘 내 운세는?";
+        if (isActive) {
+            soptampRank = rankFacade.findUserRank(user.getId());
+        } else {
+            soptDuring = authFacade.getDuration(playgroundProfile.getLatestActivity().getGeneration(), generation);
+        }
+        List<String> icons = authFacade.getIcons(isActive ? IconType.ACTIVE : IconType.INACTIVE);
+        return ResponseEntity.ok(
+                SoptLog.of(soptLevel, pokeCount, soptampRank, soptDuring, isActive, icons, playgroundProfile,
+                        partTypeToKorean,isFortuneChecked, fortuneText));
+    }
 }

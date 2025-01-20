@@ -1,5 +1,6 @@
 package org.sopt.app.application.user;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -8,7 +9,10 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.LoginInfo;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
+import org.sopt.app.domain.entity.Icons;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.enums.IconType;
+import org.sopt.app.interfaces.postgres.IconRepository;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final IconRepository iconRepository;
 
     @Transactional
     public Long upsertUser(LoginInfo loginInfo) {
@@ -81,5 +86,23 @@ public class UserService {
 
     public boolean isUserExist(Long userId) {
         return userRepository.existsById(userId);
+    }
+
+    public Long getDuration(Long myGeneration, Long currentGeneration) {
+        long monthsBetweenGenerations = (currentGeneration - myGeneration) * 6;
+        LocalDate now = LocalDate.now();
+        int currentMonth = now.getMonthValue();
+        int startMonth = (currentGeneration % 2 == 0) ? 3 : 9;
+        int monthsSinceStart = currentMonth - startMonth;
+        if (monthsSinceStart < 0) {
+            monthsSinceStart += 12;
+        }
+        return monthsBetweenGenerations + monthsSinceStart;
+    }
+
+    public List<String> getIcons(IconType iconType) {
+        return iconRepository.findAllByIconType(iconType).stream()
+                .map(Icons::getIconUrl)
+                .toList();
     }
 }
