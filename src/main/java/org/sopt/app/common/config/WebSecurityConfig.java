@@ -30,12 +30,14 @@ public class WebSecurityConfig {
     };
 
     private static final String[] other = {
+            "/error",
             "/api/v1/**",
             "/api/v2/health/**",
             "/api/v2/auth/**",
             "/api/v2/config/**",
             "/api/v2/firebase/**",
-            "/api/v2/notification/**"
+            "/api/v2/notification/**",
+            "/api/v2/user/main"
     };
 
     private final JwtExceptionFilter jwtExceptionFilter;

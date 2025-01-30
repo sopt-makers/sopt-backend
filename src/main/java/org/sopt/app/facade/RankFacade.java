@@ -47,4 +47,11 @@ public class RankFacade {
                 .filter(partRank -> partRank.getPart().equals(part.getPartName()))
                 .findFirst().orElseThrow();
     }
+
+    @Transactional(readOnly = true)
+    public Long findUserRank(Long userId) {
+        List<SoptampUserInfo> soptampUserInfos = soptampUserFinder.findAllOfCurrentGeneration();
+        SoptampUserRankCalculator soptampUserRankCalculator = new SoptampUserRankCalculator(soptampUserInfos);
+        return soptampUserRankCalculator.getUserRank(userId);
+    }
 }

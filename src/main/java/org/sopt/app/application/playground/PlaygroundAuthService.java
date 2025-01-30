@@ -37,6 +37,7 @@ import org.sopt.app.application.playground.dto.PostWithMemberInfo;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
+import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
 import org.sopt.app.presentation.auth.AppAuthRequest.CodeRequest;
@@ -259,5 +260,14 @@ public class PlaygroundAuthService {
                 .filter(activity -> activity.contains(currentGeneration.toString()))
                 .findFirst()
                 .orElse(null);
+    }
+    public int getUserSoptLevel(User user) {
+        final Map<String, String> accessToken = createAuthorizationHeaderByUserPlaygroundToken(user.getPlaygroundToken());
+        return playgroundClient.getPlayGroundUserSoptLevel(accessToken,user.getPlaygroundId()).soptProjectCount();
+    }
+
+    public PlaygroundProfile getPlayGroundProfile(String accessToken) {
+        Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
+        return playgroundClient.getPlayGroundProfile(requestHeader);
     }
 }
