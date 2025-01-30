@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
+import org.sopt.app.application.playground.dto.PlayGroundCoffeeChatResponse;
 import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
 import org.sopt.app.application.playground.dto.PlayGroundPostCategory;
 import org.sopt.app.application.playground.dto.PlayGroundPostDetailResponse;
@@ -210,7 +211,7 @@ public class PlaygroundAuthService {
         List<RecentPostsResponse> recentPosts = getRecentPosts(playgroundToken);
         return getPostsWithMemberInfo(playgroundToken, recentPosts);
     }
-  
+
     public List<EmploymentPostResponse> getPlaygroundEmploymentPost(String accessToken) {
         Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         PlayGroundEmploymentResponse postInfo = playgroundClient.getPlaygroundEmploymentPost(requestHeader,16,10,0);
@@ -223,9 +224,11 @@ public class PlaygroundAuthService {
         Map<String, String> headers = PlaygroundHeaderCreator.createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         return playgroundClient.getCoffeeChatList(headers).coffeeChatList().stream()
                 .filter(member -> !member.isBlind())
-                .map(CoffeeChatResponse::of)
+                .map(i -> CoffeeChatResponse.of(i, getCurrentActivity(i)))
                 .toList();
     }
+
+
 
     public List<EmploymentPostResponse> getPlaygroundEmploymentPostWithMemberInfo(String playgroundToken) {
         List<EmploymentPostResponse> employmentPosts = getPlaygroundEmploymentPost(playgroundToken);
@@ -252,6 +255,12 @@ public class PlaygroundAuthService {
         return mutablePosts;
     }
 
+    private String getCurrentActivity(PlayGroundCoffeeChatResponse playGroundCoffeeChatResponse) {
+        return playGroundCoffeeChatResponse.soptActivities().stream()
+                .filter(activity -> activity.contains(currentGeneration.toString()))
+                .findFirst()
+                .orElse(null);
+    }
     public int getUserSoptLevel(User user) {
         final Map<String, String> accessToken = createAuthorizationHeaderByUserPlaygroundToken(user.getPlaygroundToken());
         return playgroundClient.getPlayGroundUserSoptLevel(accessToken,user.getPlaygroundId()).soptProjectCount();
@@ -260,6 +269,5 @@ public class PlaygroundAuthService {
     public PlaygroundProfile getPlayGroundProfile(String accessToken) {
         Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         return playgroundClient.getPlayGroundProfile(requestHeader);
-
     }
 }
