@@ -24,7 +24,7 @@ public class FirebaseController {
     public FirebaseResponse.Main getFirebaseInfo() {
 
         return FirebaseResponse.Main.builder()
-                .iosForceUpdateVersion("2.1.0")
+                .iosForceUpdateVersion("2.6.3")
                 .iosAppVersion("2.2.0")
                 .androidForceUpdateVersion("1.0.0")
                 .androidAppVersion("2.0.0")
