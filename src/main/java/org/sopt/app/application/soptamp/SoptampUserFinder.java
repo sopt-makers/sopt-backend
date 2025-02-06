@@ -38,4 +38,10 @@ public class SoptampUserFinder {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         return SoptampUserInfo.of(soptampUser);
     }
+
+    public SoptampUserInfo findById(Long userId) {
+        SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
+                .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+        return SoptampUserInfo.of(soptampUser);
+    }
 }
