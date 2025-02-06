@@ -102,6 +102,16 @@ public class RankFacade {
 
     @Transactional(readOnly = true)
     public Long findUserRank(Long userId) {
+        Set<TypedTuple<Long>> sortedScoreCaches =  rankCacheService.getRanking();
+        if (sortedScoreCaches != null && !sortedScoreCaches.isEmpty()) {
+            Long rank = 1L;
+            for(TypedTuple<Long> cache : sortedScoreCaches){
+                if(String.valueOf(cache.getValue()).equals(userId.toString())){
+                    return rank;
+                }
+                rank++;
+            }
+        }
         List<SoptampUserInfo> soptampUserInfos = soptampUserFinder.findAllOfCurrentGeneration();
         SoptampUserRankCalculator soptampUserRankCalculator = new SoptampUserRankCalculator(soptampUserInfos);
         return soptampUserRankCalculator.getUserRank(userId);
