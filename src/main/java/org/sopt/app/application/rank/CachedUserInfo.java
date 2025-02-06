@@ -1,5 +1,7 @@
 package org.sopt.app.application.rank;
 
+import static org.sopt.app.domain.enums.PlaygroundPart.toPart;
+
 import java.io.Serializable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -14,6 +16,10 @@ public class CachedUserInfo implements Serializable{
     private String part;
 
     public static CachedUserInfo of(SoptampUserInfo userInfo){
-        return new CachedUserInfo(userInfo.getNickname(), userInfo.getProfileMessage(), userInfo.getPart().getPartName());
+        return new CachedUserInfo(
+                userInfo.getNickname(),
+                userInfo.getProfileMessage(),
+                (toPart(userInfo.getPart()) == null) ? "" : toPart(userInfo.getPart()).getPartName()
+        );
     }
 }
