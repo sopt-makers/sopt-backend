@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.*;
 
+import java.util.Collections;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sopt.app.application.rank.RankCacheService;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampUserFinder;
@@ -22,6 +24,9 @@ class RankFacadeTest {
     @Mock
     private SoptampUserFinder soptampUserFinder;
 
+    @Mock
+    private RankCacheService rankCacheService;
+
     @InjectMocks
     private RankFacade rankFacade;
 
@@ -30,7 +35,7 @@ class RankFacadeTest {
     void SUCCESS_findCurrentRanks() {
         //given
         given(soptampUserFinder.findAllOfCurrentGeneration()).willReturn(SOPTAMP_USER_INFO_LIST);
-
+        given(rankCacheService.getRanking()).willReturn(Collections.emptySet());
         // when
         List<Main> result = rankFacade.findCurrentRanks();
         List<Main> expected = List.of(
