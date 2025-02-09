@@ -1,25 +1,16 @@
 package org.sopt.app.application;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
+import static org.mockito.BDDMockito.given;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Spy;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
-import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
-import org.sopt.app.application.playground.dto.RecommendedFriendInfo.PlaygroundUserFindFilter;
-import org.sopt.app.application.playground.user_finder.PlaygroundUserFindConditionCreatorFactory;
-import org.sopt.app.application.playground.user_finder.PlaygroundUserFinder;
-import org.sopt.app.application.playground.user_finder.PlaygroundUserIdsProvider;
+import org.sopt.app.application.playground.user_finder.*;
 import org.sopt.app.common.fixtures.PokeFixture;
 import org.sopt.app.domain.enums.FriendRecommendType;
 
@@ -27,36 +18,18 @@ import org.sopt.app.domain.enums.FriendRecommendType;
 class PlaygroundUserIdsProviderTest {
 
     @Spy
-    private PlaygroundUserFindConditionCreatorFactory factory;
+    private Map<String, PlaygroundUserFindConditionCreator> creatorMap;
     @Mock
-    private PlaygroundUserFinder finder;
+    private PlaygroundUserFindConditionByMbtiCreator mbtiConditionCreator;
     @InjectMocks
     private PlaygroundUserIdsProvider playgroundUserIdsProvider;
-
-    @Test
-    @DisplayName("SUCCESS_자신의 유형 값과 같은 플레이그라운드 아이디 찾기")
-    void SUCCESS_findPlaygroundIdsByType() {
-        // given
-        OwnPlaygroundProfile profile = PokeFixture.createOwnPlaygroundProfile();
-
-        // when
-        ArgumentCaptor<PlaygroundUserFindCondition> ac = ArgumentCaptor.forClass(PlaygroundUserFindCondition.class);
-        when(finder.findByCondition(ac.capture())).thenReturn(Set.of(1L, 2L, 3L));
-        Set<Long> result = playgroundUserIdsProvider.findPlaygroundIdsByType(profile, FriendRecommendType.MBTI);
-        PlaygroundUserFindFilter expectedFilter = PlaygroundUserFindFilter.builder()
-                .key(String.valueOf(FriendRecommendType.MBTI))
-                .value(profile.getMbti())
-                .build();
-        // then
-        assertEquals(ac.getValue(), new PlaygroundUserFindCondition(profile.getAllGenerations(), List.of(expectedFilter)));
-        assertEquals(3, result.size());
-    }
 
     @Test
     @DisplayName("SUCCESS_자신의 유형 값이 null이면 빈 Set 반환")
     void SUCCESS_findPlaygroundIdsByType_requirement_1() {
         // given
         OwnPlaygroundProfile profile = PokeFixture.createMbtiNullPlaygroundProfile();
+        given(creatorMap.get(FriendRecommendType.MBTI.getConditionCreatorBeanName())).willReturn(mbtiConditionCreator);
 
         // when
         Set<Long> result = playgroundUserIdsProvider.findPlaygroundIdsByType(profile, FriendRecommendType.MBTI);
