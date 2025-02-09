@@ -24,9 +24,11 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.application.rank.RankCacheService;
 import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.domain.enums.PlaygroundPart;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
 
@@ -35,6 +37,9 @@ class SoptampUserServiceTest {
 
     @Mock
     private SoptampUserRepository soptampUserRepository;
+
+    @Mock
+    private RankCacheService rankCacheService;
 
     @InjectMocks
     private SoptampUserService soptampUserService;
@@ -98,6 +103,7 @@ class SoptampUserServiceTest {
                 .userId(SOPTAMP_USER_1.getUserId())
                 .nickname(SOPTAMP_USER_1.getNickname())
                 .totalPoints(SOPTAMP_USER_1.getTotalPoints())
+                .part(PlaygroundPart.SERVER)
                 .profileMessage(newProfileMessage)
                 .build();
 
