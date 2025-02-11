@@ -7,7 +7,9 @@ import java.util.Optional;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
 import org.sopt.app.application.playground.dto.RecommendedFriendInfo.PlaygroundUserFindFilter;
+import org.springframework.stereotype.Component;
 
+@Component
 public class PlaygroundUserFindConditionByMbtiCreator implements PlaygroundUserFindConditionCreator {
 
     @Override
@@ -15,7 +17,6 @@ public class PlaygroundUserFindConditionByMbtiCreator implements PlaygroundUserF
         if (profile.getMbti() == null) {
             return Optional.empty();
         }
-
         List<PlaygroundUserFindFilter> filter = List.of(
                 PlaygroundUserFindFilter.builder()
                         .key(String.valueOf(MBTI))
