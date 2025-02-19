@@ -49,12 +49,20 @@ public class HomeFacade {
     }
     @Transactional(readOnly = true)
     public List<AppServiceEntryStatusResponse> checkAppServiceEntryStatus(User user) {
-
+        if(user == null){
+            return this.getOnlyAppServiceInfo();
+        }
         return appServiceService.getAllAppService().stream()
                 .filter(appServiceInfo -> isServiceVisibleToUser(appServiceInfo, user))
                 .map(appServiceInfo -> appServiceBadgeService.getAppServiceEntryStatusResponse(
                         appServiceInfo, user.getId()
                 )).toList();
+    }
+
+    private List<AppServiceEntryStatusResponse> getOnlyAppServiceInfo() {
+        return appServiceService.getAllAppService().stream()
+                .map(AppServiceEntryStatusResponse::createOnlyAppServiceInfo)
+                .toList();
     }
 
     private boolean isServiceVisibleToUser(AppServiceInfo appServiceInfo, User user) {

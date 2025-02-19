@@ -25,4 +25,14 @@ public class AppServiceEntryStatusResponse {
                 .deepLink(appServiceInfo.getDeepLink())
                 .build();
     }
+
+    public static AppServiceEntryStatusResponse createOnlyAppServiceInfo(AppServiceInfo appServiceInfo){
+        return AppServiceEntryStatusResponse.builder()
+                .serviceName(AppServiceName.of(appServiceInfo.getServiceName()).getExposedName())
+                .displayAlarmBadge(false)
+                .alarmBadge("")
+                .iconUrl(appServiceInfo.getIconUrl())
+                .deepLink(appServiceInfo.getDeepLink())
+                .build();
+    }
 }

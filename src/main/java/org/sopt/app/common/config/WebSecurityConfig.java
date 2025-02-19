@@ -37,7 +37,8 @@ public class WebSecurityConfig {
             "/api/v2/config/**",
             "/api/v2/firebase/**",
             "/api/v2/notification/**",
-            "/api/v2/user/main"
+            "/api/v2/user/main",
+            "/api/v2/home/app-service"
     };
 
     private final JwtExceptionFilter jwtExceptionFilter;
