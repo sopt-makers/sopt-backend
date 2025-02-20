@@ -1,7 +1,6 @@
 package org.sopt.app.application.fortune;
 
 import java.time.LocalDate;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.user.UserWithdrawEvent;
 import org.sopt.app.common.exception.BadRequestException;
