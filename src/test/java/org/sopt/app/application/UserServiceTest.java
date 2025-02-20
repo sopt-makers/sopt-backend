@@ -66,16 +66,6 @@ class UserServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_유저 삭제")
-    void SUCCESS_deleteUser() {
-        //given
-        User user = new User();
-
-        //then
-        Assertions.assertDoesNotThrow(() -> userService.deleteUser(user));
-    }
-
-    @Test
     @DisplayName("SUCCESS_플레이그라운드 토큰 조회")
     void SUCCESS_getPlaygroundToken() {
         //given

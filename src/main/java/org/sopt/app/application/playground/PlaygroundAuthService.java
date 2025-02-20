@@ -1,20 +1,49 @@
 package org.sopt.app.application.playground;
 
-import static org.sopt.app.application.playground.PlaygroundHeaderCreator.*;
+import static org.sopt.app.application.playground.PlaygroundHeaderCreator.createAuthorizationHeaderByUserPlaygroundToken;
+import static org.sopt.app.application.playground.PlaygroundHeaderCreator.createDefaultHeader;
 
-import lombok.*;
 import io.jsonwebtoken.ExpiredJwtException;
+import jakarta.persistence.EntityNotFoundException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-import org.sopt.app.application.playground.dto.PlaygroundPostInfo.*;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
-import org.sopt.app.common.exception.*;
+import org.sopt.app.application.playground.dto.PlayGroundCoffeeChatResponse;
+import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
+import org.sopt.app.application.playground.dto.PlayGroundPostCategory;
+import org.sopt.app.application.playground.dto.PlayGroundPostDetailResponse;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPost;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActiveUserIds;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.MainView;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.MainViewUser;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.UserActiveInfo;
+import org.sopt.app.application.playground.dto.PostWithMemberInfo;
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
+import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.UserStatus;
-import org.sopt.app.presentation.auth.AppAuthRequest.*;
+import org.sopt.app.presentation.auth.AppAuthRequest.AccessTokenRequest;
+import org.sopt.app.presentation.auth.AppAuthRequest.CodeRequest;
+import org.sopt.app.presentation.home.response.CoffeeChatResponse;
+import org.sopt.app.presentation.home.response.EmploymentPostResponse;
+import org.sopt.app.presentation.home.response.RecentPostsResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
@@ -157,5 +186,88 @@ public class PlaygroundAuthService {
 
     public boolean isCurrentGeneration(Long generation) {
         return generation.equals(currentGeneration);
+    }
+
+    public List<RecentPostsResponse> getRecentPosts(String playgroundToken) {
+        final Map<String, String> accessToken = createAuthorizationHeaderByUserPlaygroundToken(playgroundToken);
+        try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
+            List<PlayGroundPostCategory> categories = List.of(PlayGroundPostCategory.SOPT_ACTIVITY, PlayGroundPostCategory.FREE, PlayGroundPostCategory.PART);
+            CompletableFuture<RecentPostsResponse> hotPostFuture = CompletableFuture.supplyAsync(() ->
+                    RecentPostsResponse.of(playgroundClient.getPlaygroundHotPost(accessToken)), executor);
+            List<CompletableFuture<RecentPostsResponse>> categoryFutures = categories.stream()
+                    .map(category -> CompletableFuture.supplyAsync(() -> playgroundClient.getRecentPosts(accessToken, category.getDisplayName()), executor))
+                    .toList();
+            List<CompletableFuture<RecentPostsResponse>> allFutures = new ArrayList<>(categoryFutures);
+            allFutures.addFirst(hotPostFuture);
+            CompletableFuture<Void> allOf = CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0]));
+            return allOf.thenApply(v -> allFutures.stream()
+                            .map(CompletableFuture::join)
+                            .toList())
+                    .join();
+        }
+    }
+
+    public List<RecentPostsResponse> getRecentPostsWithMemberInfo(String playgroundToken) {
+        List<RecentPostsResponse> recentPosts = getRecentPosts(playgroundToken);
+        return getPostsWithMemberInfo(playgroundToken, recentPosts);
+    }
+
+    public List<EmploymentPostResponse> getPlaygroundEmploymentPost(String accessToken) {
+        Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
+        PlayGroundEmploymentResponse postInfo = playgroundClient.getPlaygroundEmploymentPost(requestHeader,16,10,0);
+        return postInfo.posts().stream()
+                .map(EmploymentPostResponse::of)
+                .toList();
+    }
+
+    public List<CoffeeChatResponse> getCoffeeChatList(String accessToken) {
+        Map<String, String> headers = PlaygroundHeaderCreator.createAuthorizationHeaderByUserPlaygroundToken(accessToken);
+        return playgroundClient.getCoffeeChatList(headers).coffeeChatList().stream()
+                .filter(member -> !member.isBlind())
+                .map(i -> CoffeeChatResponse.of(i, getCurrentActivity(i)))
+                .toList();
+    }
+
+
+
+    public List<EmploymentPostResponse> getPlaygroundEmploymentPostWithMemberInfo(String playgroundToken) {
+        List<EmploymentPostResponse> employmentPosts = getPlaygroundEmploymentPost(playgroundToken);
+        return getPostsWithMemberInfo(playgroundToken, employmentPosts);
+    }
+
+    private <T extends PostWithMemberInfo> T addMemberInfoToPost(T post, PlayGroundPostDetailResponse postDetail) {
+        if (postDetail.member() != null) {
+            return (T) post.withMemberDetail(postDetail.member().name(), postDetail.member().profileImage());
+        } else if (postDetail.anonymousProfile() != null) {
+            return (T) post.withMemberDetail(postDetail.anonymousProfile().nickname(), postDetail.anonymousProfile().profileImgUrl());
+        }
+        throw new EntityNotFoundException("Member not found");
+    }
+
+    private <T extends PostWithMemberInfo> List<T> getPostsWithMemberInfo(String playgroundToken, List<T> posts) {
+        final Map<String, String> accessToken = createAuthorizationHeaderByUserPlaygroundToken(playgroundToken);
+        List<T> mutablePosts = new ArrayList<>();
+        for (T post : posts) {
+            Long postId = post.getId();
+            PlayGroundPostDetailResponse postDetail = playgroundClient.getPlayGroundPostDetail(accessToken, postId);
+            mutablePosts.add(addMemberInfoToPost(post, postDetail));
+        }
+        return mutablePosts;
+    }
+
+    private String getCurrentActivity(PlayGroundCoffeeChatResponse playGroundCoffeeChatResponse) {
+        return playGroundCoffeeChatResponse.soptActivities().stream()
+                .filter(activity -> activity.contains(currentGeneration.toString()))
+                .findFirst()
+                .orElse(null);
+    }
+    public int getUserSoptLevel(User user) {
+        final Map<String, String> accessToken = createAuthorizationHeaderByUserPlaygroundToken(user.getPlaygroundToken());
+        return playgroundClient.getPlayGroundUserSoptLevel(accessToken,user.getPlaygroundId()).soptProjectCount();
+    }
+
+    public PlaygroundProfile getPlayGroundProfile(String accessToken) {
+        Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
+        return playgroundClient.getPlayGroundProfile(requestHeader);
     }
 }

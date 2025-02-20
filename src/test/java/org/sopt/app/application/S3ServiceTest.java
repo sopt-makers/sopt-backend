@@ -1,7 +1,9 @@
 package org.sopt.app.application;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doNothing;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.amazonaws.services.s3.AmazonS3;
@@ -17,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.s3.S3Info;
 import org.sopt.app.application.s3.S3Service;
+import org.sopt.app.application.stamp.StampDeletedEvent;
 import org.sopt.app.common.exception.BadRequestException;
 
 @ExtendWith(MockitoExtension.class)
@@ -51,12 +54,14 @@ class S3ServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_파일 삭제")
+    @DisplayName("SUCCESS_유저 탈퇴시 파일 삭제 이벤트 발생")
     void SUCCESS_deleteFiles() {
-        doNothing().when(s3Client).deleteObject(any(), any());
+        // given
+        final List<String> fileUrls = List.of("fileUrl1", "fileUrl2");
+        // when
+        s3Service.handleStampDeletedEvent(new StampDeletedEvent(fileUrls));
 
-        Assertions.assertDoesNotThrow(() ->
-                s3Service.deleteFiles(List.of("https://url.com"), "folderName")
-        );
+        // then
+        verify(s3Client, times(fileUrls.size())).deleteObject(anyString(), anyString());
     }
 }

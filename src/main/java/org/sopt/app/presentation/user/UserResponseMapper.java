@@ -1,10 +1,7 @@
 package org.sopt.app.presentation.user;
 
-import java.util.List;
 import org.mapstruct.*;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
-import org.sopt.app.application.operation.OperationInfo;
-import org.sopt.app.application.app_service.AppServiceInfo;
 import org.sopt.app.presentation.user.UserResponse.*;
 
 @Mapper(
@@ -14,14 +11,10 @@ import org.sopt.app.presentation.user.UserResponse.*;
 )
 public interface UserResponseMapper {
 
-    UserResponse.MainView ofMainView(PlaygroundProfileInfo.MainView user, OperationInfo.MainView operation,
+    UserResponse.MainView ofMainView(PlaygroundProfileInfo.MainView user, UserResponse.Operation operation,
             Boolean isAllConfirm);
-
-    UserResponse.Nickname of(Nickname nickname);
 
     UserResponse.ProfileMessage of(ProfileMessage profileMessage);
 
     UserResponse.Generation ofGeneration(PlaygroundProfileInfo.UserActiveInfo userActiveInfo);
-
-    List<AppService> ofAppServiceList(List<AppServiceInfo.AppService> appServiceList);
 }

@@ -3,11 +3,9 @@ package org.sopt.app.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.sopt.app.common.fixtures.SoptampFixture.MISSION_ID;
-import static org.sopt.app.common.fixtures.SoptampFixture.STAMP_CONTENTS;
-import static org.sopt.app.common.fixtures.SoptampFixture.STAMP_IMG_PATHS;
-import static org.sopt.app.common.fixtures.SoptampFixture.USER_ID;
-import static org.sopt.app.common.fixtures.SoptampFixture.getEditStampRequest;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
+import static org.sopt.app.common.fixtures.SoptampFixture.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +20,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampService;
+import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.fixtures.SoptampFixture;
 import org.sopt.app.domain.entity.soptamp.Stamp;
@@ -35,6 +34,9 @@ class StampServiceTest {
 
     @Mock
     private StampRepository stampRepository;
+
+    @Mock
+    private EventPublisher eventPublisher;
 
     @InjectMocks
     private StampService stampService;
@@ -406,6 +408,18 @@ class StampServiceTest {
     }
 
     @Test
+    void SUCCESS_모든_스탬프_삭제시_스탬프_삭제_이벤트_발생(){
+        // given
+        final Long userId = anyLong();
+
+        // when
+        stampService.deleteAllStamps(userId);
+
+        // then
+        verify(eventPublisher).raise(any());
+    }
+
+    @Test
     @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
     void FAIL_deleteStampById() {
         //given
@@ -421,15 +435,27 @@ class StampServiceTest {
     }
 
     @Test
+    void SUCCESS_스탬프_삭제시_스탬프_삭제_이벤트_발생(){
+        // given
+        final Stamp stamp = Stamp.builder().build();
+        final Long stampId = anyLong();
+        given(stampRepository.findById(stampId)).willReturn(Optional.of(stamp));
+
+        // when
+        stampService.deleteStampById(stampId);
+
+        // then
+        verify(eventPublisher).raise(any());
+    }
+
+    @Test
     @DisplayName("SUCCESS_모든 스탬프 삭제")
     void SUCCESS_deleteAllStamps() {
         //given
         final Long anyUserId = anyLong();
 
         //then
-        Assertions.assertDoesNotThrow(() -> {
-            stampService.deleteAllStamps(anyUserId);
-        });
+        Assertions.assertDoesNotThrow(() -> stampService.deleteAllStamps(anyUserId));
     }
 
     @Test

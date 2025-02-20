@@ -5,23 +5,28 @@ import java.util.Collection;
 import java.util.List;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
-import org.sopt.app.common.event.Events;
+import org.sopt.app.application.user.UserWithdrawEvent;
+import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class StampService {
 
     private final StampRepository stampRepository;
+    private final EventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public StampInfo.Stamp findStamp(Long missionId, Long userId) {
@@ -37,6 +42,24 @@ public class StampService {
                 .updatedAt(entity.getUpdatedAt())
                 .missionId(entity.getMissionId())
                 .build();
+    }
+
+    private void validateStampInfo(Stamp entity) {
+        if (!StringUtils.hasText(entity.getContents())) {
+            if(entity.getContents().isEmpty()) {
+                log.warn("Stamp ID-{}: stamp contents is empty", entity.getId());
+            }
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_CONTENTS);
+        }
+        if (entity.getImages().isEmpty()) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_IMAGES);
+        }
+        if (entity.getActivityDate() == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE);
+        }
+        if (entity.getMissionId() == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_MISSION_ID);
+        }
     }
 
     @Transactional
@@ -143,7 +166,7 @@ public class StampService {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND));
         stampRepository.deleteById(stampId);
 
-        Events.raise(new StampDeletedEvent(stamp.getImages()));
+        eventPublisher.raise(new StampDeletedEvent(stamp.getImages()));
     }
 
     @Transactional
@@ -152,25 +175,12 @@ public class StampService {
 
         val imageUrls = stampRepository.findAllByUserId(userId).stream().map(Stamp::getImages)
                 .flatMap(Collection::stream).toList();
-        Events.raise(new StampDeletedEvent(imageUrls));
+        eventPublisher.raise(new StampDeletedEvent(imageUrls));
     }
 
-    private void validateStampInfo(Stamp entity) {
-        if (entity.getId() == null) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_ID);
-        }
-        if (!StringUtils.hasText(entity.getContents())) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_CONTENTS);
-        }
-        if (entity.getImages().isEmpty()) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_IMAGES);
-        }
-        if (entity.getActivityDate() == null) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE);
-        }
-        if (entity.getMissionId() == null) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_MISSION_ID);
-        }
+    @EventListener(UserWithdrawEvent.class)
+    public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
+        this.deleteAllStamps(event.getUserId());
     }
 
     private Stamp convertStampImgDeprecated(

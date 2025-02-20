@@ -5,11 +5,14 @@ import com.slack.api.model.Field;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Getter
 @Service
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SlackMessageGenerator {
 
     public static List<Attachment> generate(ExceptionWrapper exceptionWrapper, Long userId, String method, String requestUrl) {

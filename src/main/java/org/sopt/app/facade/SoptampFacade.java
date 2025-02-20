@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class SoptampFacade {
 
@@ -57,7 +58,6 @@ public class SoptampFacade {
         return soptampUserService.editProfileMessage(userId, newProfileMessage);
     }
 
-    @Transactional
     public Stamp getStampInfo(Long missionId, String nickname){
         val userId = soptampUserFinder.findByNickname(nickname).getUserId();
         return stampService.findStamp(missionId, userId);

@@ -23,4 +23,9 @@ public class AppService extends BaseEntity {
 
     @NotNull
     private Boolean inactiveUser;
+
+    private String iconUrl;
+
+    private String deepLink;
+
 }

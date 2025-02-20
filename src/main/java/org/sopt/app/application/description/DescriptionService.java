@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
+@Deprecated
 public class DescriptionService {
 
     private final MainDescriptionRepository mainDescriptionRepository;

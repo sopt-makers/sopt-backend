@@ -5,14 +5,17 @@ import java.util.Objects;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.user.UserWithdrawEvent;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.Notification;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.enums.NotificationCategory;
 import org.sopt.app.domain.enums.NotificationType;
 import org.sopt.app.interfaces.postgres.NotificationRepository;
 import org.sopt.app.interfaces.postgres.UserRepository;
 import org.sopt.app.presentation.notification.NotificationRequest.RegisterNotificationRequest;
+import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,8 +34,15 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
-    public List<Notification> findNotificationList(User user, Pageable pageable) {
-        return notificationRepository.findAllByUserId(user.getId(), pageable);
+    public List<Notification> findNotificationList(Long userId, Pageable pageable) {
+        return notificationRepository.findAllByUserId(userId, pageable);
+    }
+
+    @Transactional(readOnly = true)
+    public List<Notification> findNotificationListByCategory(
+            Long userId, Pageable pageable, NotificationCategory category
+    ) {
+        return notificationRepository.findAllByUserIdAndCategory(userId, pageable, category);
     }
 
     @Transactional
@@ -82,5 +92,10 @@ public class NotificationService {
                 .filter(notification -> !notification.getIsRead())
                 .toList();
         return unreadNotificationList.isEmpty();
+    }
+
+    @EventListener(UserWithdrawEvent.class)
+    public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
+        notificationRepository.deleteByUserIdInQuery(event.getUserId());
     }
 }

@@ -7,11 +7,15 @@ import java.util.*;
 import lombok.*;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.application.rank.CachedUserInfo;
+import org.sopt.app.application.rank.RankCacheService;
+import org.sopt.app.application.user.UserWithdrawEvent;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
 import org.sopt.app.domain.enums.PlaygroundPart;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class SoptampUserService {
 
     private final SoptampUserRepository soptampUserRepository;
+    private final RankCacheService rankCacheService;
 
     @Transactional(readOnly = true)
     public SoptampUserInfo getSoptampUserInfo(Long userId) {
@@ -33,6 +38,7 @@ public class SoptampUserService {
         SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         soptampUser.updateProfileMessage(profileMessage);
+        rankCacheService.updateCachedUserInfo(soptampUser.getUserId(), CachedUserInfo.of(SoptampUserInfo.of(soptampUser)));
         return SoptampUserInfo.of(soptampUser);
     }
 
@@ -51,13 +57,16 @@ public class SoptampUserService {
 
     private void updateSoptampUser(SoptampUser registeredUser, PlaygroundProfile profile){
         ActivityCardinalInfo lastActivity = profile.getLatestActivity();
-        String uniqueNickname = generateUniqueNickname(profile.getName(), lastActivity.getPlaygroundPart());
+        Long userId = registeredUser.getUserId();
+        String newNickname = generateUniqueNickname(profile.getName(), lastActivity.getPlaygroundPart());
         registeredUser.initTotalPoints();
         registeredUser.updateChangedGenerationInfo(
                 lastActivity.getGeneration(),
                 findPlaygroundPartByPartName(lastActivity.getPlaygroundPart().getPartName()),
-                uniqueNickname
+                newNickname
         );
+        rankCacheService.removeRank(userId);
+        rankCacheService.createNewRank(userId);
     }
 
     private void createSoptampUser(PlaygroundProfile profile, Long userId) {
@@ -66,6 +75,7 @@ public class SoptampUserService {
         String uniqueNickname = generateUniqueNickname(profile.getName(), part);
         SoptampUser newSoptampUser = createNewSoptampUser(userId, uniqueNickname, lastActivity.getGeneration(), part);
         soptampUserRepository.save(newSoptampUser);
+        rankCacheService.createNewRank(userId);
     }
 
     private boolean isGenerationChanged(SoptampUser registeredUser, Long profileGeneration) {
@@ -99,6 +109,7 @@ public class SoptampUserService {
         SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         soptampUser.addPointsByLevel(level);
+        rankCacheService.incrementScore(soptampUser.getUserId(), level);
     }
 
     @Transactional
@@ -106,6 +117,7 @@ public class SoptampUserService {
         SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         soptampUser.subtractPointsByLevel(level);
+        rankCacheService.decreaseScore(soptampUser.getUserId(), level);
     }
 
     @Transactional
@@ -114,6 +126,7 @@ public class SoptampUserService {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         soptampUser.initTotalPoints();
         soptampUserRepository.save(soptampUser);
+        rankCacheService.initScore(soptampUser.getUserId());
     }
 
     @Transactional
@@ -121,5 +134,12 @@ public class SoptampUserService {
         val soptampUserList = soptampUserRepository.findAll();
         soptampUserList.forEach(SoptampUser::initTotalPoints);
         soptampUserRepository.saveAll(soptampUserList);
+        rankCacheService.deleteAll();
+        rankCacheService.addAll(soptampUserList.stream().map(SoptampUserInfo::of).toList());
+    }
+
+    @EventListener(UserWithdrawEvent.class)
+    public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
+        soptampUserRepository.deleteByUserId(event.getUserId());
     }
 }

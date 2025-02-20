@@ -1,5 +1,6 @@
 package org.sopt.app.interfaces.postgres;
 
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import org.sopt.app.domain.entity.poke.PokeHistory;
 import org.springframework.data.domain.Page;
@@ -22,10 +23,20 @@ public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> 
 
     Page<PokeHistory> findAllByIdIsInOrderByCreatedAtDesc(List<Long> historyIds, Pageable pageable);
 
+    @Query("DELETE From PokeHistory ph WHERE ph.pokedId = :userId")
+    void deleteAllByPokedIdInQuery(@Param("userId") Long userId);
+
+    @Query("DELETE From PokeHistory ph WHERE ph.pokerId = :userId")
+    void deleteAllByPokerIdInQuery(@Param("userId") Long userId);
+
     @Query("SELECT ph FROM PokeHistory ph WHERE ((ph.pokerId = :userId AND ph.pokedId = :friendId) OR (ph.pokerId = :friendId AND ph.pokedId = :userId)) AND ph.isReply = false ORDER BY ph.createdAt DESC ")
     List<PokeHistory> findAllWithFriendOrderByCreatedAtDescIsReplyFalse(@Param("userId") Long userId,
             @Param("friendId") Long friendId);
 
     @Query("SELECT ph FROM PokeHistory ph WHERE ((ph.pokerId = :userId AND ph.pokedId = :friendId) OR (ph.pokerId = :friendId AND ph.pokedId = :userId)) ORDER BY ph.createdAt DESC")
     List<PokeHistory> findAllPokeHistoryByUsers(@Param("userId") Long userId, @Param("friendId") Long friendId);
+
+    Long countByPokedIdAndIsReplyIsFalse(Long pokedId);
+
+    Long countByPokerIdOrPokedId(@NotNull Long pokerId, @NotNull Long pokedId);
 }

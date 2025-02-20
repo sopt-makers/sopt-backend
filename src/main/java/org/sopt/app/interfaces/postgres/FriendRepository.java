@@ -24,4 +24,10 @@ public interface FriendRepository extends JpaRepository<Friend, Long> {
 
     Page<Friend> findAllByUserIdAndFriendUserIdInOrderByPokeCount(Long userId, List<Long> friendIdsPokeMe,
             Pageable pageable);
+
+    @Query("DELETE From Friend f WHERE f.friendUserId = :friendUserId")
+    void deleteAllByFriendUserIdInQuery(@Param("friendUserId") Long friendUserId);
+
+    @Query("DELETE From Friend f WHERE f.userId = :userId")
+    void deleteAllByUserIdInQuery(@Param("userId") Long userId);
 }
