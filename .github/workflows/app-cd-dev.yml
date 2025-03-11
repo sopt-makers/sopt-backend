@@ -86,6 +86,6 @@ jobs:
           script: |
             cd ~
             sudo docker pull $ECR_REPO
-            sudo chmod +x ./playground/scripts/*.sh
-            ./playground/scripts/deploy.sh
+            sudo chmod +x ./app/scripts/*.sh
+            ./app/scripts/deploy.sh
             docker image prune -f
