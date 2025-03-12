@@ -32,7 +32,7 @@ jobs:
 
         shell: bash
 
-      - name: copy yml files
+      - name: copy application.yml files
         run: |
           echo "${{ secrets.APPLICATION_DEV_YML }}" > ./src/main/resources/application-dev.yml
           echo "${{ secrets.APPLICATION_TEST_YML }}" > ./src/test/resources/application-test.yml
@@ -58,6 +58,9 @@ jobs:
           docker build -t $ECR_APP_NAME .
           docker tag $ECR_APP_NAME:latest $ECR_REPO
           docker push $ECR_REPO
+
+      - name: copy docker-compose.yml
+        run: echo "${{ secrets.DOCKER_COMPOSE_DEV_YML }}" > ./docker-compose.yml
 
       - name: Send docker-compose.yml to EC2 Instance
         uses: appleboy/scp-action@master
