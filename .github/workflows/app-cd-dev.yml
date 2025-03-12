@@ -7,7 +7,7 @@ on:
 env:
   SPRING_PROFILES_ACTIVE: dev
   ECR_APP_NAME: ${{ secrets.ECR_APP_NAME }}-dev
-  ECR_REPO: ${{ secrets.ECR_HOST }}/${{ secrets.ECR_APP_NAME }}-dev
+  APP_ECR_REPO: ${{ secrets.ECR_HOST }}/${{ secrets.ECR_APP_NAME }}-dev
   ECR_HOST: ${{ secrets.ECR_HOST }}
 
 jobs:
@@ -55,12 +55,11 @@ jobs:
 
       - name: 🐳Docker Image Build & Push
         run: |
-          docker build -t $ECR_APP_NAME .
-          docker tag $ECR_APP_NAME:latest $ECR_REPO
-          docker push $ECR_REPO
-
-      - name: copy docker-compose.yml
-        run: echo "${{ secrets.DOCKER_COMPOSE_DEV_YML }}" > ./docker-compose.yml
+          docker build \
+          --build-arg SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE \
+          -t $ECR_APP_NAME .
+          docker tag $ECR_APP_NAME:latest $APP_ECR_REPO
+          docker push $APP_ECR_REPO
 
       - name: Send docker-compose.yml to EC2 Instance
         uses: appleboy/scp-action@master
@@ -88,7 +87,7 @@ jobs:
           key: ${{ secrets.DEV_PEM_KEY }}
           script: |
             cd ~
-            sudo docker pull $ECR_REPO
+            sudo docker pull $APP_ECR_REPO
             sudo chmod +x ./app/scripts/*.sh
             ./app/scripts/deploy.sh
             docker image prune -f
