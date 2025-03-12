@@ -90,7 +90,6 @@ jobs:
           key: ${{ secrets.DEV_PEM_KEY }}
           script: |
             cd ~
-            sudo docker pull $APP_ECR_REPO
             sudo chmod +x ./app/scripts/*.sh
             ./app/scripts/deploy.sh
             docker image prune -f
