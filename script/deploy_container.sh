@@ -6,6 +6,8 @@ deploy_container() {
     echo "▶️ Switching to ${CONTAINER_NAME} at Port ${PORT} ..."
     echo "docker-compose pull & up ..."
 
+    docker-compose pull redis
     docker-compose pull ${CONTAINER_NAME}
+    docker-compose up -d app-redis
     docker-compose up -d ${CONTAINER_NAME}
 }
