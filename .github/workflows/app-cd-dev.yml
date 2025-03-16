@@ -90,6 +90,6 @@ jobs:
           key: ${{ secrets.DEV_PEM_KEY }}
           script: |
             cd ~
-            sudo chmod +x ./app/scripts/*.sh
-            ./app/scripts/deploy.sh
+            sudo chmod +x ./app/script/*.sh
+            ./app/script/deploy.sh
             docker image prune -f
