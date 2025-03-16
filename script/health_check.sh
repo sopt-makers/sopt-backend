@@ -6,12 +6,12 @@ health_check() {
   local PORT=$1
   local RETRIES="${RETRIES:-5}"
 
-  echo "▶️ Start health check after 15 seconds"
-  sleep 15
+  echo "▶️ Start health check after 20 seconds"
+  sleep 20
 
   for retry_count in $(seq 1 $RETRIES); do
     echo "🔎 Health Check on Port ${PORT} (Attempt: ${retry_count}/${RETRIES})..."
-    sleep 3
+    sleep 5
 
     HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:${PORT}${HEALTH_CHECK_URL})
 
