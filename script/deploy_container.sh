@@ -7,7 +7,7 @@ deploy_container() {
     echo "docker-compose pull & up ..."
 
     docker-compose pull redis
+    docker-compose up -d redis
     docker-compose pull ${CONTAINER_NAME}
-    docker-compose up -d app-redis
     docker-compose up -d ${CONTAINER_NAME}
 }
