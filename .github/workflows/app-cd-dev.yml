@@ -79,7 +79,7 @@ jobs:
           username: ec2-user
           host: ${{ secrets.DEV_SERVER_IP }}
           key: ${{ secrets.DEV_PEM_KEY }}
-          source: "./scripts/"
+          source: "./script/"
           target: "/home/ec2-user/app/"
 
       - name: Docker Container Run
