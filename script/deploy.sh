@@ -1,10 +1,10 @@
 #!/bin/bash
 cd /home/ec2-user/app
 
-source /home/ec2-user/app/scripts/health_check.sh
-source /home/ec2-user/app/scripts/deploy_container.sh
-source /home/ec2-user/app/scripts/nginx_reload.sh
-source /home/ec2-user/app/scripts/stop_container.sh
+source /home/ec2-user/app/script/health_check.sh
+source /home/ec2-user/app/script/deploy_container.sh
+source /home/ec2-user/app/script/nginx_reload.sh
+source /home/ec2-user/app/script/stop_container.sh
 
 BLUE_CONTAINER_NAME="app-blue"
 BLUE_PORT=9090
