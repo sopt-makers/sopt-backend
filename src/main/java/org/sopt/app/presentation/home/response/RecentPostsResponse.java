@@ -55,6 +55,7 @@ public class RecentPostsResponse implements PostWithMemberInfo {
                 .category(this.category)
                 .content(this.content)
                 .isHotPost(this.isHotPost)
+                .url(this.url)
                 .build();
     }
 
