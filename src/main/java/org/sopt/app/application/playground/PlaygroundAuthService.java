@@ -12,11 +12,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.playground.dto.PlayGroundCoffeeChatResponse;
@@ -48,6 +51,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.HttpClientErrorException.BadRequest;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PlaygroundAuthService {
@@ -188,23 +192,62 @@ public class PlaygroundAuthService {
         return generation.equals(currentGeneration);
     }
 
-    public List<RecentPostsResponse> getRecentPosts(String playgroundToken) {
-        final Map<String, String> accessToken = createAuthorizationHeaderByUserPlaygroundToken(playgroundToken);
+    public List<RecentPostsResponse> getRecentPosts(String token) {
+        Map<String, String> headers = createAuthorizationHeaderByUserPlaygroundToken(token);
+
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-            List<PlayGroundPostCategory> categories = List.of(PlayGroundPostCategory.SOPT_ACTIVITY, PlayGroundPostCategory.FREE, PlayGroundPostCategory.PART);
-            CompletableFuture<RecentPostsResponse> hotPostFuture = CompletableFuture.supplyAsync(() ->
-                    RecentPostsResponse.of(playgroundClient.getPlaygroundHotPost(accessToken)), executor);
-            List<CompletableFuture<RecentPostsResponse>> categoryFutures = categories.stream()
-                    .map(category -> CompletableFuture.supplyAsync(() -> playgroundClient.getRecentPosts(accessToken, category.getDisplayName()), executor))
-                    .toList();
-            List<CompletableFuture<RecentPostsResponse>> allFutures = new ArrayList<>(categoryFutures);
-            allFutures.addFirst(hotPostFuture);
-            CompletableFuture<Void> allOf = CompletableFuture.allOf(allFutures.toArray(new CompletableFuture[0]));
-            return allOf.thenApply(v -> allFutures.stream()
-                            .map(CompletableFuture::join)
-                            .toList())
-                    .join();
+            return collectHotAndCategoryPosts(headers, executor);
         }
+    }
+
+    private List<RecentPostsResponse> collectHotAndCategoryPosts(Map<String, String> headers, ExecutorService executor) {
+        CompletableFuture<RecentPostsResponse> hotPostFuture = getHotPost(headers, executor);
+        List<CompletableFuture<RecentPostsResponse>> categoryFutures = getCategoryPosts(headers, executor);
+
+        List<CompletableFuture<RecentPostsResponse>> all = new ArrayList<>(categoryFutures);
+        all.addFirst(hotPostFuture);
+
+        CompletableFuture<Void> allDone = CompletableFuture.allOf(all.toArray(new CompletableFuture[0]));
+
+        return allDone.thenApply(v -> all.stream()
+            .map(CompletableFuture::join)
+            .filter(Objects::nonNull)
+            .toList()).join();
+    }
+
+    private CompletableFuture<RecentPostsResponse> getHotPost(Map<String, String> headers, ExecutorService executor) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                return Optional.ofNullable(playgroundClient.getPlaygroundHotPost(headers))
+                    .map(post -> RecentPostsResponse.of(post, convertPlaygroundWebPageUrl(post.postId())))
+                    .orElse(null);
+            } catch (Exception e) {
+                log.error("[HOT POST] 조회 실패", e);
+                return null;
+            }
+        }, executor);
+    }
+
+    private List<CompletableFuture<RecentPostsResponse>> getCategoryPosts(Map<String, String> headers, ExecutorService executor) {
+        List<PlayGroundPostCategory> categories = List.of(
+            PlayGroundPostCategory.SOPT_ACTIVITY,
+            PlayGroundPostCategory.FREE,
+            PlayGroundPostCategory.PART
+        );
+
+        return categories.stream()
+            .map(category -> CompletableFuture.supplyAsync(() -> {
+                try {
+                    RecentPostsResponse response = playgroundClient.getRecentPosts(headers, category.getDisplayName());
+                    if (response == null) return null;
+                    String url = convertPlaygroundWebPageUrl(response.getId());
+                    return response.withUrl(url);
+                } catch (Exception e) {
+                    log.error("[CATEGORY: {}] 게시물 조회 실패", category, e);
+                    return null;
+                }
+            }, executor))
+            .toList();
     }
 
     public List<RecentPostsResponse> getRecentPostsWithMemberInfo(String playgroundToken) {
