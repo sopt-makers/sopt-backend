@@ -193,7 +193,7 @@ public class PlaygroundAuthService {
     }
 
     public List<RecentPostsResponse> getRecentPosts(String token) {
-        Map<String, String> headers = createAuthorizationHeaderByUserPlaygroundToken(token);
+        final Map<String, String> headers = createAuthorizationHeaderByUserPlaygroundToken(token);
 
         try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
             return collectHotAndCategoryPosts(headers, executor);
