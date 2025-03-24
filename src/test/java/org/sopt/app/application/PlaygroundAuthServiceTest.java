@@ -18,6 +18,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.playground.dto.PlayGroundPostCategory;
+import org.sopt.app.application.playground.dto.PlayGroundPostDetailResponse;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
 import org.sopt.app.application.playground.PlaygroundAuthService;
@@ -373,6 +374,47 @@ class PlaygroundAuthServiceTest {
             .isHotPost(false)
             .url("http://localhost:3000/?feed=" + id)
             .build();
+    }
+
+    @Test
+    @DisplayName("HotPost + withMemberDetail 호출 후에도 URL이 유지되는지 검증")
+    void SUCCESS_testHotPostWithMemberDetailKeepsUrl() {
+        // given
+        String token = "dummy-token";
+        Long hotPostId = 123L;
+
+        PlaygroundPostResponse hotPostResponse = new PlaygroundPostResponse(
+            hotPostId,
+            "핫 게시글",
+            "핫 컨텐츠"
+        );
+
+        when(playgroundClient.getPlaygroundHotPost(anyMap()))
+            .thenReturn(hotPostResponse);
+
+        when(playgroundClient.getRecentPosts(anyMap(), anyString()))
+            .thenReturn(null); // category 없음 처리
+
+        when(playgroundClient.getPlayGroundPostDetail(anyMap(), eq(hotPostId)))
+            .thenReturn(
+                new PlayGroundPostDetailResponse(
+                    new PlayGroundPostDetailResponse.Member("닉네임", "https://image.url/profile.png"),
+                    null
+                )
+            );
+
+        // when
+        List<RecentPostsResponse> results = playgroundAuthService.getRecentPostsWithMemberInfo(token);
+
+        // then
+        assertThat(results).hasSize(1);
+        RecentPostsResponse post = results.get(0);
+
+        assertThat(post.getId()).isEqualTo(hotPostId);
+        assertThat(post.getTitle()).isEqualTo("핫 게시글");
+        assertThat(post.getName()).isEqualTo("닉네임");
+        assertThat(post.getProfileImage()).isEqualTo("https://image.url/profile.png");
+        assertThat(post.getUrl()).isEqualTo("http://localhost:3000/?feed=123");
     }
 
 }
