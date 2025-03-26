@@ -2,12 +2,15 @@ package org.sopt.app.presentation.user;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.sopt.app.application.app_service.dto.AppServiceInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -169,7 +172,9 @@ public class UserResponse {
                     .soptampRank(soptampRank != null ? soptampRank + "등" : "")
                     .userName(playgroundProfile.getName())
                     .profileImage(playgroundProfile.getProfileImage() != null ? playgroundProfile.getProfileImage() : "")
-                    .part(partTypeToKorean?playgroundProfile.getLatestActivity().getPlaygroundPart().getPartName():playgroundProfile.getLatestActivity().getPlaygroundPart().toString())
+                    .part(playgroundProfile.getAllActivities().stream()
+                            .map(c -> c.getPlaygroundPart().getPartName())
+                            .collect(Collectors.joining("/")))
                     .profileMessage(playgroundProfile.getIntroduction() != null ? playgroundProfile.getIntroduction() : "")
                     .during(during != null ? during + "개월" : "")
                     .isActive(isActive)
