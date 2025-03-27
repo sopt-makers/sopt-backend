@@ -52,7 +52,7 @@ public class UserController {
     @Value("${sopt.current.generation}")
     private Long generation;
 
-    @Value("${cloud.aws.s3.url}")
+    @Value("${cloud.aws.s3.uri}")
     private String s3BaseUrl;
 
     @Operation(summary = "솝탬프 정보 조회")
