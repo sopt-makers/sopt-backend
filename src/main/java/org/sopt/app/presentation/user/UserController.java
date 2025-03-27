@@ -118,13 +118,14 @@ public class UserController {
             }
         }
         List<String> icons = authFacade.getIcons(isActive ? IconType.ACTIVE : IconType.INACTIVE);
+        List<String> iconsMutableList = new ArrayList<>(icons);
         List<String> iconPriority = List.of("sop-level", "poke", "soptamp", "duration");
-        icons.sort(Comparator.comparingInt(s -> {
+        iconsMutableList.sort(Comparator.comparingInt(s -> {
                     String iconName = s.replaceAll("^" + s3BaseUrl + "sopt-log/|.png$", "");
                     return iconPriority.indexOf(iconName);
                 }));
         return ResponseEntity.ok(
-                SoptLog.of(soptLevel, pokeCount, soptampRank, soptDuring, isActive, icons, playgroundProfile,
+                SoptLog.of(soptLevel, pokeCount, soptampRank, soptDuring, isActive, iconsMutableList, playgroundProfile,
                         partTypeToKorean,isFortuneChecked, fortuneText));
     }
 
