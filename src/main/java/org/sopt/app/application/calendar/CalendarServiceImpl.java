@@ -56,7 +56,8 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     private List<Calendar> cacheAllCalendarResponse() {
-        List<Calendar> calendars = calendarRepository.findAllByGenerationOrderByStartDate(currentGeneration);
+        List<Calendar> calendars = calendarRepository.findAllByGenerationOrderByStartDateAscEndDateAsc(currentGeneration);
+
         cachedCalendarRepository.save(new CachedAllCalendarResponse(currentGeneration, new Calendars(calendars)));
         return calendars;
     }

@@ -1,15 +1,3 @@
 spring:
-  config:
-    import: optional:configserver:http://127.0.0.1:8087
-  cloud:
-    config:
-      uri: http://127.0.0.1:8087
-      name: application
-  profiles:
-    active: local
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: refresh
+  application:
+    name: app-server

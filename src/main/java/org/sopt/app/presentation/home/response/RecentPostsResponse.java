@@ -19,16 +19,31 @@ public class RecentPostsResponse implements PostWithMemberInfo {
     private String category;
     private String content;
     private Boolean isHotPost;
+    private String url;
     
     
-    public static RecentPostsResponse of(PlaygroundPostResponse playgroundPostResponse) {
+    public static RecentPostsResponse of(PlaygroundPostResponse playgroundPostResponse, String url) {
         return RecentPostsResponse.builder()
                 .id(playgroundPostResponse.postId())
                 .title(playgroundPostResponse.title())
                 .category("HOT")
+                .url(url)
                 .content(playgroundPostResponse.content())
                 .isHotPost(true)
                 .build();
+    }
+
+    public RecentPostsResponse withUrl(String url) {
+        return RecentPostsResponse.builder()
+            .id(this.id)
+            .title(this.title)
+            .profileImage(this.profileImage)
+            .name(this.name)
+            .category(this.category)
+            .content(this.content)
+            .isHotPost(this.isHotPost)
+            .url(url)
+            .build();
     }
 
     public RecentPostsResponse withMemberDetail(String name, String profileImage) {
@@ -40,6 +55,7 @@ public class RecentPostsResponse implements PostWithMemberInfo {
                 .category(this.category)
                 .content(this.content)
                 .isHotPost(this.isHotPost)
+                .url(this.url)
                 .build();
     }
 

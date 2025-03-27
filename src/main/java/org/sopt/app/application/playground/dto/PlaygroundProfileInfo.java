@@ -96,6 +96,12 @@ public class PlaygroundProfileInfo {
                     .sorted(Comparator.comparing(ActivityCardinalInfo::getGeneration, Comparator.reverseOrder()))
                     .toList().getFirst();
         }
+
+        public List<ActivityCardinalInfo> getAllActivities() {
+            return activities.stream()
+                    .sorted(Comparator.comparing(ActivityCardinalInfo::getGeneration, Comparator.reverseOrder()))
+                    .toList();
+        }
     }
 
     @Getter
