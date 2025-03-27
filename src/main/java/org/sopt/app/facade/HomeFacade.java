@@ -9,7 +9,7 @@ import org.sopt.app.application.app_service.*;
 import org.sopt.app.application.app_service.dto.*;
 import org.sopt.app.application.description.DescriptionInfo.MainDescription;
 import org.sopt.app.application.description.DescriptionService;
-import org.sopt.app.application.home.ActivityDurationCalculator;
+import org.sopt.app.common.utils.ActivityDurationCalculator;
 import org.sopt.app.application.meeting.*;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.domain.entity.User;
@@ -41,10 +41,10 @@ public class HomeFacade {
     public HomeDescriptionResponse getHomeMainDescription(User user) {
         List<Long> ownGenerations = playgroundAuthService.getOwnPlaygroundProfile(user.getPlaygroundToken())
                 .getAllGenerations();
-        ActivityDurationCalculator calculator = ActivityDurationCalculator.of(ownGenerations);
+        int duration = ActivityDurationCalculator.calculate(ownGenerations);
         return HomeDescriptionResponse.of(
                 wrapWithTag(user.getUsername(), "b"),
-                calculator.getActivityDuration()
+                duration
         );
     }
     @Transactional(readOnly = true)
