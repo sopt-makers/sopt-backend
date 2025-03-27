@@ -9,7 +9,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
-@Table(name = "app_users", schema = "app_dev")
+@Table(name = "app_users")
 @Getter
 @Builder
 @AllArgsConstructor
