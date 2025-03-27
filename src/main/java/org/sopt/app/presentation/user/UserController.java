@@ -12,8 +12,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.sopt.app.application.fortune.FortuneService;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.soptamp.SoptampUserService;
+import org.sopt.app.common.utils.ActivityDurationCalculator;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.IconType;
 import org.sopt.app.facade.AuthFacade;
@@ -96,13 +98,19 @@ public class UserController {
         PlaygroundProfile playgroundProfile = authFacade.getUserDetails(user);
         Long soptampRank = null;
         Long soptDuring = null;
-        Boolean isActive = playgroundProfile.getLatestActivity().getGeneration() == generation;
+        Boolean isActive = playgroundProfile.getLatestActivity().getGeneration().equals(generation);
         boolean isFortuneChecked = fortuneService.isExistTodayFortune((user.getId()));
         String fortuneText = isFortuneChecked?fortuneService.getTodayFortuneWordByUserId(user.getId(), LocalDate.now()).title():"오늘 내 운세는?";
         if (isActive) {
             soptampRank = rankFacade.findUserRank(user.getId());
         } else {
-            soptDuring = authFacade.getDuration(playgroundProfile.getLatestActivity().getGeneration(), generation);
+            List<Long> generations = playgroundProfile.getAllActivities().stream()
+                .map(PlaygroundProfileInfo.ActivityCardinalInfo::getGeneration)
+                .toList();
+
+            if (!generations.isEmpty()) {
+                soptDuring = (long) ActivityDurationCalculator.calculate(generations);
+            }
         }
         List<String> icons = authFacade.getIcons(isActive ? IconType.ACTIVE : IconType.INACTIVE);
         return ResponseEntity.ok(
