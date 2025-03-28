@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AuthFacade {
 
     private final JwtTokenService jwtTokenService;
@@ -39,14 +38,8 @@ public class AuthFacade {
                 playgroundToken, playgroundInfo.getId()
         );
         Long latestGeneration = playgroundProfile.getLatestActivity().getGeneration();
-        log.error("latestGeneration: {}", latestGeneration);
-        log.error("playgroundProfile.getGeneration: {}", playgroundProfile.getLatestActivity().getGeneration());
         Long userId = userService.upsertUser(LoginInfo.of(playgroundInfo, playgroundToken));
         soptampUserService.upsertSoptampUser(playgroundProfile, userId);
-
-//        if (playgroundAuthService.isCurrentGeneration(latestGeneration)){
-//            soptampUserService.upsertSoptampUser(playgroundProfile, userId);
-//        }
 
         AppToken appToken = jwtTokenService.issueNewTokens(userId, playgroundInfo.getId());
         return AppAuthResponse.builder()
