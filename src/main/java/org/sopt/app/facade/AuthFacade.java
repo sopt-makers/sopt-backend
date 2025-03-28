@@ -2,6 +2,7 @@ package org.sopt.app.facade;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.sopt.app.application.auth.JwtTokenService;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.AppToken;
 import org.sopt.app.application.playground.PlaygroundAuthService;
@@ -37,11 +38,8 @@ public class AuthFacade {
                 playgroundToken, playgroundInfo.getId()
         );
         Long latestGeneration = playgroundProfile.getLatestActivity().getGeneration();
-
         Long userId = userService.upsertUser(LoginInfo.of(playgroundInfo, playgroundToken));
-        if(playgroundAuthService.isCurrentGeneration(latestGeneration)){
-            soptampUserService.upsertSoptampUser(playgroundProfile, userId);
-        }
+        soptampUserService.upsertSoptampUser(playgroundProfile, userId);
 
         AppToken appToken = jwtTokenService.issueNewTokens(userId, playgroundInfo.getId());
         return AppAuthResponse.builder()
