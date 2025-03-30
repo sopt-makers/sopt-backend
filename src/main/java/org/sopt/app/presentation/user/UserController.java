@@ -107,7 +107,7 @@ public class UserController {
         boolean isFortuneChecked = fortuneService.isExistTodayFortune((user.getId()));
         String fortuneText = isFortuneChecked?fortuneService.getTodayFortuneWordByUserId(user.getId(), LocalDate.now()).title():"오늘 내 운세는?";
         if (isActive) {
-            soptampRank = rankFacade.findUserRank(user.getId());
+            // soptampRank = rankFacade.findUserRank(user.getId());
         } else {
             List<Long> generations = playgroundProfile.getAllActivities().stream()
                 .map(PlaygroundProfileInfo.ActivityCardinalInfo::getGeneration)
