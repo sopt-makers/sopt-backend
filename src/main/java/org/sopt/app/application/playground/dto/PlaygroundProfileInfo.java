@@ -6,11 +6,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import java.util.*;
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.PlaygroundPart;
 import org.sopt.app.domain.enums.UserStatus;
 
+@Slf4j
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class PlaygroundProfileInfo {
 
@@ -121,7 +123,17 @@ public class PlaygroundProfileInfo {
         }
 
         public PlaygroundPart getPlaygroundPart() {
-            return findPlaygroundPartByPartName(cardinalInfo.split(",")[1]);
+            try {
+                String[] parts = cardinalInfo.split(",");
+                if (parts.length < 2) {
+                    log.warn("Invalid cardinalInfo format: {}", cardinalInfo);
+                    return PlaygroundPart.NONE;
+                }
+                return findPlaygroundPartByPartName(parts[1]);
+            } catch (Exception e) {
+                log.warn("Error parsing PlaygroundPart from cardinalInfo: {}", cardinalInfo, e);
+                return PlaygroundPart.NONE;
+            }
         }
     }
 
