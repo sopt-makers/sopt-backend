@@ -106,17 +106,21 @@ public class UserController {
         Boolean isActive = playgroundProfile.getLatestActivity().getGeneration().equals(generation);
         boolean isFortuneChecked = fortuneService.isExistTodayFortune((user.getId()));
         String fortuneText = isFortuneChecked?fortuneService.getTodayFortuneWordByUserId(user.getId(), LocalDate.now()).title():"오늘 내 운세는?";
-        if (isActive) {
-            soptampRank = rankFacade.findUserRank(user.getId());
-        } else {
-            List<Long> generations = playgroundProfile.getAllActivities().stream()
+
+//        if (isActive) {
+//            // soptampRank = rankFacade.findUserRank(user.getId());
+//        } else {
+//
+//        }
+
+        List<Long> generations = playgroundProfile.getAllActivities().stream()
                 .map(PlaygroundProfileInfo.ActivityCardinalInfo::getGeneration)
                 .toList();
 
-            if (!generations.isEmpty()) {
-                soptDuring = (long) ActivityDurationCalculator.calculate(generations);
-            }
+        if (!generations.isEmpty()) {
+            soptDuring = (long) ActivityDurationCalculator.calculate(generations);
         }
+
         List<String> icons = authFacade.getIcons(isActive ? IconType.ACTIVE : IconType.INACTIVE);
         List<String> iconsMutableList = new ArrayList<>(icons);
         List<String> iconPriority = List.of("sop-level", "poke", "soptamp", "duration");
