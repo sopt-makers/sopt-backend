@@ -63,9 +63,14 @@ public class CalendarServiceImpl implements CalendarService {
     }
 
     private Optional<Calendar> getRecentCalendar(List<Calendar> calendars) {
-        return calendars.stream()
-                .filter(calendar -> !calendar.getStartDate().isBefore(CurrentDate.now))
-                .findFirst();
+        List<Calendar> sorted = calendars.stream()
+            .sorted(Comparator.comparing(Calendar::getStartDate)
+                .thenComparing(Calendar::getEndDate))
+            .toList();
+
+        return sorted.stream()
+            .filter(calendar -> !calendar.getStartDate().isBefore(CurrentDate.now()))
+            .findFirst();
     }
 
     @Override
