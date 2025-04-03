@@ -1,6 +1,5 @@
 package org.sopt.app.application.user;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -86,18 +85,6 @@ public class UserService {
 
     public boolean isUserExist(Long userId) {
         return userRepository.existsById(userId);
-    }
-
-    public Long getDuration(Long myGeneration, Long currentGeneration) {
-        long monthsBetweenGenerations = (currentGeneration - myGeneration) * 6;
-        LocalDate now = LocalDate.now();
-        int currentMonth = now.getMonthValue();
-        int startMonth = (currentGeneration % 2 == 0) ? 3 : 9;
-        int monthsSinceStart = currentMonth - startMonth;
-        if (monthsSinceStart < 0) {
-            monthsSinceStart += 12;
-        }
-        return monthsBetweenGenerations + monthsSinceStart;
     }
 
     public List<String> getIcons(IconType iconType) {
