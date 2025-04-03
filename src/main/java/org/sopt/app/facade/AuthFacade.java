@@ -80,10 +80,6 @@ public class AuthFacade {
         return playgroundAuthService.getPlayGroundProfile(user.getPlaygroundToken());
     }
 
-    public Long getDuration(Long myGeneration, Long generation) {
-        return userService.getDuration(myGeneration, generation);
-    }
-
     public List<String> getIcons(IconType iconType) {
         return userService.getIcons(iconType);
     }
