@@ -34,7 +34,7 @@ public final class ActivityDurationCalculator {
     }
 
     private static int getMonthDifferenceFromNow(LocalDate startDate) {
-        Period period = Period.between(startDate, CurrentDate.now);
+        Period period = Period.between(startDate, CurrentDate.now());
         return period.getYears() * 12 + period.getMonths() + 1;
     }
 }
