@@ -68,7 +68,7 @@ public class FortuneService {
 
     public boolean isExistTodayFortune(final Long userId) {
         return userFortuneRepository.findByUserId(userId)
-                .map(userFortune -> userFortune.getCheckedAt().equals(CurrentDate.now))
+                .map(userFortune -> userFortune.getCheckedAt().equals(CurrentDate.now()))
                 .orElse(false);
     }
 }
