@@ -10,6 +10,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -103,31 +106,37 @@ public class UserController {
         PlaygroundProfile playgroundProfile = authFacade.getUserDetails(user);
         Long soptampRank = null;
         Long soptDuring = null;
-        Boolean isActive = playgroundProfile.getLatestActivity().getGeneration().equals(generation);
+
+        Optional<Long> latestGeneration = playgroundProfile.getAllActivities().stream()
+                .filter(c -> !c.getPlaygroundPart().getPartName().equals("미상"))
+                .map(PlaygroundProfileInfo.ActivityCardinalInfo::getGeneration)
+                .max(Comparator.naturalOrder());
+
+        Boolean isActive = latestGeneration.isPresent() && latestGeneration.get().equals(generation);
+        
         boolean isFortuneChecked = fortuneService.isExistTodayFortune((user.getId()));
         String fortuneText = isFortuneChecked?fortuneService.getTodayFortuneWordByUserId(user.getId(), LocalDate.now()).title():"오늘 내 운세는?";
 
-//        if (isActive) {
-//            // soptampRank = rankFacade.findUserRank(user.getId());
-//        } else {
-//
-//        }
+        if (Boolean.TRUE.equals(isActive)) {
+             soptampRank = rankFacade.findUserRank(user.getId());
+        } else {
+            List<Long> generations = playgroundProfile.getAllActivities().stream()
+                    .map(PlaygroundProfileInfo.ActivityCardinalInfo::getGeneration)
+                    .toList();
 
-        List<Long> generations = playgroundProfile.getAllActivities().stream()
-                .map(PlaygroundProfileInfo.ActivityCardinalInfo::getGeneration)
-                .toList();
-
-        if (!generations.isEmpty()) {
-            soptDuring = (long) ActivityDurationCalculator.calculate(generations);
+            if (!generations.isEmpty()) {
+                soptDuring = (long) ActivityDurationCalculator.calculate(generations);
+            }
         }
 
-        List<String> icons = authFacade.getIcons(isActive ? IconType.ACTIVE : IconType.INACTIVE);
+        List<String> icons = authFacade.getIcons(Boolean.TRUE.equals(isActive) ? IconType.ACTIVE : IconType.INACTIVE);
         List<String> iconsMutableList = new ArrayList<>(icons);
         List<String> iconPriority = List.of("sop-level", "poke", "soptamp", "duration");
         iconsMutableList.sort(Comparator.comparingInt(s -> {
                     String iconName = s.replaceAll("^" + s3BaseUrl + "sopt-log/|.png$", "");
                     return iconPriority.indexOf(iconName);
                 }));
+
         return ResponseEntity.ok(
                 SoptLog.of(soptLevel, pokeCount, soptampRank, soptDuring, isActive, iconsMutableList, playgroundProfile,
                         partTypeToKorean,isFortuneChecked, fortuneText));
