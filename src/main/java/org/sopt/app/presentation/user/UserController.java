@@ -23,6 +23,7 @@ import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.utils.ActivityDurationCalculator;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.IconType;
+import org.sopt.app.domain.enums.PlaygroundPart;
 import org.sopt.app.facade.AuthFacade;
 import org.sopt.app.facade.PokeFacade;
 import org.sopt.app.facade.RankFacade;
@@ -108,7 +109,7 @@ public class UserController {
         Long soptDuring = null;
 
         Optional<Long> latestGeneration = playgroundProfile.getAllActivities().stream()
-                .filter(c -> !c.getPlaygroundPart().getPartName().equals("미상"))
+                .filter(c -> !c.getPlaygroundPart().getPartName().equals(PlaygroundPart.NONE.getPartName()))
                 .map(PlaygroundProfileInfo.ActivityCardinalInfo::getGeneration)
                 .max(Comparator.naturalOrder());
 
