@@ -12,6 +12,7 @@ import lombok.ToString;
 import org.sopt.app.application.app_service.dto.AppServiceInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.domain.enums.PlaygroundPart;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserResponse {
@@ -169,12 +170,12 @@ public class UserResponse {
             return SoptLog.builder()
                     .soptLevel("Lv." + soptLevel)
                     .pokeCount(pokeCount + "회")
-                    // 솝탬프 오픈 전까지는 순위 부분에 공개 예정! 표시
                     .soptampRank(soptampRank != null ? soptampRank + "등" : "공개 예정!")
                     .userName(playgroundProfile.getName())
                     .profileImage(playgroundProfile.getProfileImage() != null ? playgroundProfile.getProfileImage() : "")
                     .part(playgroundProfile.getAllActivities().stream()
                             .map(c -> c.getPlaygroundPart().getPartName())
+                            .filter(c -> !c.equals(PlaygroundPart.NONE.getPartName()))
                             .collect(Collectors.joining("/")))
                     .profileMessage(playgroundProfile.getIntroduction() != null ? playgroundProfile.getIntroduction() : "")
                     .during(during != null ? during + "개월" : "")
