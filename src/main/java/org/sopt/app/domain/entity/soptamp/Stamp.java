@@ -5,7 +5,10 @@ import jakarta.persistence.*;
 import java.util.List;
 import lombok.*;
 import org.hibernate.annotations.Type;
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.BaseEntity;
+import org.springframework.util.StringUtils;
 
 @Entity
 @Getter
@@ -42,4 +45,20 @@ public class Stamp extends BaseEntity {
     public void changeActivityDate(String activityDate) {
         this.activityDate = activityDate;
     }
+
+    public void validate() {
+        if (!StringUtils.hasText(this.contents)) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_CONTENTS);
+        }
+        if (this.images == null || this.images.isEmpty()) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_IMAGES);
+        }
+        if (this.activityDate == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE);
+        }
+        if (this.missionId == null) {
+            throw new BadRequestException(ErrorCode.INVALID_STAMP_MISSION_ID);
+        }
+    }
+
 }

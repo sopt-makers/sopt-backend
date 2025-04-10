@@ -15,6 +15,7 @@ import org.sopt.app.application.mission.*;
 import org.sopt.app.application.soptamp.*;
 import org.sopt.app.application.stamp.*;
 import org.sopt.app.common.fixtures.SoptampFixture;
+import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.presentation.stamp.StampRequest;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,7 +70,15 @@ class SoptampFacadeTest {
     @DisplayName("SUCCESS_스탬프 삭제하기")
     void SUCCESS_deleteStamp() {
         // given
-        given(stampService.getMissionIdByStampId(STAMP_ID)).willReturn(MISSION_ID);
+        Stamp stamp = Stamp.builder()
+            .id(STAMP_ID)
+            .userId(SOPTAMP_USER_ID)
+            .missionId(MISSION_ID)
+            .images(STAMP_IMG_PATHS)
+            .contents(STAMP_CONTENTS)
+            .activityDate(STAMP_ACTIVITY_DATE)
+            .build();
+        given(stampService.getStampById(STAMP_ID)).willReturn(stamp);
         given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
 
         // when
