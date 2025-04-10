@@ -14,6 +14,7 @@ public enum ErrorCode {
     REDIS_CONNECTION_ERROR("레디스 연결에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
     ENTITY_NOT_FOUND("객체를 찾을수 없습니다.", HttpStatus.NOT_FOUND),
     BAD_REQUEST("잘못된 요청입니다", HttpStatus.BAD_REQUEST),
+    FORBIDDEN("접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
     // AUTH
     INVALID_ACCESS_TOKEN("유효하지 않은 앱 어세스 토큰입니다.", HttpStatus.UNAUTHORIZED),
     INVALID_REFRESH_TOKEN("유효하지 않은 앱 리프레시 토큰입니다.", HttpStatus.UNAUTHORIZED),
@@ -46,6 +47,7 @@ public enum ErrorCode {
     INVALID_STAMP_IMAGES("스탬프 이미지가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
     INVALID_STAMP_MISSION_ID("스탬프 미션 ID가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
     INVALID_STAMP_ID("스탬프 ID가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
+    STAMP_DELETE_FORBIDDEN("자신의 스탬프만 삭제할 수 있습니다.", HttpStatus.FORBIDDEN),
 
     // NOTIFICATION
     NOTIFICATION_NOT_FOUND("존재하지 않는 알림입니다.", HttpStatus.NOT_FOUND),
