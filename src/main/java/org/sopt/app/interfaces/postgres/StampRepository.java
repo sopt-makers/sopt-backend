@@ -13,4 +13,6 @@ public interface StampRepository extends JpaRepository<Stamp, Long> {
 
     void deleteAllByUserId(Long userId);
 
+    Optional<Stamp> findByIdAndUserId(Long id, Long userId);
+
 }
