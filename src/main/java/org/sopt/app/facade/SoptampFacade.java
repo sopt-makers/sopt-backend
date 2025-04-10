@@ -1,7 +1,10 @@
 package org.sopt.app.facade;
 
 import java.util.List;
+
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.sopt.app.application.mission.MissionInfo.Level;
 import org.sopt.app.application.mission.MissionService;
@@ -17,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -30,6 +34,11 @@ public class SoptampFacade {
 
     @Value("${makers.app.soptamp.report.url}")
     private String formUrl;
+
+    @PostConstruct
+    public void checkReportUrl() {
+        log.info("[CONFIG] 신고 URL 확인 - {}", formUrl);
+    }
 
     @Transactional
     public Stamp uploadStamp(Long userId, RegisterStampRequest registerStampRequest){
@@ -48,6 +57,8 @@ public class SoptampFacade {
     @Transactional
     public void deleteStamp(Long userId, Long stampId){
         val stamp = stampService.getStampForDelete(stampId, userId);
+        log.info("[STAMP DELETE] Request by userId={}, Target stampId={}, Owner userId={}",
+            userId, stampId, stamp.getUserId());
         val mission = missionService.getMissionById(stamp.getMissionId());
         soptampUserService.subtractPointByLevel(userId, mission.getLevel());
 
