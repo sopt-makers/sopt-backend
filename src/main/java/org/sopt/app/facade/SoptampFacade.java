@@ -37,7 +37,7 @@ public class SoptampFacade {
 
     @PostConstruct
     public void checkReportUrl() {
-        log.info("[CONFIG] 신고 URL 확인 - {}", formUrl);
+        log.warn("[CONFIG] 신고 URL 확인 - {}", formUrl);
     }
 
     @Transactional
@@ -57,7 +57,7 @@ public class SoptampFacade {
     @Transactional
     public void deleteStamp(Long userId, Long stampId){
         val stamp = stampService.getStampForDelete(stampId, userId);
-        log.info("[STAMP DELETE] Request by userId={}, Target stampId={}, Owner userId={}",
+        log.warn("[STAMP DELETE] Request by userId={}, Target stampId={}, Owner userId={}",
             userId, stampId, stamp.getUserId());
         val mission = missionService.getMissionById(stamp.getMissionId());
         soptampUserService.subtractPointByLevel(userId, mission.getLevel());
