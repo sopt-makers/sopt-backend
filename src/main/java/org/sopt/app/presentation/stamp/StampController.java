@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.SoptampFacade;
 import org.sopt.app.presentation.stamp.StampResponse.SoptampReportResponse;
@@ -23,9 +22,7 @@ import org.springframework.web.bind.annotation.*;
 @SecurityRequirement(name = "Authorization")
 public class StampController {
 
-    private final StampService stampService;
     private final SoptampFacade soptampFacade;
-
     private final StampResponseMapper stampResponseMapper;
 
     @Operation(summary = "스탬프 조회하기")
@@ -71,7 +68,7 @@ public class StampController {
             @AuthenticationPrincipal User user,
             @Valid @RequestBody StampRequest.EditStampRequest editStampRequest
     ) {
-        val stamp = stampService.editStampContents(editStampRequest, user.getId());
+        val stamp = soptampFacade.editStamp(user.getId(), editStampRequest);
         val response = stampResponseMapper.of(stamp.getId());
         return ResponseEntity.ok(response);
     }
