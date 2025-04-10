@@ -32,7 +32,7 @@ public class StampService {
     public StampInfo.Stamp findStamp(Long missionId, Long userId) {
         val entity = stampRepository.findByUserIdAndMissionId(userId, missionId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND));
-        validateStampInfo(entity);
+        entity.validate();
         return StampInfo.Stamp.builder()
                 .id(entity.getId())
                 .contents(entity.getContents())
@@ -42,24 +42,6 @@ public class StampService {
                 .updatedAt(entity.getUpdatedAt())
                 .missionId(entity.getMissionId())
                 .build();
-    }
-
-    private void validateStampInfo(Stamp entity) {
-        if (!StringUtils.hasText(entity.getContents())) {
-            if(entity.getContents().isEmpty()) {
-                log.warn("Stamp ID-{}: stamp contents is empty", entity.getId());
-            }
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_CONTENTS);
-        }
-        if (entity.getImages().isEmpty()) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_IMAGES);
-        }
-        if (entity.getActivityDate() == null) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_ACTIVITY_DATE);
-        }
-        if (entity.getMissionId() == null) {
-            throw new BadRequestException(ErrorCode.INVALID_STAMP_MISSION_ID);
-        }
     }
 
     @Transactional
@@ -200,6 +182,12 @@ public class StampService {
         return stampRepository.findById(stampId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND))
                 .getMissionId();
+    }
+
+    @Transactional(readOnly = true)
+    public Stamp getStampById(Long stampId) {
+        return stampRepository.findById(stampId)
+            .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND));
     }
 
     public void deleteAll() {
