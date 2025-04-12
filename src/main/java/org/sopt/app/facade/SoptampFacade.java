@@ -35,11 +35,6 @@ public class SoptampFacade {
     @Value("${makers.app.soptamp.report.url}")
     private String formUrl;
 
-    @PostConstruct
-    public void checkReportUrl() {
-        log.warn("[CONFIG] 신고 URL 확인 - {}", formUrl);
-    }
-
     @Transactional
     public Stamp uploadStamp(Long userId, RegisterStampRequest registerStampRequest){
         stampService.checkDuplicateStamp(userId, registerStampRequest.getMissionId());
@@ -57,8 +52,6 @@ public class SoptampFacade {
     @Transactional
     public void deleteStamp(Long userId, Long stampId){
         val stamp = stampService.getStampForDelete(stampId, userId);
-        log.warn("[STAMP DELETE] Request by userId={}, Target stampId={}, Owner userId={}",
-            userId, stampId, stamp.getUserId());
         val mission = missionService.getMissionById(stamp.getMissionId());
         soptampUserService.subtractPointByLevel(userId, mission.getLevel());
 
