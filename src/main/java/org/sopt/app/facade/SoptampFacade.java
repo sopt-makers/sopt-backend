@@ -1,15 +1,16 @@
 package org.sopt.app.facade;
 
 import java.util.List;
+
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.sopt.app.application.mission.MissionInfo.Level;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.soptamp.*;
 import org.sopt.app.application.stamp.StampInfo.Stamp;
 import org.sopt.app.application.stamp.StampService;
-import org.sopt.app.common.exception.ForbiddenException;
-import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.presentation.rank.*;
 import org.sopt.app.presentation.stamp.StampRequest;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -49,11 +51,7 @@ public class SoptampFacade {
 
     @Transactional
     public void deleteStamp(Long userId, Long stampId){
-        val stamp = stampService.getStampById(stampId);
-        if(!stamp.getUserId().equals(userId)){
-            throw new ForbiddenException(ErrorCode.STAMP_DELETE_FORBIDDEN);
-        }
-
+        val stamp = stampService.getStampForDelete(stampId, userId);
         val mission = missionService.getMissionById(stamp.getMissionId());
         soptampUserService.subtractPointByLevel(userId, mission.getLevel());
 

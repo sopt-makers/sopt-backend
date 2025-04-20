@@ -10,6 +10,7 @@ import lombok.val;
 import org.sopt.app.application.user.UserWithdrawEvent;
 import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.exception.ForbiddenException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.interfaces.postgres.StampRepository;
@@ -185,9 +186,9 @@ public class StampService {
     }
 
     @Transactional(readOnly = true)
-    public Stamp getStampById(Long stampId) {
-        return stampRepository.findById(stampId)
-            .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND));
+    public Stamp getStampForDelete(Long stampId, Long userId) {
+        return stampRepository.findByIdAndUserId(stampId, userId)
+            .orElseThrow(() -> new ForbiddenException(ErrorCode.STAMP_DELETE_FORBIDDEN));
     }
 
     public void deleteAll() {

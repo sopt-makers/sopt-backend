@@ -1,6 +1,6 @@
 package org.sopt.app.facade;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.sopt.app.common.fixtures.SoptampFixture.*;
@@ -78,7 +78,7 @@ class SoptampFacadeTest {
             .contents(STAMP_CONTENTS)
             .activityDate(STAMP_ACTIVITY_DATE)
             .build();
-        given(stampService.getStampById(STAMP_ID)).willReturn(stamp);
+        given(stampService.getStampForDelete(STAMP_ID, SOPTAMP_USER_ID)).willReturn(stamp);
         given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
 
         // when
