@@ -91,6 +91,11 @@ jobs:
           key: ${{ secrets.DEV_PEM_KEY }}
           script: |
             cd ~
-            sudo chmod +x ./app/script/*.sh
-            ./app/script/deploy.sh
+            cd ./app
+            echo "Creating .env file..."
+            echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_ID }}" > .env
+            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
+            
+            sudo chmod +x ./script/*.sh
+            ./script/deploy.sh
             docker image prune -f
