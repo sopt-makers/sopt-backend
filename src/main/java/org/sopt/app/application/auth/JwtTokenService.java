@@ -5,12 +5,14 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Base64;
 import java.util.Date;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.joda.time.LocalDateTime;
+
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.AppToken;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
@@ -44,13 +46,14 @@ public class JwtTokenService {
 
     private String encodeJwtToken(Long userId, Long playgroundId) {
         val now = LocalDateTime.now();
-
+        val nowDate = Date.from(now.atZone(ZoneId.systemDefault()).toInstant());
+        val nowDate1PlusDays = Date.from(now.plusDays(1).atZone(ZoneId.systemDefault()).toInstant());
         return Jwts.builder()
                 .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
                 .setIssuer("sopt-makers")
-                .setIssuedAt(now.toDate())
+                .setIssuedAt(nowDate)
                 .setSubject(userId.toString())
-                .setExpiration(now.plusDays(1).toDate())
+                .setExpiration(nowDate1PlusDays)
                 .claim("id", userId)
                 .claim("playgroundId", playgroundId)
                 .claim("roles", "USER")
@@ -60,10 +63,12 @@ public class JwtTokenService {
 
     private String encodeJwtRefreshToken(Long userId) {
         val now = LocalDateTime.now();
+        val nowDate = Date.from(now.atZone(ZoneId.systemDefault()).toInstant());
+        val nowDate30PlusDays = Date.from(now.plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
         return Jwts.builder()
-                .setIssuedAt(now.toDate())
+                .setIssuedAt(nowDate)
                 .setSubject(userId.toString())
-                .setExpiration(now.plusDays(30).toDate())
+                .setExpiration(nowDate30PlusDays)
                 .claim("id", userId)
                 .claim("roles", "USER")
                 .signWith(getSigningKey(JWT_SECRET), SignatureAlgorithm.HS256)
