@@ -1,12 +1,23 @@
 package org.sopt.app.application.s3;
 
-import com.amazonaws.*;
-import com.amazonaws.services.s3.*;
-import java.io.*;
-import java.net.*;
-import java.util.*;
-import lombok.*;
-import org.joda.time.LocalDateTime;
+
+import software.amazon.awssdk.core.exception.SdkException;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
+
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.time.Duration;
+import java.util.List;
+import java.util.UUID;
+
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.slf4j.LoggerFactory;
 import org.sopt.app.application.stamp.StampDeletedEvent;
 import org.sopt.app.common.exception.BadRequestException;
@@ -25,29 +36,43 @@ public class S3Service {
     @Value("${cloud.aws.s3.uri}")
     private String baseURI;
 
-    private final AmazonS3 amazonS3;
+    private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
 
     public S3Info.PreSignedUrl getPreSignedUrl(String folderName) {
-        val now = LocalDateTime.now();
-        val folderURI = bucket + "/mainpage/makers-app-img/" + folderName;
-        val randomFileName = UUID.randomUUID();
+        String keyPrefix = "mainpage/makers-app-img/" + folderName + "/";
+        String randomFileName = UUID.randomUUID().toString();
+        String objectKey = keyPrefix + randomFileName;
 
-        URI uri;
+        Duration expirationDuration = Duration.ofHours(1); // 1시간 유효기간
+
         try {
-            // TODO: EC2와 자바의 시간이 UTC와 KST로 9시간이 차이나 있어 10시간을 더함, 추후 수정 필요
-            uri = amazonS3.generatePresignedUrl(folderURI,
-                    randomFileName.toString(), now.plusHours(10).toDate(), HttpMethod.PUT).toURI();
-        } catch (NullPointerException | URISyntaxException e) {
+            PutObjectRequest objectRequest = PutObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(objectKey)
+                    .build();
+
+            PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()
+                    .signatureDuration(expirationDuration)
+                    .putObjectRequest(objectRequest)
+                    .build();
+
+            PresignedPutObjectRequest presignedPutObjectRequest = s3Presigner.presignPutObject(presignRequest);
+            URI uri = presignedPutObjectRequest.url().toURI();
+            String preSignedURL = uri.toString();
+            String imageURL = baseURI + folderName + "/" + randomFileName;
+            return S3Info.PreSignedUrl.builder()
+                    .preSignedURL(preSignedURL)
+                    .imageURL(imageURL)
+                    .build();
+
+        } catch (S3Exception | URISyntaxException e) {
+            LoggerFactory.getLogger(S3Service.class).error("Error generating presigned URL: {}", e.getMessage());
+            throw new BadRequestException(ErrorCode.PRE_SIGNED_URI_ERROR);
+        } catch (SdkException e) {
+            LoggerFactory.getLogger(S3Service.class).error("AWS SDK error generating presigned URL: {}", e.getMessage());
             throw new BadRequestException(ErrorCode.PRE_SIGNED_URI_ERROR);
         }
-
-        val preSignedURL = uri.toString();
-        val imageURL = baseURI + folderName + "/" + randomFileName;
-
-        return S3Info.PreSignedUrl.builder()
-                .preSignedURL(preSignedURL)
-                .imageURL(imageURL)
-                .build();
     }
 
     @EventListener(StampDeletedEvent.class)
@@ -56,9 +81,12 @@ public class S3Service {
     }
 
     private void deleteFiles(List<String> fileUrls, String folderName) {
-        val folderURI = bucket + "/mainpage/makers-app-img/" + folderName;
-        val fileNameList = getFileNameList(fileUrls);
-        fileNameList.forEach(file -> deleteFile(folderURI, file));
+        String keyPrefix = "mainpage/makers-app-img/" + folderName + "/";
+        List<String> fileNameList = getFileNameList(fileUrls);
+        fileNameList.forEach(fileName -> {
+            String objectKey = keyPrefix + fileName;
+            deleteFile(objectKey);
+        });
     }
 
     private List<String> getFileNameList(List<String> fileUrls) {
@@ -68,11 +96,19 @@ public class S3Service {
         }).toList();
     }
 
-    private void deleteFile(String folderURI, String fileName) {
+    private void deleteFile(String objectKey) {
         try {
-            amazonS3.deleteObject(folderURI, fileName.replace(File.separatorChar, '/'));
-        } catch (AmazonServiceException e) {
-            LoggerFactory.getLogger(S3Service.class).error(e.getErrorMessage());
+            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
+                    .bucket(bucket)
+                    .key(objectKey) 
+                    .build();
+            s3Client.deleteObject(deleteObjectRequest);
+            LoggerFactory.getLogger(S3Service.class).info("Successfully deleted S3 object: {}", objectKey);
+        } catch (S3Exception e) {
+            // SDK v2 예외 처리
+            LoggerFactory.getLogger(S3Service.class).error("Error deleting S3 object {}: {}", objectKey, e.awsErrorDetails().errorMessage());
+        } catch (SdkException e) {
+            LoggerFactory.getLogger(S3Service.class).error("AWS SDK error deleting S3 object {}: {}", objectKey, e.getMessage());
         }
     }
 }
