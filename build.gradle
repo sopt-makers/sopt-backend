@@ -82,7 +82,8 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     // aws-s3
-    implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+    implementation 'software.amazon.awssdk:s3'
+
 
     // retry
     implementation 'org.springframework.retry:spring-retry:2.0.6'
@@ -111,5 +112,6 @@ test {
 dependencyManagement {
     imports {
         mavenBom "org.springframework.cloud:spring-cloud-dependencies:$springCloudVersion"
+        mavenBom "software.amazon.awssdk:bom:2.20.0"
     }
 }
