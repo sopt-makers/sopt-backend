@@ -1,5 +1,6 @@
 package org.sopt.app.presentation.home.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -12,11 +13,11 @@ public class FloatingButtonResponse {
     private String collapsedSubtitle;
     private String actionButtonName;
     private String linkUrl;
-    private boolean isActive;
+    private Boolean isActive;
 
     public static FloatingButtonResponse of(String imageUrl, String title, String expandedSubTitle,
                                             String collapsedSubtitle, String actionButtonName, String linkUrl,
-                                            boolean isActive) {
+                                            Boolean isActive) {
         return FloatingButtonResponse.builder()
                 .imageUrl(imageUrl)
                 .title(title)
