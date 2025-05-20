@@ -140,9 +140,10 @@ public class HomeController {
     })
     @GetMapping("/review-form")
     public ResponseEntity<ReviewFormResponse> getReviewForm(
+             @AuthenticationPrincipal User user
     ) {
         return ResponseEntity.ok(
-            homeFacade.getReviewFormInfo()
+            homeFacade.getReviewFormInfo(user)
         );
     }
 }
