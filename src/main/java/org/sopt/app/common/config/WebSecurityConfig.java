@@ -38,7 +38,8 @@ public class WebSecurityConfig {
             "/api/v2/firebase/**",
             "/api/v2/notification/**",
             "/api/v2/user/main",
-            "/api/v2/home/app-service"
+            "/api/v2/home/app-service",
+            "/api/v2/home/floating-button",
     };
 
     private final JwtExceptionFilter jwtExceptionFilter;

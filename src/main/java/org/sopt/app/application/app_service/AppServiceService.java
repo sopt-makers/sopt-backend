@@ -16,9 +16,15 @@ public class AppServiceService {
 
     public List<AppServiceInfo> getAllAppService() {
         return appServiceRepository.findAll().stream()
-                .filter(appService -> !AppServiceName.of(appService.getServiceName()).equals(AppServiceName.OTHERS))
+                .filter(appService -> !(
+                        AppServiceName.of(appService.getServiceName()).equals(AppServiceName.OTHERS) ||
+                        AppServiceName.of(appService.getServiceName()).equals(AppServiceName.FLOATING_BUTTON)))
                 .sorted(Comparator.comparing(AppService::getCreatedAt).reversed())
                 .map(AppServiceInfo::of)
                 .toList();
+    }
+
+    public AppServiceInfo getAppService(String serviceName) {
+        return AppServiceInfo.of(appServiceRepository.findByServiceName(serviceName));
     }
 }

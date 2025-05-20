@@ -9,7 +9,8 @@ public enum AppServiceName {
     POKE("콕찌르기", "POKE","pokeBadgeManager"),
     SOPTAMP("솝탬프", "SOPTAMP","soptampBadgeManager"),
     FORTUNE("솝마디", "FORTUNE","fortuneBadgeManager"),
-    OTHERS("", "OTHERS","defaultBadgeManager");
+    OTHERS("", "OTHERS","defaultBadgeManager"),
+    FLOATING_BUTTON("FAB", "FLOATING_BUTTON", "floatingButtonBadgeManager");
 
     private final String exposedName;
     private final String serviceName;
