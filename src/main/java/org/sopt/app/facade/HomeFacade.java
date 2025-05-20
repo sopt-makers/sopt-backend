@@ -141,7 +141,9 @@ public class HomeFacade {
     }
 
     @Transactional(readOnly = true)
-    public ReviewFormResponse getReviewFormInfo() {
+    public ReviewFormResponse getReviewFormInfo(User user) {
+        boolean isActive = true;
+        if (user == null) isActive = false;
         Map<String, String> operationConfigMap = operationConfigService.getOperationConfigByOperationConfigType(OperationConfigCategory.REVIEW_FORM).stream()
             .collect(Collectors.toMap(OperationConfig::getKey, OperationConfig::getValue));
 
@@ -149,7 +151,8 @@ public class HomeFacade {
                 operationConfigMap.get("title"),
                 operationConfigMap.get("subTitle"),
                 operationConfigMap.get("actionButtonName"),
-                operationConfigMap.get("linkUrl")
+                operationConfigMap.get("linkUrl"),
+                isActive
         );
     }
 }
