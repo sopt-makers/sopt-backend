@@ -131,4 +131,19 @@ public class HomeController {
                 homeFacade.getFloatingButtonInfo(user)
         );
     }
+
+    @Operation(summary = "후기 폼 정보 조회")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/review-form")
+    public ResponseEntity<ReviewFormResponse> getReviewForm(
+             @AuthenticationPrincipal User user
+    ) {
+        return ResponseEntity.ok(
+            homeFacade.getReviewFormInfo(user)
+        );
+    }
 }

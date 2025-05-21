@@ -92,8 +92,8 @@ public class HomeFacade {
     public List<RecentPostsResponse> getRecentPosts(User user) {
         return playgroundAuthService.getRecentPostsWithMemberInfo(user.getPlaygroundToken());
     }
-  
-    public List<EmploymentPostResponse> getHomeEmploymentPost(User  user) {
+
+    public List<EmploymentPostResponse> getHomeEmploymentPost(User user) {
         return playgroundAuthService.getPlaygroundEmploymentPostWithMemberInfo(user.getPlaygroundToken());
     }
 
@@ -138,5 +138,21 @@ public class HomeFacade {
                 isActive
         );
 
+    }
+
+    @Transactional(readOnly = true)
+    public ReviewFormResponse getReviewFormInfo(User user) {
+        boolean isActive = true;
+        if (user == null) isActive = false;
+        Map<String, String> operationConfigMap = operationConfigService.getOperationConfigByOperationConfigType(OperationConfigCategory.REVIEW_FORM).stream()
+            .collect(Collectors.toMap(OperationConfig::getKey, OperationConfig::getValue));
+
+        return ReviewFormResponse.of(
+                operationConfigMap.get("title"),
+                operationConfigMap.get("subTitle"),
+                operationConfigMap.get("actionButtonName"),
+                operationConfigMap.get("linkUrl"),
+                isActive
+        );
     }
 }
