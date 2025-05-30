@@ -2,13 +2,19 @@ package org.sopt.app.facade;
 
 import static org.sopt.app.common.utils.HtmlTagWrapper.wrapWithTag;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.app_service.*;
 import org.sopt.app.application.app_service.dto.*;
 import org.sopt.app.application.description.DescriptionInfo.MainDescription;
 import org.sopt.app.application.description.DescriptionService;
+import org.sopt.app.common.config.OperationConfig;
+import org.sopt.app.common.config.OperationConfigCategory;
 import org.sopt.app.common.utils.ActivityDurationCalculator;
 import org.sopt.app.application.meeting.*;
 import org.sopt.app.application.playground.PlaygroundAuthService;
@@ -28,6 +34,7 @@ public class HomeFacade {
     private final AppServiceService appServiceService;
     private final AppServiceBadgeService appServiceBadgeService;
     private final MeetingService meetingService;
+    private final OperationConfigService operationConfigService;
 
     @Transactional(readOnly = true)
     @Deprecated
@@ -52,11 +59,13 @@ public class HomeFacade {
         if(user == null){
             return this.getOnlyAppServiceInfo();
         }
+        
         return appServiceService.getAllAppService().stream()
                 .filter(appServiceInfo -> isServiceVisibleToUser(appServiceInfo, user))
                 .map(appServiceInfo -> appServiceBadgeService.getAppServiceEntryStatusResponse(
                         appServiceInfo, user.getId()
-                )).toList();
+                ))
+                .toList();
     }
 
     private List<AppServiceEntryStatusResponse> getOnlyAppServiceInfo() {
@@ -83,8 +92,8 @@ public class HomeFacade {
     public List<RecentPostsResponse> getRecentPosts(User user) {
         return playgroundAuthService.getRecentPostsWithMemberInfo(user.getPlaygroundToken());
     }
-  
-    public List<EmploymentPostResponse> getHomeEmploymentPost(User  user) {
+
+    public List<EmploymentPostResponse> getHomeEmploymentPost(User user) {
         return playgroundAuthService.getPlaygroundEmploymentPostWithMemberInfo(user.getPlaygroundToken());
     }
 
@@ -99,5 +108,51 @@ public class HomeFacade {
                 .filter(crewMeeting -> !crewMeeting.isBlockedMeeting())
                 .map(MeetingResponse::of)
                 .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public FloatingButtonResponse getFloatingButtonInfo(User user) {
+        boolean isActive = false;
+        if (user != null) {
+            UserStatus userStatus = playgroundAuthService.getPlaygroundUserActiveInfo(
+                    user.getPlaygroundToken(),
+                    user.getPlaygroundId()
+            ).status();
+
+            isActive = userStatus == UserStatus.ACTIVE ?
+                    appServiceService.getAppService(AppServiceName.FLOATING_BUTTON.getServiceName()).getActiveUser() :
+                    appServiceService.getAppService(AppServiceName.FLOATING_BUTTON.getServiceName()).getInactiveUser();
+        }
+
+
+        Map<String, String> operationConfigMap = operationConfigService.getOperationConfigByOperationConfigType(OperationConfigCategory.FLOATING_BUTTON).stream()
+                .collect(Collectors.toMap(OperationConfig::getKey, OperationConfig::getValue));
+
+        return FloatingButtonResponse.of(
+                operationConfigMap.get("imageUrl"),
+                operationConfigMap.get("title"),
+                operationConfigMap.get("expandedSubTitle"),
+                operationConfigMap.get("collapsedSubtitle"),
+                operationConfigMap.get("actionButtonName"),
+                operationConfigMap.get("linkUrl"),
+                isActive
+        );
+
+    }
+
+    @Transactional(readOnly = true)
+    public ReviewFormResponse getReviewFormInfo(User user) {
+        boolean isActive = true;
+        if (user == null) isActive = false;
+        Map<String, String> operationConfigMap = operationConfigService.getOperationConfigByOperationConfigType(OperationConfigCategory.REVIEW_FORM).stream()
+            .collect(Collectors.toMap(OperationConfig::getKey, OperationConfig::getValue));
+
+        return ReviewFormResponse.of(
+                operationConfigMap.get("title"),
+                operationConfigMap.get("subTitle"),
+                operationConfigMap.get("actionButtonName"),
+                operationConfigMap.get("linkUrl"),
+                isActive
+        );
     }
 }
