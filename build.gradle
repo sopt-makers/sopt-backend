@@ -84,9 +84,13 @@ dependencies {
     // aws-s3
     implementation 'software.amazon.awssdk:s3'
 
-
     // retry
     implementation 'org.springframework.retry:spring-retry:2.0.6'
+
+    // jwt
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.37.3'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+    implementation 'org.springframework.boot:spring-boot-starter-webflux'
 
     // test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'

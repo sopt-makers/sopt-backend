@@ -30,7 +30,6 @@ public class AdminSoptampController {
     })
     @DeleteMapping(value = "/point")
     public ResponseEntity<Void> initAllMissionAndStampAndPoints(
-            @AuthenticationPrincipal User user,
             @RequestParam(name = "password") String password
     ) {
         validateAdmin(password);

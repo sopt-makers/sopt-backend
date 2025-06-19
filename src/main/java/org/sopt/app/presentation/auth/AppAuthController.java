@@ -16,6 +16,7 @@ public class AppAuthController {
 
     private final AuthFacade authFacade;
 
+    // TODO : API 수정 필요
     @Operation(summary = "플그로 로그인/회원가입")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
@@ -30,6 +31,7 @@ public class AppAuthController {
         return ResponseEntity.ok(response);
     }
 
+    // TODO : 삭제 예정
     @Operation(summary = "토큰 리프레시")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),

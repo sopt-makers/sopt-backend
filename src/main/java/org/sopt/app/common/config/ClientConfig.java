@@ -6,6 +6,7 @@ import feign.jackson.*;
 import feign.okhttp.OkHttpClient;
 import feign.slf4j.Slf4jLogger;
 import org.sopt.app.application.meeting.CrewClient;
+import org.sopt.app.application.platform.PlatformClient;
 import org.springframework.context.annotation.*;
 import org.sopt.app.application.playground.PlaygroundClient;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,9 @@ public class ClientConfig {
 
     @Value("${makers.crew.server}")
     private String crewEndPoint;
+
+    @Value("${external.auth.url}")
+    private String platformEndPoint;
 
     @Bean
     public PlaygroundClient playgroundClient() {
@@ -41,6 +45,17 @@ public class ClientConfig {
                 .logger(new Slf4jLogger(CrewClient.class))
                 .logLevel(feignLoggerLevel())
                 .target(CrewClient.class, crewEndPoint);
+    }
+
+    @Bean
+    public PlatformClient platformClient() {
+        return Feign.builder()
+                .client(okHttpClient())
+                .encoder(encoder())
+                .decoder(decoder())
+                .logger(new Slf4jLogger(CrewClient.class))
+                .logLevel(feignLoggerLevel())
+                .target(PlatformClient.class, platformEndPoint);
     }
 
     @Bean
