@@ -21,6 +21,7 @@ public class DescriptionController {
 
     private final HomeFacade homeFacade;
 
+    // TODO : 삭제 예정, Deprecated 된 것으로 인지하고 있음
     @Operation(summary = "메인 문구 조회")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "success"),
