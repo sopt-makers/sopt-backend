@@ -1,6 +1,5 @@
 package org.sopt.app.application.playground;
 
-
 import feign.*;
 import java.util.*;
 import org.sopt.app.application.playground.dto.PlayGroundCoffeeChatWrapper;
@@ -10,6 +9,7 @@ import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
 import org.sopt.app.application.playground.dto.PlayGroundPostDetailResponse;
 import org.sopt.app.application.playground.dto.PlayGroundUserSoptLevelResponse;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
+import org.sopt.app.application.playground.dto.PlaygroundRecentPost;
 import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
 import org.sopt.app.application.playground.dto.RecommendedFriendInfo.PlaygroundUserIds;
 import org.sopt.app.presentation.auth.AppAuthRequest.*;
@@ -62,7 +62,7 @@ public interface PlaygroundClient {
     @RequestLine("GET /api/v1/members/coffeechat")
     PlayGroundCoffeeChatWrapper getCoffeeChatList(@HeaderMap Map<String, String> headers);
 
-    @RequestLine("GET /api/v1/community/posts/{postId}")
+    @RequestLine("GET /api/v1/community/posts/{playgroundPostId}")
     PlayGroundPostDetailResponse getPlayGroundPostDetail(@HeaderMap Map<String, String> headers,
                                                          @Param Long postId);
 
@@ -71,4 +71,7 @@ public interface PlaygroundClient {
 
     @RequestLine("GET /api/v1/members/profile/me")
     PlaygroundProfile getPlayGroundProfile(@HeaderMap Map<String, String> headers);
+
+    @RequestLine("GET /api/v1/community/posts/latest")
+    List<PlaygroundRecentPost> getPlaygroundRecentPosts(@HeaderMap Map<String, String> headers);
 }

@@ -36,6 +36,7 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygrou
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.UserActiveInfo;
+import org.sopt.app.application.playground.dto.PlaygroundRecentPost;
 import org.sopt.app.application.playground.dto.PostWithMemberInfo;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.UnauthorizedException;
@@ -271,8 +272,6 @@ public class PlaygroundAuthService {
                 .toList();
     }
 
-
-
     public List<EmploymentPostResponse> getPlaygroundEmploymentPostWithMemberInfo(String playgroundToken) {
         List<EmploymentPostResponse> employmentPosts = getPlaygroundEmploymentPost(playgroundToken);
         return getPostsWithMemberInfo(playgroundToken, employmentPosts);
@@ -312,5 +311,10 @@ public class PlaygroundAuthService {
     public PlaygroundProfile getPlayGroundProfile(String accessToken) {
         Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         return playgroundClient.getPlayGroundProfile(requestHeader);
+    }
+
+    public List<PlaygroundRecentPost> getPlaygroundRecentPosts(String accessToken) {
+        Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
+        return playgroundClient.getPlaygroundRecentPosts(requestHeader);
     }
 }
