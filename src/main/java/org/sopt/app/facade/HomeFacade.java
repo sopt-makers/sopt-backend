@@ -13,6 +13,7 @@ import org.sopt.app.application.app_service.*;
 import org.sopt.app.application.app_service.dto.*;
 import org.sopt.app.application.description.DescriptionInfo.MainDescription;
 import org.sopt.app.application.description.DescriptionService;
+import org.sopt.app.application.playground.dto.PlaygroundRecentPost;
 import org.sopt.app.common.config.OperationConfig;
 import org.sopt.app.common.config.OperationConfigCategory;
 import org.sopt.app.common.utils.ActivityDurationCalculator;
@@ -154,5 +155,10 @@ public class HomeFacade {
                 operationConfigMap.get("linkUrl"),
                 isActive
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<PlaygroundRecentPost> getPlaygroundRecentPosts(User user) {
+        return playgroundAuthService.getPlaygroundRecentPosts(user.getPlaygroundToken());
     }
 }
