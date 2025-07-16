@@ -3,6 +3,7 @@ package org.sopt.app.application.playground;
 import feign.*;
 import java.util.*;
 import org.sopt.app.application.playground.dto.PlayGroundCoffeeChatWrapper;
+import org.sopt.app.application.playground.dto.PlaygroundPopularPost;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
@@ -72,6 +73,9 @@ public interface PlaygroundClient {
     @RequestLine("GET /api/v1/members/profile/me")
     PlaygroundProfile getPlayGroundProfile(@HeaderMap Map<String, String> headers);
 
-    @RequestLine("GET /api/v1/community/posts/latest")
+    @RequestLine("GET /internal/api/v1/community/posts/latest")
     List<PlaygroundRecentPost> getPlaygroundRecentPosts(@HeaderMap Map<String, String> headers);
+
+    @RequestLine("GET /internal/api/v1/community/posts/popular")
+    List<PlaygroundPopularPost> getPlaygroundPopularPosts(@HeaderMap Map<String, String> headers);
 }
