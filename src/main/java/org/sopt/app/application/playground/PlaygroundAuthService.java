@@ -26,6 +26,7 @@ import org.sopt.app.application.playground.dto.PlayGroundCoffeeChatResponse;
 import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
 import org.sopt.app.application.playground.dto.PlayGroundPostCategory;
 import org.sopt.app.application.playground.dto.PlayGroundPostDetailResponse;
+import org.sopt.app.application.playground.dto.PlaygroundPopularPost;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPost;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActiveUserIds;
@@ -316,5 +317,10 @@ public class PlaygroundAuthService {
     public List<PlaygroundRecentPost> getPlaygroundRecentPosts(String accessToken) {
         Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
         return playgroundClient.getPlaygroundRecentPosts(requestHeader);
+    }
+
+    public List<PlaygroundPopularPost> getPlaygroundPopularPosts(String accessToken) {
+        Map<String, String> requestHeader = createAuthorizationHeaderByUserPlaygroundToken(accessToken);
+        return playgroundClient.getPlaygroundPopularPosts(requestHeader);
     }
 }
