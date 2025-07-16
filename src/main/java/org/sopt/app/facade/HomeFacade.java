@@ -13,6 +13,7 @@ import org.sopt.app.application.app_service.*;
 import org.sopt.app.application.app_service.dto.*;
 import org.sopt.app.application.description.DescriptionInfo.MainDescription;
 import org.sopt.app.application.description.DescriptionService;
+import org.sopt.app.application.playground.dto.PlaygroundPopularPost;
 import org.sopt.app.application.playground.dto.PlaygroundRecentPost;
 import org.sopt.app.common.config.OperationConfig;
 import org.sopt.app.common.config.OperationConfigCategory;
@@ -159,6 +160,27 @@ public class HomeFacade {
 
     @Transactional(readOnly = true)
     public List<PlaygroundRecentPost> getPlaygroundRecentPosts(User user) {
-        return playgroundAuthService.getPlaygroundRecentPosts(user.getPlaygroundToken());
+        List<OperationConfig> configList = operationConfigService.getOperationConfigByOperationConfigType(OperationConfigCategory.PLAYGROUND_POST);
+        Map<String, String> imageConfigMap = PlaygroundRecentPost.toImageConfigMap(configList);
+
+        return playgroundAuthService.getPlaygroundRecentPosts(user.getPlaygroundToken()).stream()
+            .map(post -> PlaygroundRecentPost.from(
+                post.playgroundPostId(),
+                post.profileImage(),
+                post.name(),
+                post.generationAndPart(),
+                post.category(),
+                post.title(),
+                post.content(),
+                post.webLink(),
+                post.createdAt(),
+                imageConfigMap
+            ))
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PlaygroundPopularPost> getPlaygroundPopularPosts(User user) {
+        return playgroundAuthService.getPlaygroundPopularPosts(user.getPlaygroundToken());
     }
 }
