@@ -14,12 +14,8 @@ public interface UserRepository extends JpaRepository<User, Long>{
 
     List<User> findAllByPlaygroundIdIn(List<Long> playgroundIds);
 
-
     @Query("SELECT u.id FROM User u WHERE u.playgroundId in :playgroundIds")
     List<Long> findAllIdByPlaygroundIdIn(@Param("playgroundIds") List<Long> playgroundIds);
-
-    @Query("SELECT DISTINCT u.playgroundId FROM User u")
-    List<Long> findAllPlaygroundId();
 
     List<User> findAllByIdIn(List<Long> userId);
 }

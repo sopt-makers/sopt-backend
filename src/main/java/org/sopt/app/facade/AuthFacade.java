@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.app.application.auth.JwtTokenService;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.AppToken;
+import org.sopt.app.application.platform.PlatformService;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.LoginInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundMain;
@@ -29,55 +30,56 @@ public class AuthFacade {
     private final PlaygroundAuthService playgroundAuthService;
     private final SoptampUserService soptampUserService;
     private final PokeService pokeService;
+    private final PlatformService platformService;
 
-    @Transactional
-    public AppAuthResponse loginWithPlayground(CodeRequest codeRequest) {
-        String playgroundToken = this.getPlaygroundTokenByPlaygroundLogin(codeRequest);
-        PlaygroundMain playgroundInfo = playgroundAuthService.getPlaygroundMember(playgroundToken);
-        PlaygroundProfile playgroundProfile = playgroundAuthService.getPlaygroundMemberProfile(
-                playgroundToken, playgroundInfo.getId()
-        );
-        Long latestGeneration = playgroundProfile.getLatestActivity().getGeneration();
-        Long userId = userService.upsertUser(LoginInfo.of(playgroundInfo, playgroundToken));
-        soptampUserService.upsertSoptampUser(playgroundProfile, userId);
+    // @Transactional
+    // public AppAuthResponse loginWithPlayground(CodeRequest codeRequest) {
+    //     String playgroundToken = this.getPlaygroundTokenByPlaygroundLogin(codeRequest);
+    //     PlaygroundMain playgroundInfo = playgroundAuthService.getPlaygroundMember(playgroundToken);
+    //     PlaygroundProfile playgroundProfile = playgroundAuthService.getPlaygroundMemberProfile(
+    //             playgroundToken, playgroundInfo.getId()
+    //     );
+    //     Long latestGeneration = playgroundProfile.getLatestActivity().getGeneration();
+    //     Long userId = userService.upsertUser(LoginInfo.of(playgroundInfo, playgroundToken));
+    //     soptampUserService.upsertSoptampUser(playgroundProfile, userId);
+    //
+    //     AppToken appToken = jwtTokenService.issueNewTokens(userId, playgroundInfo.getId());
+    //     return AppAuthResponse.builder()
+    //             .playgroundToken(playgroundToken)
+    //             .accessToken(appToken.getAccessToken())
+    //             .refreshToken(appToken.getRefreshToken())
+    //             .status(playgroundAuthService.getStatus(latestGeneration))
+    //             .build();
+    // }
+    //
+    // private String getPlaygroundTokenByPlaygroundLogin(CodeRequest codeRequest){
+    //     AccessTokenRequest temporaryToken = playgroundAuthService.getPlaygroundAccessToken(codeRequest);
+    //     return playgroundAuthService.refreshPlaygroundToken(temporaryToken).getAccessToken();
+    // }
+    //
+    // @Transactional
+    // public AppAuthResponse getRefreshToken(String refreshToken) {
+    //     Long userId = jwtTokenService.getUserIdFromJwtToken(refreshToken);
+    //     AccessTokenRequest existingToken = userService.getPlaygroundToken(userId);
+    //     String refreshedPlaygroundToken = playgroundAuthService.refreshPlaygroundToken(existingToken).getAccessToken();
+    //     PlaygroundMain playgroundInfo = playgroundAuthService.getPlaygroundMember(refreshedPlaygroundToken);
+    //     userService.updatePlaygroundToken(userId, refreshedPlaygroundToken);
+    //
+    //     AppToken appToken = jwtTokenService.issueNewTokens(userId, playgroundInfo.getId());
+    //     return AppAuthResponse.builder()
+    //             .accessToken(appToken.getAccessToken())
+    //             .playgroundToken(refreshedPlaygroundToken)
+    //             .refreshToken(appToken.getRefreshToken())
+    //             .status(playgroundAuthService.getStatus(playgroundInfo.getLatestGeneration()))
+    //             .build();
+    // }
 
-        AppToken appToken = jwtTokenService.issueNewTokens(userId, playgroundInfo.getId());
-        return AppAuthResponse.builder()
-                .playgroundToken(playgroundToken)
-                .accessToken(appToken.getAccessToken())
-                .refreshToken(appToken.getRefreshToken())
-                .status(playgroundAuthService.getStatus(latestGeneration))
-                .build();
+    public int getUserSoptLevel(Long userId) {
+        return playgroundAuthService.getUserSoptLevel(userId);
     }
 
-    private String getPlaygroundTokenByPlaygroundLogin(CodeRequest codeRequest){
-        AccessTokenRequest temporaryToken = playgroundAuthService.getPlaygroundAccessToken(codeRequest);
-        return playgroundAuthService.refreshPlaygroundToken(temporaryToken).getAccessToken();
-    }
-
-    @Transactional
-    public AppAuthResponse getRefreshToken(String refreshToken) {
-        Long userId = jwtTokenService.getUserIdFromJwtToken(refreshToken);
-        AccessTokenRequest existingToken = userService.getPlaygroundToken(userId);
-        String refreshedPlaygroundToken = playgroundAuthService.refreshPlaygroundToken(existingToken).getAccessToken();
-        PlaygroundMain playgroundInfo = playgroundAuthService.getPlaygroundMember(refreshedPlaygroundToken);
-        userService.updatePlaygroundToken(userId, refreshedPlaygroundToken);
-
-        AppToken appToken = jwtTokenService.issueNewTokens(userId, playgroundInfo.getId());
-        return AppAuthResponse.builder()
-                .accessToken(appToken.getAccessToken())
-                .playgroundToken(refreshedPlaygroundToken)
-                .refreshToken(appToken.getRefreshToken())
-                .status(playgroundAuthService.getStatus(playgroundInfo.getLatestGeneration()))
-                .build();
-    }
-
-    public int getUserSoptLevel(User user) {
-        return playgroundAuthService.getUserSoptLevel(user);
-    }
-
-    public PlaygroundProfile getUserDetails(User user) {
-        return playgroundAuthService.getPlayGroundProfile(user.getPlaygroundToken());
+    public PlaygroundProfile getUserDetails(Long userId) {
+        return playgroundAuthService.getPlayGroundProfile(userId);
     }
 
     public List<String> getIcons(IconType iconType) {

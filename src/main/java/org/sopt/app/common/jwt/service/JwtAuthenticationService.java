@@ -71,7 +71,7 @@ public class JwtAuthenticationService {
     private MakersAuthentication toAuthentication(JWTClaimsSet claims) {
         Long userId = Long.parseLong(claims.getSubject());
         List<String> roles = (List<String>) claims.getClaim(ROLES);
-        return new MakersAuthentication(userId, roles);
+        return new  MakersAuthentication(userId, roles);
     }
 
     /**

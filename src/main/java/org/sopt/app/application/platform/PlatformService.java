@@ -1,14 +1,28 @@
 package org.sopt.app.application.platform;
 
+import static org.sopt.app.application.playground.PlaygroundHeaderCreator.*;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+
+import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo;
 import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
 import org.sopt.app.application.platform.dto.PlatformUserInfoWrapper;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.exception.UnauthorizedException;
+import org.sopt.app.common.response.ErrorCode;
+import org.sopt.app.domain.enums.UserStatus;
+import org.sopt.app.presentation.auth.AppAuthRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.*;
 
@@ -25,6 +39,9 @@ public class PlatformService {
     @Value("${external.auth.service-name}")
     private String serviceName;
 
+    @Value("${sopt.current.generation}")
+    private Long currentGeneration;
+
     public PlatformUserInfoResponse getPlatformUserInfoResponse(Long userId) {
         final Map<String, String> headers = createAuthorizationHeader();
         final Map<String, Collection<String>> params = createQueryParams(Collections.singletonList(userId));
@@ -37,6 +54,14 @@ public class PlatformService {
         final Map<String, Collection<String>> params = createQueryParams(userIds);
         PlatformUserInfoWrapper platformUserInfoWrapper = platformClient.getPlatformUserInfo(headers, params);
         return platformUserInfoWrapper.data();
+    }
+
+    private UserStatus getStatus(List<Long> generationList) {
+        return generationList.contains(currentGeneration) ? UserStatus.ACTIVE : UserStatus.INACTIVE;
+    }
+
+    public UserStatus getStatus(Long userId) {
+        return Long.valueOf(getPlatformUserInfoResponse(userId).lastGeneration()).equals(currentGeneration) ? UserStatus.ACTIVE : UserStatus.INACTIVE;
     }
 
     private Map<String, String> createAuthorizationHeader() {
@@ -52,5 +77,33 @@ public class PlatformService {
             queryParams.put("userIds", Collections.singletonList(id.toString()));
         }
         return queryParams;
+    }
+
+    // TODO : 확인 필요
+    // public PlaygroundProfileInfo.MainView getPlaygroundUserForMainView(String accessToken, Long playgroundId) {
+    //     val playgroundProfile = this.getPlaygroundMemberProfile(accessToken, playgroundId);
+    //     val profileImage = playgroundProfile.getProfileImage() == null ? "" : playgroundProfile.getProfileImage();
+    //     val generationList = this.getMemberGenerationList(playgroundProfile);
+    //     val mainViewUser = PlaygroundProfileInfo.MainViewUser.builder()
+    //             .status(this.getStatus(generationList))
+    //             .name(playgroundProfile.getName())
+    //             .profileImage(profileImage)
+    //             .generationList(generationList)
+    //             .build();
+    //     return new PlaygroundProfileInfo.MainView(mainViewUser);
+    // }
+
+    public List<Long> getMemberGenerationList(Long userId) {
+        return getPlatformUserInfoResponse(userId)
+            .soptActivities().stream()
+            .map(PlatformUserInfoResponse.SoptActivities::generation)
+            .map(Integer::longValue)
+            .distinct()
+            .sorted(Comparator.reverseOrder())
+            .toList();
+    }
+
+    public boolean isCurrentGeneration(Long generation) {
+        return generation.equals(currentGeneration);
     }
 }

@@ -37,9 +37,9 @@ public class UserOriginalController {
     })
     @GetMapping(value = "/main")
     public ResponseEntity<UserResponse.MainView> getMainViewInfo(
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal Long userId
     ) {
-        val response = userFacade.getMainViewInfo(user);
+        val response = userFacade.getMainViewInfo(userId);
         return ResponseEntity.ok(response);
     }
 
@@ -51,37 +51,37 @@ public class UserOriginalController {
     })
     @GetMapping(value = "/generation")
     public ResponseEntity<UserResponse.Generation> getGenerationInfo(
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal Long userId
     ) {
         val generationUser =
-                playgroundAuthService.getPlaygroundUserActiveInfo(user.getPlaygroundToken(), user.getPlaygroundId());
+                playgroundAuthService.getPlaygroundUserActiveInfo(userId);
         val response = userResponseMapper.ofGeneration(generationUser);
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "앱 서비스 조회")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "400", description = "no playground, operation profile", content = @Content),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping(value = "/app-service")
-    @Deprecated
-    public ResponseEntity<List<AppService>> getAppServiceInfo() {
-        val response = userFacade.getAppServiceInfo();
-        return ResponseEntity.ok(response);
-    }
+    // @Operation(summary = "앱 서비스 조회")
+    // @ApiResponses({
+    //         @ApiResponse(responseCode = "200", description = "success"),
+    //         @ApiResponse(responseCode = "400", description = "no playground, operation profile", content = @Content),
+    //         @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    // })
+    // @GetMapping(value = "/app-service")
+    // @Deprecated
+    // public ResponseEntity<List<AppService>> getAppServiceInfo() {
+    //     val response = userFacade.getAppServiceInfo();
+    //     return ResponseEntity.ok(response);
+    // }
 
-    @Operation(summary = "플레이그라운드 인기 게시글 조회")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping(value = "/playground/hot-post")
-    public ResponseEntity<PlaygroundPost> getPlaygroundHotPost(
-            @AuthenticationPrincipal User user
-    ) {
-        val response = playgroundAuthService.getPlaygroundHotPost(user.getPlaygroundToken());
-        return ResponseEntity.ok(response);
-    }
+    // @Operation(summary = "플레이그라운드 인기 게시글 조회")
+    // @ApiResponses({
+    //         @ApiResponse(responseCode = "200", description = "success"),
+    //         @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    // })
+    // @GetMapping(value = "/playground/hot-post")
+    // public ResponseEntity<PlaygroundPost> getPlaygroundHotPost(
+    //         @AuthenticationPrincipal User user
+    // ) {
+    //     val response = playgroundAuthService.getPlaygroundHotPost(user.getPlaygroundToken());
+    //     return ResponseEntity.ok(response);
+    // }
 }

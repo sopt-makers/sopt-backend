@@ -26,12 +26,12 @@ public class FriendRecommender {
     private final PlaygroundUserIdsProvider playgroundUserIdsProvider;
 
     public RecommendedFriendsRequest recommendFriendsByTypeList(List<FriendRecommendType> typeList, int size,
-            User user) {
+        Long userId) {
         typeList = this.adjustTypeList(typeList);
 
-        OwnPlaygroundProfile ownProfile = playgroundAuthService.getOwnPlaygroundProfile(user.getPlaygroundToken());
+        OwnPlaygroundProfile ownProfile = playgroundAuthService.getOwnPlaygroundProfile(userId);
         FriendFilter friendFilter =
-                new FriendFilter(friendService.findAllFriendIdsByUserId(user.getId()), user.getId());
+                new FriendFilter(friendService.findAllFriendIdsByUserId(userId), userId);
         List<RecommendedFriendsByType> recommendedFriends = new ArrayList<>();
         for (FriendRecommendType type : typeList) {
             List<UserProfile> recommendableUserProfiles =
@@ -39,7 +39,7 @@ public class FriendRecommender {
             if (!recommendableUserProfiles.isEmpty()) {
                 List<UserProfile> pickedUserProfiles = RandomPicker.pickRandom(recommendableUserProfiles, size);
                 List<SimplePokeProfile> simplePokeProfiles =
-                        this.convertUserProfilesToSimplePokeProfiles(pickedUserProfiles, user);
+                        this.convertUserProfilesToSimplePokeProfiles(pickedUserProfiles);
 
                 recommendedFriends.add(RecommendedFriendsByType.builder()
                         .randomType(type)
@@ -52,10 +52,9 @@ public class FriendRecommender {
     }
 
     private List<SimplePokeProfile> convertUserProfilesToSimplePokeProfiles(
-            List<UserProfile> pickedUserProfiles, User user) {
-        List<Long> pickedPlaygroundIds = pickedUserProfiles.stream().map(UserProfile::getPlaygroundId).toList();
-        List<PlaygroundProfile> pickedPlaygroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(
-                user.getPlaygroundToken(), pickedPlaygroundIds);
+            List<UserProfile> pickedUserProfiles) {
+        List<Long> pickedPlaygroundIds = pickedUserProfiles.stream().map(UserProfile::getUserId).toList();
+        List<PlaygroundProfile> pickedPlaygroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(pickedPlaygroundIds);
         return this.makeSimplePokeProfilesForNotFriend(pickedPlaygroundProfiles, pickedUserProfiles);
     }
 
@@ -64,7 +63,7 @@ public class FriendRecommender {
     ) {
         return userProfiles.stream()
                 .map(userProfile -> playgroundProfiles.stream()
-                        .filter(profile -> profile.getMemberId().equals(userProfile.getPlaygroundId()))
+                        .filter(profile -> profile.getMemberId().equals(userProfile.getUserId()))
                         .findFirst()
                         .map(playgroundProfile ->
                                 SimplePokeProfile.createNonFriendPokeProfile(playgroundProfile, userProfile))
@@ -75,14 +74,13 @@ public class FriendRecommender {
 
     private List<UserProfile> getRecommendableUserProfiles(
             FriendRecommendType type, OwnPlaygroundProfile ownProfile, FriendFilter friendFilter) {
-        Set<Long> playgroundIds;
+        Set<Long> userIds;
         if (type == FriendRecommendType.ALL_USER) {
-            playgroundIds = Set.copyOf(userService.getAllPlaygroundIds());
+            userIds = Set.copyOf(userService.getAllUserIds());
         } else {
-            playgroundIds = playgroundUserIdsProvider.findPlaygroundIdsByType(ownProfile, type);
+            userIds = playgroundUserIdsProvider.findPlaygroundIdsByType(ownProfile, type);
         }
-        List<UserProfile> unFilteredUserProfiles = userService.getUserProfilesByPlaygroundIds(
-                List.copyOf(playgroundIds));
+        List<UserProfile> unFilteredUserProfiles = userService.getUserProfilesByUserIds(List.copyOf(userIds));
         return friendFilter.excludeAlreadyFriendUserIds(unFilteredUserProfiles);
     }
 

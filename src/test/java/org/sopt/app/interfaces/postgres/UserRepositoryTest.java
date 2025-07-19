@@ -94,7 +94,7 @@ class UserRepositoryTest {
         final List<Long> playgroundIds = List.of(user1.getPlaygroundId(), user2.getPlaygroundId());
 
         //then
-        Assertions.assertTrue(userRepository.findAllPlaygroundId().containsAll(playgroundIds));
+        Assertions.assertTrue(userRepository.findAllId().containsAll(playgroundIds));
     }
 
     @Test

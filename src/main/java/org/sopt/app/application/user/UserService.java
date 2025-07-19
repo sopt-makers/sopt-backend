@@ -75,13 +75,19 @@ public class UserService {
                 .toList();
     }
 
-    public List<UserProfile> getUserProfilesByPlaygroundIds(List<Long> playgroundIds) {
-        return userRepository.findAllByPlaygroundIdIn(playgroundIds).stream().map(UserProfile::of).toList();
+    // public List<UserProfile> getUserProfilesByPlaygroundIds(List<Long> playgroundIds) {
+    //     return userRepository.findAllByPlaygroundIdIn(playgroundIds).stream().map(UserProfile::of).toList();
+    // }
+
+    public List<UserProfile> getUserProfilesByUserIds(List<Long> userIds) {
+        return userRepository.findAllByIdIn(userIds).stream().map(UserProfile::of).toList();
     }
 
-    public List<Long> getAllPlaygroundIds() {
-        return userRepository.findAllPlaygroundId();
+    public List<Long> getAllUserIds() {
+        return userRepository.findAll().stream().map(User::getId).toList();
     }
+
+
 
     public boolean isUserExist(Long userId) {
         return userRepository.existsById(userId);

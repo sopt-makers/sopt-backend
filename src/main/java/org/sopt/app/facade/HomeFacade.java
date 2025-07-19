@@ -13,6 +13,8 @@ import org.sopt.app.application.app_service.*;
 import org.sopt.app.application.app_service.dto.*;
 import org.sopt.app.application.description.DescriptionInfo.MainDescription;
 import org.sopt.app.application.description.DescriptionService;
+import org.sopt.app.application.platform.PlatformService;
+import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
 import org.sopt.app.common.config.OperationConfig;
 import org.sopt.app.common.config.OperationConfigCategory;
 import org.sopt.app.common.utils.ActivityDurationCalculator;
@@ -35,7 +37,9 @@ public class HomeFacade {
     private final AppServiceBadgeService appServiceBadgeService;
     private final MeetingService meetingService;
     private final OperationConfigService operationConfigService;
+    private final PlatformService platformService;
 
+    // TODO : deprecated 된것으로 인지
     @Transactional(readOnly = true)
     @Deprecated
     public MainDescription getMainDescriptionForUser(User user) {
@@ -45,25 +49,24 @@ public class HomeFacade {
     }
 
     @Transactional(readOnly = true)
-    public HomeDescriptionResponse getHomeMainDescription(User user) {
-        List<Long> ownGenerations = playgroundAuthService.getOwnPlaygroundProfile(user.getPlaygroundToken())
-                .getAllGenerations();
-        int duration = ActivityDurationCalculator.calculate(ownGenerations);
+    public HomeDescriptionResponse getHomeMainDescription(Long userId) {
+        int duration = ActivityDurationCalculator.calculate(platformService.getMemberGenerationList(userId));
         return HomeDescriptionResponse.of(
-                wrapWithTag(user.getUsername(), "b"),
+                wrapWithTag(platformService.getPlatformUserInfoResponse(userId).name(), "b"),
                 duration
         );
     }
     @Transactional(readOnly = true)
-    public List<AppServiceEntryStatusResponse> checkAppServiceEntryStatus(User user) {
-        if(user == null){
+    public List<AppServiceEntryStatusResponse> checkAppServiceEntryStatus(Long userId) {
+        if(userId == null){
             return this.getOnlyAppServiceInfo();
         }
+        UserStatus status = platformService.getStatus(userId);
         
         return appServiceService.getAllAppService().stream()
-                .filter(appServiceInfo -> isServiceVisibleToUser(appServiceInfo, user))
+                .filter(appServiceInfo -> isServiceVisibleToUser(status))
                 .map(appServiceInfo -> appServiceBadgeService.getAppServiceEntryStatusResponse(
-                        appServiceInfo, user.getId()
+                        appServiceInfo, userId
                 ))
                 .toList();
     }
@@ -74,11 +77,7 @@ public class HomeFacade {
                 .toList();
     }
 
-    private boolean isServiceVisibleToUser(AppServiceInfo appServiceInfo, User user) {
-        UserStatus status = playgroundAuthService.getPlaygroundUserActiveInfo(
-                user.getPlaygroundToken(), user.getPlaygroundId()
-        ).status();
-
+    private boolean isServiceVisibleToUser(UserStatus status) {
         if (status == UserStatus.ACTIVE) {
             return appServiceInfo.getActiveUser();
         }
@@ -89,9 +88,10 @@ public class HomeFacade {
         return false;
     }
 
-    public List<RecentPostsResponse> getRecentPosts(User user) {
-        return playgroundAuthService.getRecentPostsWithMemberInfo(user.getPlaygroundToken());
-    }
+    // public List<RecentPostsResponse> getRecentPosts(Long userId) {
+    //
+    //     return playgroundAuthService.getRecentPostsWithMemberInfo(user.getPlaygroundToken());
+    // }
 
     public List<EmploymentPostResponse> getHomeEmploymentPost(User user) {
         return playgroundAuthService.getPlaygroundEmploymentPostWithMemberInfo(user.getPlaygroundToken());
@@ -111,14 +111,10 @@ public class HomeFacade {
     }
 
     @Transactional(readOnly = true)
-    public FloatingButtonResponse getFloatingButtonInfo(User user) {
+    public FloatingButtonResponse getFloatingButtonInfo(Long userId) {
         boolean isActive = false;
-        if (user != null) {
-            UserStatus userStatus = playgroundAuthService.getPlaygroundUserActiveInfo(
-                    user.getPlaygroundToken(),
-                    user.getPlaygroundId()
-            ).status();
-
+        if (userId != null) {
+            UserStatus userStatus = platformService.getStatus(userId);
             isActive = userStatus == UserStatus.ACTIVE ?
                     appServiceService.getAppService(AppServiceName.FLOATING_BUTTON.getServiceName()).getActiveUser() :
                     appServiceService.getAppService(AppServiceName.FLOATING_BUTTON.getServiceName()).getInactiveUser();
@@ -141,10 +137,11 @@ public class HomeFacade {
     }
 
     @Transactional(readOnly = true)
-    public ReviewFormResponse getReviewFormInfo(User user) {
+    public ReviewFormResponse getReviewFormInfo(Long userId) {
         boolean isActive = true;
-        if (user == null) isActive = false;
-        Map<String, String> operationConfigMap = operationConfigService.getOperationConfigByOperationConfigType(OperationConfigCategory.REVIEW_FORM).stream()
+        if (userId == null) isActive = false;
+        Map<String, String> operationConfigMap = operationConfigService
+            .getOperationConfigByOperationConfigType(OperationConfigCategory.REVIEW_FORM).stream()
             .collect(Collectors.toMap(OperationConfig::getKey, OperationConfig::getValue));
 
         return ReviewFormResponse.of(
