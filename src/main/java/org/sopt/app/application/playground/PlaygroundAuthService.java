@@ -4,9 +4,27 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.val;
+import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
+import org.sopt.app.application.playground.dto.PlayGroundCoffeeChatResponse;
+import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
+import org.sopt.app.application.playground.dto.PlayGroundPostCategory;
+import org.sopt.app.application.playground.dto.PlayGroundPostDetailResponse;
+import org.sopt.app.application.playground.dto.PlaygroundPopularPost;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPost;
+import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActiveUserIds;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.MainView;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.MainViewUser;
 
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.UserActiveInfo;
+import org.sopt.app.application.playground.dto.PlaygroundRecentPost;
+import org.sopt.app.application.playground.dto.PostWithMemberInfo;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
@@ -268,5 +286,12 @@ public class PlaygroundAuthService {
 
     public PlaygroundProfile getPlayGroundProfile(Long userId) {
         return playgroundClient.getPlayGroundProfile(userId);
+    }
+    public List<PlaygroundRecentPost> getPlaygroundRecentPosts(Long userId) {
+        return playgroundClient.getPlaygroundRecentPosts(userId);
+    }
+
+    public List<PlaygroundPopularPost> getPlaygroundPopularPosts(Long userId) {
+        return playgroundClient.getPlaygroundPopularPosts(userId);
     }
 }

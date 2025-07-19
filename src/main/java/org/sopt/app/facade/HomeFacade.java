@@ -1,31 +1,40 @@
 package org.sopt.app.facade;
 
-import static org.sopt.app.common.utils.HtmlTagWrapper.wrapWithTag;
+import static org.sopt.app.common.utils.HtmlTagWrapper.*;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import lombok.RequiredArgsConstructor;
-import lombok.val;
-import org.sopt.app.application.app_service.*;
-import org.sopt.app.application.app_service.dto.*;
+import org.sopt.app.application.app_service.AppServiceBadgeService;
+import org.sopt.app.application.app_service.AppServiceName;
+import org.sopt.app.application.app_service.AppServiceService;
+import org.sopt.app.application.app_service.OperationConfigService;
+import org.sopt.app.application.app_service.dto.AppServiceEntryStatusResponse;
 import org.sopt.app.application.description.DescriptionInfo.MainDescription;
 import org.sopt.app.application.description.DescriptionService;
+import org.sopt.app.application.meeting.MeetingResponse;
+import org.sopt.app.application.meeting.MeetingService;
 import org.sopt.app.application.platform.PlatformService;
-import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
+import org.sopt.app.application.playground.PlaygroundAuthService;
+import org.sopt.app.application.playground.dto.PlaygroundPopularPost;
+import org.sopt.app.application.playground.dto.PlaygroundRecentPost;
 import org.sopt.app.common.config.OperationConfig;
 import org.sopt.app.common.config.OperationConfigCategory;
 import org.sopt.app.common.utils.ActivityDurationCalculator;
-import org.sopt.app.application.meeting.*;
-import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.UserStatus;
-import org.sopt.app.presentation.home.response.*;
 import org.sopt.app.presentation.home.MeetingParamRequest;
+import org.sopt.app.presentation.home.response.CoffeeChatResponse;
+import org.sopt.app.presentation.home.response.EmploymentPostResponse;
+import org.sopt.app.presentation.home.response.FloatingButtonResponse;
+import org.sopt.app.presentation.home.response.HomeDescriptionResponse;
+import org.sopt.app.presentation.home.response.ReviewFormResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 
 @Service
 @RequiredArgsConstructor
@@ -62,7 +71,7 @@ public class HomeFacade {
             return this.getOnlyAppServiceInfo();
         }
         UserStatus status = platformService.getStatus(userId);
-        
+
         return appServiceService.getAllAppService().stream()
                 .filter(appServiceInfo -> isServiceVisibleToUser(status))
                 .map(appServiceInfo -> appServiceBadgeService.getAppServiceEntryStatusResponse(
@@ -151,5 +160,31 @@ public class HomeFacade {
                 operationConfigMap.get("linkUrl"),
                 isActive
         );
+    }
+
+    @Transactional(readOnly = true)
+    public List<PlaygroundRecentPost> getPlaygroundRecentPosts(User user) {
+        List<OperationConfig> configList = operationConfigService.getOperationConfigByOperationConfigType(OperationConfigCategory.PLAYGROUND_POST);
+        Map<String, String> imageConfigMap = PlaygroundRecentPost.toImageConfigMap(configList);
+
+        return playgroundAuthService.getPlaygroundRecentPosts(user.getPlaygroundToken()).stream()
+            .map(post -> PlaygroundRecentPost.from(
+                post.playgroundPostId(),
+                post.profileImage(),
+                post.name(),
+                post.generationAndPart(),
+                post.category(),
+                post.title(),
+                post.content(),
+                post.webLink(),
+                post.createdAt(),
+                imageConfigMap
+            ))
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<PlaygroundPopularPost> getPlaygroundPopularPosts(User user) {
+        return playgroundAuthService.getPlaygroundPopularPosts(user.getPlaygroundToken());
     }
 }

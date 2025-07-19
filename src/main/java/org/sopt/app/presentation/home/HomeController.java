@@ -9,6 +9,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.app_service.dto.AppServiceEntryStatusResponse;
 import org.sopt.app.application.meeting.MeetingResponse;
+import org.sopt.app.application.playground.dto.PlaygroundPopularPostsResponse;
+import org.sopt.app.application.playground.dto.PlaygroundRecentPostsResponse;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.HomeFacade;
 import org.sopt.app.presentation.home.response.*;
@@ -68,6 +70,33 @@ public class HomeController {
     //             homeFacade.getRecentPosts(userId));
     // }
 
+    @Operation(summary = "플레이그라운드 최신 게시물 목록 조회")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/posts/latest")
+    public ResponseEntity<PlaygroundRecentPostsResponse> getRecentPosts(
+        @AuthenticationPrincipal User user
+    ) {
+        return ResponseEntity.ok(
+            PlaygroundRecentPostsResponse.from(homeFacade.getPlaygroundRecentPosts(user)));
+    }
+
+    @Operation(summary = "플레이그라운드 인기 게시물 목록 조회")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/posts/popular")
+    public ResponseEntity<PlaygroundPopularPostsResponse> getPopularPosts(
+        @AuthenticationPrincipal User user
+    ) {
+        return ResponseEntity.ok(
+            PlaygroundPopularPostsResponse.from(homeFacade.getPlaygroundPopularPosts(user)));
+    }
     // @Operation(summary = "최근 채용탭 10개 조회")
     // @ApiResponses({
     //         @ApiResponse(responseCode = "200", description = "success"),

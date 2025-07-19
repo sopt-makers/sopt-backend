@@ -1,15 +1,16 @@
 package org.sopt.app.application.playground;
 
-
 import feign.*;
 import java.util.*;
 import org.sopt.app.application.playground.dto.PlayGroundCoffeeChatWrapper;
+import org.sopt.app.application.playground.dto.PlaygroundPopularPost;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.RefreshedToken;
 import org.sopt.app.application.playground.dto.PlayGroundEmploymentResponse;
 import org.sopt.app.application.playground.dto.PlayGroundPostDetailResponse;
 import org.sopt.app.application.playground.dto.PlayGroundUserSoptLevelResponse;
 import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPostResponse;
+import org.sopt.app.application.playground.dto.PlaygroundRecentPost;
 import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
 import org.sopt.app.application.playground.dto.RecommendedFriendInfo.PlaygroundUserIds;
 import org.sopt.app.presentation.auth.AppAuthRequest.*;
@@ -75,4 +76,9 @@ public interface PlaygroundClient {
     // headermap 제외 memberId
     @RequestLine("GET /api/v1/members/profile/me?memberId={memberId}")
     PlaygroundProfile getPlayGroundProfile(@Param Long memberId);
+    @RequestLine("GET /internal/api/v1/community/posts/latest")
+    List<PlaygroundRecentPost> getPlaygroundRecentPosts(@HeaderMap Map<String, String> headers);
+
+    @RequestLine("GET /internal/api/v1/community/posts/popular")
+    List<PlaygroundPopularPost> getPlaygroundPopularPosts(@HeaderMap Map<String, String> headers);
 }
