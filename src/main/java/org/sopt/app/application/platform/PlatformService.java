@@ -56,12 +56,12 @@ public class PlatformService {
         return platformUserInfoWrapper.data();
     }
 
-    private UserStatus getStatus(List<Long> generationList) {
-        return generationList.contains(currentGeneration) ? UserStatus.ACTIVE : UserStatus.INACTIVE;
-    }
-
     public UserStatus getStatus(Long userId) {
         return Long.valueOf(getPlatformUserInfoResponse(userId).lastGeneration()).equals(currentGeneration) ? UserStatus.ACTIVE : UserStatus.INACTIVE;
+    }
+
+    private UserStatus getStatus(List<Long> generationList) {
+        return generationList.contains(currentGeneration) ? UserStatus.ACTIVE : UserStatus.INACTIVE;
     }
 
     private Map<String, String> createAuthorizationHeader() {
@@ -79,20 +79,6 @@ public class PlatformService {
         return queryParams;
     }
 
-    // TODO : 확인 필요
-    // public PlaygroundProfileInfo.MainView getPlaygroundUserForMainView(String accessToken, Long playgroundId) {
-    //     val playgroundProfile = this.getPlaygroundMemberProfile(accessToken, playgroundId);
-    //     val profileImage = playgroundProfile.getProfileImage() == null ? "" : playgroundProfile.getProfileImage();
-    //     val generationList = this.getMemberGenerationList(playgroundProfile);
-    //     val mainViewUser = PlaygroundProfileInfo.MainViewUser.builder()
-    //             .status(this.getStatus(generationList))
-    //             .name(playgroundProfile.getName())
-    //             .profileImage(profileImage)
-    //             .generationList(generationList)
-    //             .build();
-    //     return new PlaygroundProfileInfo.MainView(mainViewUser);
-    // }
-
     public List<Long> getMemberGenerationList(Long userId) {
         return getPlatformUserInfoResponse(userId)
             .soptActivities().stream()
@@ -105,5 +91,9 @@ public class PlatformService {
 
     public boolean isCurrentGeneration(Long generation) {
         return generation.equals(currentGeneration);
+    }
+
+    public PlaygroundProfileInfo.UserActiveInfo getUserActiveInfo(Long userId) {
+        return new PlaygroundProfileInfo.UserActiveInfo(currentGeneration, getStatus(userId));
     }
 }
