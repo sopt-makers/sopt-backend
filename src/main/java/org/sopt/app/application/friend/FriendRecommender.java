@@ -5,13 +5,14 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
+
+import org.sopt.app.application.platform.PlatformService;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.*;
 import org.sopt.app.application.playground.user_finder.PlaygroundUserIdsProvider;
 import org.sopt.app.application.user.UserProfile;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.common.utils.RandomPicker;
-import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.FriendRecommendType;
 import org.sopt.app.presentation.poke.PokeResponse.*;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ public class FriendRecommender {
     private final UserService userService;
     private final FriendService friendService;
     private final PlaygroundUserIdsProvider playgroundUserIdsProvider;
+    private final PlatformService platformService;
 
     public RecommendedFriendsRequest recommendFriendsByTypeList(List<FriendRecommendType> typeList, int size,
         Long userId) {
@@ -80,7 +82,10 @@ public class FriendRecommender {
         } else {
             userIds = playgroundUserIdsProvider.findPlaygroundIdsByType(ownProfile, type);
         }
-        List<UserProfile> unFilteredUserProfiles = userService.getUserProfilesByUserIds(List.copyOf(userIds));
+
+        List <UserProfile> unFilteredUserProfiles = platformService.getPlatformUserInfosResponse(List.copyOf(userIds))
+                .stream()
+                .map(user -> UserProfile.of((long)user.userId(), user.name())).toList();
         return friendFilter.excludeAlreadyFriendUserIds(unFilteredUserProfiles);
     }
 

@@ -11,10 +11,10 @@ public class UserProfile {
     private String name;
     // private Long playgroundId;
 
-    public static UserProfile of(User user){
+    public static UserProfile of(Long userId, String name){
         return UserProfile.builder()
-                .userId(user.getId())
-                .name(user.getUsername())
+                .userId(userId)
+                .name(name)
                 // .playgroundId(user.getPlaygroundId())
                 .build();
     }

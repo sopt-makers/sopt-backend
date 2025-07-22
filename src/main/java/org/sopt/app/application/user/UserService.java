@@ -63,11 +63,11 @@ public class UserService {
         user.updatePlaygroundToken(playgroundToken);
     }
 
-    public UserProfile getUserProfileOrElseThrow(Long userId) {
-        val user = userRepository.findUserById(userId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
-        return UserProfile.of(user);
-    }
+    // public UserProfile getUserProfileOrElseThrow(Long userId) {
+    //     val user = userRepository.findUserById(userId)
+    //             .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+    //     return UserProfile.of(user);
+    // }
 
     public List<String> getNamesByIds(List<Long> userIds) {
         return userRepository.findAllByIdIn(userIds).stream()
@@ -79,8 +79,8 @@ public class UserService {
     //     return userRepository.findAllByPlaygroundIdIn(playgroundIds).stream().map(UserProfile::of).toList();
     // }
 
-    public List<UserProfile> getUserProfilesByUserIds(List<Long> userIds) {
-        return userRepository.findAllByIdIn(userIds).stream().map(UserProfile::of).toList();
+    public List<User> getUserProfilesByUserIds(List<Long> userIds) {
+        return userRepository.findAllByIdIn(userIds);
     }
 
     public List<Long> getAllUserIds() {
