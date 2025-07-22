@@ -78,10 +78,10 @@ public class HomeController {
     })
     @GetMapping("/posts/latest")
     public ResponseEntity<PlaygroundRecentPostsResponse> getRecentPosts(
-        @AuthenticationPrincipal User user
+        @AuthenticationPrincipal Long userId
     ) {
         return ResponseEntity.ok(
-            PlaygroundRecentPostsResponse.from(homeFacade.getPlaygroundRecentPosts(user)));
+            PlaygroundRecentPostsResponse.from(homeFacade.getPlaygroundRecentPosts(userId)));
     }
 
     @Operation(summary = "플레이그라운드 인기 게시물 목록 조회")
@@ -92,10 +92,10 @@ public class HomeController {
     })
     @GetMapping("/posts/popular")
     public ResponseEntity<PlaygroundPopularPostsResponse> getPopularPosts(
-        @AuthenticationPrincipal User user
+        @AuthenticationPrincipal Long userId
     ) {
         return ResponseEntity.ok(
-            PlaygroundPopularPostsResponse.from(homeFacade.getPlaygroundPopularPosts(user)));
+            PlaygroundPopularPostsResponse.from(homeFacade.getPlaygroundPopularPosts(userId)));
     }
     // @Operation(summary = "최근 채용탭 10개 조회")
     // @ApiResponses({

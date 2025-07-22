@@ -11,6 +11,7 @@ import org.sopt.app.application.app_service.AppServiceName;
 import org.sopt.app.application.app_service.AppServiceService;
 import org.sopt.app.application.app_service.OperationConfigService;
 import org.sopt.app.application.app_service.dto.AppServiceEntryStatusResponse;
+import org.sopt.app.application.app_service.dto.AppServiceInfo;
 import org.sopt.app.application.description.DescriptionInfo.MainDescription;
 import org.sopt.app.application.description.DescriptionService;
 import org.sopt.app.application.meeting.MeetingResponse;
@@ -49,13 +50,13 @@ public class HomeFacade {
     private final PlatformService platformService;
 
     // TODO : deprecated 된것으로 인지
-    @Transactional(readOnly = true)
-    @Deprecated
-    public MainDescription getMainDescriptionForUser(User user) {
-        val userActiveInfo = playgroundAuthService.getPlaygroundUserActiveInfo(user.getPlaygroundToken(),
-                user.getPlaygroundId());
-        return descriptionService.getMainDescription(userActiveInfo.status());
-    }
+//    @Transactional(readOnly = true)
+//    @Deprecated
+//    public MainDescription getMainDescriptionForUser(User user) {
+//        val userActiveInfo = playgroundAuthService.getPlaygroundUserActiveInfo(user.getPlaygroundToken(),
+//                user.getPlaygroundId());
+//        return descriptionService.getMainDescription(userActiveInfo.status());
+//    }
 
     @Transactional(readOnly = true)
     public HomeDescriptionResponse getHomeMainDescription(Long userId) {
@@ -73,7 +74,7 @@ public class HomeFacade {
         UserStatus status = platformService.getStatus(userId);
 
         return appServiceService.getAllAppService().stream()
-                .filter(appServiceInfo -> isServiceVisibleToUser(status))
+                .filter(appServiceInfo -> isServiceVisibleToUser(appServiceInfo, status))
                 .map(appServiceInfo -> appServiceBadgeService.getAppServiceEntryStatusResponse(
                         appServiceInfo, userId
                 ))
@@ -86,7 +87,7 @@ public class HomeFacade {
                 .toList();
     }
 
-    private boolean isServiceVisibleToUser(UserStatus status) {
+    private boolean isServiceVisibleToUser(AppServiceInfo appServiceInfo, UserStatus status) {
         if (status == UserStatus.ACTIVE) {
             return appServiceInfo.getActiveUser();
         }
@@ -102,14 +103,14 @@ public class HomeFacade {
     //     return playgroundAuthService.getRecentPostsWithMemberInfo(user.getPlaygroundToken());
     // }
 
-    public List<EmploymentPostResponse> getHomeEmploymentPost(User user) {
-        return playgroundAuthService.getPlaygroundEmploymentPostWithMemberInfo(user.getPlaygroundToken());
-    }
-
-    @Transactional(readOnly = true)
-    public List<CoffeeChatResponse> getCoffeeChatList(User user) {
-        return playgroundAuthService.getCoffeeChatList(user.getPlaygroundToken());
-    }
+//    public List<EmploymentPostResponse> getHomeEmploymentPost(User user) {
+//        return playgroundAuthService.getPlaygroundEmploymentPostWithMemberInfo(user.getPlaygroundToken());
+//    }
+//
+//    @Transactional(readOnly = true)
+//    public List<CoffeeChatResponse> getCoffeeChatList(User user) {
+//        return playgroundAuthService.getCoffeeChatList(user.getPlaygroundToken());
+//    }
 
     public List<MeetingResponse> getAllMeetings(MeetingParamRequest request) {
         return meetingService.getAllMeetings(request)
@@ -163,11 +164,11 @@ public class HomeFacade {
     }
 
     @Transactional(readOnly = true)
-    public List<PlaygroundRecentPost> getPlaygroundRecentPosts(User user) {
+    public List<PlaygroundRecentPost> getPlaygroundRecentPosts(Long userId) {
         List<OperationConfig> configList = operationConfigService.getOperationConfigByOperationConfigType(OperationConfigCategory.PLAYGROUND_POST);
         Map<String, String> imageConfigMap = PlaygroundRecentPost.toImageConfigMap(configList);
 
-        return playgroundAuthService.getPlaygroundRecentPosts(user.getPlaygroundToken()).stream()
+        return playgroundAuthService.getPlaygroundRecentPosts().stream()
             .map(post -> PlaygroundRecentPost.from(
                 post.playgroundPostId(),
                 post.profileImage(),
@@ -184,7 +185,7 @@ public class HomeFacade {
     }
 
     @Transactional(readOnly = true)
-    public List<PlaygroundPopularPost> getPlaygroundPopularPosts(User user) {
-        return playgroundAuthService.getPlaygroundPopularPosts(user.getPlaygroundToken());
+    public List<PlaygroundPopularPost> getPlaygroundPopularPosts(Long userId) {
+        return playgroundAuthService.getPlaygroundPopularPosts();
     }
 }

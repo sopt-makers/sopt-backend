@@ -69,6 +69,7 @@ public class PlaygroundAuthService {
     public PlaygroundProfile getPlayGroundProfile(Long userId) {
         return playgroundClient.getPlayGroundProfile(userId);
     }
+
     public List<PlaygroundRecentPost> getPlaygroundRecentPosts() {
         return playgroundClient.getPlaygroundRecentPosts();
     }

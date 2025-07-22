@@ -17,7 +17,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 public class User extends BaseEntity implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
 
