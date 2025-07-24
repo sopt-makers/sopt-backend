@@ -10,12 +10,12 @@ import org.springframework.data.repository.query.Param;
 public interface UserRepository extends JpaRepository<User, Long>{
     Optional<User> findUserById(Long userId);
 
-    Optional<User> findUserByPlaygroundId(Long playgroundId);
+    // Optional<User> findUserByPlaygroundId(Long playgroundId);
 
-    List<User> findAllByPlaygroundIdIn(List<Long> playgroundIds);
+    // List<User> findAllByPlaygroundIdIn(List<Long> playgroundIds);
 
-    @Query("SELECT u.id FROM User u WHERE u.playgroundId in :playgroundIds")
-    List<Long> findAllIdByPlaygroundIdIn(@Param("playgroundIds") List<Long> playgroundIds);
+    // @Query("SELECT u.id FROM User u WHERE u.playgroundId in :playgroundIds")
+    // List<Long> findAllIdByPlaygroundIdIn(@Param("playgroundIds") List<Long> playgroundIds);
 
     List<User> findAllByIdIn(List<Long> userId);
 }

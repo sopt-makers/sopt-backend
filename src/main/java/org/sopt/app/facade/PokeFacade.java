@@ -15,6 +15,7 @@ import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.friend.FriendService;
 import org.sopt.app.application.poke.*;
 import org.sopt.app.application.poke.PokeInfo.PokeHistoryInfo;
+import org.sopt.app.application.user.UserProfile;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
@@ -172,7 +173,9 @@ public class PokeFacade {
     }
 
     private String createMutualFriendNames(Long userId, Long friendId) {
-        List<String> mutualFriendNames = userService.getNamesByIds(friendService.getMutualFriendIds(userId, friendId));
+        // List<String> mutualFriendNames = userService.getNamesByIds(friendService.getMutualFriendIds(userId, friendId));
+        List<String> mutualFriendNames = platformService.getPlatformUserInfosResponse(friendService.getMutualFriendIds(userId, friendId))
+            .stream().map(PlatformUserInfoResponse::name).toList();
 
         if (mutualFriendNames.isEmpty()) {
             return NEW_FRIEND_NO_MUTUAL;
@@ -251,7 +254,9 @@ public class PokeFacade {
             PlatformUserInfoResponse.SoptActivities::generation)).orElseThrow(
             () -> new NotFoundException(ErrorCode.USER_NOT_FOUND)
         );
-        val mutualFriendNames = userService.getNamesByIds(friendService.getMutualFriendIds(userId, friendUserId));
+        // val mutualFriendNames = userService.getNamesByIds(friendService.getMutualFriendIds(userId, friendUserId));
+        List<String> mutualFriendNames = platformService.getPlatformUserInfosResponse(friendService.getMutualFriendIds(userId, friendUserId))
+            .stream().map(PlatformUserInfoResponse::name).toList();
         val relationInfo = friendService.getRelationInfo(userId, friendUserId);
         return PokeInfo.PokedUserInfo.builder()
                 .userId(userId)

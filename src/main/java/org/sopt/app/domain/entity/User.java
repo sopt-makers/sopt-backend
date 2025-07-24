@@ -14,63 +14,63 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User extends BaseEntity implements UserDetails {
+public class User extends BaseEntity {
 
     @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
 
-    private String username;
+    // private String username;
 
-    @Column(unique = true)
-    private Long playgroundId;
+    // @Column(unique = true)
+    // private Long playgroundId;
 
-    private String playgroundToken;
+    // private String playgroundToken;
 
-    @Builder
-    public User(String username, Long playgroundId) {
-        this.username = username;
-        this.playgroundId = playgroundId;
-    }
+    // @Builder
+    // public User(String username, Long playgroundId) {
+    //     this.username = username;
+    //     this.playgroundId = playgroundId;
+    // }
 
-    public void updatePlaygroundUserInfo(String username, String playgroundToken) {
-        this.username = username;
-        this.playgroundToken = playgroundToken;
-    }
+    // public void updatePlaygroundUserInfo(String username, String playgroundToken) {
+    //     this.username = username;
+    //     this.playgroundToken = playgroundToken;
+    // }
 
-    public void updatePlaygroundToken(String playgroundToken) {
-        this.playgroundToken = playgroundToken;
-    }
+    // public void updatePlaygroundToken(String playgroundToken) {
+    //     this.playgroundToken = playgroundToken;
+    // }
 
     // UserDetails Override Methods
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return false;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return false;
-    }
-
-    @Override
-    public String getPassword() {
-        return null;
-    }
+    // @Override
+    // public Collection<? extends GrantedAuthority> getAuthorities() {
+    //     return Collections.emptyList();
+    // }
+    //
+    // @Override
+    // public boolean isAccountNonExpired() {
+    //     return false;
+    // }
+    //
+    // @Override
+    // public boolean isAccountNonLocked() {
+    //     return false;
+    // }
+    //
+    // @Override
+    // public boolean isCredentialsNonExpired() {
+    //     return false;
+    // }
+    //
+    // @Override
+    // public boolean isEnabled() {
+    //     return false;
+    // }
+    //
+    // @Override
+    // public String getPassword() {
+    //     return null;
+    // }
 }

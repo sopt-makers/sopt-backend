@@ -3,7 +3,7 @@ package org.sopt.app.facade;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.sopt.app.application.auth.JwtTokenService;
+// import org.sopt.app.application.auth.JwtTokenService;
 import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo.AppToken;
 import org.sopt.app.application.platform.PlatformService;
 import org.sopt.app.application.playground.PlaygroundAuthService;
@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AuthFacade {
 
-    private final JwtTokenService jwtTokenService;
+    // private final JwtTokenService jwtTokenService;
     private final UserService userService;
     private final PlaygroundAuthService playgroundAuthService;
     private final SoptampUserService soptampUserService;
