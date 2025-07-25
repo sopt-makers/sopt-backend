@@ -52,11 +52,10 @@ public class PushTokenService {
     }
 
     @Transactional(rollbackFor = BadRequestException.class)
-    public PushTokenResponse.StatusResponse registerDeviceToken(User user, String pushToken, String platform) {
-        if (!pushTokenRepository.existsByUserIdAndToken(user.getId(), pushToken)) {
+    public PushTokenResponse.StatusResponse registerDeviceToken(Long userId, String pushToken, String platform) {
+        if (!pushTokenRepository.existsByUserIdAndToken(userId, pushToken)) {
             PushToken registerToken = PushToken.builder()
-                    .userId(user.getId())
-                    .playgroundId(user.getPlaygroundId())
+                    .userId(userId)
                     .token(pushToken)
                     .platform(PushTokenPlatform.valueOf(platform))
                     .build();
@@ -138,7 +137,7 @@ public class PushTokenService {
 
     private PushTokenManageRequest createBodyFor(PushToken pushToken) {
         return new PushTokenManageRequest(
-                List.of(String.valueOf(pushToken.getPlaygroundId())),
+                List.of(String.valueOf(pushToken.getUserId())),
                 pushToken.getToken()
         );
     }

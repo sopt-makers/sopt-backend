@@ -26,61 +26,65 @@ public class UserService {
     private final UserRepository userRepository;
     private final IconRepository iconRepository;
 
-    @Transactional
-    public Long upsertUser(LoginInfo loginInfo) {
-        Optional<User> user = userRepository.findUserByPlaygroundId(loginInfo.playgroundId());
+    // @Transactional
+    // public Long upsertUser(LoginInfo loginInfo) {
+    //     Optional<User> user = userRepository.findUserByPlaygroundId(loginInfo.playgroundId());
+    //
+    //     if (user.isPresent()) {
+    //         return this.updateRegisteredUserInfo(user.get(), loginInfo).getId();
+    //     }
+    //     return this.registerNewUser(loginInfo).getId();
+    // }
+    //
+    // private User updateRegisteredUserInfo(User registeredUser, LoginInfo loginInfo) {
+    //     registeredUser.updatePlaygroundUserInfo(loginInfo.name(), loginInfo.playgroundToken());
+    //     return registeredUser;
+    // }
+    //
+    // private User registerNewUser(LoginInfo loginInfo) {
+    //     User newUser = User.builder()
+    //             .username(loginInfo.name())
+    //             .playgroundId(loginInfo.playgroundId())
+    //             .playgroundToken(loginInfo.playgroundToken())
+    //             .build();
+    //     return userRepository.save(newUser);
+    // }
+    //
+    // public AccessTokenRequest getPlaygroundToken(Long userId) {
+    //     val user = userRepository.findUserById(userId)
+    //             .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_REFRESH_TOKEN));
+    //     return new AccessTokenRequest(user.getPlaygroundToken());
+    // }
+    //
+    // @Transactional
+    // public void updatePlaygroundToken(Long userId, String playgroundToken) {
+    //     User user = userRepository.findUserById(userId)
+    //             .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_REFRESH_TOKEN));
+    //     user.updatePlaygroundToken(playgroundToken);
+    // }
 
-        if (user.isPresent()) {
-            return this.updateRegisteredUserInfo(user.get(), loginInfo).getId();
-        }
-        return this.registerNewUser(loginInfo).getId();
-    }
+    // public UserProfile getUserProfileOrElseThrow(Long userId) {
+    //     val user = userRepository.findUserById(userId)
+    //             .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+    //     return UserProfile.of(user);
+    // }
 
-    private User updateRegisteredUserInfo(User registeredUser, LoginInfo loginInfo) {
-        registeredUser.updatePlaygroundUserInfo(loginInfo.name(), loginInfo.playgroundToken());
-        return registeredUser;
-    }
+    // public List<String> getNamesByIds(List<Long> userIds) {
+    //     return userRepository.findAllByIdIn(userIds).stream()
+    //             .map(User::getUsername)
+    //             .toList();
+    // }
 
-    private User registerNewUser(LoginInfo loginInfo) {
-        User newUser = User.builder()
-                .username(loginInfo.name())
-                .playgroundId(loginInfo.playgroundId())
-                .playgroundToken(loginInfo.playgroundToken())
-                .build();
-        return userRepository.save(newUser);
-    }
+    // public List<UserProfile> getUserProfilesByPlaygroundIds(List<Long> playgroundIds) {
+    //     return userRepository.findAllByPlaygroundIdIn(playgroundIds).stream().map(UserProfile::of).toList();
+    // }
 
-    public AccessTokenRequest getPlaygroundToken(Long userId) {
-        val user = userRepository.findUserById(userId)
-                .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_REFRESH_TOKEN));
-        return new AccessTokenRequest(user.getPlaygroundToken());
-    }
+    // public List<User> getUserProfilesByUserIds(List<Long> userIds) {
+    //     return userRepository.findAllByIdIn(userIds);
+    // }
 
-    @Transactional
-    public void updatePlaygroundToken(Long userId, String playgroundToken) {
-        User user = userRepository.findUserById(userId)
-                .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_REFRESH_TOKEN));
-        user.updatePlaygroundToken(playgroundToken);
-    }
-
-    public UserProfile getUserProfileOrElseThrow(Long userId) {
-        val user = userRepository.findUserById(userId)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
-        return UserProfile.of(user);
-    }
-
-    public List<String> getNamesByIds(List<Long> userIds) {
-        return userRepository.findAllByIdIn(userIds).stream()
-                .map(User::getUsername)
-                .toList();
-    }
-
-    public List<UserProfile> getUserProfilesByPlaygroundIds(List<Long> playgroundIds) {
-        return userRepository.findAllByPlaygroundIdIn(playgroundIds).stream().map(UserProfile::of).toList();
-    }
-
-    public List<Long> getAllPlaygroundIds() {
-        return userRepository.findAllPlaygroundId();
+    public List<Long> getAllUserIds() {
+        return userRepository.findAll().stream().map(User::getId).toList();
     }
 
     public boolean isUserExist(Long userId) {

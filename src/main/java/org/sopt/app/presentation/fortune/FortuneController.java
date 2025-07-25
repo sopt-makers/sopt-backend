@@ -2,6 +2,7 @@ package org.sopt.app.presentation.fortune;
 
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import org.sopt.app.application.fortune.FortuneService;
+import org.sopt.app.application.platform.PlatformService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.Operation;
@@ -10,7 +11,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.domain.entity.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
@@ -21,6 +21,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 public class FortuneController {
 
     private final FortuneService fortuneService;
+    private final PlatformService platformService;
 
     @Operation(summary = "오늘의 솝마디 조회")
     @ApiResponses({
@@ -30,14 +31,14 @@ public class FortuneController {
     })
     @GetMapping("/word")
     public ResponseEntity<FortuneResponse> getFortune(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal Long userId,
             @DateTimeFormat(pattern = "yyyy-MM-dd")
             @RequestParam(name = "todayDate") LocalDate todayDate
     ) {
         return ResponseEntity.ok(
                 FortuneResponse.of(
-                        fortuneService.getTodayFortuneWordByUserId(user.getId(), todayDate),
-                        user.getUsername()
+                        fortuneService.getTodayFortuneWordByUserId(userId, todayDate),
+                        platformService.getPlatformUserInfoResponse(userId).name()
                 )
         );
     }
@@ -50,11 +51,11 @@ public class FortuneController {
     })
     @GetMapping("/card/today")
     public ResponseEntity<FortuneCardResponse> getFortuneCard(
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal Long userId
     ) {
         return ResponseEntity.ok(
                 FortuneCardResponse.of(
-                        fortuneService.getTodayFortuneCardByUserId(user.getId())
+                        fortuneService.getTodayFortuneCardByUserId(userId)
                 )
         );
     }

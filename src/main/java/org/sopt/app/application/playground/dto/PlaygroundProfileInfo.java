@@ -69,6 +69,9 @@ public class PlaygroundProfileInfo {
     public record MainView(
             MainViewUser user
     ) {
+        public static MainView of(MainViewUser user) {
+            return new MainView(user);
+        }
     }
 
     @Getter

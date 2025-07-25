@@ -20,8 +20,8 @@ public class PushToken extends BaseEntity{
     @NotNull
     private Long userId;
 
-    @NotNull
-    private Long playgroundId;
+    // @NotNull
+    // private Long playgroundId;
 
     @Column(columnDefinition = "TEXT")
     @NotNull

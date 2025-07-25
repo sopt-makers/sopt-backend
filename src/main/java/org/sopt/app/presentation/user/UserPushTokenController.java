@@ -33,11 +33,11 @@ public class UserPushTokenController {
     })
     @PostMapping(value = "/push-token")
     public ResponseEntity<PushTokenResponse.StatusResponse> updatePushToken(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody PushTokenRequest.EditRequest pushTokenRequest
     ) {
         val result = pushTokenService.registerDeviceToken(
-                user,
+                userId,
                 pushTokenRequest.getPushToken(),
                 pushTokenRequest.getPlatform()
         );
@@ -52,12 +52,12 @@ public class UserPushTokenController {
     })
     @DeleteMapping(value = "/push-token")
     public ResponseEntity<PushTokenResponse.StatusResponse> deletePushToken(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody PushTokenRequest.DeleteRequest deletePushTokenRequest
     ) {
-        if (pushTokenService.isExistDeviceToken(user.getId(), deletePushTokenRequest.getPushToken())) {
+        if (pushTokenService.isExistDeviceToken(userId, deletePushTokenRequest.getPushToken())) {
             PushToken targetPushToken = pushTokenService.getDeviceToken(
-                    user.getId(), deletePushTokenRequest.getPushToken()
+                    userId, deletePushTokenRequest.getPushToken()
             );
             pushTokenService.deleteDeviceToken(targetPushToken);
         }

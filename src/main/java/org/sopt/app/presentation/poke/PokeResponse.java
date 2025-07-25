@@ -108,8 +108,8 @@ public class PokeResponse {
 
         @Schema(description = "유저 ID", example = "1")
         private Long userId;
-        @Schema(description = "playgroundId", example = "1")
-        private Long playgroundId;
+        // @Schema(description = "playgroundId", example = "1")
+        // private Long playgroundId;
         @Schema(description = "프로필 사진 URL", example = ".....")
         private String profileImage;
         @Schema(description = "유저 이름", example = "다혜다해")
@@ -145,7 +145,7 @@ public class PokeResponse {
         ) {
             return new SimplePokeProfile(
                     pokedUserInfo.getUserId(),
-                    pokedUserInfo.getPlaygroundId(),
+                    // pokedUserInfo.getPlaygroundId(),
                     pokedUserInfo.getProfileImage() == null ? "" : pokedUserInfo.getProfileImage(),
                     pokedUserInfo.getName(),
                     pokeDetail.getMessage() == null ? "" : pokeDetail.getMessage(),
@@ -164,7 +164,7 @@ public class PokeResponse {
 
         public static SimplePokeProfile of(
                 Long userId,
-                Long playgroundId,
+                // Long playgroundId,
                 String profileImage,
                 String name,
                 String message,
@@ -180,7 +180,7 @@ public class PokeResponse {
         ) {
             return new SimplePokeProfile(
                     userId,
-                    playgroundId,
+                    // playgroundId,
                     profileImage == null ? "" : profileImage,
                     name,
                     message == null ? "" : message,
@@ -202,7 +202,7 @@ public class PokeResponse {
         ) {
             return new SimplePokeProfile(
                     userProfile.getUserId(),
-                    userProfile.getPlaygroundId(),
+                    // userProfile.getPlaygroundId(),
                     playgroundProfile.getProfileImage() == null ? "" : playgroundProfile.getProfileImage(),
                     userProfile.getName(),
                     "",
@@ -241,8 +241,8 @@ public class PokeResponse {
 
         @Schema(description = "친구 ID", example = "1")
         private Long friendId;
-        @Schema(description = "playgroundId", example = "1")
-        private Long playgroundId;
+        // @Schema(description = "playgroundId", example = "1")
+        // private Long playgroundId;
         @Schema(description = "친구 이름", example = "제갈송현")
         private String friendName;
         @Schema(description = "친구 프로필 사진 URL", example = ".....")
@@ -250,9 +250,9 @@ public class PokeResponse {
         @Schema(description = "친구 프로필 리스트", example = "[{'userId': 1, 'profileImage': '...', 'name': '제갈송현', 'generation': 29, 'part': '안드로이드'}]")
         private List<SimplePokeProfile> friendList;
 
-        public static Friend of(Long friendId, Long playgroundId, String friendName, String friendProfileImage,
+        public static Friend of(Long friendId, String friendName, String friendProfileImage,
                 List<SimplePokeProfile> friendList) {
-            return new Friend(friendId, playgroundId, friendName, friendProfileImage == null ? "" : friendProfileImage, friendList);
+            return new Friend(friendId, friendName, friendProfileImage == null ? "" : friendProfileImage, friendList);
         }
     }
 
