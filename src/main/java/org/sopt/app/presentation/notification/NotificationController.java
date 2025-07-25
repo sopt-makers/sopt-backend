@@ -34,15 +34,15 @@ public class NotificationController {
     })
     @GetMapping(value = "/all")
     public ResponseEntity<List<NotificationResponse.NotificationSimple>> findNotificationList(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal Long userId,
             @RequestParam(name = "category", required = false) NotificationCategory category,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         if(Objects.isNull(category)) {
-            val result = notificationService.findNotificationList(user.getId(), pageable);
+            val result = notificationService.findNotificationList(userId, pageable);
             return ResponseEntity.ok(result.stream().map(NotificationSimple::of).toList());
         } else {
-            val result = notificationService.findNotificationListByCategory(user.getId(), pageable, category);
+            val result = notificationService.findNotificationListByCategory(userId, pageable, category);
             return ResponseEntity.ok(result.stream().map(NotificationSimple::of).toList());
         }
     }
@@ -53,10 +53,10 @@ public class NotificationController {
     })
     @GetMapping(value = "/detail/{notificationId}")
     public ResponseEntity<NotificationResponse.NotificationDetail> findNotificationDetail(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal Long userId,
             @PathVariable("notificationId") String notificationId
     ) {
-        val result = notificationService.findNotification(user, notificationId);
+        val result = notificationService.findNotification(userId, notificationId);
         return ResponseEntity.ok(
                 NotificationResponse.NotificationDetail.of(result)
         );
@@ -67,7 +67,7 @@ public class NotificationController {
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @PostMapping("")
+    @PostMapping
     public ResponseEntity<Object> registerNotification(
             @Valid @RequestBody NotificationRequest.RegisterNotificationRequest registerNotificationRequest
     ) {
@@ -85,10 +85,10 @@ public class NotificationController {
             "/{notificationId}", ""
     })
     public ResponseEntity<Object> updateNotificationIsRead(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal Long userId,
             @PathVariable(name = "notificationId", required = false) String notificationId
     ) {
-        notificationService.updateNotificationIsRead(user, notificationId);
+        notificationService.updateNotificationIsRead(userId, notificationId);
         return ResponseEntity.ok().build();
     }
 }

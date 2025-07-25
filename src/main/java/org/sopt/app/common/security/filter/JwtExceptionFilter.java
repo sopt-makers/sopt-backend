@@ -1,4 +1,4 @@
-package org.sopt.app.common.config;
+package org.sopt.app.common.security.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.FilterChain;

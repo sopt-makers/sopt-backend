@@ -31,8 +31,8 @@ public class MissionController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping(value = "/all")
-    public ResponseEntity<List<MissionResponse.Completeness>> findAllMission(@AuthenticationPrincipal User user) {
-        val result = missionService.findAllMission(user.getId());
+    public ResponseEntity<List<MissionResponse.Completeness>> findAllMission(@AuthenticationPrincipal Long userId) {
+        val result = missionService.findAllMission(userId);
         val response = missionResponseMapper.ofCompleteness(result);
         return ResponseEntity.ok(response);
     }
@@ -57,8 +57,8 @@ public class MissionController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("complete")
-    public ResponseEntity<List<MissionResponse.MissionMain>> findCompleteMission(@AuthenticationPrincipal User user) {
-        val result = missionService.getCompleteMission(user.getId());
+    public ResponseEntity<List<MissionResponse.MissionMain>> findCompleteMission(@AuthenticationPrincipal Long userId) {
+        val result = missionService.getCompleteMission(userId);
         val response = missionResponseMapper.of(result);
         return ResponseEntity.ok(response);
     }
@@ -69,8 +69,8 @@ public class MissionController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("incomplete")
-    public ResponseEntity<List<MissionResponse.MissionMain>> findInCompleteMission(@AuthenticationPrincipal User user) {
-        val result = missionService.getIncompleteMission(user.getId());
+    public ResponseEntity<List<MissionResponse.MissionMain>> findInCompleteMission(@AuthenticationPrincipal Long userId) {
+        val result = missionService.getIncompleteMission(userId);
         val response = missionResponseMapper.of(result);
         return ResponseEntity.ok(response);
     }

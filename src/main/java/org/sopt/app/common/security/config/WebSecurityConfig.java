@@ -1,8 +1,10 @@
-package org.sopt.app.common.config;
+package org.sopt.app.common.security.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.sopt.app.common.security.filter.JwtAuthenticationFilter;
+import org.sopt.app.common.security.filter.JwtExceptionFilter;
 import org.springframework.context.annotation.*;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;

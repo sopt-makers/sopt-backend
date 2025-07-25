@@ -32,9 +32,9 @@ public class PokeController {
     @Operation(summary = "신규 유저인지 조회")
     @GetMapping("/new")
     public ResponseEntity<PokeResponse.IsNew> getPokeList(
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal Long userId
     ) {
-        val result = pokeFacade.getIsNewUser(user.getId());
+        val result = pokeFacade.getIsNewUser(userId);
         return ResponseEntity.ok(new IsNew(result));
     }
 
@@ -60,14 +60,14 @@ public class PokeController {
     })
     @PutMapping("/{userId}")
     public ResponseEntity<SimplePokeProfile> orderPoke(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal Long userId,
             @PathVariable("userId") Long pokedUserId,
             @RequestBody PokeRequest.PokeMessageRequest messageRequest
     ) {
         val pokeHistoryId = pokeFacade.pokeFriend(
-                user.getId(), pokedUserId, messageRequest.getMessage(), messageRequest.getIsAnonymous()
+                userId, pokedUserId, messageRequest.getMessage(), messageRequest.getIsAnonymous()
         );
-        val response = pokeFacade.getPokeHistoryProfile(user, pokedUserId, pokeHistoryId);
+        val response = pokeFacade.getPokeHistoryProfile(userId, pokedUserId, pokeHistoryId);
         return ResponseEntity.ok(response);
     }
 
@@ -78,9 +78,9 @@ public class PokeController {
     })
     @GetMapping("/friend")
     public ResponseEntity<List<PokeResponse.SimplePokeProfile>> getFriendList(
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal Long userId
     ) {
-        val result = pokeFacade.getFriend(user);
+        val result = pokeFacade.getFriend(userId);
         return ResponseEntity.ok(result);
     }
 
@@ -91,9 +91,9 @@ public class PokeController {
     })
     @GetMapping("/to/me")
     public ResponseEntity<SimplePokeProfile> getPokeMeMostRecent(
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal Long userId
     ) {
-        val response = pokeFacade.getMostRecentPokeMeHistory(user);
+        val response = pokeFacade.getMostRecentPokeMeHistory(userId);
         return ResponseEntity.ok(response);
     }
 
@@ -104,10 +104,10 @@ public class PokeController {
     })
     @GetMapping("/to/me/list")
     public ResponseEntity<PokeToMeHistoryList> getAllOfPokeMe(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal Long userId,
             @PageableDefault(size = 25, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        val response = pokeFacade.getAllPokeMeHistory(user, pageable);
+        val response = pokeFacade.getAllPokeMeHistory(userId, pageable);
         return ResponseEntity.ok(response);
     }
 
@@ -118,17 +118,17 @@ public class PokeController {
     })
     @GetMapping("/friend/list")
     public ResponseEntity<FriendList> getFriendsForEachRelation(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal Long userId,
             @RequestParam(value = "type", required = false) String type,
             @PageableDefault(size = 25) Pageable pageable
     ) {
         if (Objects.isNull(type)) {
-            val newFriends = pokeFacade.getTwoFriendByFriendship(user, Friendship.NEW_FRIEND);
-            val newFriendsSize = pokeFacade.getFriendSizeByFriendship(user.getId(), Friendship.NEW_FRIEND);
-            val bestFriends = pokeFacade.getTwoFriendByFriendship(user, Friendship.BEST_FRIEND);
-            val bestFriendsSize = pokeFacade.getFriendSizeByFriendship(user.getId(), Friendship.BEST_FRIEND);
-            val soulMates = pokeFacade.getTwoFriendByFriendship(user, Friendship.SOULMATE);
-            val soulMatesSize = pokeFacade.getFriendSizeByFriendship(user.getId(), Friendship.SOULMATE);
+            val newFriends = pokeFacade.getTwoFriendByFriendship(userId, Friendship.NEW_FRIEND);
+            val newFriendsSize = pokeFacade.getFriendSizeByFriendship(userId, Friendship.NEW_FRIEND);
+            val bestFriends = pokeFacade.getTwoFriendByFriendship(userId, Friendship.BEST_FRIEND);
+            val bestFriendsSize = pokeFacade.getFriendSizeByFriendship(userId, Friendship.BEST_FRIEND);
+            val soulMates = pokeFacade.getTwoFriendByFriendship(userId, Friendship.SOULMATE);
+            val soulMatesSize = pokeFacade.getFriendSizeByFriendship(userId, Friendship.SOULMATE);
 
             val response = AllRelationFriendList.builder()
                     .newFriend(newFriends).newFriendSize(newFriendsSize)
@@ -139,7 +139,7 @@ public class PokeController {
             return ResponseEntity.ok(response);
         }
         Friendship targetFriendship = Friendship.getFriendshipByValue(type);
-        val friends = pokeFacade.getAllFriendByFriendship(user, targetFriendship, pageable);
+        val friends = pokeFacade.getAllFriendByFriendship(userId, targetFriendship, pageable);
         return ResponseEntity.ok(friends);
     }
 
@@ -150,12 +150,12 @@ public class PokeController {
     })
     @GetMapping("/random")
     public ResponseEntity<RecommendedFriendsRequest> getRandomFriendsByFriendRecommendType(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal Long userId,
             @RequestParam(value = "randomType", required = false) List<FriendRecommendType> typeList,
             @RequestParam(value = "size") int size
     ) {
         return ResponseEntity.ok(
-                pokeFacade.getRecommendedFriendsByTypeList(typeList, size, user)
+                pokeFacade.getRecommendedFriendsByTypeList(typeList, size, userId)
         );
     }
 

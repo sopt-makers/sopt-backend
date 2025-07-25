@@ -34,10 +34,10 @@ public class HomeController {
     })
     @GetMapping("/description")
     public ResponseEntity<HomeDescriptionResponse> getHomeMainDescription(
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal Long userId
     ) {
         return ResponseEntity.ok(
-                homeFacade.getHomeMainDescription(user)
+                homeFacade.getHomeMainDescription(userId)
         );
     }
 
@@ -49,26 +49,26 @@ public class HomeController {
     })
     @GetMapping("/app-service")
     public ResponseEntity<List<AppServiceEntryStatusResponse>> getAppService(
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal Long userId
     ) {
         return ResponseEntity.ok(
-                homeFacade.checkAppServiceEntryStatus(user)
+                homeFacade.checkAppServiceEntryStatus(userId)
         );
     }
-
-    @Operation(summary = "최근 게시물 카테고리별 조회")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "401", description = "token error", content = @Content),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping("/posts")
-    public ResponseEntity<List<RecentPostsResponse>> getRecentPost(
-            @AuthenticationPrincipal User user
-    ) {
-        return ResponseEntity.ok(
-                homeFacade.getRecentPosts(user));
-    }
+    
+    // @Operation(summary = "최근 게시물 카테고리별 조회")
+    // @ApiResponses({
+    //         @ApiResponse(responseCode = "200", description = "success"),
+    //         @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+    //         @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    // })
+    // @GetMapping("/posts")
+    // public ResponseEntity<List<RecentPostsResponse>> getRecentPost(
+    //         @AuthenticationPrincipal Long userId
+    // ) {
+    //     return ResponseEntity.ok(
+    //             homeFacade.getRecentPosts(userId));
+    // }
 
     @Operation(summary = "플레이그라운드 최신 게시물 목록 조회")
     @ApiResponses({
@@ -78,10 +78,10 @@ public class HomeController {
     })
     @GetMapping("/posts/latest")
     public ResponseEntity<PlaygroundRecentPostsResponse> getRecentPosts(
-        @AuthenticationPrincipal User user
+        @AuthenticationPrincipal Long userId
     ) {
         return ResponseEntity.ok(
-            PlaygroundRecentPostsResponse.from(homeFacade.getPlaygroundRecentPosts(user)));
+            PlaygroundRecentPostsResponse.from(homeFacade.getPlaygroundRecentPosts(userId)));
     }
 
     @Operation(summary = "플레이그라운드 인기 게시물 목록 조회")
@@ -92,59 +92,58 @@ public class HomeController {
     })
     @GetMapping("/posts/popular")
     public ResponseEntity<PlaygroundPopularPostsResponse> getPopularPosts(
-        @AuthenticationPrincipal User user
+        @AuthenticationPrincipal Long userId
     ) {
         return ResponseEntity.ok(
-            PlaygroundPopularPostsResponse.from(homeFacade.getPlaygroundPopularPosts(user)));
+            PlaygroundPopularPostsResponse.from(homeFacade.getPlaygroundPopularPosts(userId)));
     }
+    // @Operation(summary = "최근 채용탭 10개 조회")
+    // @ApiResponses({
+    //         @ApiResponse(responseCode = "200", description = "success"),
+    //         @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+    //         @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    // })
+    // @GetMapping("/employments")
+    // public ResponseEntity<List<EmploymentPostResponse>> getEmploymentPosts(
+    //         @AuthenticationPrincipal User user
+    // ) {
+    //     return ResponseEntity.ok(
+    //             homeFacade.getHomeEmploymentPost(user)
+    //     );
+    // }
 
-    @Operation(summary = "최근 채용탭 10개 조회")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "401", description = "token error", content = @Content),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping("/employments")
-    public ResponseEntity<List<EmploymentPostResponse>> getEmploymentPosts(
-            @AuthenticationPrincipal User user
-    ) {
-        return ResponseEntity.ok(
-                homeFacade.getHomeEmploymentPost(user)
-        );
-    }
+    // @Operation(summary = "커피챗 리스트 조회")
+    // @ApiResponses({
+    //         @ApiResponse(responseCode = "200", description = "success"),
+    //         @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+    //         @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    // })
+    // @GetMapping("/coffeechat")
+    // public ResponseEntity<List<CoffeeChatResponse>> getCoffeeChatList(
+    //         @AuthenticationPrincipal User user
+    // ) {
+    //     return ResponseEntity.ok(
+    //             homeFacade.getCoffeeChatList(user)
+    //          );
+    // }
 
-    @Operation(summary = "커피챗 리스트 조회")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "401", description = "token error", content = @Content),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping("/coffeechat")
-    public ResponseEntity<List<CoffeeChatResponse>> getCoffeeChatList(
-            @AuthenticationPrincipal User user
-    ) {
-        return ResponseEntity.ok(
-                homeFacade.getCoffeeChatList(user)
-             );
-    }
-
-    @Operation(summary = "전체 모임 확인")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "401", description = "token error", content = @Content),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping("/meeting/all")
-    public ResponseEntity<List<MeetingResponse>> getAllMeeting(
-            @AuthenticationPrincipal User user,
-            @RequestParam(value = "page") final int page,
-            @RequestParam(value = "take") final int take,
-            @RequestParam(value = "category") final String category
-    ) {
-        return ResponseEntity.ok(
-                homeFacade.getAllMeetings(new MeetingParamRequest(user.getPlaygroundId(), page, take, category))
-        );
-    }
+    // @Operation(summary = "전체 모임 확인")
+    // @ApiResponses({
+    //         @ApiResponse(responseCode = "200", description = "success"),
+    //         @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+    //         @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    // })
+    // @GetMapping("/meeting/all")
+    // public ResponseEntity<List<MeetingResponse>> getAllMeeting(
+    //         @AuthenticationPrincipal User user,
+    //         @RequestParam(value = "page") final int page,
+    //         @RequestParam(value = "take") final int take,
+    //         @RequestParam(value = "category") final String category
+    // ) {
+    //     return ResponseEntity.ok(
+    //             homeFacade.getAllMeetings(new MeetingParamRequest(user.getPlaygroundId(), page, take, category))
+    //     );
+    // }
 
     @Operation(summary = "플로팅 버튼 정보 조회")
     @ApiResponses({
@@ -154,10 +153,10 @@ public class HomeController {
     })
     @GetMapping("/floating-button")
     public ResponseEntity<FloatingButtonResponse> getFloatingButtonInfo(
-            @AuthenticationPrincipal User user
+            @AuthenticationPrincipal Long userId
     ) {
         return ResponseEntity.ok(
-                homeFacade.getFloatingButtonInfo(user)
+                homeFacade.getFloatingButtonInfo(userId)
         );
     }
 
@@ -169,10 +168,10 @@ public class HomeController {
     })
     @GetMapping("/review-form")
     public ResponseEntity<ReviewFormResponse> getReviewForm(
-             @AuthenticationPrincipal User user
+             @AuthenticationPrincipal Long userId
     ) {
         return ResponseEntity.ok(
-            homeFacade.getReviewFormInfo(user)
+            homeFacade.getReviewFormInfo(userId)
         );
     }
 }

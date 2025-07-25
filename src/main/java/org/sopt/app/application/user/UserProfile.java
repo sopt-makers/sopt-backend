@@ -9,13 +9,13 @@ public class UserProfile {
 
     private Long userId;
     private String name;
-    private Long playgroundId;
+    // private Long playgroundId;
 
-    public static UserProfile of(User user){
+    public static UserProfile of(Long userId, String name){
         return UserProfile.builder()
-                .userId(user.getId())
-                .name(user.getUsername())
-                .playgroundId(user.getPlaygroundId())
+                .userId(userId)
+                .name(name)
+                // .playgroundId(user.getPlaygroundId())
                 .build();
     }
 

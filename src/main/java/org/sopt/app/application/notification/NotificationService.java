@@ -28,8 +28,8 @@ public class NotificationService {
     private final UserRepository userRepository;
 
     @Transactional(readOnly = true)
-    public Notification findNotification(User user, String notificationId) {
-        return notificationRepository.findByNotificationIdAndUserId(notificationId, user.getId())
+    public Notification findNotification(Long userId, String notificationId) {
+        return notificationRepository.findByNotificationIdAndUserId(notificationId, userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND));
     }
 
@@ -48,39 +48,39 @@ public class NotificationService {
     @Transactional
     public void registerNotification(RegisterNotificationRequest registerNotificationRequest) {
         if (registerNotificationRequest.getType().equals(NotificationType.SEND_ALL)) {
-            registerTo(userRepository.findAllPlaygroundId(), registerNotificationRequest);
+            registerTo(userRepository.findAll().stream().map(User::getId).toList(), registerNotificationRequest);
             return;
         }
 
         if (registerNotificationRequest.getType().equals(NotificationType.SEND)) {
-            registerTo(registerNotificationRequest.getPlaygroundIds().stream().map(Long::parseLong).toList(),
+            registerTo(registerNotificationRequest.getUserIds().stream().map(Long::parseLong).toList(),
                     registerNotificationRequest);
         }
     }
-    private void registerTo(List<Long> playgroundIds, RegisterNotificationRequest request) {
-        val targetUserIds = userRepository.findAllIdByPlaygroundIdIn(playgroundIds);
-        val notifications = targetUserIds.stream().map(userId -> request.toEntity(request, userId)).toList();
+
+    private void registerTo(List<Long> userIds, RegisterNotificationRequest request) {
+        val notifications = userIds.stream().map(userId -> request.toEntity(request, userId)).toList();
         notificationRepository.saveAll(notifications);
     }
 
     @Transactional
-    public void updateNotificationIsRead(User user, String notificationId) {
+    public void updateNotificationIsRead(Long userId, String notificationId) {
         if (Objects.isNull(notificationId)) {
-            updateAllNotificationIsRead(user);
+            updateAllNotificationIsRead(userId);
         } else {
-            updateSingleNotificationIsRead(user, notificationId);
+            updateSingleNotificationIsRead(userId, notificationId);
         }
     }
 
-    private void updateSingleNotificationIsRead(User user, String notificationId) {
-        val notification = notificationRepository.findByNotificationIdAndUserId(notificationId, user.getId())
+    private void updateSingleNotificationIsRead(Long userId, String notificationId) {
+        val notification = notificationRepository.findByNotificationIdAndUserId(notificationId, userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.NOTIFICATION_NOT_FOUND));
         notification.updateIsRead();
         notificationRepository.save(notification);
     }
 
-    private void updateAllNotificationIsRead(User user) {
-        val notificationList = notificationRepository.findAllByUserId(user.getId());
+    private void updateAllNotificationIsRead(Long userId) {
+        val notificationList = notificationRepository.findAllByUserId(userId);
         val readNotificationList = notificationList.stream().peek(Notification::updateIsRead).toList();
         notificationRepository.saveAll(readNotificationList);
     }

@@ -21,22 +21,23 @@ public class DescriptionController {
 
     private final HomeFacade homeFacade;
 
-    @Operation(summary = "메인 문구 조회")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "success"),
-        @ApiResponse(responseCode = "401", description = "token error", content = @Content),
-        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @GetMapping("/main")
-    public ResponseEntity<DescriptionResponse.MainDescription> getMainDescription(
-        @AuthenticationPrincipal User user
-    ) {
-        val response = homeFacade.getMainDescriptionForUser(user);
-        return ResponseEntity.ok(
-            DescriptionResponse.MainDescription.builder()
-                .topDescription(response.getTopDescription())
-                .bottomDescription(response.getBottomDescription())
-                .build()
-        );
-    }
+    // TODO : 삭제 예정, Deprecated 된 것으로 인지하고 있음
+//    @Operation(summary = "메인 문구 조회")
+//    @ApiResponses({
+//        @ApiResponse(responseCode = "200", description = "success"),
+//        @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+//        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+//    })
+//    @GetMapping("/main")
+//    public ResponseEntity<DescriptionResponse.MainDescription> getMainDescription(
+//        @AuthenticationPrincipal User user
+//    ) {
+//        val response = homeFacade.getMainDescriptionForUser(user);
+//        return ResponseEntity.ok(
+//            DescriptionResponse.MainDescription.builder()
+//                .topDescription(response.getTopDescription())
+//                .bottomDescription(response.getBottomDescription())
+//                .build()
+//        );
+//    }
 }
