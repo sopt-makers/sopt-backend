@@ -39,6 +39,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     private String getAuthorizationToken(final HttpServletRequest request) {
-        return request.getHeader(HttpHeaders.AUTHORIZATION);
+        String header = request.getHeader(HttpHeaders.AUTHORIZATION);
+        if (header != null && header.startsWith(ACCESS_TOKEN_PREFIX)) {
+            return header.substring(ACCESS_TOKEN_PREFIX.length());
+        }
+        return null;
     }
 }
