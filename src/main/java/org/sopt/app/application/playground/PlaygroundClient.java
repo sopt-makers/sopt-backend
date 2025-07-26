@@ -19,16 +19,20 @@ import feign.RequestLine;
 public interface PlaygroundClient {
 
     // headers 제외
-    @RequestLine("GET /internal/api/v1/members/profile?memberIds={memberId}")
-    List<PlaygroundProfile> getPlaygroundMemberProfiles(@Param("memberId") Long playgroundId);
+    // @RequestLine("GET /internal/api/v1/members/profile?memberIds={memberId}")
+    // List<PlaygroundProfile> getPlaygroundMemberProfiles(@Param("memberId") Long playgroundId);
 
     // headers 제외
     @RequestLine("GET /internal/api/v1/members/profile?memberIds={encodedIds}")
     List<PlaygroundProfile> getPlaygroundMemberProfiles(@Param(value = "encodedIds") String encodedIds);
 
     // headers 제외, userId
-    @RequestLine("GET /api/v1/members/profile/me?memberId={memberId}")
+    @RequestLine("GET /internal/api/v1/members/profile/me?memberId={memberId}")
     OwnPlaygroundProfile getOwnPlaygroundProfile(@Param("memberId") Long userId);
+
+    // headermap 제외 memberId 추가
+    @RequestLine("GET /internal/api/v1/members/profile/me?memberId={memberId}")
+    PlaygroundProfile getPlayGroundProfile(@Param("memberId") Long memberId);
 
     // header 제외
     @RequestLine("POST /internal/api/v1/members/profile/recommend")
@@ -36,11 +40,7 @@ public interface PlaygroundClient {
 
     // headermap 제외
     @RequestLine("GET /internal/api/v1/members/{memberId}/project")
-    PlayGroundUserSoptLevelResponse getPlayGroundUserSoptLevel(@Param Long memberId);
-
-    // headermap 제외 memberId 추가
-    @RequestLine("GET /api/v1/members/profile/me?memberId={memberId}")
-    PlaygroundProfile getPlayGroundProfile(@Param Long memberId);
+    PlayGroundUserSoptLevelResponse getPlayGroundUserSoptLevel(@Param("memberId") Long memberId);
 
     // headermap 제외
     @RequestLine("GET /internal/api/v1/community/posts/latest")
