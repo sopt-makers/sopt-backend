@@ -35,13 +35,13 @@ public class PlaygroundAuthService {
     @Value("${makers.playground.web-page}")
     private String playgroundWebPageUrl;
 
-    public PlaygroundProfile getPlaygroundMemberProfile(Long userId) {
-        try {
-            return playgroundClient.getPlaygroundMemberProfiles(userId).getFirst();
-        } catch (BadRequest e) {
-            throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS);
-        }
-    }
+    // public PlaygroundProfile getPlaygroundMemberProfile(Long userId) {
+    //     try {
+    //         return playgroundClient.getPlaygroundMemberProfiles(userId).getFirst();
+    //     } catch (BadRequest e) {
+    //         throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS);
+    //     }
+    // }
 
     public List<PlaygroundProfile> getPlaygroundMemberProfiles(List<Long> userIds) {
         String stringifyIds = userIds.stream()
