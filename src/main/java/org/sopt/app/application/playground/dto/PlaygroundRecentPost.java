@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nullable;
+
 import org.sopt.app.common.config.OperationConfig;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -14,6 +16,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public record PlaygroundRecentPost(
 	@JsonProperty("id") Long playgroundPostId,
+	@Nullable Long userId,
 	String profileImage,
 	String name,
 	String generationAndPart,
@@ -34,7 +37,7 @@ public record PlaygroundRecentPost(
 	);
 
 	public static PlaygroundRecentPost from(
-		Long postId, String profileImage, String name, String generationAndPart,
+		Long postId, Long userId, String profileImage, String name, String generationAndPart,
 		String category, String title, String content, String webLink, String createdAt,
 		Map<String, String> imageConfigMap
 	) {
@@ -44,6 +47,7 @@ public record PlaygroundRecentPost(
 			String defaultMessage = CATEGORY_MESSAGES.getOrDefault(category, "플레이그라운드에 새 글 올려봐!");
 			String image = imageConfigMap.getOrDefault(category + ".imageUrl", imageConfigMap.get("unknown.imageUrl"));
 			return new PlaygroundRecentPost(
+				null,
 				null,
 				image,
 				null,
@@ -58,7 +62,7 @@ public record PlaygroundRecentPost(
 		}
 
 		return new PlaygroundRecentPost(
-			postId, profileImage, name, generationAndPart, category, title, content, webLink, createdAt, false);
+			postId, userId, profileImage, name, generationAndPart, category, title, content, webLink, createdAt, false);
 	}
 
 	private static boolean isOutdated(String createdAt) {
