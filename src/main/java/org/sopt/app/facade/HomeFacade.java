@@ -171,6 +171,7 @@ public class HomeFacade {
         return playgroundAuthService.getPlaygroundRecentPosts().stream()
             .map(post -> PlaygroundRecentPost.from(
                 post.playgroundPostId(),
+                post.userId(),
                 post.profileImage(),
                 post.name(),
                 post.generationAndPart(),
