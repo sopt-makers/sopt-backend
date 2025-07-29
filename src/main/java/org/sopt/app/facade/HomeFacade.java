@@ -130,7 +130,6 @@ public class HomeFacade {
                     appServiceService.getAppService(AppServiceName.FLOATING_BUTTON.getServiceName()).getInactiveUser();
         }
 
-
         Map<String, String> operationConfigMap = operationConfigService.getOperationConfigByOperationConfigType(OperationConfigCategory.FLOATING_BUTTON).stream()
                 .collect(Collectors.toMap(OperationConfig::getKey, OperationConfig::getValue));
 
@@ -148,8 +147,14 @@ public class HomeFacade {
 
     @Transactional(readOnly = true)
     public ReviewFormResponse getReviewFormInfo(Long userId) {
-        boolean isActive = true;
-        if (userId == null) isActive = false;
+        boolean isActive = false;
+        if (userId != null) {
+            UserStatus userStatus = platformService.getStatus(userId);
+            isActive = userStatus == UserStatus.ACTIVE ?
+                appServiceService.getAppService(AppServiceName.REVIEW_FORM.getServiceName()).getActiveUser() :
+                appServiceService.getAppService(AppServiceName.REVIEW_FORM.getServiceName()).getInactiveUser();
+        }
+
         Map<String, String> operationConfigMap = operationConfigService
             .getOperationConfigByOperationConfigType(OperationConfigCategory.REVIEW_FORM).stream()
             .collect(Collectors.toMap(OperationConfig::getKey, OperationConfig::getValue));

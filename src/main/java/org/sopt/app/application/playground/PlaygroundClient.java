@@ -12,6 +12,7 @@ import org.sopt.app.application.playground.dto.RecommendedFriendInfo.PlaygroundU
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import feign.Headers;
 import feign.Param;
 import feign.RequestLine;
 
@@ -34,7 +35,7 @@ public interface PlaygroundClient {
     @RequestLine("GET /internal/api/v1/members/profile/me?memberId={memberId}")
     PlaygroundProfile getPlayGroundProfile(@Param("memberId") Long memberId);
 
-    // header 제외
+    @Headers("Content-Type: application/json")
     @RequestLine("POST /internal/api/v1/members/profile/recommend")
     PlaygroundUserIds getPlaygroundUserIdsByCondition(@RequestBody PlaygroundUserFindCondition condition);
 
