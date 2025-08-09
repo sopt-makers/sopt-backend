@@ -18,7 +18,9 @@ public class AppServiceService {
         return appServiceRepository.findAll().stream()
                 .filter(appService -> !(
                         AppServiceName.of(appService.getServiceName()).equals(AppServiceName.OTHERS) ||
-                        AppServiceName.of(appService.getServiceName()).equals(AppServiceName.FLOATING_BUTTON)))
+                        AppServiceName.of(appService.getServiceName()).equals(AppServiceName.FLOATING_BUTTON) ||
+                            AppServiceName.of(appService.getServiceName()).equals(AppServiceName.REVIEW_FORM)
+                ))
                 .sorted(Comparator.comparing(AppService::getCreatedAt).reversed())
                 .map(AppServiceInfo::of)
                 .toList();
