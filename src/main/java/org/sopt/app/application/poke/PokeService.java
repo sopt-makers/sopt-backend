@@ -40,7 +40,7 @@ public class PokeService {
 
         PokeHistory pokeByApplyingReply = createPokeByApplyingReply(pokerUserId, pokedUserId, pokeMessage, isAnonymous);
 
-        eventPublisher.raise(PokeEvent.of(pokedUser.getPlaygroundId()));
+        eventPublisher.raise(PokeEvent.of(pokedUser.getId()));
         return pokeByApplyingReply;
     }
 

@@ -35,7 +35,7 @@ public class PlaygroundUserFinderRedisImpl implements PlaygroundUserFinder {
 
     private Set<Long> cachingConditionAndResult(PlaygroundUserFindCondition condition) {
         Map<String, String> headers = createAuthorizationHeaderByInternalPlaygroundToken();
-        Set<Long> playgroundUserIds = playgroundClient.getPlaygroundUserIdsByCondition(headers, condition).userIds();
+        Set<Long> playgroundUserIds = playgroundClient.getPlaygroundUserIdsByCondition(condition).userIds();
         cachedRecommendedUserIdsRepository.save(new CachedRecommendedUserIds(condition, playgroundUserIds));
         return playgroundUserIds;
     }

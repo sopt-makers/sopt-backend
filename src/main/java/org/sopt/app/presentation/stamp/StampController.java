@@ -49,10 +49,10 @@ public class StampController {
     @PostMapping("")
     @Transactional
     public ResponseEntity<StampResponse.StampMain> registerStamp(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody StampRequest.RegisterStampRequest registerStampRequest
     ) {
-        val result = soptampFacade.uploadStamp(user.getId(), registerStampRequest);
+        val result = soptampFacade.uploadStamp(userId, registerStampRequest);
         val response = stampResponseMapper.of(result);
         return ResponseEntity.ok(response);
     }
@@ -65,10 +65,10 @@ public class StampController {
     })
     @PutMapping("")
     public ResponseEntity<StampResponse.StampId> editStamp(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody StampRequest.EditStampRequest editStampRequest
     ) {
-        val stamp = soptampFacade.editStamp(user.getId(), editStampRequest);
+        val stamp = soptampFacade.editStamp(userId, editStampRequest);
         val response = stampResponseMapper.of(stamp.getId());
         return ResponseEntity.ok(response);
     }
@@ -81,10 +81,10 @@ public class StampController {
     })
     @DeleteMapping("/{stampId}")
     public ResponseEntity<Void> deleteStampById(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal Long userId,
             @PathVariable Long stampId
     ) {
-        soptampFacade.deleteStamp(user.getId(), stampId);
+        soptampFacade.deleteStamp(userId, stampId);
         return ResponseEntity.ok().build();
     }
 
@@ -94,8 +94,8 @@ public class StampController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @DeleteMapping("/all")
-    public ResponseEntity<Void> deleteStampByUserId(@AuthenticationPrincipal User user) {
-        soptampFacade.deleteStampAll(user.getId());
+    public ResponseEntity<Void> deleteStampByUserId(@AuthenticationPrincipal Long userId) {
+        soptampFacade.deleteStampAll(userId);
         return ResponseEntity.ok().build();
     }
 

@@ -20,9 +20,9 @@ public class NotificationRequest {
     @Builder
     public static class RegisterNotificationRequest {
 
-        @Schema(description = "알림 대상 유저 플레이그라운드 ID 리스트", example = "['1', '2']")
+        @Schema(description = "알림 대상 유저 플랫폼 ID 리스트", example = "['1', '2']")
         @JsonProperty(value = "userIds")
-        private List<String> playgroundIds;
+        private List<String> userIds;
 
         @Schema(description = "알림 제목", example = "앱팀 최고")
         @NotNull(message = "title may not be null")

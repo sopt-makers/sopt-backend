@@ -65,8 +65,8 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping(value = "/soptamp")
-    public ResponseEntity<UserResponse.Soptamp> getSoptampInfo(@AuthenticationPrincipal User user) {
-        val soptampUser = soptampUserService.getSoptampUserInfo(user.getId());
+    public ResponseEntity<UserResponse.Soptamp> getSoptampInfo(@AuthenticationPrincipal Long userId) {
+        val soptampUser = soptampUserService.getSoptampUserInfo(userId);
         val response = UserResponse.Soptamp.builder()
                 .nickname(soptampUser.getNickname())
                 .profileMessage(soptampUser.getProfileMessage())
@@ -82,10 +82,10 @@ public class UserController {
     })
     @PatchMapping("/profile-message")
     public ResponseEntity<UserResponse.ProfileMessage> editProfileMessage(
-            @AuthenticationPrincipal User user,
+            @AuthenticationPrincipal Long userId,
             @Valid @RequestBody UserRequest.EditProfileMessageRequest editProfileMessageRequest
     ) {
-        val result = soptampFacade.editSoptampUserProfileMessage(user.getId(),
+        val result = soptampFacade.editSoptampUserProfileMessage(userId,
                 editProfileMessageRequest.getProfileMessage());
         val response = UserResponse.ProfileMessage.builder()
                 .profileMessage(result.getProfileMessage())
@@ -100,11 +100,11 @@ public class UserController {
     })
     @GetMapping(value = "/sopt-log")
     public ResponseEntity<UserResponse.SoptLog> getUserSoptLog(
-            @AuthenticationPrincipal User user, @RequestParam(required = false, value = "ko") boolean partTypeToKorean
+            @AuthenticationPrincipal Long userId, @RequestParam(required = false, value = "ko") boolean partTypeToKorean
     ) {
-        int soptLevel = authFacade.getUserSoptLevel(user);
-        Long pokeCount = pokeFacade.getUserPokeCount(user.getId());
-        PlaygroundProfile playgroundProfile = authFacade.getUserDetails(user);
+        int soptLevel = authFacade.getUserSoptLevel(userId);
+        Long pokeCount = pokeFacade.getUserPokeCount(userId);
+        PlaygroundProfile playgroundProfile = authFacade.getUserDetails(userId);
         Long soptampRank = null;
         Long soptDuring = null;
 
@@ -115,11 +115,11 @@ public class UserController {
 
         Boolean isActive = latestGeneration.isPresent() && latestGeneration.get().equals(generation);
         
-        boolean isFortuneChecked = fortuneService.isExistTodayFortune((user.getId()));
-        String fortuneText = isFortuneChecked?fortuneService.getTodayFortuneWordByUserId(user.getId(), LocalDate.now()).title():"오늘 내 운세는?";
+        boolean isFortuneChecked = fortuneService.isExistTodayFortune((userId));
+        String fortuneText = isFortuneChecked?fortuneService.getTodayFortuneWordByUserId(userId, LocalDate.now()).title():"오늘 내 운세는?";
 
         if (Boolean.TRUE.equals(isActive)) {
-             soptampRank = rankFacade.findUserRank(user.getId());
+             soptampRank = rankFacade.findUserRank(userId);
         } else {
             List<Long> generations = playgroundProfile.getAllActivities().stream()
                     .map(PlaygroundProfileInfo.ActivityCardinalInfo::getGeneration)

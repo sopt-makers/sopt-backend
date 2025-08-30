@@ -15,6 +15,7 @@ public enum ErrorCode {
     ENTITY_NOT_FOUND("객체를 찾을수 없습니다.", HttpStatus.NOT_FOUND),
     BAD_REQUEST("잘못된 요청입니다", HttpStatus.BAD_REQUEST),
     FORBIDDEN("접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
+
     // AUTH
     INVALID_ACCESS_TOKEN("유효하지 않은 앱 어세스 토큰입니다.", HttpStatus.UNAUTHORIZED),
     INVALID_REFRESH_TOKEN("유효하지 않은 앱 리프레시 토큰입니다.", HttpStatus.UNAUTHORIZED),
@@ -22,6 +23,22 @@ public enum ErrorCode {
     INVALID_PLAYGROUND_CODE("유효하지 않은 플레이그라운드 OAuth 코드입니다.", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED("권한이 없습니다", HttpStatus.UNAUTHORIZED),
     TOKEN_EXPIRED("토큰이 만료되었습니다.", HttpStatus.UNAUTHORIZED),
+
+    // AUTH_CLIENT
+    RESPONSE_ERROR("외부 서버 응답 오류", HttpStatus.INTERNAL_SERVER_ERROR),
+    COMMUNICATION_ERROR("외부 서버 통신 실패", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    // AUTH_JWK
+    JWK_KID_NOT_FOUND("해당 kid에 대한 공개키를 찾을 수 없습니다.", HttpStatus.UNAUTHORIZED),
+    JWK_INVALID_FORMAT("JWK 형식이 잘못되어 공개키를 파싱할 수 없습니다.", HttpStatus.BAD_REQUEST),
+    JWK_FETCH_FAILED("JWK 서버로부터 키를 가져오지 못했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    // AUTH_JWT
+    JWT_MISSING_AUTH_HEADER("인증 헤더가 존재하지 않습니다.", HttpStatus.UNAUTHORIZED),
+    JWT_PARSE_FAILED("잘못된 형식의 JWT입니다.", HttpStatus.UNAUTHORIZED),
+    JWT_INVALID_CLAIMS("JWT의 클레임이 유효하지 않습니다.", HttpStatus.UNAUTHORIZED),
+    JWT_VERIFICATION_FAILED("JWT 검증에 실패했습니다.", HttpStatus.UNAUTHORIZED),
+
     // PLAYGROUND
     PLAYGROUND_USER_NOT_EXISTS("플레이그라운드 유저 정보를 가져올 수 없습니다.", HttpStatus.NOT_FOUND),
     PLAYGROUND_PROFILE_NOT_EXISTS("플레이그라운드 프로필을 등록하지 않은 유저입니다.", HttpStatus.NOT_FOUND),
