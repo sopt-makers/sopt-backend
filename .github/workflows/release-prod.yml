@@ -57,6 +57,7 @@ jobs:
         run: |
           docker build \
           --no-cache \
+          -f Dockerfile-prod \
           --build-arg SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE \
           -t $ECR_APP_NAME .
           docker tag $ECR_APP_NAME:latest $APP_ECR_REPO
