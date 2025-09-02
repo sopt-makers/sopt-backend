@@ -3,20 +3,18 @@ name: 🚀MAKERS-APP-RELEASE!
 on:
   push:
     branches: [ 'main' ]
-    tags: [ 'makers-app-develop' ]
+    tags: [ 'makers-app-prod' ]
 
 env:
-  RESOURCE_PATH: ./src/main/resources/application-prod.yml
+  SPRING_PROFILES_ACTIVE: prod
+  ECR_APP_NAME: ${{ secrets.ECR_APP_NAME }}-prod
+  APP_ECR_REPO: ${{ secrets.ECR_HOST }}/${{ secrets.ECR_APP_NAME }}-prod
+  ECR_HOST: ${{ secrets.ECR_HOST }}
 
 jobs:
   build:
+    name: CD Pipeline
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        deployment-group-name: [ makers-app ]
-        codedeploy-application-name: [ app ]
-        s3-bucket: [ sopt-makers-app ]
-
 
     steps:
       - name: checkout
@@ -28,25 +26,16 @@ jobs:
           distribution: 'corretto'
           java-version: '21'
 
-      - name: mkdir resources folder
+      - name: touch yml files
         run: |
           touch ./src/main/resources/application-prod.yml
           touch ./src/test/resources/application-test.yml
         shell: bash
 
-      - name: copy yml file
+      - name: copy application.yml files
         run: |
           echo "${{ secrets.APPLICATION_PROD_YML }}" > ./src/main/resources/application-prod.yml
           echo "${{ secrets.APPLICATION_TEST_YML }}" > ./src/test/resources/application-test.yml
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: 🐈 Gradle Build
-        run: ./gradlew clean build
-
-      - name: 📂 Make zip file
-        run: zip -r ./$GITHUB_SHA.zip .
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -55,15 +44,58 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
           aws-region: ap-northeast-2
 
-      - name: 🚀 s3 upload
-        run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://${{matrix.s3-bucket}}/deploy/$GITHUB_SHA.zip
+      - name: 🐘Gradle Build
+        run: |
+          chmod +x ./gradlew
+          ./gradlew clean build -x test
 
-      - name: CodeDeploy~!
-        run: aws deploy create-deployment 
-          --application-name ${{matrix.codedeploy-application-name}}
-          --deployment-group-name ${{matrix.deployment-group-name}}
-          --s3-location bucket=${{matrix.s3-bucket}},bundleType=zip,key=deploy/$GITHUB_SHA.zip
-          --region ap-northeast-2
+      - name: Login to ECR
+        run: |
+          aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_HOST
 
+      - name: 🐳Docker Image Build & Push
+        run: |
+          docker build \
+          --no-cache \
+          --build-arg SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE \
+          -t $ECR_APP_NAME .
+          docker tag $ECR_APP_NAME:latest $APP_ECR_REPO
+          docker push $APP_ECR_REPO
 
+      - name: Copy docker-compose.yml
+        run: echo "${{ secrets.DOCKER_COMPOSE_PROD_YML }}" > ./docker-compose.yml
 
+      - name: Send docker-compose.yml to EC2 Instance
+        uses: appleboy/scp-action@master
+        with:
+          username: ec2-user
+          host: ${{ secrets.PROD_SERVER_IP }}
+          key: ${{ secrets.PROD_PEM_KEY }}
+          source: "./docker-compose.yml"
+          target: "/home/ec2-user/app/"
+
+      - name: Send deploy script to EC2 Instance
+        uses: appleboy/scp-action@master
+        with:
+          username: ec2-user
+          host: ${{ secrets.PROD_SERVER_IP }}
+          key: ${{ secrets.PROD_PEM_KEY }}
+          source: "./script/"
+          target: "/home/ec2-user/app/"
+
+      - name: Docker Container Run
+        uses: appleboy/ssh-action@master
+        with:
+          username: ec2-user
+          host: ${{ secrets.PROD_SERVER_IP }}
+          key: ${{ secrets.PROD_PEM_KEY }}
+          script: |
+            cd ~
+            cd ./app
+            echo "Creating .env file..."
+            echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_ID }}" > .env
+            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
+            
+            sudo chmod +x ./script/*.sh
+            ./script/deploy.sh
+            docker image prune -f
