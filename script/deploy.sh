@@ -1,10 +1,15 @@
 #!/bin/bash
-cd /home/ec2-user/app
+set -euo pipefail
 
-source /home/ec2-user/app/script/health_check.sh
-source /home/ec2-user/app/script/deploy_container.sh
-source /home/ec2-user/app/script/nginx_reload.sh
-source /home/ec2-user/app/script/stop_container.sh
+# 홈 기준(기본: $HOME/app). 필요하면 워크플로우에서 APP_DIR=/custom/path 로 덮어써도 됨.
+APP_DIR="${APP_DIR:-$HOME/app}"
+cd "$APP_DIR"
+
+# 공통 스크립트 로드
+source "$APP_DIR/script/health_check.sh"
+source "$APP_DIR/script/deploy_container.sh"
+source "$APP_DIR/script/nginx_reload.sh"
+source "$APP_DIR/script/stop_container.sh"
 
 BLUE_CONTAINER_NAME="app-blue"
 BLUE_PORT=9090
