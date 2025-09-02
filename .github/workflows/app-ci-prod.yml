@@ -2,7 +2,7 @@ name: 🏭 Makers Prod App CI
 
 on:
   pull_request:
-    branches: [ "prod" ]
+    branches: [ "main" ]
 
 jobs:
   build:
