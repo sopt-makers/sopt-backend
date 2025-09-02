@@ -6,4 +6,4 @@ COPY ./src/main/resources/application-prod.yml /app/application-prod.yml
 ARG SPRING_PROFILES_ACTIVE
 ENV SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE
 
-CMD ["java", "-jar", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "-Dspring.config.location=file:/app/application-prod.yml", "app-application.jar"]
+CMD ["java", "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE}", "-Dspring.config.location=file:/app/application-prod.yml", "-jar", "app-application.jar"]
