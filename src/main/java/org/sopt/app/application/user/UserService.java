@@ -96,4 +96,14 @@ public class UserService {
                 .map(Icons::getIconUrl)
                 .toList();
     }
+
+    @Transactional
+    public UserInfo createUser(Long userId) {
+        User user = User.builder()
+            .id(userId)
+            .build();
+        User savedUser = userRepository.save(user);
+
+        return new UserInfo(savedUser.getId());
+    }
 }

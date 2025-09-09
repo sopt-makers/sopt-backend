@@ -10,6 +10,8 @@ import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.application.app_service.AppServiceService;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
+import org.sopt.app.application.user.UserInfo;
+import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.presentation.user.UserResponse.*;
 import org.sopt.app.presentation.user.UserResponseMapper;
@@ -25,6 +27,7 @@ public class UserFacade {
     private final AppServiceService appServiceService;
     private final UserResponseMapper userResponseMapper;
     private final PlatformService platformService;
+    private final UserService userService;
 
     @Transactional(readOnly = true)
     public MainView getMainViewInfo(Long userId) {
@@ -49,5 +52,10 @@ public class UserFacade {
         return appServiceService.getAllAppService().stream()
                 .map(AppService::of)
                 .toList();
+    }
+
+    @Transactional
+    public UserInfo createUser(Long requestUserId){
+        return userService.createUser(requestUserId);
     }
 }

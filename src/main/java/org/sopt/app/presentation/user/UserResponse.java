@@ -5,12 +5,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.sopt.app.application.app_service.dto.AppServiceInfo;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.domain.enums.PlaygroundPart;
 
@@ -185,5 +185,12 @@ public class UserResponse {
                     .todayFortuneText(fortuneText)
                     .build();
         }
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class Create {
+        @Schema(description = "생성된 유저 ID", example = "101")
+        private Long userId;
     }
 }
