@@ -5,20 +5,23 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
 import org.sopt.app.application.platform.PlatformService;
 import org.sopt.app.application.playground.PlaygroundAuthService;
-import org.sopt.app.application.playground.dto.PlaygroundPostInfo.PlaygroundPost;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
-import org.sopt.app.domain.entity.User;
+import org.sopt.app.common.exception.UnauthorizedException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.facade.UserFacade;
-import org.sopt.app.presentation.user.UserResponse.AppService;
+import org.sopt.app.presentation.user.UserRequest.CreateUserRequest;
+import org.sopt.app.presentation.user.UserResponse.Create;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -60,5 +63,26 @@ public class UserOriginalController {
         return ResponseEntity.ok(
             userResponseMapper.ofGeneration(
                 platformService.getUserActiveInfo(userId)));
+    }
+
+    @Operation
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @PostMapping("/register")
+    public ResponseEntity<Create> createDefaultUserProfile(
+        @RequestBody CreateUserRequest request,
+        @RequestHeader("apiKey") String apiKey,
+        @Value("${internal.auth.api-key}") String internalApiKey
+    ){
+        if(!internalApiKey.equals(apiKey)){
+            throw new UnauthorizedException(ErrorCode.INVALID_INTERNAL_API_KEY);
+        }
+
+        return ResponseEntity.ok(
+            userResponseMapper.ofCreate(
+                userFacade.createUser(request.getUserId())));
     }
 }
