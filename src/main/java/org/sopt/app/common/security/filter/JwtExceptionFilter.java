@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.*;
 import org.springframework.http.*;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -28,6 +29,9 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
             ErrorCode errorMessage = e.getErrorCode();
             HttpStatus httpStatus = errorMessage.getHttpStatus();
             setResponse(httpServletResponse, httpStatus, errorMessage);
+        } catch (AuthenticationException e) {
+            // JwtAuthenticationFilter에서 BadCredentialsException으로 래핑된 경우
+            setResponse(httpServletResponse, HttpStatus.UNAUTHORIZED, ErrorCode.TOKEN_EXPIRED);
         }
     }
 
