@@ -18,7 +18,9 @@ import org.sopt.app.presentation.user.UserResponse.Create;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -84,5 +86,23 @@ public class UserOriginalController {
         return ResponseEntity.ok(
             userResponseMapper.ofCreate(
                 userFacade.createUser(request.getUserId())));
+    }
+
+    @Operation(summary = "default 유저 레코드 삭제(rollback)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long userId,
+                                                    @RequestHeader("apiKey") String apiKey,
+                                                    @Value("${internal.auth.api-key}") String internalApiKey) {
+        if (!internalApiKey.equals(apiKey)) {
+            throw new UnauthorizedException(ErrorCode.INVALID_INTERNAL_API_KEY);
+        }
+
+        userFacade.deleteUser(userId);
+        return ResponseEntity.ok().build();
     }
 }
