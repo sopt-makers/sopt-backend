@@ -23,7 +23,7 @@ public enum ErrorCode {
     INVALID_PLAYGROUND_CODE("유효하지 않은 플레이그라운드 OAuth 코드입니다.", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED("권한이 없습니다", HttpStatus.UNAUTHORIZED),
     TOKEN_EXPIRED("토큰이 만료되었습니다.", HttpStatus.UNAUTHORIZED),
-
+    INVALID_INTERNAL_API_KEY("유효하지 않은 내부 API key 입니다.", HttpStatus.UNAUTHORIZED),
     // AUTH_CLIENT
     RESPONSE_ERROR("외부 서버 응답 오류", HttpStatus.INTERNAL_SERVER_ERROR),
     COMMUNICATION_ERROR("외부 서버 통신 실패", HttpStatus.INTERNAL_SERVER_ERROR),
