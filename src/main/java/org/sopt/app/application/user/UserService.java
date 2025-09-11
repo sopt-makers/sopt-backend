@@ -106,4 +106,12 @@ public class UserService {
 
         return new UserInfo(savedUser.getId());
     }
+
+    @Transactional
+    public void deleteUser(Long userId) {
+        userRepository.findUserById(userId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        userRepository.deleteById(userId);
+    }
 }
