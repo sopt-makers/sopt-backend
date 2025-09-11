@@ -3,6 +3,8 @@ package org.sopt.app.common.response;
 import io.lettuce.core.RedisConnectionException;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+
+import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.FailureResponse.FieldError;
 import org.springframework.http.*;
 import org.springframework.validation.*;
@@ -65,5 +67,12 @@ public class GlobalExceptionHandler {
         List<FailureResponse.FieldError> errors = FailureResponse.FieldError.of("RedisConnection", "", errorMessage);
         final FailureResponse response = FailureResponse.of(ErrorCode.REDIS_CONNECTION_ERROR, errors);
         return new ResponseEntity<>(response, HttpStatus.SERVICE_UNAVAILABLE);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    protected ResponseEntity<FailureResponse> handleUnauthorizedException(final UnauthorizedException e) {
+        final ErrorCode code = e.getErrorCode();                  // 전달된 코드 사용
+        final HttpStatus status = code.getHttpStatus();           // 코드가 가진 status 사용 (401/403 등)
+        return new ResponseEntity<>(FailureResponse.of(code), status);
     }
 }
