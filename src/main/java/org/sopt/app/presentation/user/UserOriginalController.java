@@ -94,7 +94,7 @@ public class UserOriginalController {
             @ApiResponse(responseCode = "401", description = "token error", content = @Content),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @DeleteMapping("/{userId}")
+    @DeleteMapping("/rollback/{userId}")
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId,
                                                     @RequestHeader("apiKey") String apiKey,
                                                     @Value("${internal.auth.api-key}") String internalApiKey) {
