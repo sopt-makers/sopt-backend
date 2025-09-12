@@ -41,6 +41,7 @@ public class WebSecurityConfig {
             "/api/v2/notification/**",
             "/api/v2/user/main",
             "/api/v2/user/register",
+            "/api/v2/user/rollback/{userId}",
             "/api/v2/home/app-service",
             "/api/v2/home/floating-button",
             "/api/v2/home/review-form"
