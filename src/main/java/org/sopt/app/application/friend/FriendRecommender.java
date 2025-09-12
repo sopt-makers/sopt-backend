@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import feign.FeignException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 import org.sopt.app.application.platform.PlatformService;
 import org.sopt.app.application.playground.PlaygroundAuthService;
@@ -17,6 +20,7 @@ import org.sopt.app.domain.enums.FriendRecommendType;
 import org.sopt.app.presentation.poke.PokeResponse.*;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FriendRecommender {
@@ -81,12 +85,24 @@ public class FriendRecommender {
         // size 가드 : 이상값 들어오면 500 대신 빈 리스트
         if (size <= 0) return List.of();
 
-        // ALL_USER 아닐 경우 playground에서 후보 id 수집
+        /*
+         후보 id 수집 : ALL_USER 아닐 경우 playground에서 후보 id 수집
+         TODO : playground 414 시 ALL_USER fallback -> 임시 해결책으로, 플그, 플폼팀과의 논의 후 수정 예정
+         */
         Set<Long> userIds;
         if (type == FriendRecommendType.ALL_USER) {
             userIds = Set.copyOf(userService.getAllUserIds());
         } else {
-            userIds = playgroundUserIdsProvider.findPlaygroundIdsByType(ownProfile, type);
+            try {
+                userIds = playgroundUserIdsProvider.findPlaygroundIdsByType(ownProfile, type);
+            } catch (FeignException e) {
+                if (isUriTooLarge(e)) {
+                    log.info("Playground profile/recommend 414 detected for type={}, fallback to ALL_USER", type);
+                    userIds = Set.copyOf(userService.getAllUserIds());
+                } else {
+                    throw e; // 다른 에러는 그대로 올림
+                }
+            }
         }
         if (userIds.isEmpty()) return List.of();
 
@@ -120,5 +136,11 @@ public class FriendRecommender {
             return List.of(FriendRecommendType.GENERATION, FriendRecommendType.MBTI, FriendRecommendType.UNIVERSITY);
         }
         return typeList;
+    }
+
+    private boolean isUriTooLarge(FeignException e) {
+        // playground가 414를 400으로 감싸서 내려주므로 메시지로 판단
+        String msg = e.getMessage();
+        return e.status() == 414 || (e.status() == 400 && msg != null && msg.contains("414 Request-URI Too Large"));
     }
 }
