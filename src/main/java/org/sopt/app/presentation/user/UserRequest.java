@@ -16,4 +16,13 @@ public class UserRequest {
         @NotNull(message = "profileMessage may not be null")
         private String profileMessage;
     }
+
+    @Getter
+    @AllArgsConstructor(access = AccessLevel.PUBLIC)
+    @NoArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class CreateUserRequest{
+        @Schema(description = "생성된 UserId", example = "101")
+        @NotNull(message = "userId may not be null")
+        private Long userId;
+    }
 }

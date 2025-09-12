@@ -1,9 +1,9 @@
 package org.sopt.app.application.playground;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Map;
 
 import org.sopt.app.application.playground.dto.PlaygroundPopularPost;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
@@ -35,20 +35,15 @@ public class PlaygroundAuthService {
     @Value("${makers.playground.web-page}")
     private String playgroundWebPageUrl;
 
-    // public PlaygroundProfile getPlaygroundMemberProfile(Long userId) {
-    //     try {
-    //         return playgroundClient.getPlaygroundMemberProfiles(userId).getFirst();
-    //     } catch (BadRequest e) {
-    //         throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS);
-    //     }
-    // }
-
     public List<PlaygroundProfile> getPlaygroundMemberProfiles(List<Long> userIds) {
-        String stringifyIds = userIds.stream()
-                .map(String::valueOf)
-                .collect(Collectors.joining(","));
+        if (userIds == null || userIds.isEmpty()) return List.of();
+
+        // 반복 파라미터 구성
+        Map<String, Collection<String>> query = new HashMap<>();
+        query.put("memberIds", userIds.stream().map(String::valueOf).toList());
+
         try {
-            return playgroundClient.getPlaygroundMemberProfiles(URLEncoder.encode(stringifyIds, StandardCharsets.UTF_8));
+            return playgroundClient.getPlaygroundMemberProfiles(query);
         } catch (BadRequest e) {
             throw new BadRequestException(ErrorCode.PLAYGROUND_PROFILE_NOT_EXISTS);
         }
