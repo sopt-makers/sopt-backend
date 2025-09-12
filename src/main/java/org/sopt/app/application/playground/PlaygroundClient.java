@@ -1,6 +1,8 @@
 package org.sopt.app.application.playground;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.sopt.app.application.playground.dto.PlayGroundUserSoptLevelResponse;
 import org.sopt.app.application.playground.dto.PlaygroundPopularPost;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import feign.Headers;
 import feign.Param;
+import feign.QueryMap;
 import feign.RequestLine;
 
 @EnableFeignClients
@@ -24,8 +27,8 @@ public interface PlaygroundClient {
     // List<PlaygroundProfile> getPlaygroundMemberProfiles(@Param("memberId") Long playgroundId);
 
     // headers 제외
-    @RequestLine("GET /internal/api/v1/members/profile?memberIds={encodedIds}")
-    List<PlaygroundProfile> getPlaygroundMemberProfiles(@Param(value = "encodedIds") String encodedIds);
+    @RequestLine("GET /internal/api/v1/members/profile")
+    List<PlaygroundProfile> getPlaygroundMemberProfiles(@QueryMap Map<String, Collection<String>> query);
 
     // headers 제외, userId
     @RequestLine("GET /internal/api/v1/members/profile/me?memberId={memberId}")
