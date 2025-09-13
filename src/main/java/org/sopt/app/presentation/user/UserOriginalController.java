@@ -79,9 +79,7 @@ public class UserOriginalController {
         @RequestHeader("apiKey") String apiKey,
         @Value("${internal.auth.api-key}") String internalApiKey
     ){
-        if(!internalApiKey.equals(apiKey)){
-            throw new UnauthorizedException(ErrorCode.INVALID_INTERNAL_API_KEY);
-        }
+        validateInternalApiKey(apiKey, internalApiKey);
 
         return ResponseEntity.ok(
             userResponseMapper.ofCreate(
@@ -98,11 +96,15 @@ public class UserOriginalController {
     public ResponseEntity<Void> deleteUser(@PathVariable Long userId,
                                                     @RequestHeader("apiKey") String apiKey,
                                                     @Value("${internal.auth.api-key}") String internalApiKey) {
-        if (!internalApiKey.equals(apiKey)) {
-            throw new UnauthorizedException(ErrorCode.INVALID_INTERNAL_API_KEY);
-        }
+        validateInternalApiKey(apiKey, internalApiKey);
 
         userFacade.deleteUser(userId);
         return ResponseEntity.ok().build();
+    }
+
+    private void validateInternalApiKey(String requestApiKey, String configuredApiKey) {
+        if (!configuredApiKey.equals(requestApiKey)) {
+            throw new UnauthorizedException(ErrorCode.INVALID_INTERNAL_API_KEY);
+        }
     }
 }
