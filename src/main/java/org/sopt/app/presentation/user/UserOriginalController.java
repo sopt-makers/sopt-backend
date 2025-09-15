@@ -66,45 +66,4 @@ public class UserOriginalController {
             userResponseMapper.ofGeneration(
                 platformService.getUserActiveInfo(userId)));
     }
-
-    @Operation
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "success"),
-        @ApiResponse(responseCode = "401", description = "token error", content = @Content),
-        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @PostMapping("/register")
-    public ResponseEntity<Create> createDefaultUserProfile(
-        @RequestBody CreateUserRequest request,
-        @RequestHeader("apiKey") String apiKey,
-        @Value("${internal.auth.api-key}") String internalApiKey
-    ){
-        validateInternalApiKey(apiKey, internalApiKey);
-
-        return ResponseEntity.ok(
-            userResponseMapper.ofCreate(
-                userFacade.createUser(request.getUserId())));
-    }
-
-    @Operation(summary = "default 유저 레코드 삭제(rollback)")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "401", description = "token error", content = @Content),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
-    @DeleteMapping("/rollback/{userId}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long userId,
-                                                    @RequestHeader("apiKey") String apiKey,
-                                                    @Value("${internal.auth.api-key}") String internalApiKey) {
-        validateInternalApiKey(apiKey, internalApiKey);
-
-        userFacade.deleteUser(userId);
-        return ResponseEntity.ok().build();
-    }
-
-    private void validateInternalApiKey(String requestApiKey, String configuredApiKey) {
-        if (!configuredApiKey.equals(requestApiKey)) {
-            throw new UnauthorizedException(ErrorCode.INVALID_INTERNAL_API_KEY);
-        }
-    }
 }
