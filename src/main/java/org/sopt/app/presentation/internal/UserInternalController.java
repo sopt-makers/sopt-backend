@@ -1,4 +1,4 @@
-package org.sopt.app.presentation.user;
+package org.sopt.app.presentation.internal;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -11,6 +11,7 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.facade.UserFacade;
 import org.sopt.app.presentation.user.UserRequest.CreateUserRequest;
 import org.sopt.app.presentation.user.UserResponse.Create;
+import org.sopt.app.presentation.user.UserResponseMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
