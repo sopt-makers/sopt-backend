@@ -56,9 +56,10 @@ jobs:
       - name: Delete previous ECR images
         run: |
           echo "Deleting all images from ECR repository: $ECR_APP_NAME"
-          aws ecr batch-delete-image \
+          aws ecr-public batch-delete-image \
+            --region us-east-1 \
             --repository-name $ECR_APP_NAME \
-            --image-ids "$(aws ecr list-images --repository-name $ECR_APP_NAME --query 'imageIds[*]' --output json)" \
+            --image-ids "$(aws ecr-public list-images --region us-east-1 --repository-name $ECR_APP_NAME --query 'imageIds[*]' --output json)" \
             || echo "No images to delete or repository is empty"
 
       - name: 🐳Docker Image Build & Push
