@@ -53,6 +53,14 @@ jobs:
         run: |
           aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_HOST
 
+      - name: Delete previous ECR images
+        run: |
+          echo "Deleting all images from ECR repository: $ECR_APP_NAME"
+          aws ecr batch-delete-image \
+            --repository-name $ECR_APP_NAME \
+            --image-ids "$(aws ecr list-images --repository-name $ECR_APP_NAME --query 'imageIds[*]' --output json)" \
+            || echo "No images to delete or repository is empty"
+
       - name: 🐳Docker Image Build & Push
         run: |
           docker build \
