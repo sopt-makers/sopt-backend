@@ -59,7 +59,7 @@ jobs:
           aws ecr-public batch-delete-image \
             --region us-east-1 \
             --repository-name $ECR_APP_NAME \
-            --image-ids "$(aws ecr-public list-images --region us-east-1 --repository-name $ECR_APP_NAME --query 'imageIds[*]' --output json)" \
+            --image-ids "$(aws ecr-public describe-images --region us-east-1 --repository-name $ECR_APP_NAME --query 'imageDetails[*].{imageDigest:imageDigest}' --output json)" \
             || echo "No images to delete or repository is empty"
 
       - name: 🐳Docker Image Build & Push
