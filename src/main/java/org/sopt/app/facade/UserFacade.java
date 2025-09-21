@@ -58,4 +58,9 @@ public class UserFacade {
     public UserInfo createUser(Long requestUserId){
         return userService.createUser(requestUserId);
     }
+
+    @Transactional
+    public void deleteUser(Long userId) {
+        userService.deleteUser(userId);
+    }
 }

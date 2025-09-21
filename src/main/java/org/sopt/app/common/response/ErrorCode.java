@@ -44,6 +44,9 @@ public enum ErrorCode {
     PLAYGROUND_PROFILE_NOT_EXISTS("플레이그라운드 프로필을 등록하지 않은 유저입니다.", HttpStatus.NOT_FOUND),
     INVALID_PLAYGROUND_CARDINAL_INFO("플레이그라운드 활동 정보가 유효하지 않습니다.", HttpStatus.BAD_REQUEST),
 
+    // PLATFORM
+    PLATFORM_USER_NOT_EXISTS("플랫폼 유저 정보를 가져올 수 없습니다.", HttpStatus.NOT_FOUND),
+
     // OPERATION
     OPERATION_PROFILE_NOT_EXISTS("운영 서비스에 존재하지 않는 회원입니다.", HttpStatus.NOT_FOUND),
 
@@ -76,6 +79,7 @@ public enum ErrorCode {
     POKE_HISTORY_NOT_FOUND("해당 찌르기 내역은 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     POKE_MESSAGE_TYPE_NOT_FOUND("해당 찌르기 메시지 타입은 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     POKE_MESSAGE_MUST_NOT_BE_NULL("찌르기 메시지 타입은 필수 값입니다.", HttpStatus.BAD_REQUEST),
+    SELF_POKE_NOT_ALLOWED("본인을 찌를 수 없습니다.", HttpStatus.BAD_REQUEST),
     DUPLICATE_POKE("이미 찌르기를 보낸 친구입니다.", HttpStatus.CONFLICT),
 
     // FRIEND

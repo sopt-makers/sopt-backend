@@ -6,6 +6,7 @@ import org.sopt.app.domain.entity.poke.PokeHistory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -23,9 +24,11 @@ public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> 
 
     Page<PokeHistory> findAllByIdIsInOrderByCreatedAtDesc(List<Long> historyIds, Pageable pageable);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE From PokeHistory ph WHERE ph.pokedId = :userId")
     void deleteAllByPokedIdInQuery(@Param("userId") Long userId);
 
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("DELETE From PokeHistory ph WHERE ph.pokerId = :userId")
     void deleteAllByPokerIdInQuery(@Param("userId") Long userId);
 

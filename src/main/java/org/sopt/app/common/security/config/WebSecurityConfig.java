@@ -40,7 +40,8 @@ public class WebSecurityConfig {
             "/api/v2/firebase/**",
             "/api/v2/notification/**",
             "/api/v2/user/main",
-            "/api/v2/user/register",
+            "/internal/api/v1/members",
+            "/internal/api/v1/members/{memberId}",
             "/api/v2/home/app-service",
             "/api/v2/home/floating-button",
             "/api/v2/home/review-form"
