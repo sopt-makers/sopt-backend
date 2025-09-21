@@ -12,6 +12,7 @@ import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -24,7 +25,6 @@ public class PokeHistoryService {
 
         return pokeHistoryList.stream()
                 .map(PokeHistoryInfo::from)
-                .sorted(Comparator.comparing(PokeHistoryInfo::getCreatedAt).reversed())
                 .toList();
     }
 
@@ -54,6 +54,9 @@ public class PokeHistoryService {
     }
 
     public Page<PokeHistory> getAllLatestPokeHistoryIn(List<Long> targetHistoryIds, Pageable pageable) {
+        if (targetHistoryIds == null || targetHistoryIds.isEmpty()) {
+            return Page.empty(pageable);
+        }
         return pokeHistoryRepository.findAllByIdIsInOrderByCreatedAtDesc(targetHistoryIds, pageable);
     }
 
@@ -79,6 +82,7 @@ public class PokeHistoryService {
         return pokeHistories.stream().map(PokeHistoryInfo::from).toList();
     }
 
+    @Transactional
     @EventListener(UserWithdrawEvent.class)
     public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
         pokeHistoryRepository.deleteAllByPokerIdInQuery(event.getUserId());
