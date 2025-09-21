@@ -1,30 +1,20 @@
 package org.sopt.app.application.platform;
 
-import static org.sopt.app.application.playground.PlaygroundHeaderCreator.*;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.jsonwebtoken.ExpiredJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 
-import org.sopt.app.application.auth.dto.PlaygroundAuthTokenInfo;
+import org.sopt.app.application.platform.dto.PlatformUserIdsRequest;
 import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
 import org.sopt.app.application.platform.dto.PlatformUserInfoWrapper;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.common.exception.BadRequestException;
-import org.sopt.app.common.exception.UnauthorizedException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
-import org.sopt.app.presentation.auth.AppAuthRequest;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.HttpClientErrorException;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -42,18 +32,65 @@ public class PlatformService {
     @Value("${sopt.current.generation}")
     private Long currentGeneration;
 
+    // URL 길이 한도
+    private static final int URL_QUERY_LENGTH_THRESHOLD = 1200;
+
     public PlatformUserInfoResponse getPlatformUserInfoResponse(Long userId) {
         final Map<String, String> headers = createAuthorizationHeader();
-        final Map<String, Collection<String>> params = createQueryParams(Collections.singletonList(userId));
+        final Map<String, String> params = createQueryParams(Collections.singletonList(userId));
         PlatformUserInfoWrapper platformUserInfoWrapper = platformClient.getPlatformUserInfo(headers, params);
-        return platformUserInfoWrapper.data().getFirst();
+        List<PlatformUserInfoResponse> data= platformUserInfoWrapper.data();
+        if (data == null || data.isEmpty()) {
+            throw new BadRequestException(ErrorCode.PLATFORM_USER_NOT_EXISTS);
+        }
+        return data.getFirst();
     }
 
     public List<PlatformUserInfoResponse> getPlatformUserInfosResponse(List<Long> userIds) {
         final Map<String, String> headers = createAuthorizationHeader();
-        final Map<String, Collection<String>> params = createQueryParams(userIds);
+
+        // 중복 제거
+        userIds = userIds.stream().distinct().toList();
+        final Map<String, String> params = createQueryParams(userIds);
+
         PlatformUserInfoWrapper platformUserInfoWrapper = platformClient.getPlatformUserInfo(headers, params);
-        return platformUserInfoWrapper.data();
+
+        List<PlatformUserInfoResponse> data= platformUserInfoWrapper.data();
+        if (data == null || data.isEmpty()) {
+            throw new BadRequestException(ErrorCode.PLATFORM_USER_NOT_EXISTS);
+        }
+        return data;
+    }
+
+    // 길이에 따라 GET/POST 자동 선택
+    public List<PlatformUserInfoResponse> getPlatformUserInfosResponseSmart(List<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            throw new BadRequestException(ErrorCode.INVALID_PARAMETER);
+        }
+        final Map<String, String> headers = createAuthorizationHeader();
+
+        // 중복 제거
+        userIds = userIds.stream().distinct().toList();
+
+        // CSV 만들고 길이 체크
+        final String csv = toCsv(userIds);
+        final boolean usePost = csv.length() > URL_QUERY_LENGTH_THRESHOLD;
+
+        PlatformUserInfoWrapper wrapper;
+        if (usePost) {
+            // POST with JSON body
+            wrapper = platformClient.postPlatformUserInfo(headers, new PlatformUserIdsRequest(userIds));
+        } else {
+            // GET with CSV query
+            final Map<String, String> params = Map.of("userIds", csv);
+            wrapper = platformClient.getPlatformUserInfo(headers, params);
+        }
+
+        List<PlatformUserInfoResponse> data = wrapper.data();
+        if (data == null || data.isEmpty()) {
+            throw new BadRequestException(ErrorCode.PLATFORM_USER_NOT_EXISTS);
+        }
+        return data;
     }
 
     public UserStatus getStatus(Long userId) {
@@ -66,17 +103,21 @@ public class PlatformService {
 
     private Map<String, String> createAuthorizationHeader() {
         Map<String, String> headers = new HashMap<>();
-        headers.put("x-api-key", apiKey);
-        headers.put("x-service-name", serviceName);
+        headers.put("X-Api-Key", apiKey);
+        headers.put("X-Service-Name", serviceName);
         return headers;
     }
 
-    private Map<String, Collection<String>> createQueryParams(List<Long> userId) {
-        Map<String, Collection<String>> queryParams = new HashMap<>();
-        for (Long id : userId) {
-            queryParams.put("userIds", Collections.singletonList(id.toString()));
+    private Map<String, String> createQueryParams(List<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            throw new BadRequestException(ErrorCode.INVALID_PARAMETER);
         }
-        return queryParams;
+        final String csv = toCsv(userIds);
+        return Collections.singletonMap("userIds", csv);
+    }
+
+    private String toCsv(List<Long> userIds) {
+        return userIds.stream().map(String::valueOf).collect(Collectors.joining(","));
     }
 
     public List<Long> getMemberGenerationList(Long userId) {
