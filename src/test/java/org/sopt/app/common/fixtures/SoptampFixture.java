@@ -30,6 +30,17 @@
      public static Stamp getStamp(Long userId) {
          return Stamp.builder()
              .userId(userId)
+             .missionId(MISSION_ID)
+             .contents(STAMP_CONTENTS)
+             .images(STAMP_IMG_PATHS)
+             .activityDate(STAMP_ACTIVITY_DATE)
+             .build();
+     }
+
+     public static Stamp getStamp(Long userId, Long missionId) {
+         return Stamp.builder()
+             .userId(userId)
+             .missionId(missionId)
              .contents(STAMP_CONTENTS)
              .images(STAMP_IMG_PATHS)
              .activityDate(STAMP_ACTIVITY_DATE)

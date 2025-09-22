@@ -1,6 +1,7 @@
  package org.sopt.app.interfaces.postgres;
 
  import java.util.List;
+ import java.util.Optional;
  import org.junit.jupiter.api.Assertions;
  import org.junit.jupiter.api.BeforeEach;
  import org.junit.jupiter.api.DisplayName;
@@ -37,19 +38,19 @@
          Assertions.assertEquals(List.of(stamp1, stamp2), stampRepository.findAllByUserId(newUser.getId()));
      }
 
- //    @Test
- //    @DisplayName("SUCCESS_유저 아이디와 미션 아이디를 이용하여 유저의 스탬프 조회")
- //    void SUCCESS_findByUserIdAndMissionIdSuccess() {
- //        //given
- //        final Long missionId = 1L;
- //
- //        //when
- //        Stamp stamp = stampRepository.save(Stamp.builder().userId(newUser.getId()).missionId(missionId).contents("stampContents").build());
- //        Optional<Stamp> result = stampRepository.findByUserIdAndMissionId(newUser.getId(), missionId);
- //
- //        //then
- //        Assertions.assertEquals(Optional.of(stamp), result);
- //    }
+     @Test
+     @DisplayName("SUCCESS_유저 아이디와 미션 아이디를 이용하여 유저의 스탬프 조회")
+     void SUCCESS_findByUserIdAndMissionIdSuccess() {
+         //given
+         final Long missionId = 1L;
+         Stamp stamp = stampRepository.save(SoptampFixture.getStamp(newUser.getId(), missionId));
+
+         //when
+         Optional<Stamp> result = stampRepository.findByUserIdAndMissionId(newUser.getId(), missionId);
+
+         //then
+         Assertions.assertEquals(Optional.of(stamp), result);
+     }
  //
  //    @Test
  //    @DisplayName("SUCCESS_유저 아이디를 이용하여 유저의 스탬프 모두 삭제")
