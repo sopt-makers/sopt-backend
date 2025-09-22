@@ -3,8 +3,7 @@
  import java.util.List;
  import org.sopt.app.application.soptamp.SoptampUserInfo;
  import org.sopt.app.application.stamp.StampInfo;
- import org.sopt.app.application.stamp.StampInfo.Stamp;
- import org.sopt.app.domain.entity.User;
+ import org.sopt.app.domain.entity.soptamp.Stamp;
  import org.sopt.app.presentation.stamp.StampRequest.EditStampRequest;
  import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
  import org.springframework.web.multipart.MultipartFile;
@@ -28,9 +27,9 @@
      public static final String STAMP_ACTIVITY_DATE = "2024.04.08";
      public static final List<MultipartFile> MULTIPART_FILE_LIST = List.of();
 
-     public static Stamp getStamp(User user){
+     public static Stamp getStamp(Long userId) {
          return Stamp.builder()
-             .userId(user.getId())
+             .userId(userId)
              .contents(STAMP_CONTENTS)
              .images(STAMP_IMG_PATHS)
              .activityDate(STAMP_ACTIVITY_DATE)
