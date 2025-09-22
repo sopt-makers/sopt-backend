@@ -11,4 +11,10 @@
                  .id(myAppUserId)
                  .build();
      }
+
+     public static User createUser(Long userId) {
+         return User.builder()
+             .id(userId)
+             .build();
+     }
  }

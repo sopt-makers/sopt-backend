@@ -69,4 +69,32 @@
          assertThat(stampRepository.findAllByUserId(newUser.getId())).isEmpty();
      }
 
+     @Test
+     @DisplayName("SUCCESS_스탬프 아이디와 유저 아이디를 통해 해당 유저의 스탬프임을 확인하며 조회")
+     void SUCCESS_findByIdAndUserId(){
+         // given
+         Stamp savedStamp = stampRepository.save(SoptampFixture.getStamp(newUser.getId()));
+
+         // when
+         Optional<Stamp> result = stampRepository.findByIdAndUserId(savedStamp.getId(), newUser.getId());
+
+         // then
+         assertThat(result).isEqualTo(Optional.of(savedStamp));
+     }
+
+     @Test
+     @DisplayName("FAIL_스탬프를 생성한 유저가 아닌 유저의 아이디로 스탬프를 조회하려는 경우 실패함")
+     void FAIL_findByIdAndUserIdWhenForbidden(){
+         // given
+         User stampOwner = UserFixture.createUser(1L);
+         Stamp savedStamp = stampRepository.save(SoptampFixture.getStamp(stampOwner.getId()));
+
+         User otherUser = UserFixture.createUser(2L);
+
+         // when
+         Optional<Stamp> result = stampRepository.findByIdAndUserId(savedStamp.getId(), otherUser.getId());
+
+         // then
+         assertThat(result).isNotPresent();
+     }
  }
