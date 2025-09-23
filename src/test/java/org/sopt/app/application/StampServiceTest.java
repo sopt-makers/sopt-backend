@@ -112,36 +112,29 @@ class StampServiceTest {
 //        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
 //    }
 //
-//    @Test
-//    @DisplayName("SUCCESS_스탬프가 request에서 보낸 내용의 이미지와 내용으로 등록되었는지 확인")
-//    void SUCCESS_uploadStamp() {
-//        // given
-//        RegisterStampRequest stampRequest = SoptampFixture.getRegisterStampRequest();
-//
-//        Stamp stamp = Stamp.builder()
-//                .contents(stampRequest.getContents())
-//                .images(List.of(stampRequest.getImage()))
-//                .missionId(stampRequest.getMissionId())
-//                .userId(USER_ID)
-//                .build();
-//
-//        //when
-//        Mockito.when(stampRepository.save(any(Stamp.class))).thenReturn(stamp);
-//        Stamp newStamp = stampRepository.save(stamp);
-//        StampInfo.Stamp expected = StampInfo.Stamp.builder()
-//                .id(newStamp.getId())
-//                .missionId(newStamp.getMissionId())
-//                .contents(newStamp.getContents())
-//                .images(newStamp.getImages())
-//                .createdAt(newStamp.getCreatedAt())
-//                .updatedAt(newStamp.getUpdatedAt())
-//                .build();
-//
-//        StampInfo.Stamp result = stampService.uploadStamp(stampRequest, USER_ID);
-//
-//        //then
-//        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
-//    }
+    @Test
+    @DisplayName("SUCCESS_스탬프가 request에서 보낸 내용의 이미지와 내용으로 등록되었는지 확인")
+    void SUCCESS_uploadStamp() {
+        // given
+        Long userId = 1L;
+        RegisterStampRequest stampRequest = SoptampFixture.getRegisterStampRequest();
+
+        Stamp stamp = Stamp.builder()
+                .contents(stampRequest.getContents())
+                .images(List.of(stampRequest.getImage()))
+                .missionId(stampRequest.getMissionId())
+                .userId(userId)
+                .build();
+
+        Mockito.when(stampRepository.save(any(Stamp.class))).thenReturn(stamp);
+
+        //when
+        StampInfo.Stamp result = stampService.uploadStamp(stampRequest, userId);
+
+        //then
+        StampInfo.Stamp expected = StampInfo.Stamp.from(stamp);
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+    }
 //
 //    @Test
 //    @DisplayName("SUCCESS_request에서 보낸 내용의 이미지와 내용의 스탬프 DTO를 잘 반환하는지 확인_DEPRECATED")
