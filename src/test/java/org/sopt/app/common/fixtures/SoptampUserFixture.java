@@ -41,4 +41,15 @@
 
      public static final List<SoptampUserInfo> SERVER_PART_SOPTAMP_USER_INFO_LIST =
              List.of(SOPTAMP_USER_INFO_6, SOPTAMP_USER_INFO_5, SOPTAMP_USER_INFO_1);
+
+     public static SoptampUser getSoptampUser(Long id, Long userId, String nickname) {
+        return SoptampUser.builder()
+            .id(id)
+            .userId(userId)
+            .nickname(nickname)
+            .totalPoints(100L)
+            .generation(CURRENT_GENERATION)
+            .part(PlaygroundPart.SERVER)
+            .build();
+     }
  }
