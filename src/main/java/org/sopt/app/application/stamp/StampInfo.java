@@ -24,5 +24,17 @@ public class StampInfo {
         private String activityDate;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
+
+        public static Stamp from(org.sopt.app.domain.entity.soptamp.Stamp stamp) {
+            return StampInfo.Stamp.builder()
+                .id(stamp.getId())
+                .contents(stamp.getContents())
+                .images(stamp.getImages())
+                .activityDate(stamp.getActivityDate())
+                .missionId(stamp.getMissionId())
+                .createdAt(stamp.getCreatedAt())
+                .updatedAt(stamp.getUpdatedAt())
+                .build();
+        }
     }
 }

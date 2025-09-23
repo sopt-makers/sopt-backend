@@ -34,15 +34,7 @@ public class StampService {
         val entity = stampRepository.findByUserIdAndMissionId(userId, missionId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND));
         entity.validate();
-        return StampInfo.Stamp.builder()
-                .id(entity.getId())
-                .contents(entity.getContents())
-                .images(entity.getImages())
-                .activityDate(entity.getActivityDate())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .missionId(entity.getMissionId())
-                .build();
+        return StampInfo.Stamp.from(entity);
     }
 
     @Transactional
@@ -54,15 +46,8 @@ public class StampService {
         val imgList = new ArrayList<>(imgPaths);
         val stamp = this.convertStampImgDeprecated(stampRequest, imgList, userId, missionId);
         val newStamp = stampRepository.save(stamp);
-        return StampInfo.Stamp.builder()
-                .id(newStamp.getId())
-                .contents(newStamp.getContents())
-                .images(newStamp.getImages())
-                .activityDate(newStamp.getActivityDate())
-                .createdAt(newStamp.getCreatedAt())
-                .updatedAt(newStamp.getUpdatedAt())
-                .missionId(newStamp.getMissionId())
-                .build();
+
+        return StampInfo.Stamp.from(newStamp);
     }
 
     @Transactional
@@ -78,15 +63,7 @@ public class StampService {
                 .build();
 
         val newStamp = stampRepository.save(stamp);
-        return StampInfo.Stamp.builder()
-                .id(newStamp.getId())
-                .contents(newStamp.getContents())
-                .images(newStamp.getImages())
-                .activityDate(newStamp.getActivityDate())
-                .createdAt(newStamp.getCreatedAt())
-                .updatedAt(newStamp.getUpdatedAt())
-                .missionId(newStamp.getMissionId())
-                .build();
+        return StampInfo.Stamp.from(newStamp);
     }
 
     @Transactional
