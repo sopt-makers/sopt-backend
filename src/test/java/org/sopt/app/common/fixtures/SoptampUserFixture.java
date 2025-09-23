@@ -7,7 +7,7 @@
 
  public class SoptampUserFixture {
 
-     private static final Long CURRENT_GENERATION = 37L;
+     public static final Long CURRENT_GENERATION = 37L;
 
      public static final SoptampUser SOPTAMP_USER_1 =
              SoptampUser.builder().id(1L).userId(10L).nickname("서버유저").totalPoints(100L)
@@ -36,11 +36,14 @@
      public static final SoptampUserInfo SOPTAMP_USER_INFO_6 = SoptampUserInfo.of(SOPTAMP_USER_6);
 
      public static final List<SoptampUserInfo> SOPTAMP_USER_INFO_LIST =
-             List.of(SOPTAMP_USER_INFO_1, SOPTAMP_USER_INFO_2, SOPTAMP_USER_INFO_3,
+         List.of(SOPTAMP_USER_INFO_1, SOPTAMP_USER_INFO_2, SOPTAMP_USER_INFO_3,
                      SOPTAMP_USER_INFO_4, SOPTAMP_USER_INFO_5, SOPTAMP_USER_INFO_6);
 
      public static final List<SoptampUserInfo> SERVER_PART_SOPTAMP_USER_INFO_LIST =
-             List.of(SOPTAMP_USER_INFO_6, SOPTAMP_USER_INFO_5, SOPTAMP_USER_INFO_1);
+         List.of(SOPTAMP_USER_INFO_6, SOPTAMP_USER_INFO_5, SOPTAMP_USER_INFO_1);
+
+     public static final List<SoptampUser> SERVER_PART_SOPTAMP_USER =
+         List.of(SOPTAMP_USER_1, SOPTAMP_USER_5, SOPTAMP_USER_6);
 
      public static SoptampUser getSoptampUser(Long id, Long userId, String nickname) {
         return SoptampUser.builder()
