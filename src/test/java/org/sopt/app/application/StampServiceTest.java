@@ -15,10 +15,12 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sopt.app.application.stamp.StampDeletedEvent;
 import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.common.event.EventPublisher;
@@ -370,24 +372,52 @@ class StampServiceTest {
             });
     }
 
-//
+    @Test
+    @DisplayName("SUCCESS_스탬프를 찾으면 삭제")
+    void SUCCESS_deleteStampById() {
+        //given
+        final Long stampId = 1L;
+        final Stamp stamp = getStamp(stampId);
+
+        List<String> images = stamp.getImages();
+
+        Mockito.when(stampRepository.findById(stampId)).thenReturn(Optional.of(stamp));
+
+        //when
+        stampService.deleteStampById(stampId);
+
+        //then
+        verify(stampRepository).deleteById(stampId);
+
+        ArgumentCaptor<StampDeletedEvent> stampDeletedEventCaptor = ArgumentCaptor.forClass(StampDeletedEvent.class);
+        verify(eventPublisher).raise(stampDeletedEventCaptor.capture());
+        StampDeletedEvent capturedEvent = stampDeletedEventCaptor.getValue();
+        List<String> deletedImages = capturedEvent.getFileUrls();
+
+        assertThat(deletedImages).isEqualTo(images);
+    }
+
+    @Test
+    @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
+    void FAIL_deleteStampById_whenStampNotFound() {
+        //given
+        final Long stampId = -1L;
+
+        //when
+        Mockito.when(stampRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        //then
+        assertThatThrownBy(() -> stampService.deleteStampById(stampId))
+            .isInstanceOf(BadRequestException.class)
+            .satisfies(e ->{
+                BadRequestException exception =  (BadRequestException) e;
+                assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.STAMP_NOT_FOUND);
+            });
+    }
+
 //    @Test
-//    @DisplayName("SUCCESS_스탬프를 찾으면 삭제")
-//    void SUCCESS_deleteStampById() {
-//        //given
-//        final Long stampId = anyLong();
-//
-//        //when
-//        Mockito.when(stampRepository.findById(stampId)).thenReturn(Optional.of(new Stamp()));
-//
-//        //then
-//        Assertions.assertDoesNotThrow(() -> {
-//            stampService.deleteStampById(stampId);
-//        });
-//    }
-//
-//    @Test
-//    void SUCCESS_모든_스탬프_삭제시_스탬프_삭제_이벤트_발생(){
+//    @DisplayName("SUCCESS_모든 스탬프 삭제 시 스탬프 삭제 이벤트 발생")
+//    void SUCCESS_deleteAllStamps(){
 //        // given
 //        final Long userId = anyLong();
 //
@@ -397,7 +427,7 @@ class StampServiceTest {
 //        // then
 //        verify(eventPublisher).raise(any());
 //    }
-//
+
 //    @Test
 //    @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
 //    void FAIL_deleteStampById() {
