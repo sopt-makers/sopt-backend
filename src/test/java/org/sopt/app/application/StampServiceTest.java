@@ -497,36 +497,44 @@ class StampServiceTest {
 //        Assertions.assertDoesNotThrow(() -> stampService.deleteAllStamps(anyUserId));
 //    }
 //
-//    @Test
-//    @DisplayName("SUCCESS_스탬프 아이디로 미션 아이디 조회")
-//    void SUCCESS_getMissionIdByStampId() {
-//        //given
-//        final Long anyStampId = anyLong();
-//        final Long savedMissionId = 1L;
-//
-//        //when
-//        Stamp savedStamp = Stamp.builder().missionId(savedMissionId).build();
-//        Mockito.when(stampRepository.findById(anyStampId)).thenReturn(Optional.of(savedStamp));
-//
-//        //then
-//        Assertions.assertEquals(savedMissionId, stampService.getMissionIdByStampId(anyStampId));
-//    }
-//
-//    @Test
-//    @DisplayName("FAIL_스탬프 아이디로 미션 아이디 조회되지 않을 시 BadRequestException 발생")
-//    void FAIL_getMissionIdByStampId() {
-//        //given
-//        final Long anyStampId = anyLong();
-//
-//        //when
-//        Mockito.when(stampRepository.findById(anyStampId)).thenReturn(Optional.empty());
-//
-//        //then
-//        Assertions.assertThrows(BadRequestException.class, () -> {
-//            stampService.getMissionIdByStampId(anyStampId);
-//        });
-//    }
+    @Test
+    @DisplayName("SUCCESS_스탬프 아이디로 미션 아이디 조회")
+    void SUCCESS_getMissionIdByStampId() {
+        //given
+        final Long stampId = 10L;
+        final Long missionId = 20L;
 
+        Stamp stamp = Stamp.builder()
+            .id(stampId)
+            .missionId(missionId)
+            .build();
+
+        Mockito.when(stampRepository.findById(stamp.getId())).thenReturn(Optional.of(stamp));
+
+        //when
+        Long result = stampService.getMissionIdByStampId(stampId);
+
+        //then
+        assertThat(result).isEqualTo(missionId);
+    }
+
+    @Test
+    @DisplayName("FAIL_스탬프 아이디로 미션 아이디 조회되지 않을 시 BadRequestException 발생")
+    void FAIL_getMissionIdByStampId_whenStampNotFound() {
+        //given
+        final Long anyStampId = -1L;
+
+        //when
+        Mockito.when(stampRepository.findById(anyLong())).thenReturn(Optional.empty());
+
+        //then
+        assertThatThrownBy(() -> stampService.getMissionIdByStampId(anyStampId))
+            .isInstanceOf(BadRequestException.class)
+            .satisfies(e -> {
+                BadRequestException exception = (BadRequestException) e;
+                assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.STAMP_NOT_FOUND);
+            });
+    }
 
     private Stamp getSavedStamp(Long userId, Long missionId) {
         final Optional<Stamp> savedStamp = Optional.of(getStamp(userId, missionId));
@@ -535,67 +543,5 @@ class StampServiceTest {
 
         return savedStamp.get();
     }
-
-    private StampInfo.Stamp editStamp(Stamp oldStamp, StampRequest.EditStampRequest editStampRequest,
-            boolean isDeprecatedEditStampContents) {
-        if (!isDeprecatedEditStampContents && StringUtils.hasText(editStampRequest.getContents())) {
-            oldStamp.changeContents(editStampRequest.getContents());
-        }
-
-        if (StringUtils.hasText(editStampRequest.getImage())) {
-            oldStamp.changeImages(List.of(editStampRequest.getImage()));
-
-        }
-
-        final LocalDateTime changedUpdatedAt = LocalDateTime.of(2024, 2, 2, 0, 0, 0);
-
-        final Stamp newStamp = Stamp.builder()
-                .id(oldStamp.getId())
-                .contents(oldStamp.getContents())
-                .images(oldStamp.getImages())
-                .missionId(oldStamp.getMissionId())
-                .userId(oldStamp.getUserId())
-                .build();
-
-        return StampInfo.Stamp.builder()
-                .id(newStamp.getId())
-                .missionId(newStamp.getMissionId())
-                .contents(newStamp.getContents())
-                .images(newStamp.getImages())
-                .createdAt(newStamp.getCreatedAt())
-                .updatedAt(changedUpdatedAt)
-                .build();
-    }
-
-//    private StampInfo.Stamp editStamp(Stamp oldStamp, StampRequest.EditStampRequest editStampRequest,
-//            boolean isDeprecatedEditStampContents) {
-//        if (!isDeprecatedEditStampContents && StringUtils.hasText(editStampRequest.getContents())) {
-//            oldStamp.changeContents(editStampRequest.getContents());
-//        }
-//
-//        if (StringUtils.hasText(editStampRequest.getImage())) {
-//            oldStamp.changeImages(List.of(editStampRequest.getImage()));
-//
-//        }
-//
-//        final LocalDateTime changedUpdatedAt = LocalDateTime.of(2024, 2, 2, 0, 0, 0);
-//
-//        final Stamp newStamp = Stamp.builder()
-//                .id(oldStamp.getId())
-//                .contents(oldStamp.getContents())
-//                .images(oldStamp.getImages())
-//                .missionId(oldStamp.getMissionId())
-//                .userId(oldStamp.getUserId())
-//                .build();
-//
-//        return StampInfo.Stamp.builder()
-//                .id(newStamp.getId())
-//                .missionId(newStamp.getMissionId())
-//                .contents(newStamp.getContents())
-//                .images(newStamp.getImages())
-//                .createdAt(newStamp.getCreatedAt())
-//                .updatedAt(changedUpdatedAt)
-//                .build();
-//    }
 
 }
