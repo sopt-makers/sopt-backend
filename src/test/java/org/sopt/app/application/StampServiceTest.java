@@ -9,6 +9,8 @@ import static org.mockito.Mockito.verify;
 import static org.sopt.app.common.fixtures.SoptampFixture.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
@@ -232,30 +234,32 @@ class StampServiceTest {
         assertThat(result.getId()).isEqualTo(oldStamp.get().getId());
         assertThat(oldStamp.get())
             .extracting( "missionId", "userId", "contents", "images",  "activityDate")
-            .contains(missionId, userId, List.of(EDITED_STAMP_IMAGE), oldContents, EDITED_STAMP_ACTIVITY_DATE);
+            .contains(missionId, userId, oldContents, List.of(EDITED_STAMP_IMAGE), EDITED_STAMP_ACTIVITY_DATE);
     }
 
     @Test
     @DisplayName("SUCCESS_request의 image가 빈 문자열이면 image를 변경하지 않음")
     void SUCCESS_editStampContents_whenNoImage() {
         // given
-        Long userId = 1L;
-        Long missionId = 100L;
+        final Long userId = 1L;
+        final Long missionId = 100L;
         StampRequest.EditStampRequest editStampRequest =
             new EditStampRequest(missionId, "", EDITED_STAMP_CONTENTS, EDITED_STAMP_ACTIVITY_DATE);
 
-        final Optional<Stamp> oldStamp = Optional.of(getStamp(userId, missionId));
-        List<String> oldImages = oldStamp.get().getImages();
-        Mockito.when(stampRepository.findByUserIdAndMissionId(userId, missionId)).thenReturn(oldStamp);
+//        Optional<Stamp> oldStamp = Optional.of(getStamp(userId, missionId));
+        Stamp oldStamp = getStamp(userId, missionId);
+        List<String> oldImages = oldStamp.getImages();
+        Mockito.when(stampRepository.findByUserIdAndMissionId(userId, missionId)).thenReturn(Optional.of(oldStamp));
 
         //when
         StampInfo.Stamp result = stampService.editStampContents(editStampRequest, userId);
 
         //then
-        assertThat(result.getId()).isEqualTo(oldStamp.get().getId());
-        assertThat(oldStamp.get())
-            .extracting( "missionId", "userId", "contents", "images",  "activityDate")
-            .contains(missionId, userId, oldImages, EDITED_STAMP_CONTENTS, EDITED_STAMP_ACTIVITY_DATE);
+        assertThat(result.getId()).isEqualTo(oldStamp.getId());
+        System.out.println(oldStamp.getImages());
+        assertThat(oldStamp)
+            .extracting("missionId", "userId", "contents", "images", "activityDate")
+            .contains(missionId, userId, EDITED_STAMP_CONTENTS, oldImages, EDITED_STAMP_ACTIVITY_DATE);
     }
 
     @Test
@@ -415,18 +419,44 @@ class StampServiceTest {
             });
     }
 
-//    @Test
-//    @DisplayName("SUCCESS_모든 스탬프 삭제 시 스탬프 삭제 이벤트 발생")
-//    void SUCCESS_deleteAllStamps(){
-//        // given
-//        final Long userId = anyLong();
-//
-//        // when
-//        stampService.deleteAllStamps(userId);
-//
-//        // then
-//        verify(eventPublisher).raise(any());
-//    }
+    @Test
+    @DisplayName("SUCCESS_모든 스탬프 삭제 시 스탬프 삭제 이벤트 발생")
+    void SUCCESS_deleteAllStamps(){
+        // given
+        Long userId = 1L;
+
+        List<String> userImages1 = List.of("image1", "image2");
+        List<String> userImages2 = List.of("image3", "image4");
+
+        List<String> allUserImages = new ArrayList<>(userImages1);
+        allUserImages.addAll(userImages2);
+
+        Stamp stamp1 = Stamp.builder()
+            .userId(userId)
+            .missionId(10L)
+            .images(userImages1)
+            .build();
+        Stamp stamp2 = Stamp.builder()
+            .userId(userId)
+            .missionId(20L)
+            .images(userImages2)
+            .build();
+
+        Mockito.when(stampRepository.findAllByUserId(userId)).thenReturn(List.of(stamp1, stamp2));
+
+        // when
+        stampService.deleteAllStamps(userId);
+
+        // then
+        verify(stampRepository).deleteAllByUserId(userId);
+
+        ArgumentCaptor<StampDeletedEvent> stampDeletedEventCaptor = ArgumentCaptor.forClass(StampDeletedEvent.class);
+        verify(eventPublisher).raise(stampDeletedEventCaptor.capture());
+        StampDeletedEvent capturedEvent = stampDeletedEventCaptor.getValue();
+        List<String> deletedImages = capturedEvent.getFileUrls();
+
+        assertThat(deletedImages).isEqualTo(allUserImages);
+    }
 
 //    @Test
 //    @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
