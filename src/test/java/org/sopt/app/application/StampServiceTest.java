@@ -28,6 +28,7 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.presentation.stamp.StampRequest;
+import org.sopt.app.presentation.stamp.StampRequest.EditStampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
 import org.springframework.util.StringUtils;
 
@@ -48,11 +49,11 @@ class StampServiceTest {
     void SUCCESS_findStamp() {
         //given
         Long userId = 1L;
-        Long stampId = 100L;
-        final Stamp savedStamp = getSavedStamp(userId, stampId);
+        Long missionId = 100L;
+        final Stamp savedStamp = getSavedStamp(userId, missionId);
 
         //when
-        StampInfo.Stamp result = stampService.findStamp(MISSION_ID, USER_ID);
+        StampInfo.Stamp result = stampService.findStamp(missionId, userId);
 
         //then
         StampInfo.Stamp expected = StampInfo.Stamp.from(savedStamp);
@@ -135,7 +136,7 @@ class StampServiceTest {
         StampInfo.Stamp expected = StampInfo.Stamp.from(stamp);
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
-//
+
 //    @Test
 //    @DisplayName("SUCCESS_request에서 보낸 내용의 이미지와 내용의 스탬프 DTO를 잘 반환하는지 확인_DEPRECATED")
 //    void SUCCESS_editStampContentsDeprecated() {
@@ -186,69 +187,94 @@ class StampServiceTest {
 //                () -> stampService.editStampContentsDeprecated(editStampRequest, USER_ID, MISSION_ID));
 //    }
 //
-//
-//    @Test
-//    @DisplayName("SUCCESS_request에서 보낸 내용의 이미지와 내용의 스탬프 DTO를 잘 반환하는지 확인")
-//    void SUCCESS_editStampContents() {
-//        // given
-//        StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequest();
-//
-//        //when
-//        Stamp oldStamp = getSavedStamp();
-//        editStamp(oldStamp, editStampRequest, false);
-//        StampInfo.Stamp result = stampService.editStampContents(editStampRequest, USER_ID);
-//
-//        //then
-//        Assertions.assertEquals(oldStamp.getId(), result.getId());
-//    }
-//
-//    @Test
-//    @DisplayName("SUCCESS_SUCCESS_request의 contents가 빈 문자열이면 contents를 변경하지 않음")
-//    void SUCCESS_editStampContentsNoContents() {
-//        // given
-//        StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequest();
-//
-//        //when
-//        Stamp oldStamp = getSavedStamp();
-//        StampInfo.Stamp expected = editStamp(oldStamp, editStampRequest, false);
-//        StampInfo.Stamp result = stampService.editStampContents(editStampRequest, USER_ID);
-//
-//        //then
-//        Assertions.assertEquals(expected.getId(), result.getId());
-//    }
-//
-//    @Test
-//    @DisplayName("SUCCESS_SUCCESS_request의 image가 빈 문자열이면 image를 변경하지 않음")
-//    void SUCCESS_editStampContentsNoImage() {
-//        // given
-//        StampRequest.EditStampRequest editStampRequest = getEditStampRequest();
-//
-//        //when
-//        Stamp oldStamp = getSavedStamp();
-//        editStamp(oldStamp, editStampRequest, false);
-//        StampInfo.Stamp result = stampService.editStampContents(editStampRequest, USER_ID);
-//
-//        //then
-//        Assertions.assertEquals(oldStamp.getId(), result.getId());
-//    }
-//
-//    @Test
-//    @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
-//    void FAIL_editStampContents() {
-//        //given
-//        final Long requestUserId = anyLong();
-//        final Long requestMissionId = anyLong();
-//        final StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequest();
-//
-//        //when
-//        Mockito.when(stampRepository.findByUserIdAndMissionId(requestUserId, requestMissionId))
-//                .thenReturn(Optional.empty());
-//
-//        //then
-//        Assertions.assertThrows(BadRequestException.class, () -> {
-//            stampService.editStampContents(editStampRequest, requestUserId);
-//        });
-//    }
+
+    @Test
+    @DisplayName("SUCCESS_request에서 보낸 내용의 이미지와 내용을 기존 스탬프에 정상적으로 업데이트 함")
+    void SUCCESS_editStampContents() {
+        // given
+        Long missionId = 100L;
+        Long userId = 1L;
+
+        StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequestWithEdited(missionId);
+
+        final Optional<Stamp> oldStamp = Optional.of(getStamp(userId, missionId));
+        Mockito.when(stampRepository.findByUserIdAndMissionId(userId, missionId)).thenReturn(oldStamp);
+
+        //when
+        StampInfo.Stamp result = stampService.editStampContents(editStampRequest, userId);
+
+        //then
+        assertThat(result.getId()).isEqualTo(oldStamp.get().getId());
+        assertThat(oldStamp.get())
+            .extracting( "missionId", "userId", "contents", "images",  "activityDate")
+            .contains(missionId, userId, List.of(EDITED_STAMP_IMAGE), EDITED_STAMP_CONTENTS, EDITED_STAMP_ACTIVITY_DATE);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_request의 contents가 빈 문자열이면 contents를 변경하지 않음")
+    void SUCCESS_editStampContents_whenNoContents() {
+        // given
+        Long userId = 1L;
+        Long missionId = 100L;
+        StampRequest.EditStampRequest editStampRequest =
+            new EditStampRequest(missionId, EDITED_STAMP_IMAGE, "", EDITED_STAMP_ACTIVITY_DATE);
+
+        final Optional<Stamp> oldStamp = Optional.of(getStamp(userId, missionId));
+        String oldContents = oldStamp.get().getContents();
+        Mockito.when(stampRepository.findByUserIdAndMissionId(userId, missionId)).thenReturn(oldStamp);
+
+        //when
+        StampInfo.Stamp result = stampService.editStampContents(editStampRequest, userId);
+
+        //then
+        assertThat(result.getId()).isEqualTo(oldStamp.get().getId());
+        assertThat(oldStamp.get())
+            .extracting( "missionId", "userId", "contents", "images",  "activityDate")
+            .contains(missionId, userId, List.of(EDITED_STAMP_IMAGE), oldContents, EDITED_STAMP_ACTIVITY_DATE);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_request의 image가 빈 문자열이면 image를 변경하지 않음")
+    void SUCCESS_editStampContents_whenNoImage() {
+        // given
+        Long userId = 1L;
+        Long missionId = 100L;
+        StampRequest.EditStampRequest editStampRequest =
+            new EditStampRequest(missionId, "", EDITED_STAMP_CONTENTS, EDITED_STAMP_ACTIVITY_DATE);
+
+        final Optional<Stamp> oldStamp = Optional.of(getStamp(userId, missionId));
+        List<String> oldImages = oldStamp.get().getImages();
+        Mockito.when(stampRepository.findByUserIdAndMissionId(userId, missionId)).thenReturn(oldStamp);
+
+        //when
+        StampInfo.Stamp result = stampService.editStampContents(editStampRequest, userId);
+
+        //then
+        assertThat(result.getId()).isEqualTo(oldStamp.get().getId());
+        assertThat(oldStamp.get())
+            .extracting( "missionId", "userId", "contents", "images",  "activityDate")
+            .contains(missionId, userId, oldImages, EDITED_STAMP_CONTENTS, EDITED_STAMP_ACTIVITY_DATE);
+    }
+
+    @Test
+    @DisplayName("FAIL_스탬프를 찾지 못하면 BadRequestException 발생")
+    void FAIL_editStampContents_whenStampNotFound() {
+        //given
+        final Long userId = -1L;
+        final Long missionId = -100L;
+        final StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequestWithEdited(missionId);
+
+        Mockito.when(stampRepository.findByUserIdAndMissionId(anyLong(), anyLong()))
+            .thenReturn(Optional.empty());
+
+        //when & then
+        assertThatThrownBy(() -> stampService.editStampContents(editStampRequest, userId))
+            .isInstanceOf(BadRequestException.class)
+            .satisfies(e -> {
+               BadRequestException badRequestException = (BadRequestException) e;
+               assertThat(badRequestException.getErrorCode()).isEqualTo(ErrorCode.STAMP_NOT_FOUND);
+            });
+    }
 //
 //    @Test
 //    @DisplayName("SUCCESS_스탬프 이미지 변경")
@@ -440,10 +466,10 @@ class StampServiceTest {
 //    }
 
 
-    private Stamp getSavedStamp(Long userId, Long stampId) {
-        final Optional<Stamp> savedStamp = Optional.of(getStamp(userId, stampId));
+    private Stamp getSavedStamp(Long userId, Long missionId) {
+        final Optional<Stamp> savedStamp = Optional.of(getStamp(userId, missionId));
 
-        Mockito.when(stampRepository.findByUserIdAndMissionId(userId, stampId)).thenReturn(savedStamp);
+        Mockito.when(stampRepository.findByUserIdAndMissionId(userId, missionId)).thenReturn(savedStamp);
 
         return savedStamp.get();
     }
