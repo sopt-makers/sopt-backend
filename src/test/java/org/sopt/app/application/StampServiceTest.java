@@ -336,38 +336,40 @@ class StampServiceTest {
 //        });
 //    }
 //
-//    @Test
-//    @DisplayName("SUCCESS_중복된 스탬프가 없으면 오류가 발생하지 않음")
-//    void SUCCESS_checkDuplicateStamp() {
-//        //given
-//        final Long anyUserId = anyLong();
-//        final Long anyMissionId = anyLong();
-//
-//        //when
-//        Mockito.when(stampRepository.findByUserIdAndMissionId(anyUserId, anyMissionId)).thenReturn(Optional.empty());
-//
-//        //then
-//        Assertions.assertDoesNotThrow(() -> {
-//            stampService.checkDuplicateStamp(anyUserId, anyMissionId);
-//        });
-//    }
-//
-//    @Test
-//    @DisplayName("SUCCESS_중복된 스탬프가 있으면 BadRequestException 발생")
-//    void FAIL_checkDuplicateStamp() {
-//        //given
-//        final Long anyUserId = anyLong();
-//        final Long anyMissionId = anyLong();
-//
-//        //when
-//        Mockito.when(stampRepository.findByUserIdAndMissionId(anyUserId, anyMissionId))
-//                .thenReturn(Optional.of(new Stamp()));
-//
-//        //then
-//        Assertions.assertThrows(BadRequestException.class, () -> {
-//            stampService.checkDuplicateStamp(anyUserId, anyMissionId);
-//        });
-//    }
+    @Test
+    @DisplayName("SUCCESS_중복된 스탬프가 없으면 오류가 발생하지 않음")
+    void SUCCESS_checkDuplicateStamp() {
+        //given
+        final Long userId = 1L;
+        final Long missionId = 100L;
+
+        Mockito.when(stampRepository.findByUserIdAndMissionId(anyLong(), anyLong()))
+            .thenReturn(Optional.empty());
+
+        //when & then
+        Assertions.assertDoesNotThrow(() -> stampService.checkDuplicateStamp(userId, missionId));
+    }
+
+    @Test
+    @DisplayName("FAIL_중복된 스탬프가 있으면 BadRequestException 발생")
+    void FAIL_checkDuplicateStamp() {
+        //given
+        final Long userId = 1L;
+        final Long missionId = 100L;
+
+        //when
+        Mockito.when(stampRepository.findByUserIdAndMissionId(anyLong(), anyLong()))
+                .thenReturn(Optional.of(new Stamp()));
+
+        //then
+        assertThatThrownBy(() -> stampService.checkDuplicateStamp(userId, missionId))
+            .isInstanceOf(BadRequestException.class)
+            .satisfies(e -> {
+               BadRequestException badRequestException = (BadRequestException) e;
+               assertThat(badRequestException.getErrorCode()).isEqualTo(ErrorCode.DUPLICATE_STAMP);
+            });
+    }
+
 //
 //    @Test
 //    @DisplayName("SUCCESS_스탬프를 찾으면 삭제")
