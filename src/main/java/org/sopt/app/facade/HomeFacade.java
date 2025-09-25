@@ -17,9 +17,11 @@ import org.sopt.app.application.description.DescriptionService;
 import org.sopt.app.application.meeting.MeetingResponse;
 import org.sopt.app.application.meeting.MeetingService;
 import org.sopt.app.application.platform.PlatformService;
+import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.playground.dto.PlaygroundPopularPost;
 import org.sopt.app.application.playground.dto.PlaygroundRecentPost;
+import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.config.OperationConfig;
 import org.sopt.app.common.config.OperationConfigCategory;
 import org.sopt.app.common.utils.ActivityDurationCalculator;
@@ -48,6 +50,7 @@ public class HomeFacade {
     private final MeetingService meetingService;
     private final OperationConfigService operationConfigService;
     private final PlatformService platformService;
+    private final SoptampUserService soptampUserService;
 
     // TODO : deprecated 된것으로 인지
 //    @Transactional(readOnly = true)
@@ -66,12 +69,17 @@ public class HomeFacade {
                 duration
         );
     }
-    @Transactional(readOnly = true)
+
+    @Transactional
     public List<AppServiceEntryStatusResponse> checkAppServiceEntryStatus(Long userId) {
         if(userId == null){
             return this.getOnlyAppServiceInfo();
         }
         UserStatus status = platformService.getStatus(userId);
+
+        // TODO : 추후 유저 생성 api response 변경해 생성 api 쪽에서 soptamp user upsert 하도록 변경
+        PlatformUserInfoResponse platformUserInfo = platformService.getPlatformUserInfoResponse(userId);
+        soptampUserService.upsertSoptampUser(platformUserInfo, userId);
 
         return appServiceService.getAllAppService().stream()
                 .filter(appServiceInfo -> isServiceVisibleToUser(appServiceInfo, status))
@@ -88,13 +96,13 @@ public class HomeFacade {
     }
 
     private boolean isServiceVisibleToUser(AppServiceInfo appServiceInfo, UserStatus status) {
+        if (appServiceInfo == null || status == null) return false;
         if (status == UserStatus.ACTIVE) {
             return appServiceInfo.getActiveUser();
         }
         if (status == UserStatus.INACTIVE) {
             return appServiceInfo.getInactiveUser();
         }
-
         return false;
     }
 
