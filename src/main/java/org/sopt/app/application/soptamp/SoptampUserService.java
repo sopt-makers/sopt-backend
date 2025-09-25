@@ -5,6 +5,8 @@ import static org.sopt.app.domain.enums.PlaygroundPart.findPlaygroundPartByPartN
 
 import java.util.*;
 import lombok.*;
+
+import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.rank.CachedUserInfo;
@@ -43,37 +45,40 @@ public class SoptampUserService {
     }
 
     @Transactional
-    public void upsertSoptampUser(PlaygroundProfile profile, Long userId) {
+    public void upsertSoptampUser(PlatformUserInfoResponse profile, Long userId) {
+        if (profile == null) return;
+        var latest = profile.getLatestActivity();
+        if (latest == null) return;
+
         Optional<SoptampUser> user = soptampUserRepository.findByUserId(userId);
         if (user.isEmpty()) {
-            this.createSoptampUser(profile, userId);
+            this.createSoptampUser(profile, userId, latest);
             return;
         }
         SoptampUser registeredUser = user.get();
-        if(this.isGenerationChanged(registeredUser, profile.getLatestActivity().getGeneration())) {
-            updateSoptampUser(registeredUser, profile);
+        if(this.isGenerationChanged(registeredUser, (long)profile.lastGeneration())) {
+            updateSoptampUser(registeredUser, profile, latest);
         }
     }
 
-    private void updateSoptampUser(SoptampUser registeredUser, PlaygroundProfile profile){
-        ActivityCardinalInfo lastActivity = profile.getLatestActivity();
+    private void updateSoptampUser(SoptampUser registeredUser, PlatformUserInfoResponse profile, PlatformUserInfoResponse.SoptActivities latest){
         Long userId = registeredUser.getUserId();
-        String newNickname = generateUniqueNickname(profile.getName(), lastActivity.getPlaygroundPart());
+        String part = latest.part() == null ? "미상" : latest.part();
+        String newNickname = generateUniqueNickname(profile.name(), part);
         registeredUser.initTotalPoints();
         registeredUser.updateChangedGenerationInfo(
-                lastActivity.getGeneration(),
-                findPlaygroundPartByPartName(lastActivity.getPlaygroundPart().getPartName()),
-                newNickname
+            (long)profile.lastGeneration(),
+            findPlaygroundPartByPartName(part),
+            newNickname
         );
         rankCacheService.removeRank(userId);
         rankCacheService.createNewRank(userId);
     }
 
-    private void createSoptampUser(PlaygroundProfile profile, Long userId) {
-        ActivityCardinalInfo lastActivity = profile.getLatestActivity();
-        PlaygroundPart part = lastActivity.getPlaygroundPart();
-        String uniqueNickname = generateUniqueNickname(profile.getName(), part);
-        SoptampUser newSoptampUser = createNewSoptampUser(userId, uniqueNickname, lastActivity.getGeneration(), part);
+    private void createSoptampUser(PlatformUserInfoResponse profile, Long userId, PlatformUserInfoResponse.SoptActivities latest) {
+        String part = latest.part() == null ? "미상" : latest.part();
+        String uniqueNickname = generateUniqueNickname(profile.name(), part);
+        SoptampUser newSoptampUser = createNewSoptampUser(userId, uniqueNickname, (long)profile.lastGeneration(), findPlaygroundPartByPartName(part));
         soptampUserRepository.save(newSoptampUser);
         rankCacheService.createNewRank(userId);
     }
@@ -82,8 +87,8 @@ public class SoptampUserService {
         return !registeredUser.getGeneration().equals(profileGeneration);
     }
 
-    private String generateUniqueNickname(String nickname, PlaygroundPart part) {
-        String prefixPartName = part.getShortedPartName();
+    private String generateUniqueNickname(String nickname, String part) {
+        String prefixPartName = "iOS".equalsIgnoreCase(part) ? "아요" : part;
         StringBuilder uniqueNickname = new StringBuilder().append(prefixPartName).append(nickname);
         if (soptampUserRepository.existsByNickname(uniqueNickname.toString())) {
             return addSuffixToNickname(uniqueNickname);
