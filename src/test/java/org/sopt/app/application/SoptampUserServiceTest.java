@@ -12,6 +12,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_1;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.getSoptampUser;
 
 import java.util.List;
 import java.util.Optional;
@@ -85,31 +86,45 @@ class SoptampUserServiceTest {
                 assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_FOUND);
             });
     }
-//
-//    @Test
-//    @DisplayName("SUCCESS_프로필 메시지 변경")
-//    void SUCCESS_editProfileMessage() {
-//        //given
-//        final String newProfileMessage = "newProfileMessage";
-//        final SoptampUser editedSoptampUser = SoptampUser.builder()
-//                .id(SOPTAMP_USER_1.getId())
-//                .userId(SOPTAMP_USER_1.getUserId())
-//                .nickname(SOPTAMP_USER_1.getNickname())
-//                .totalPoints(SOPTAMP_USER_1.getTotalPoints())
-//                .part(PlaygroundPart.SERVER)
-//                .profileMessage(newProfileMessage)
-//                .build();
-//
-//        given(soptampUserRepository.findByUserId(anyLong())).willReturn(Optional.of(editedSoptampUser));
-//
-//        // when
-//        String result = soptampUserService.editProfileMessage(SOPTAMP_USER_1.getUserId(), newProfileMessage)
-//                .getProfileMessage();
-//
-//        //then
-//        Assertions.assertEquals(newProfileMessage, result);
-//    }
-//
+
+    @Test
+    @DisplayName("SUCCESS_프로필 메시지를 정상적으로 변경")
+    void SUCCESS_editProfileMessage() {
+        //given
+        final Long stampId = 10L;
+        final Long userId = 1L;
+        final String nickname = "nickname";
+        final String newProfileMessage = "newProfileMessage";
+
+        SoptampUser soptampUser = getSoptampUser(stampId, userId, nickname);
+        given(soptampUserRepository.findByUserId(userId)).willReturn(Optional.of(soptampUser));
+
+        // when
+        SoptampUserInfo result = soptampUserService.editProfileMessage(userId, newProfileMessage);
+
+        //then
+        assertThat(result.getProfileMessage())
+            .isEqualTo(newProfileMessage);
+    }
+
+    @Test
+    @DisplayName("FAIL_존재하지 않는 유저의 프로필 메시지 수정 시 예외 발생")
+    void FAIL_editProfileMessage_whenUserNotFound() {
+        //given
+        final Long userId = -1L;
+        final String newProfileMessage = "newProfileMessage";
+
+        given(soptampUserRepository.findByUserId(anyLong())).willReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> soptampUserService.editProfileMessage(userId, newProfileMessage))
+            .isInstanceOf(BadRequestException.class)
+            .satisfies(e -> {
+                BadRequestException exception = (BadRequestException) e;
+                assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_FOUND);
+            });
+    }
+
 //    @Test
 //    @DisplayName("SUCCESS_기존 솝탬프 유저가 없다면 새로 생성")
 //    void SUCCESS_upsertSoptampUserIfEmpty() {
