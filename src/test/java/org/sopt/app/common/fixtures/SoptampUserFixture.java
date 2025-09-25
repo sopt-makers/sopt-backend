@@ -59,9 +59,9 @@
             .build();
      }
 
-     public static SoptampUser getSoptampUser(Long stampId, Long userId) {
+     public static SoptampUser getSoptampUser(Long id, Long userId) {
          return SoptampUser.builder()
-             .id(stampId)
+             .id(id)
              .userId(userId)
              .nickname(USER_NICKNAME)
              .totalPoints(100L)
@@ -70,9 +70,9 @@
              .build();
      }
 
-     public static SoptampUser getSoptampUserWithTotalPoint(Long stampId, Long userId, Long totalPoints) {
+     public static SoptampUser getSoptampUserWithTotalPoint(Long id, Long userId, Long totalPoints) {
          return SoptampUser.builder()
-             .id(stampId)
+             .id(id)
              .userId(userId)
              .nickname(USER_NICKNAME)
              .totalPoints(totalPoints)
