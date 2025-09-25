@@ -16,6 +16,7 @@ public class PokeMessageService {
     private static final int MESSAGES_QUANTITY_AT_ONCE = 4;
     private static final String MESSAGES_HEADER_FOR_POKE = "함께 보낼 메시지를 선택해주세요";
     private static final String MESSAGES_HEADER_FOR_REPLY = "답장하고 싶은 메시지를 선택해주세요";
+    // TODO : 추후 고정 메세지 db에서 관리하도록 변경
     private static final String FIXED_MESSAGE = "콕 \uD83D\uDC48";
     private final PokeMessageRepository messageRepository;
 
