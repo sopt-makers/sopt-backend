@@ -20,4 +20,15 @@ public record PlatformUserInfoResponse(
             String team
     ){
     }
+
+    /**
+     * generation 최댓값 기준으로 최신 활동을 찾아 반환.
+     * lastGeneration 필드와 관계없이 계산.
+     */
+    public SoptActivities getLatestActivity() {
+        if (soptActivities == null) return null;
+        return soptActivities.stream()
+            .max(java.util.Comparator.comparingInt(SoptActivities::generation))
+            .orElse(null);
+    }
 }
