@@ -129,9 +129,8 @@ class SoptampUserFinderTest {
         //given
         final Long id = 1L;
         final Long userId = 1L;
-        final String nickname = "서버테스터";
 
-        SoptampUser soptampUser = SoptampUserFixture.getSoptampUser(id, userId, nickname);
+        SoptampUser soptampUser = SoptampUserFixture.getSoptampUser(id, userId);
 
         Mockito.when(soptampUserRepository.findByUserId(soptampUser.getUserId())).thenReturn(Optional.of(soptampUser));
 

@@ -93,10 +93,9 @@ class SoptampUserServiceTest {
         //given
         final Long stampId = 10L;
         final Long userId = 1L;
-        final String nickname = "nickname";
         final String newProfileMessage = "newProfileMessage";
 
-        SoptampUser soptampUser = getSoptampUser(stampId, userId, nickname);
+        SoptampUser soptampUser = getSoptampUser(stampId, userId);
         given(soptampUserRepository.findByUserId(userId)).willReturn(Optional.of(soptampUser));
 
         // when
@@ -236,39 +235,45 @@ class SoptampUserServiceTest {
 //        verify(soptampUserRepository, never()).save(any(SoptampUser.class));
 //    }
 //
-//    @Test
-//    @DisplayName("SUCCESS_미션 레벨별로 유저의 포인트 추가")
-//    void SUCCESS_addPointByLevel() {
-//        //given
-//        final Long anyUserId = anyLong();
-//        final Integer level = 1;
-//        final Long soptampUserTotalPoints = 100L;
-//        final SoptampUser oldSoptampUser = SoptampUser.builder()
-//                .userId(anyUserId)
-//                .totalPoints(soptampUserTotalPoints)
-//                .build();
-//        //when
-//
-//        when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.of(oldSoptampUser));
-//
-//        //then
-//        assertDoesNotThrow(() -> soptampUserService.addPointByLevel(anyUserId, level));
-//    }
-//
-//    @Test
-//    @DisplayName("FAIL_유저를 찾지 못하면 BadRequestException 발생")
-//    void FAIL_addPointByLevel() {
-//        //given
-//        final Long anyUserId = anyLong();
-//
-//        //when
-//        when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.empty());
-//
-//        //then
-//        assertThrows(BadRequestException.class, () -> {
-//            soptampUserService.addPointByLevel(anyUserId, 1);
-//        });
-//    }
+    @Test
+    @DisplayName("SUCCESS_미션 레벨에 맞게 유저의 포인트가 증가함")
+    void SUCCESS_addPointByLevel() {
+        //given
+        final Long stampId = 10L;
+        final Long userId = 1L;
+        final Long initialTotalPoints = 100L;
+
+        final Integer level = 2;
+
+        final SoptampUser soptampUser = SoptampUserFixture.getSoptampUserWithTotalPoint(stampId, userId, initialTotalPoints);
+        when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.of(soptampUser));
+
+        //when
+        soptampUserService.addPointByLevel(userId, level);
+
+        //then
+        assertThat(soptampUser.getTotalPoints())
+            .isEqualTo(initialTotalPoints + level);
+    }
+
+    @Test
+    @DisplayName("FAIL_찾을 수 없는 유저의 포인트를 증가시키려는 경우 예외 발생")
+    void FAIL_addPointByLevel_whenUserNotFound() {
+        //given
+        final Long userId = -1L;
+        final Integer level = 2;
+
+        //when
+        when(soptampUserRepository.findByUserId(anyLong())).thenReturn(Optional.empty());
+
+        //then
+        assertThatThrownBy(() -> soptampUserService.addPointByLevel(userId, level))
+            .isInstanceOf(BadRequestException.class)
+            .satisfies(e -> {
+                BadRequestException exception = (BadRequestException) e;
+                assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_FOUND);
+            });
+    }
 //
 //    @Test
 //    @DisplayName("SUCCESS_미션 레벨별로 유저의 포인트 감소")

@@ -4,10 +4,13 @@
  import org.sopt.app.application.soptamp.SoptampUserInfo;
  import org.sopt.app.domain.entity.soptamp.SoptampUser;
  import org.sopt.app.domain.enums.PlaygroundPart;
+ import software.amazon.awssdk.services.s3.endpoints.internal.Value.Int;
 
  public class SoptampUserFixture {
 
      public static final Long CURRENT_GENERATION = 37L;
+
+     public static final String USER_NICKNAME = "testNickname";
 
      public static final SoptampUser SOPTAMP_USER_1 =
              SoptampUser.builder().id(1L).userId(10L).nickname("서버유저").totalPoints(100L)
@@ -55,4 +58,27 @@
             .part(PlaygroundPart.SERVER)
             .build();
      }
+
+     public static SoptampUser getSoptampUser(Long stampId, Long userId) {
+         return SoptampUser.builder()
+             .id(stampId)
+             .userId(userId)
+             .nickname(USER_NICKNAME)
+             .totalPoints(100L)
+             .generation(CURRENT_GENERATION)
+             .part(PlaygroundPart.SERVER)
+             .build();
+     }
+
+     public static SoptampUser getSoptampUserWithTotalPoint(Long stampId, Long userId, Long totalPoints) {
+         return SoptampUser.builder()
+             .id(stampId)
+             .userId(userId)
+             .nickname(USER_NICKNAME)
+             .totalPoints(totalPoints)
+             .generation(CURRENT_GENERATION)
+             .part(PlaygroundPart.SERVER)
+             .build();
+     }
+
  }
