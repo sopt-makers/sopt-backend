@@ -314,36 +314,42 @@ class SoptampUserServiceTest {
             });
     }
 
-//    @Test
-//    @DisplayName("SUCCESS_포인트 초기화")
-//    void SUCCESS_initPoint() {
-//        //given
-//        final Long anyUserId = anyLong();
-//        final SoptampUser soptampUser = SoptampUser.builder()
-//                .userId(anyUserId)
-//                .build();
-//
-//        //when
-//        when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.of(soptampUser));
-//        when(soptampUserRepository.save(any(SoptampUser.class))).thenReturn(soptampUser);
-//
-//        //then
-//        assertDoesNotThrow(() -> {
-//            soptampUserService.initPoint(anyUserId);
-//        });
-//    }
-//
-//    @Test
-//    @DisplayName("FAIL_포인트 초기화")
-//    void FAIL_initPoint() {
-//        //given
-//        final Long anyUserId = anyLong();
-//
-//        //when
-//        when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.empty());
-//
-//        //then
-//        assertThrows(BadRequestException.class, () -> soptampUserService.initPoint(anyUserId));
-//    }
+    @Test
+    @DisplayName("SUCCESS_정상적으로 유저의 포인트를 초기화함")
+    void SUCCESS_initPoint() {
+        //given
+        final Long soptampUserId = 1L;
+        final Long userId = 1L;
+        SoptampUser soptampUser = getSoptampUser(soptampUserId, userId);
+
+        when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.of(soptampUser));
+        when(soptampUserRepository.save(soptampUser)).thenReturn(soptampUser);
+
+        //when
+        soptampUserService.initPoint(userId);
+
+        //then
+        assertThat(soptampUser.getTotalPoints())
+            .isZero();
+    }
+
+    @Test
+    @DisplayName("FAIL_포인트를 초기화하려는 유저를 찾지 못할 경우 예외가 발생함")
+    void FAIL_initPoint() {
+        //given
+        final Long userId = -1L;
+
+        //when
+        when(soptampUserRepository.findByUserId(anyLong())).thenReturn(Optional.empty());
+
+        //then
+        assertThrows(BadRequestException.class, () -> soptampUserService.initPoint(userId));
+        assertThatThrownBy(() -> soptampUserService.initPoint(userId))
+            .isInstanceOf(BadRequestException.class)
+            .satisfies(e -> {
+                BadRequestException exception = (BadRequestException) e;
+                assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_FOUND);
+            });
+    }
 
 }
