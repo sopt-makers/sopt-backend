@@ -276,8 +276,12 @@ public class PokeFacade {
             () -> new NotFoundException(ErrorCode.USER_NOT_FOUND)
         );
         // val mutualFriendNames = userService.getNamesByIds(friendService.getMutualFriendIds(userId, friendUserId));
-        List<String> mutualFriendNames = platformService.getPlatformUserInfosResponse(friendService.getMutualFriendIds(userId, friendUserId))
-            .stream().map(PlatformUserInfoResponse::name).toList();
+        List<Long> mutualFriendIds = friendService.getMutualFriendIds(userId, friendUserId);
+        List<String> mutualFriendNames = mutualFriendIds.isEmpty()
+            ? Collections.emptyList()
+            : platformService.getPlatformUserInfosResponse(mutualFriendIds).stream()
+                .map(PlatformUserInfoResponse::name).toList();
+
         val relationInfo = friendService.getRelationInfo(userId, friendUserId);
         return PokeInfo.PokedUserInfo.builder()
                 .userId(friendUserId)
