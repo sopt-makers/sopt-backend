@@ -28,7 +28,7 @@ public class SoptampUserRankCalculator {
         return Long.valueOf(soptampUserInfos.stream()
                 .sorted(Comparator.comparing(SoptampUserInfo::getTotalPoints).reversed())
                 .map(user -> new AbstractMap.SimpleEntry<>(rankPoint.getAndIncrement(), user))
-                .filter(entry -> entry.getValue().getId().equals(userId))
+                .filter(entry -> entry.getValue().getUserId().equals(userId))
                 .map(AbstractMap.SimpleEntry::getKey)
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException("User not found")));
