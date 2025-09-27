@@ -6,11 +6,15 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.PLATFORM_PART_NAME_ANDROID;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.PLATFORM_PART_NAME_IOS;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.PLATFORM_PART_NAME_SERVER;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_1;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.getSoptampUser;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.getSoptampUserWithTotalPoint;
@@ -25,11 +29,14 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
+import org.sopt.app.application.platform.dto.PlatformUserInfoResponse.SoptActivities;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.rank.RankCacheService;
 import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
+import org.sopt.app.application.stamp.StampDeletedEvent;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.fixtures.SoptampFixture;
 import org.sopt.app.common.fixtures.SoptampUserFixture;
@@ -125,117 +132,199 @@ class SoptampUserServiceTest {
             });
     }
 
-//    @Test
-//    @DisplayName("SUCCESS_기존 솝탬프 유저가 없다면 새로 생성")
-//    void SUCCESS_upsertSoptampUserIfEmpty() {
-//        //given
-//        given(soptampUserRepository.findByUserId(anyLong())).willReturn(Optional.empty());
-//        PlaygroundProfile profile = PlaygroundProfile.builder()
-//                .name("name")
-//                .activities(List.of(new ActivityCardinalInfo("35,서버")))
-//                .build();
-//        Long userId = 1L;
-//        //when
-//        soptampUserService.upsertSoptampUser(profile, userId);
-//        String expectedNickname = profile.getLatestActivity().getPlaygroundPart().getShortedPartName()+ profile.getName();
-//
-//        //then
-//        ArgumentCaptor<SoptampUser> captor = ArgumentCaptor.forClass(SoptampUser.class);
-//        verify(soptampUserRepository, times(1)).existsByNickname(anyString());
-//        verify(soptampUserRepository, times(1)).save(captor.capture());
-//        assertThat(captor.getValue().getUserId()).isEqualTo(userId);
-//        assertThat(captor.getValue().getNickname()).isEqualTo(expectedNickname);
-//        assertThat(captor.getValue().getPart().getPartName())
-//                .isEqualTo(profile.getLatestActivity().getPlaygroundPart().getPartName());
-//        assertThat(captor.getValue().getGeneration()).isEqualTo(profile.getLatestActivity().getGeneration());
-//    }
-//
-//    @Test
-//    void 기존_솝탬프_유저가_없다면_새로_생성_닉네임_중복시_suffix_추가() {
-//        //given
-//        Long userId = 1L;
-//        PlaygroundProfile profile = PlaygroundProfile.builder()
-//                .name("name")
-//                .activities(List.of(new ActivityCardinalInfo("35,서버")))
-//                .build();
-//        given(soptampUserRepository.findByUserId(anyLong())).willReturn(Optional.empty());
-//        given(soptampUserRepository.existsByNickname(
-//                profile.getLatestActivity().getPlaygroundPart().getShortedPartName() + profile.getName()))
-//                .willReturn(true);
-//        given(soptampUserRepository.existsByNickname(
-//                profile.getLatestActivity().getPlaygroundPart().getShortedPartName() + profile.getName() + 'A'))
-//                .willReturn(true);
-//
-//        //when
-//        soptampUserService.upsertSoptampUser(profile, userId);
-//        String expectedNickname =
-//                profile.getLatestActivity().getPlaygroundPart().getShortedPartName() + profile.getName() + 'B';
-//
-//        //then
-//        ArgumentCaptor<SoptampUser> captor = ArgumentCaptor.forClass(SoptampUser.class);
-//        verify(soptampUserRepository, times(3)).existsByNickname(anyString());
-//        verify(soptampUserRepository, times(1)).save(captor.capture());
-//        assertThat(captor.getValue().getUserId()).isEqualTo(userId);
-//        assertThat(captor.getValue().getNickname()).isEqualTo(expectedNickname);
-//        assertThat(captor.getValue().getPart().getPartName())
-//                .isEqualTo(profile.getLatestActivity().getPlaygroundPart().getPartName());
-//        assertThat(captor.getValue().getGeneration()).isEqualTo(profile.getLatestActivity().getGeneration());
-//    }
-//
-//    @Test
-//    void 기존_솝탬프_유저가_없다면_새로_생성_닉네임_중복시_suffix_추가_모든_suffix_사용시_에러() {
-//        //given
-//        Long userId = 1L;
-//        PlaygroundProfile profile = PlaygroundProfile.builder()
-//                .name("name")
-//                .activities(List.of(new ActivityCardinalInfo("35,서버")))
-//                .build();
-//        given(soptampUserRepository.findByUserId(userId)).willReturn(Optional.empty());
-//        given(soptampUserRepository.existsByNickname(anyString())).willReturn(true);
-//
-//        //when & then
-//        assertThrows(BadRequestException.class, () -> soptampUserService.upsertSoptampUser(profile, userId));
-//    }
-//
-//    @Test
-//    void 기존_솝탬프_유저가_있고_기수가_변경되었다면_업데이트() {
-//        //given
-//        Long userId = 1L;
-//        PlaygroundProfile profile = PlaygroundProfile.builder()
-//                .name("name")
-//                .activities(List.of(new ActivityCardinalInfo("36,아요"))) // 기수와 파트가 변경됨
-//                .build();
-//        SoptampUser existingUser = mock(SoptampUser.class);
-//        given(soptampUserRepository.findByUserId(anyLong())).willReturn(Optional.of(existingUser));
-//
-//        //when
-//        soptampUserService.upsertSoptampUser(profile, userId);
-//
-//        //then
-//        verify(existingUser, times(1)).updateChangedGenerationInfo(anyLong(), any(), anyString());
-//    }
-//
-//    @Test
-//    void 기존_솝탬프_유저가_있고_기수가_변경되지_않았다면_변경하지_않음() {
-//        //given
-//        SoptampUser existingUser = mock(SoptampUser.class);
-//        Long userId = 1L;
-//        PlaygroundProfile profile = PlaygroundProfile.builder()
-//                .name("name")
-//                .activities(List.of(new ActivityCardinalInfo("36,아요")))
-//                .build();
-//        given(soptampUserRepository.findByUserId(userId)).willReturn(Optional.of(existingUser));
-//        given(existingUser.getGeneration()).willReturn(36L);
-//
-//        //when
-//        soptampUserService.upsertSoptampUser(profile, userId);
-//
-//        //then
-//        verify(soptampUserRepository, times(1)).findByUserId(userId);
-//        verify(existingUser, never()).updateChangedGenerationInfo(anyLong(), any(), anyString());
-//        verify(soptampUserRepository, never()).save(any(SoptampUser.class));
-//    }
-//
+    @Test
+    @DisplayName("SUCCESS_기존 SoptampUser 가 존재하지 않을 경우를 정상적으로 생성함")
+    void SUCCESS_upsertSoptampUser_whenSoptampUserNotExist() {
+        //given
+        final Long userId = 1L;
+        final Long generation = 37L;
+        final int platformUserId = userId.intValue();
+
+        final SoptActivities activities =
+            SoptampUserFixture.getSoptActivities(generation.intValue(), PLATFORM_PART_NAME_SERVER);
+
+        final PlatformUserInfoResponse platformUserInfoResponse =
+            SoptampUserFixture.getPlatformUserInfoResponse(platformUserId, List.of(activities));
+
+        when(soptampUserRepository.findByUserId(anyLong())).thenReturn(Optional.empty());
+
+        // when
+        soptampUserService.upsertSoptampUser(platformUserInfoResponse, userId);
+
+        // then
+        ArgumentCaptor<SoptampUser> soptampUserArgumentCaptor = ArgumentCaptor.forClass(SoptampUser.class);
+        verify(soptampUserRepository).save(soptampUserArgumentCaptor.capture());
+        SoptampUser capturedSoptampUser = soptampUserArgumentCaptor.getValue();
+
+        assertThat(capturedSoptampUser)
+            .extracting("userId", "nickname", "generation")
+            .contains(userId, PLATFORM_PART_NAME_SERVER + platformUserInfoResponse.name(), generation);
+        verify(rankCacheService, times(1)).createNewRank(userId);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_ IOS 파트의 닉네임을 <아요 + 이름>으로 생성함")
+    void SUCCESS_upsertSoptampUser_whenIOSUser() {
+        //given
+        final Long userId = 1L;
+        final Long generation = 37L;
+        final int platformUserId = userId.intValue();
+
+        final SoptActivities activities =
+            SoptampUserFixture.getSoptActivities(generation.intValue(), PLATFORM_PART_NAME_IOS);
+
+        final PlatformUserInfoResponse platformUserInfoResponse =
+            SoptampUserFixture.getPlatformUserInfoResponse(platformUserId, List.of(activities));
+
+        when(soptampUserRepository.findByUserId(anyLong())).thenReturn(Optional.empty());
+
+        // when
+        soptampUserService.upsertSoptampUser(platformUserInfoResponse, userId);
+
+        // then
+        ArgumentCaptor<SoptampUser> soptampUserArgumentCaptor = ArgumentCaptor.forClass(SoptampUser.class);
+        verify(soptampUserRepository).save(soptampUserArgumentCaptor.capture());
+        SoptampUser capturedSoptampUser = soptampUserArgumentCaptor.getValue();
+
+        assertThat(capturedSoptampUser)
+            .extracting("userId", "nickname", "generation")
+            .contains(userId, "아요" + platformUserInfoResponse.name(), generation);
+        verify(rankCacheService, times(1)).createNewRank(userId);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_Android 파트의 닉네임을 <안드 + 이름>으로 생성함")
+    void SUCCESS_upsertSoptampUser_whenAndroidUser() {
+        //given
+        final Long userId = 1L;
+        final Long generation = 37L;
+        final int platformUserId = userId.intValue();
+
+        final SoptActivities activities =
+            SoptampUserFixture.getSoptActivities(generation.intValue(), PLATFORM_PART_NAME_ANDROID);
+
+        final PlatformUserInfoResponse platformUserInfoResponse =
+            SoptampUserFixture.getPlatformUserInfoResponse(platformUserId, List.of(activities));
+
+        when(soptampUserRepository.findByUserId(anyLong())).thenReturn(Optional.empty());
+
+        // when
+        soptampUserService.upsertSoptampUser(platformUserInfoResponse, userId);
+
+        // then
+        ArgumentCaptor<SoptampUser> soptampUserArgumentCaptor = ArgumentCaptor.forClass(SoptampUser.class);
+        verify(soptampUserRepository).save(soptampUserArgumentCaptor.capture());
+        SoptampUser capturedSoptampUser = soptampUserArgumentCaptor.getValue();
+
+        assertThat(capturedSoptampUser)
+            .extracting("userId", "nickname", "generation")
+            .contains(userId, "안드" + platformUserInfoResponse.name(), generation);
+        verify(rankCacheService, times(1)).createNewRank(userId);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_ 동일한 파트, 이름의 유저가 존재하는 경우 닉네임을 <파트 + 이름 + 알파벳>으로 생성함")
+    void SUCCESS_upsertSoptampUser_whenDuplicatied() {
+        //given
+        final Long userId = 1L;
+        final Long generation = 37L;
+        final int platformUserId = userId.intValue();
+
+        final SoptActivities activities1 =
+            SoptampUserFixture.getSoptActivities(generation.intValue(), PLATFORM_PART_NAME_SERVER);
+
+        final PlatformUserInfoResponse platformUserInfoResponse =
+            SoptampUserFixture.getPlatformUserInfoResponse(platformUserId, List.of(activities1));
+
+        final String alreadyExistNickName1 = PLATFORM_PART_NAME_SERVER + platformUserInfoResponse.name();
+        final String alreadyExistNickName2 = alreadyExistNickName1 + "A";
+        final String expectedNickName = alreadyExistNickName1 + "B";
+
+        when(soptampUserRepository.findByUserId(anyLong())).thenReturn(Optional.empty());
+        when(soptampUserRepository.existsByNickname(alreadyExistNickName1)).thenReturn(true);
+        when(soptampUserRepository.existsByNickname(alreadyExistNickName2)).thenReturn(true);
+
+        // when
+        soptampUserService.upsertSoptampUser(platformUserInfoResponse, userId);
+
+        // then
+        ArgumentCaptor<SoptampUser> soptampUserArgumentCaptor = ArgumentCaptor.forClass(SoptampUser.class);
+        verify(soptampUserRepository).save(soptampUserArgumentCaptor.capture());
+        SoptampUser capturedSoptampUser = soptampUserArgumentCaptor.getValue();
+
+        assertThat(capturedSoptampUser)
+            .extracting("userId", "nickname", "generation")
+            .contains(userId, expectedNickName, generation);
+        verify(rankCacheService, times(1)).createNewRank(userId);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_soptampUser 가 이미 존재하는 경우 totalPoint를 초기화하고 기수와 파트를 최신으로 업데이트 함.")
+    void SUCCESS_upsertSoptampUser_whenAlreadyExist() {
+        //given
+        final Long userId = 1L;
+        final Long generation = 37L;
+        final Long soptampUserId = 1L;
+        final int platformUserId = userId.intValue();
+
+        final SoptActivities activities1 =
+            SoptampUserFixture.getSoptActivities(generation.intValue(), PLATFORM_PART_NAME_SERVER);
+
+        final PlatformUserInfoResponse platformUserInfoResponse =
+            SoptampUserFixture.getPlatformUserInfoResponse(platformUserId, List.of(activities1));
+
+        final SoptampUser soptampUser = SoptampUser.builder()
+            .id(soptampUserId)
+            .userId(userId)
+            .nickname("oldNickName")
+            .totalPoints(10L)
+            .generation(30L)
+            .part(PlaygroundPart.IOS)
+            .build();
+
+        when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.of(soptampUser));
+
+        // when
+        soptampUserService.upsertSoptampUser(platformUserInfoResponse, userId);
+
+        // then
+        assertThat(soptampUser)
+            .extracting("userId", "generation", "totalPoints", "part")
+            .contains(userId, generation, 0L, PlaygroundPart.SERVER);
+        verify(rankCacheService, times(1)).removeRank(userId);
+        verify(rankCacheService, times(1)).createNewRank(userId);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_soptampUser 가 이미 존재하고 기수가 변경되지 않았다면 업데이트하지 않음.")
+    void SUCCESS_upsertSoptampUser_whenAlreadyExistAndSameGeneration() {
+        //given
+        final Long userId = 1L;
+        final Long generation = 37L;
+        final int platformUserId = userId.intValue();
+
+        final SoptActivities activities1 =
+            SoptampUserFixture.getSoptActivities(generation.intValue(), PLATFORM_PART_NAME_SERVER);
+
+        final PlatformUserInfoResponse platformUserInfoResponse =
+            SoptampUserFixture.getPlatformUserInfoResponse(platformUserId, List.of(activities1));
+
+        SoptampUser existingUser = mock(SoptampUser.class);
+
+        given(soptampUserRepository.findByUserId(userId)).willReturn(Optional.of(existingUser));
+        given(existingUser.getGeneration()).willReturn(generation);
+
+        //when
+        soptampUserService.upsertSoptampUser(platformUserInfoResponse, userId);
+
+        //then
+        verify(soptampUserRepository, times(1)).findByUserId(userId);
+        verify(existingUser, never()).updateChangedGenerationInfo(anyLong(), any(), anyString());
+        verify(soptampUserRepository, never()).save(any(SoptampUser.class));
+        verify(rankCacheService, never()).removeRank(userId);
+        verify(rankCacheService, never()).createNewRank(userId);
+    }
+
     @Test
     @DisplayName("SUCCESS_미션 레벨에 맞게 유저의 포인트가 증가함")
     void SUCCESS_addPointByLevel() {
@@ -351,5 +440,26 @@ class SoptampUserServiceTest {
                 assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_FOUND);
             });
     }
+
+    @Test
+    @DisplayName("SUCCESS_모든 soptampUser 의 포인트를 0으로 초기화함")
+    void SUCCESS_initAllSoptampUserPoints() {
+        //given
+        final Long userId = -1L;
+
+        //when
+        when(soptampUserRepository.findByUserId(anyLong())).thenReturn(Optional.empty());
+
+        //then
+        assertThrows(BadRequestException.class, () -> soptampUserService.initPoint(userId));
+        assertThatThrownBy(() -> soptampUserService.initPoint(userId))
+            .isInstanceOf(BadRequestException.class)
+            .satisfies(e -> {
+                BadRequestException exception = (BadRequestException) e;
+                assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_FOUND);
+            });
+    }
+
+
 
 }

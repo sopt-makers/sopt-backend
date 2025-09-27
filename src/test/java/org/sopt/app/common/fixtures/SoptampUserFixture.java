@@ -1,6 +1,9 @@
  package org.sopt.app.common.fixtures;
 
  import java.util.List;
+ import java.util.concurrent.atomic.AtomicInteger;
+ import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
+ import org.sopt.app.application.platform.dto.PlatformUserInfoResponse.SoptActivities;
  import org.sopt.app.application.soptamp.SoptampUserInfo;
  import org.sopt.app.domain.entity.soptamp.SoptampUser;
  import org.sopt.app.domain.enums.PlaygroundPart;
@@ -11,6 +14,12 @@
      public static final Long CURRENT_GENERATION = 37L;
 
      public static final String USER_NICKNAME = "testNickname";
+
+     public static final String PLATFORM_PART_NAME_SERVER = "서버";
+     public static final String PLATFORM_PART_NAME_ANDROID= "안드로이드";
+     public static final String PLATFORM_PART_NAME_IOS= "iOS";
+
+     private static final AtomicInteger ID_GENERATOR = new AtomicInteger(1);
 
      public static final SoptampUser SOPTAMP_USER_1 =
              SoptampUser.builder().id(1L).userId(10L).nickname("서버유저").totalPoints(100L)
@@ -79,6 +88,28 @@
              .generation(CURRENT_GENERATION)
              .part(PlaygroundPart.SERVER)
              .build();
+     }
+
+     public static SoptActivities getSoptActivities(
+         int generation,
+         String part
+     ) {
+         return new SoptActivities(ID_GENERATOR.getAndIncrement(), generation, part, null);
+     }
+
+     public static PlatformUserInfoResponse getPlatformUserInfoResponse(
+         int userId, List<SoptActivities> soptActivities
+     ){
+         return new PlatformUserInfoResponse(
+             userId,
+             "test",
+         "testImage",
+             "testBirth",
+             "010-1234-5678",
+             "test@test.com",
+             Math.toIntExact(CURRENT_GENERATION),
+             soptActivities
+         );
      }
 
  }
