@@ -88,7 +88,7 @@ public class SoptampUserService {
     }
 
     private String generateUniqueNickname(String nickname, String part) {
-        String prefixPartName = "iOS".equalsIgnoreCase(part) ? "아요" : part;
+        String prefixPartName = PlaygroundPart.findPlaygroundPartByPartName(part).getShortedPartName();
         StringBuilder uniqueNickname = new StringBuilder().append(prefixPartName).append(nickname);
         if (soptampUserRepository.existsByNickname(uniqueNickname.toString())) {
             return addSuffixToNickname(uniqueNickname);

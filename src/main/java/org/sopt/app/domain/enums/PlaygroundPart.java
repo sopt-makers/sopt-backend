@@ -35,7 +35,7 @@ public enum PlaygroundPart {
 
     public static PlaygroundPart findPlaygroundPartByPartName(String partName) {
         return Arrays.stream(PlaygroundPart.values())
-                .filter(playgroundPart -> playgroundPart.partName.equals(partName))
+                .filter(playgroundPart -> playgroundPart.partName.equalsIgnoreCase(partName))
                 .findAny()
                 .orElse(PlaygroundPart.NONE);
     }
