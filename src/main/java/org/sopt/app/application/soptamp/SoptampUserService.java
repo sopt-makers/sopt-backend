@@ -1,21 +1,19 @@
 package org.sopt.app.application.soptamp;
 
 import static org.sopt.app.domain.entity.soptamp.SoptampUser.createNewSoptampUser;
-import static org.sopt.app.domain.enums.PlaygroundPart.findPlaygroundPartByPartName;
+import static org.sopt.app.domain.enums.SoptPart.findPlaygroundPartByPartName;
 
 import java.util.*;
 import lombok.*;
 
 import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.rank.CachedUserInfo;
 import org.sopt.app.application.rank.RankCacheService;
 import org.sopt.app.application.user.UserWithdrawEvent;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
-import org.sopt.app.domain.enums.PlaygroundPart;
+import org.sopt.app.domain.enums.SoptPart;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -88,7 +86,7 @@ public class SoptampUserService {
     }
 
     private String generateUniqueNickname(String nickname, String part) {
-        String prefixPartName = "iOS".equalsIgnoreCase(part) ? "아요" : part;
+        String prefixPartName = SoptPart.findPlaygroundPartByPartName(part).getShortedPartName();
         StringBuilder uniqueNickname = new StringBuilder().append(prefixPartName).append(nickname);
         if (soptampUserRepository.existsByNickname(uniqueNickname.toString())) {
             return addSuffixToNickname(uniqueNickname);
