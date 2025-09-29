@@ -6,7 +6,7 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum PlaygroundPart {
+public enum SoptPart {
     PRESIDENT("회장", "회장"),
     VICE_PRESIDENT("부회장", "부회장"),
     GENERAL_AFFAIR("총무", "총무"),
@@ -33,15 +33,15 @@ public enum PlaygroundPart {
     final String partName;
     final String shortedPartName;
 
-    public static PlaygroundPart findPlaygroundPartByPartName(String partName) {
-        return Arrays.stream(PlaygroundPart.values())
+    public static SoptPart findPlaygroundPartByPartName(String partName) {
+        return Arrays.stream(SoptPart.values())
                 .filter(playgroundPart -> playgroundPart.partName.equalsIgnoreCase(partName))
                 .findAny()
-                .orElse(PlaygroundPart.NONE);
+                .orElse(SoptPart.NONE);
     }
 
-    public static Part toPart(PlaygroundPart playgroundPart) {
-        return switch (playgroundPart) {
+    public static Part toPart(SoptPart soptPart) {
+        return switch (soptPart) {
             case PLAN, PLAN_PART_LEADER -> Part.PLAN;
             case DESIGN, DESIGN_PART_LEADER -> Part.DESIGN;
             case ANDROID, ANDROID_PART_LEADER -> Part.ANDROID;

@@ -1,6 +1,6 @@
 package org.sopt.app.application.playground.dto;
 
-import static org.sopt.app.domain.enums.PlaygroundPart.findPlaygroundPartByPartName;
+import static org.sopt.app.domain.enums.SoptPart.findPlaygroundPartByPartName;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
@@ -9,7 +9,7 @@ import lombok.*;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
-import org.sopt.app.domain.enums.PlaygroundPart;
+import org.sopt.app.domain.enums.SoptPart;
 import org.sopt.app.domain.enums.UserStatus;
 
 @Slf4j
@@ -125,17 +125,17 @@ public class PlaygroundProfileInfo {
             }
         }
 
-        public PlaygroundPart getPlaygroundPart() {
+        public SoptPart getPlaygroundPart() {
             try {
                 String[] parts = cardinalInfo.split(",");
                 if (parts.length < 2) {
                     log.warn("Invalid cardinalInfo format: {}", cardinalInfo);
-                    return PlaygroundPart.NONE;
+                    return SoptPart.NONE;
                 }
                 return findPlaygroundPartByPartName(parts[1]);
             } catch (Exception e) {
                 log.warn("Error parsing PlaygroundPart from cardinalInfo: {}", cardinalInfo, e);
-                return PlaygroundPart.NONE;
+                return SoptPart.NONE;
             }
         }
     }

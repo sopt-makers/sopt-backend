@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +20,8 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.utils.ActivityDurationCalculator;
-import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.IconType;
-import org.sopt.app.domain.enums.PlaygroundPart;
+import org.sopt.app.domain.enums.SoptPart;
 import org.sopt.app.facade.AuthFacade;
 import org.sopt.app.facade.PokeFacade;
 import org.sopt.app.facade.RankFacade;
@@ -109,7 +107,7 @@ public class UserController {
         Long soptDuring = null;
 
         Optional<Long> latestGeneration = playgroundProfile.getAllActivities().stream()
-                .filter(c -> !c.getPlaygroundPart().getPartName().equals(PlaygroundPart.NONE.getPartName()))
+                .filter(c -> !c.getPlaygroundPart().getPartName().equals(SoptPart.NONE.getPartName()))
                 .map(PlaygroundProfileInfo.ActivityCardinalInfo::getGeneration)
                 .max(Comparator.naturalOrder());
 

@@ -1,6 +1,6 @@
 package org.sopt.app.application.rank;
 
-import static org.sopt.app.domain.enums.PlaygroundPart.toPart;
+import static org.sopt.app.domain.enums.SoptPart.toPart;
 
 import java.io.Serializable;
 import lombok.AccessLevel;

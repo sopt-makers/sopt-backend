@@ -3,7 +3,7 @@ package org.sopt.app.domain.entity.soptamp;
 import jakarta.persistence.*;
 import lombok.*;
 import org.sopt.app.domain.entity.BaseEntity;
-import org.sopt.app.domain.enums.PlaygroundPart;
+import org.sopt.app.domain.enums.SoptPart;
 
 @Entity
 @Getter
@@ -27,13 +27,13 @@ public class SoptampUser extends BaseEntity {
     private Long generation;
 
     @Enumerated(EnumType.STRING)
-    private PlaygroundPart part;
+    private SoptPart part;
 
     public void initTotalPoints() {
         this.totalPoints = 0L;
     }
 
-    public static SoptampUser createNewSoptampUser(Long userId, String nickname, Long generation, PlaygroundPart part) {
+    public static SoptampUser createNewSoptampUser(Long userId, String nickname, Long generation, SoptPart part) {
         return SoptampUser.builder()
                 .userId(userId)
                 .nickname(nickname)
@@ -44,7 +44,7 @@ public class SoptampUser extends BaseEntity {
                 .build();
     }
 
-    public void updateChangedGenerationInfo(Long generation, PlaygroundPart part, String nickname) {
+    public void updateChangedGenerationInfo(Long generation, SoptPart part, String nickname) {
         this.generation = generation;
         this.part = part;
         this.nickname = nickname;
