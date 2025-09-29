@@ -2,7 +2,7 @@ package org.sopt.app.application.soptamp;
 
 import lombok.*;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
-import org.sopt.app.domain.enums.PlaygroundPart;
+import org.sopt.app.domain.enums.SoptPart;
 
 @Getter
 @Builder
@@ -14,7 +14,7 @@ public class SoptampUserInfo {
     private String profileMessage;
     private Long totalPoints;
     private String nickname;
-    private PlaygroundPart part;
+    private SoptPart part;
 
     public static SoptampUserInfo of(SoptampUser soptampUser) {
         return SoptampUserInfo.builder()
