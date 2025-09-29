@@ -6,7 +6,7 @@
  import org.sopt.app.application.platform.dto.PlatformUserInfoResponse.SoptActivities;
  import org.sopt.app.application.soptamp.SoptampUserInfo;
  import org.sopt.app.domain.entity.soptamp.SoptampUser;
- import org.sopt.app.domain.enums.PlaygroundPart;
+ import org.sopt.app.domain.enums.SoptPart;
  import software.amazon.awssdk.services.s3.endpoints.internal.Value.Int;
 
  public class SoptampUserFixture {
@@ -23,22 +23,22 @@
 
      public static final SoptampUser SOPTAMP_USER_1 =
              SoptampUser.builder().id(1L).userId(10L).nickname("서버유저").totalPoints(100L)
-                     .generation(CURRENT_GENERATION).part(PlaygroundPart.SERVER).build();
+                     .generation(CURRENT_GENERATION).part(SoptPart.SERVER).build();
      public static final SoptampUser SOPTAMP_USER_2 =
              SoptampUser.builder().id(2L).userId(20L).nickname("안드유저").totalPoints(200L)
-                     .generation(CURRENT_GENERATION).part(PlaygroundPart.ANDROID).build();
+                     .generation(CURRENT_GENERATION).part(SoptPart.ANDROID).build();
      public static final SoptampUser SOPTAMP_USER_3 =
              SoptampUser.builder().id(3L).userId(30L).nickname("아요유저").totalPoints(300L)
-                     .generation(CURRENT_GENERATION).part(PlaygroundPart.IOS).build();
+                     .generation(CURRENT_GENERATION).part(SoptPart.IOS).build();
      public static final SoptampUser SOPTAMP_USER_4 =
              SoptampUser.builder().id(4L).userId(40L).nickname("디자인유저").totalPoints(300L)
-                     .generation(CURRENT_GENERATION).part(PlaygroundPart.DESIGN).build();
+                     .generation(CURRENT_GENERATION).part(SoptPart.DESIGN).build();
      public static final SoptampUser SOPTAMP_USER_5 =
              SoptampUser.builder().id(5L).userId(50L).nickname("서버유저A").totalPoints(500L)
-                     .generation(CURRENT_GENERATION).part(PlaygroundPart.SERVER).build();
+                     .generation(CURRENT_GENERATION).part(SoptPart.SERVER).build();
      public static final SoptampUser SOPTAMP_USER_6 =
              SoptampUser.builder().id(6L).userId(60L).nickname("서버유저B").totalPoints(600L)
-                     .generation(CURRENT_GENERATION).part(PlaygroundPart.SERVER).build();
+                     .generation(CURRENT_GENERATION).part(SoptPart.SERVER).build();
 
      public static final SoptampUserInfo SOPTAMP_USER_INFO_1 = SoptampUserInfo.of(SOPTAMP_USER_1);
      public static final SoptampUserInfo SOPTAMP_USER_INFO_2 = SoptampUserInfo.of(SOPTAMP_USER_2);
@@ -64,7 +64,7 @@
             .nickname(nickname)
             .totalPoints(100L)
             .generation(CURRENT_GENERATION)
-            .part(PlaygroundPart.SERVER)
+            .part(SoptPart.SERVER)
             .build();
      }
 
@@ -75,7 +75,7 @@
              .nickname(USER_NICKNAME)
              .totalPoints(100L)
              .generation(CURRENT_GENERATION)
-             .part(PlaygroundPart.SERVER)
+             .part(SoptPart.SERVER)
              .build();
      }
 
@@ -86,7 +86,7 @@
              .nickname(USER_NICKNAME)
              .totalPoints(totalPoints)
              .generation(CURRENT_GENERATION)
-             .part(PlaygroundPart.SERVER)
+             .part(SoptPart.SERVER)
              .build();
      }
 

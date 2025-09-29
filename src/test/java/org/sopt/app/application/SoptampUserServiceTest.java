@@ -42,7 +42,7 @@ import org.sopt.app.common.fixtures.SoptampFixture;
 import org.sopt.app.common.fixtures.SoptampUserFixture;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.User;
-import org.sopt.app.domain.enums.PlaygroundPart;
+import org.sopt.app.domain.enums.SoptPart;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
 
@@ -279,7 +279,7 @@ class SoptampUserServiceTest {
             .nickname("oldNickName")
             .totalPoints(10L)
             .generation(30L)
-            .part(PlaygroundPart.IOS)
+            .part(SoptPart.IOS)
             .build();
 
         when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.of(soptampUser));
@@ -290,7 +290,7 @@ class SoptampUserServiceTest {
         // then
         assertThat(soptampUser)
             .extracting("userId", "generation", "totalPoints", "part")
-            .contains(userId, generation, 0L, PlaygroundPart.SERVER);
+            .contains(userId, generation, 0L, SoptPart.SERVER);
         verify(rankCacheService, times(1)).removeRank(userId);
         verify(rankCacheService, times(1)).createNewRank(userId);
     }
