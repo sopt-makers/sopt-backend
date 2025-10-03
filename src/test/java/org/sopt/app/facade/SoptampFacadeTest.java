@@ -93,19 +93,16 @@ class SoptampFacadeTest {
         then(soptampUserService).should(times(1)).subtractPointByLevel(USER_ID, missionLevel.getLevel());
     }
 
-//    @Test
-//    @DisplayName("SUCCESS_유저의 모든 스탬프를 정상적으로 삭제함")
-//    void SUCCESS_deleteStampAll() {
-//        // given & when
-//        soptampFacade.deleteStampAll(SOPTAMP_USER_ID);
-//
-//        // then
-//        then(stampService).should().deleteAllStamps(SOPTAMP_USER_ID);
-//        then(soptampUserService).should().initPoint(SOPTAMP_USER_ID);
-//
-//        stampService.deleteAllStamps(userId);
-//        soptampUserService.initPoint(userId);
-//    }
+    @Test
+    @DisplayName("SUCCESS_유저의 모든 스탬프를 정상적으로 삭제함")
+    void SUCCESS_deleteStampAll() {
+        // given & when
+        soptampFacade.deleteStampAll(USER_ID);
+
+        // then
+        then(stampService).should(times(1)).deleteAllStamps(USER_ID);
+        then(soptampUserService).should(times(1)).initPoint(USER_ID);
+    }
 //
 //    @Test
 //    @DisplayName("SUCCESS_솝탬프 유저 프로필 메시지 수정하기")
