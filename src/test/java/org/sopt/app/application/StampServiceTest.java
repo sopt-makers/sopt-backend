@@ -31,7 +31,6 @@ import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.EditStampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
-import org.springframework.util.StringUtils;
 
 @ExtendWith(MockitoExtension.class)
 class StampServiceTest {
@@ -111,7 +110,7 @@ class StampServiceTest {
         Long missionId = 100L;
         Long userId = 1L;
 
-        StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequestWithEdited(missionId);
+        StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequestWithMissionId(missionId);
 
         Stamp oldStamp = getStamp(userId, missionId);
         Mockito.when(stampRepository.findByUserIdAndMissionId(userId, missionId)).thenReturn(Optional.of(oldStamp));
@@ -179,7 +178,7 @@ class StampServiceTest {
         //given
         final Long userId = -1L;
         final Long missionId = -100L;
-        final StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequestWithEdited(missionId);
+        final StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequestWithMissionId(missionId);
 
         Mockito.when(stampRepository.findByUserIdAndMissionId(anyLong(), anyLong()))
             .thenReturn(Optional.empty());

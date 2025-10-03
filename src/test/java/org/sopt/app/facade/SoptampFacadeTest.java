@@ -14,12 +14,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.mission.*;
-import org.sopt.app.application.mission.MissionInfo.Level;
 import org.sopt.app.application.soptamp.*;
 import org.sopt.app.application.stamp.*;
 import org.sopt.app.application.stamp.StampInfo.Stamp;
 import org.sopt.app.common.fixtures.SoptampFixture;
 import org.sopt.app.presentation.stamp.StampRequest;
+import org.sopt.app.presentation.stamp.StampRequest.EditStampRequest;
 
 @ExtendWith(MockitoExtension.class)
 class SoptampFacadeTest {
@@ -58,9 +58,25 @@ class SoptampFacadeTest {
 
         assertEquals(uploadedStamp, result);
     }
-//
+
+    @Test
+    @DisplayName("SUCCESS_스탬프를 정상적으로 수정함")
+    void SUCCESS_editStamp() {
+        // given
+        EditStampRequest editStampRequest = SoptampFixture.getEditStampRequestWithMissionId(MISSION_ID);
+        StampInfo.Stamp stamp = getStampInfo();
+
+        given(stampService.editStampContents(editStampRequest, SOPTAMP_USER_ID)).willReturn(stamp);
+
+        // when
+        soptampFacade.editStamp(SOPTAMP_USER_ID, editStampRequest);
+
+        // then
+        then(stampService).should(times(1)).editStampContents(editStampRequest, SOPTAMP_USER_ID);
+    }
+
 //    @Test
-//    @DisplayName("SUCCESS_스탬프 삭제하기")
+//    @DisplayName("SUCCESS_스탬프를 정상적으로 삭제함")
 //    void SUCCESS_deleteStamp() {
 //        // given
 //        Stamp stamp = Stamp.builder()

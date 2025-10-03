@@ -78,7 +78,7 @@
          return new EditStampRequest(MISSION_ID, STAMP_IMAGE, STAMP_CONTENTS, STAMP_ACTIVITY_DATE);
      }
 
-     public static EditStampRequest getEditStampRequestWithEdited(Long missionId) {
+     public static EditStampRequest getEditStampRequestWithMissionId(Long missionId) {
          return new EditStampRequest(missionId, EDITED_STAMP_IMAGE, EDITED_STAMP_CONTENTS, EDITED_STAMP_ACTIVITY_DATE);
      }
 
