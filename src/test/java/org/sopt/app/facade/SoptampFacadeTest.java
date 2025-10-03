@@ -103,20 +103,20 @@ class SoptampFacadeTest {
         then(stampService).should(times(1)).deleteAllStamps(USER_ID);
         then(soptampUserService).should(times(1)).initPoint(USER_ID);
     }
-//
-//    @Test
-//    @DisplayName("SUCCESS_솝탬프 유저 프로필 메시지 수정하기")
-//    void SUCCESS_editSoptampUserProfileMessage() {
-//        // given
-//        final SoptampUserInfo soptampUser = SoptampFixture.getUserInfo();
-//        final String newProfileMessage = "new message";
-//
-//        // when
-//        soptampFacade.editSoptampUserProfileMessage(USER_ID, newProfileMessage);
-//
-//        // then
-//        then(soptampUserService).should().editProfileMessage(soptampUser.getUserId(), newProfileMessage);
-//    }
+
+    @Test
+    @DisplayName("SUCCESS_솝탬프 유저의 프로필 메시지를 정상적으로 수정함")
+    void SUCCESS_editSoptampUserProfileMessage() {
+        // given
+        final SoptampUserInfo soptampUser = SoptampFixture.getUserInfo();
+        final String newProfileMessage = "new message";
+
+        // when
+        soptampFacade.editSoptampUserProfileMessage(USER_ID, newProfileMessage);
+
+        // then
+        then(soptampUserService).should(times(1)).editProfileMessage(soptampUser.getUserId(), newProfileMessage);
+    }
 //
 //    @Test
 //    @DisplayName("SUCCESS_스탬프 조회하기")
