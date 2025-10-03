@@ -55,7 +55,7 @@
              .build();
      }
 
-     public static SoptampUserInfo getUserInfo() {
+     public static SoptampUserInfo getSoptampUserInfo() {
          return SoptampUserInfo.builder().id(SOPTAMP_USER_ID).userId(USER_ID).nickname(NICKNAME).build();
      }
 

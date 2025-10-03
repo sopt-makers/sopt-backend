@@ -1,5 +1,6 @@
 package org.sopt.app.facade;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
@@ -17,6 +18,7 @@ import org.sopt.app.application.mission.*;
 import org.sopt.app.application.mission.MissionInfo.Level;
 import org.sopt.app.application.soptamp.*;
 import org.sopt.app.application.stamp.*;
+import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.common.fixtures.SoptampFixture;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.presentation.stamp.StampRequest;
@@ -108,7 +110,7 @@ class SoptampFacadeTest {
     @DisplayName("SUCCESS_솝탬프 유저의 프로필 메시지를 정상적으로 수정함")
     void SUCCESS_editSoptampUserProfileMessage() {
         // given
-        final SoptampUserInfo soptampUser = SoptampFixture.getUserInfo();
+        final SoptampUserInfo soptampUser = SoptampFixture.getSoptampUserInfo();
         final String newProfileMessage = "new message";
 
         // when
@@ -117,21 +119,22 @@ class SoptampFacadeTest {
         // then
         then(soptampUserService).should(times(1)).editProfileMessage(soptampUser.getUserId(), newProfileMessage);
     }
-//
-//    @Test
-//    @DisplayName("SUCCESS_스탬프 조회하기")
-//    void SUCCESS_getStampInfo() {
-//        // given
-//        final StampInfo.Stamp stampInfo = SoptampFixture.getStampInfo();
-//        given(soptampUserFinder.findByNickname(NICKNAME)).willReturn(SoptampFixture.getUserInfo());
-//        given(stampService.findStamp(MISSION_ID, USER_ID)).willReturn(stampInfo);
-//
-//        // when
-//        StampInfo.Stamp result = soptampFacade.getStampInfo(MISSION_ID, NICKNAME);
-//
-//        // then
-//        assertEquals(stampInfo, result);
-//    }
-//
-//
+
+    @Test
+    @DisplayName("SUCCESS_missionId와 nickName으로 스탬프를 정상 조회함")
+    void SUCCESS_getStampInfo() {
+        // given
+        final StampInfo.Stamp stampInfo = SoptampFixture.getStampInfo();
+        final SoptampUserInfo soptampUserInfo = getSoptampUserInfo();
+
+        given(soptampUserFinder.findByNickname(NICKNAME)).willReturn(soptampUserInfo);
+        given(stampService.findStamp(MISSION_ID, USER_ID)).willReturn(stampInfo);
+
+        // when
+        StampInfo.Stamp result = soptampFacade.getStampInfo(MISSION_ID, NICKNAME);
+
+        // then
+        assertThat(result).isEqualTo(stampInfo);
+    }
+
 }
