@@ -63,7 +63,7 @@
          return StampInfo.Stamp.builder()
                  .id(STAMP_ID)
                  .contents(STAMP_CONTENTS)
-                 .userId(SOPTAMP_USER_ID)
+                 .userId(USER_ID)
                  .missionId(MISSION_ID)
                  .images(STAMP_IMG_PATHS)
                  .activityDate(STAMP_ACTIVITY_DATE)

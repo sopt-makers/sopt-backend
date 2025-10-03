@@ -45,16 +45,16 @@ class SoptampFacadeTest {
         final StampInfo.Stamp uploadedStamp = SoptampFixture.getStampInfo();
         final StampRequest.RegisterStampRequest registerStampRequest = SoptampFixture.getRegisterStampRequest();
 
-        given(stampService.uploadStamp(registerStampRequest, SOPTAMP_USER_ID)).willReturn(uploadedStamp);
+        given(stampService.uploadStamp(registerStampRequest, USER_ID)).willReturn(uploadedStamp);
         given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
 
         // when
-        StampInfo.Stamp result = soptampFacade.uploadStamp(SOPTAMP_USER_ID, registerStampRequest);
+        StampInfo.Stamp result = soptampFacade.uploadStamp(USER_ID, registerStampRequest);
 
         // then
-        then(stampService).should(times(1)).checkDuplicateStamp(SOPTAMP_USER_ID, MISSION_ID);
-        then(stampService).should(times(1)).uploadStamp(registerStampRequest, SOPTAMP_USER_ID);
-        then(soptampUserService).should(times(1)).addPointByLevel(SOPTAMP_USER_ID, MISSION_LEVEL);
+        then(stampService).should(times(1)).checkDuplicateStamp(USER_ID, MISSION_ID);
+        then(stampService).should(times(1)).uploadStamp(registerStampRequest,USER_ID);
+        then(soptampUserService).should(times(1)).addPointByLevel(USER_ID, MISSION_LEVEL);
 
         assertEquals(uploadedStamp, result);
     }
@@ -66,13 +66,13 @@ class SoptampFacadeTest {
         EditStampRequest editStampRequest = SoptampFixture.getEditStampRequestWithMissionId(MISSION_ID);
         StampInfo.Stamp stamp = getStampInfo();
 
-        given(stampService.editStampContents(editStampRequest, SOPTAMP_USER_ID)).willReturn(stamp);
+        given(stampService.editStampContents(editStampRequest, USER_ID)).willReturn(stamp);
 
         // when
-        soptampFacade.editStamp(SOPTAMP_USER_ID, editStampRequest);
+        soptampFacade.editStamp(USER_ID, editStampRequest);
 
         // then
-        then(stampService).should(times(1)).editStampContents(editStampRequest, SOPTAMP_USER_ID);
+        then(stampService).should(times(1)).editStampContents(editStampRequest, USER_ID);
     }
 
     @Test
@@ -86,15 +86,15 @@ class SoptampFacadeTest {
         given(missionService.getMissionById(stamp.getMissionId())).willReturn(missionLevel);
 
         // when
-        soptampFacade.deleteStamp(SOPTAMP_USER_ID, STAMP_ID);
+        soptampFacade.deleteStamp(USER_ID, STAMP_ID);
 
         // then
         then(stampService).should(times(1)).deleteStampById(STAMP_ID);
         then(soptampUserService).should(times(1)).subtractPointByLevel(USER_ID, missionLevel.getLevel());
     }
-//
+
 //    @Test
-//    @DisplayName("SUCCESS_모든 스탬프 삭제하기")
+//    @DisplayName("SUCCESS_유저의 모든 스탬프를 정상적으로 삭제함")
 //    void SUCCESS_deleteStampAll() {
 //        // given & when
 //        soptampFacade.deleteStampAll(SOPTAMP_USER_ID);
@@ -102,6 +102,9 @@ class SoptampFacadeTest {
 //        // then
 //        then(stampService).should().deleteAllStamps(SOPTAMP_USER_ID);
 //        then(soptampUserService).should().initPoint(SOPTAMP_USER_ID);
+//
+//        stampService.deleteAllStamps(userId);
+//        soptampUserService.initPoint(userId);
 //    }
 //
 //    @Test
