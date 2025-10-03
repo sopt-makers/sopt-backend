@@ -14,10 +14,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.mission.*;
+import org.sopt.app.application.mission.MissionInfo.Level;
 import org.sopt.app.application.soptamp.*;
 import org.sopt.app.application.stamp.*;
-import org.sopt.app.application.stamp.StampInfo.Stamp;
 import org.sopt.app.common.fixtures.SoptampFixture;
+import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.EditStampRequest;
 
@@ -53,7 +54,6 @@ class SoptampFacadeTest {
         // then
         then(stampService).should(times(1)).checkDuplicateStamp(SOPTAMP_USER_ID, MISSION_ID);
         then(stampService).should(times(1)).uploadStamp(registerStampRequest, SOPTAMP_USER_ID);
-        then(missionService).should(times(1)).getMissionById(MISSION_ID);
         then(soptampUserService).should(times(1)).addPointByLevel(SOPTAMP_USER_ID, MISSION_LEVEL);
 
         assertEquals(uploadedStamp, result);
@@ -75,27 +75,23 @@ class SoptampFacadeTest {
         then(stampService).should(times(1)).editStampContents(editStampRequest, SOPTAMP_USER_ID);
     }
 
-//    @Test
-//    @DisplayName("SUCCESS_스탬프를 정상적으로 삭제함")
-//    void SUCCESS_deleteStamp() {
-//        // given
-//        Stamp stamp = Stamp.builder()
-//            .id(STAMP_ID)
-//            .userId(SOPTAMP_USER_ID)
-//            .missionId(MISSION_ID)
-//            .images(STAMP_IMG_PATHS)
-//            .contents(STAMP_CONTENTS)
-//            .activityDate(STAMP_ACTIVITY_DATE)
-//            .build();
-//        given(stampService.getStampForDelete(STAMP_ID, SOPTAMP_USER_ID)).willReturn(stamp);
-//        given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
-//
-//        // when
-//        soptampFacade.deleteStamp(SOPTAMP_USER_ID, STAMP_ID);
-//
-//        // then
-//        then(stampService).should().deleteStampById(STAMP_ID);
-//    }
+    @Test
+    @DisplayName("SUCCESS_스탬프를 정상적으로 삭제하여 total point 가 미션 레벨에 맞게 차감됨")
+    void SUCCESS_deleteStamp() {
+        // given
+        Stamp stamp = getStamp(USER_ID);
+        Level missionLevel = MissionInfo.Level.of(MISSION_LEVEL);
+
+        given(stampService.getStampForDelete(STAMP_ID, USER_ID)).willReturn(stamp);
+        given(missionService.getMissionById(stamp.getMissionId())).willReturn(missionLevel);
+
+        // when
+        soptampFacade.deleteStamp(SOPTAMP_USER_ID, STAMP_ID);
+
+        // then
+        then(stampService).should(times(1)).deleteStampById(STAMP_ID);
+        then(soptampUserService).should(times(1)).subtractPointByLevel(USER_ID, missionLevel.getLevel());
+    }
 //
 //    @Test
 //    @DisplayName("SUCCESS_모든 스탬프 삭제하기")
