@@ -7,6 +7,8 @@
  import org.sopt.app.application.soptamp.SoptampUserInfo;
  import org.sopt.app.domain.entity.soptamp.SoptampUser;
  import org.sopt.app.domain.enums.SoptPart;
+ import org.sopt.app.presentation.rank.RankResponse;
+ import org.sopt.app.presentation.rank.RankResponse.RankMission;
  import software.amazon.awssdk.services.s3.endpoints.internal.Value.Int;
 
  public class SoptampUserFixture {

@@ -6,8 +6,14 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.sopt.app.common.fixtures.MissionFixture.MISSION_ID;
+import static org.sopt.app.common.fixtures.MissionFixture.MISSION_LEVEL;
+import static org.sopt.app.common.fixtures.MissionFixture.getMission;
+import static org.sopt.app.common.fixtures.MissionFixture.getRankMission;
 import static org.sopt.app.common.fixtures.SoptampFixture.*;
 
+import java.util.List;
+import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -20,9 +26,16 @@ import org.sopt.app.application.soptamp.*;
 import org.sopt.app.application.stamp.*;
 import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.common.fixtures.SoptampFixture;
+import org.sopt.app.domain.entity.soptamp.Mission;
+import org.sopt.app.domain.entity.soptamp.Mission.MissionBuilder;
 import org.sopt.app.domain.entity.soptamp.Stamp;
+import org.sopt.app.presentation.rank.RankResponse;
+import org.sopt.app.presentation.rank.RankResponse.Detail;
+import org.sopt.app.presentation.rank.RankResponse.RankMission;
+import org.sopt.app.presentation.rank.RankResponseMapper;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.EditStampRequest;
+import org.sopt.app.presentation.stamp.StampResponse.SoptampReportResponse;
 
 @ExtendWith(MockitoExtension.class)
 class SoptampFacadeTest {
@@ -35,6 +48,8 @@ class SoptampFacadeTest {
     private SoptampUserService soptampUserService;
     @Mock
     private SoptampUserFinder soptampUserFinder;
+    @Mock
+    private RankResponseMapper rankResponseMapper;
 
     @InjectMocks
     private SoptampFacade soptampFacade;
@@ -137,4 +152,48 @@ class SoptampFacadeTest {
         assertThat(result).isEqualTo(stampInfo);
     }
 
+    @Test
+    @DisplayName("SUCCESS_nickName 으로 SoptampUser 정보와 성공한 미션 목록을 정상적으로 가져옴")
+    void SUCCESS_findSoptampUserAndCompletedMissionByNickname() {
+        // given
+        Mission mission1 = getMission();
+        Mission mission2 = getMission();
+
+        RankResponse.RankMission rankMission1 = getRankMission(mission1.getId());
+        RankResponse.RankMission rankMission2 = getRankMission(mission2.getId());
+
+        final SoptampUserInfo soptampUserInfo = getSoptampUserInfo();
+        final List<Mission> completedMissions = List.of(mission1, mission2);
+
+        final RankResponse.Detail expected = new RankResponse.Detail(
+            soptampUserInfo.getNickname(),
+            soptampUserInfo.getProfileMessage(),
+            List.of(rankMission1, rankMission2));
+
+        given(soptampUserFinder.findByNickname(NICKNAME)).willReturn(soptampUserInfo);
+        given(missionService.getCompleteMission(USER_ID)).willReturn(completedMissions);
+        given(rankResponseMapper.of(soptampUserInfo, completedMissions)).willReturn(expected);
+
+        // when
+        Detail result = soptampFacade.findSoptampUserAndCompletedMissionByNickname(NICKNAME);
+
+        // then
+        assertThat(result)
+            .extracting("nickname", "profileMessage")
+            .contains(soptampUserInfo.getNickname(), soptampUserInfo.getProfileMessage());
+
+        assertThat(result.getUserMissions())
+            .hasSize(2)
+            .extracting("id", "level")
+            .containsExactlyInAnyOrder(
+                Tuple.tuple(1L, MISSION_LEVEL),
+                Tuple.tuple(2L, MISSION_LEVEL)
+            );
+    }
+
+
+
+//    public SoptampReportResponse getReportUrl(){
+//        return new SoptampReportResponse(formUrl);
+//    }
 }
