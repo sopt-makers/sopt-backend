@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.sopt.app.common.fixtures.MissionFixture.MISSION_ID;
 import static org.sopt.app.common.fixtures.MissionFixture.MISSION_LEVEL;
 import static org.sopt.app.common.fixtures.MissionFixture.getMission;
@@ -24,18 +23,15 @@ import org.sopt.app.application.mission.*;
 import org.sopt.app.application.mission.MissionInfo.Level;
 import org.sopt.app.application.soptamp.*;
 import org.sopt.app.application.stamp.*;
-import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.common.fixtures.SoptampFixture;
 import org.sopt.app.domain.entity.soptamp.Mission;
-import org.sopt.app.domain.entity.soptamp.Mission.MissionBuilder;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.presentation.rank.RankResponse;
 import org.sopt.app.presentation.rank.RankResponse.Detail;
-import org.sopt.app.presentation.rank.RankResponse.RankMission;
 import org.sopt.app.presentation.rank.RankResponseMapper;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.EditStampRequest;
-import org.sopt.app.presentation.stamp.StampResponse.SoptampReportResponse;
+
 
 @ExtendWith(MockitoExtension.class)
 class SoptampFacadeTest {
@@ -191,9 +187,4 @@ class SoptampFacadeTest {
             );
     }
 
-
-
-//    public SoptampReportResponse getReportUrl(){
-//        return new SoptampReportResponse(formUrl);
-//    }
 }
