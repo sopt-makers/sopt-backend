@@ -72,31 +72,39 @@ class RankFacadeTest {
             .containsExactlyInAnyOrder(3, 4);
     }
 
+    @Test
+    @DisplayName("SUCCESS_파트별 현재 기수의 솝탬프 유저 랭킹을 정상적으로 조회함")
+    void SUCCESS_findCurrentRanksByPart() {
+        // given
+        given(soptampUserFinder.findAllByPartAndCurrentGeneration(Part.SERVER)).willReturn(SERVER_PART_SOPTAMP_USER_INFO_LIST);
 
-//    @Test
-//    @DisplayName("SUCCESS 파트별 현재 기수의 솝탬프 유저 랭킹 조회")
-//    void findCurrentRanksByPart() {
-//        // given
-//        given(soptampUserFinder.findAllByPartAndCurrentGeneration(Part.SERVER)).willReturn(SERVER_PART_SOPTAMP_USER_INFO_LIST);
-//        // when
-//        List<Main> result = rankFacade.findCurrentRanksByPart(Part.SERVER);
-//        List<Main> expected = List.of(
-//                Main.builder().rank(1)
-//                        .nickname(SOPTAMP_USER_6.getNickname())
-//                        .point(SOPTAMP_USER_6.getTotalPoints()).build(),
-//                Main.builder().rank(2)
-//                        .nickname(SOPTAMP_USER_5.getNickname())
-//                        .point(SOPTAMP_USER_5.getTotalPoints()).build(),
-//                Main.builder().rank(3)
-//                        .nickname(SOPTAMP_USER_1.getNickname())
-//                        .point(SOPTAMP_USER_1.getTotalPoints()).build()
-//        );
-//        // then
-//        assertEquals(expected.size(), result.size());
-//        for (int i = 0; i < expected.size(); i++) {
-//            assertEquals(expected.get(i).getNickname(), result.get(i).getNickname(), i + "번째 index");
-//        }
-//    }
+        // when
+        List<Main> result = rankFacade.findCurrentRanksByPart(Part.SERVER);
+
+        // then
+       assertThat(result)
+           .hasSize(SERVER_PART_SOPTAMP_USER_INFO_LIST.size())
+           .extracting("rank", "nickname", "point")
+           .containsExactlyInAnyOrder(
+               Tuple.tuple(1, SOPTAMP_USER_6.getNickname(), SOPTAMP_USER_6.getTotalPoints()),
+               Tuple.tuple(2, SOPTAMP_USER_5.getNickname(), SOPTAMP_USER_5.getTotalPoints()),
+               Tuple.tuple(3, SOPTAMP_USER_1.getNickname(), SOPTAMP_USER_1.getTotalPoints())
+           );
+    }
+
+    @Test
+    @DisplayName("SUCCESS_파트에 soptampUser가 존재하지 않을 경우 파트별 현재 기수의 솝탬프 유저 랭킹 조회 시 빈리스트를 정상적으로 반환함")
+    void SUCCESS_findCurrentRanksByPart_whenEmptyUser() {
+        // given
+        given(soptampUserFinder.findAllByPartAndCurrentGeneration(Part.SERVER)).willReturn(Collections.emptyList());
+
+        // when
+        List<Main> result = rankFacade.findCurrentRanksByPart(Part.SERVER);
+
+        // then
+        assertThat(result).isEmpty();
+    }
+
 //
 //    @Test
 //    @DisplayName("SUCCESS 파트끼리의 솝탬프 포인트 랭킹 조회")
