@@ -4,12 +4,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.*;
+import static org.sopt.app.domain.enums.Part.DESIGN;
+import static org.sopt.app.domain.enums.Part.IOS;
+import static org.sopt.app.domain.enums.Part.PLAN;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
 import org.assertj.core.groups.Tuple;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -44,9 +50,8 @@ class RankFacadeTest {
         List<Main> result = rankFacade.findCurrentRanks();
 
         // then
-        assertEquals(SOPTAMP_USER_INFO_LIST.size(), result.size());
-
         assertThat(result)
+            .hasSize(SOPTAMP_USER_INFO_LIST.size())
             .extracting("rank", "nickname", "point")
             .contains(
                 Tuple.tuple(1, SOPTAMP_USER_6.getNickname(), SOPTAMP_USER_6.getTotalPoints()),
@@ -105,43 +110,65 @@ class RankFacadeTest {
         assertThat(result).isEmpty();
     }
 
-//
-//    @Test
-//    @DisplayName("SUCCESS 파트끼리의 솝탬프 포인트 랭킹 조회")
-//    void findAllPartRanks() {
-//        // given
-//        given(soptampUserFinder.findAllOfCurrentGeneration()).willReturn(SOPTAMP_USER_INFO_LIST);
-//        // when
-//        List<PartRank> result = rankFacade.findAllPartRanks();
-//        List<PartRank> expected = List.of( // 기-디-웹-아-안-서 순서
-//                PartRank.builder().rank(5) // 동점이라면 rank도 같아야 함
-//                        .part(Part.PLAN.getPartName())
-//                        .points(0L).build(),
-//                PartRank.builder().rank(2)
-//                        .part(Part.DESIGN.getPartName())
-//                        .points(SOPTAMP_USER_4.getTotalPoints()).build(),
-//                PartRank.builder().rank(5)
-//                        .part(Part.WEB.getPartName())
-//                        .points(0L).build(),
-//                PartRank.builder().rank(2)
-//                        .part(Part.IOS.getPartName())
-//                        .points(SOPTAMP_USER_3.getTotalPoints()).build(),
-//                PartRank.builder().rank(4) // 2등, 2등 다음 rank는 3등이 아닌 4등이다.
-//                        .part(Part.ANDROID.getPartName())
-//                        .points(SOPTAMP_USER_2.getTotalPoints()).build(),
-//                PartRank.builder().rank(1)
-//                        .part(Part.SERVER.getPartName())
-//                        .points(SOPTAMP_USER_6.getTotalPoints() +
-//                                SOPTAMP_USER_5.getTotalPoints() +
-//                                SOPTAMP_USER_1.getTotalPoints()).build()
-//        );
-//
-//        // then
-//        assertEquals(expected.size(), result.size());
-//        for (int i = 0; i < expected.size(); i++) {
-//            assertEquals(expected.get(i).getPart(), result.get(i).getPart(), i + "번째 index");
-//            assertEquals(expected.get(i).getRank(), result.get(i).getRank(), i + "번째 index");
-//            assertEquals(expected.get(i).getPoints(), result.get(i).getPoints(), i + "번째 index");
-//        }
-//    }
+    @Nested
+    @DisplayName("파트별 랭킹 조회 테스트")
+    class findAllPartRanksTest{
+
+        private List<PartRank> result;
+
+        @BeforeEach
+        void setUp(){
+            // given
+            given(soptampUserFinder.findAllOfCurrentGeneration()).willReturn(SOPTAMP_USER_INFO_LIST);
+
+            //when
+            result = rankFacade.findAllPartRanks();
+        }
+
+
+        @Test
+        @DisplayName("SUCCESS 파트별 솝탬프 포인트 랭킹 조회 시 기-디-웹-아-안-서 순서대로 조회함")
+        void SUCCESS_findAllPartRanks_sortedByPart() {
+            //then
+            assertThat(result)
+                .extracting(PartRank::getPart)
+                .contains(Part.PLAN.getPartName(),
+                    Part.DESIGN.getPartName(),
+                    Part.WEB.getPartName(),
+                    Part.IOS.getPartName(),
+                    Part.ANDROID.getPartName(),
+                    Part.SERVER.getPartName());
+        }
+
+        @Test
+        @DisplayName("SUCCESS 파트별 솝탬프 포인트가 동점일 경우 랭킹도 동점으로 조회됨")
+        void SUCCESS_findAllPartRanks_whenTiedPart() {
+            Long tiedPoint = SOPTAMP_USER_3.getTotalPoints();
+
+            // then
+            List<PartRank> tiedPart = result.stream()
+                .filter(partRank -> partRank.getPoints().equals(tiedPoint))
+                .toList();
+
+            assertThat(tiedPart)
+                .hasSize(2)
+                .extracting("part", "rank", "points")
+                .contains(
+                    Tuple.tuple(Part.IOS.getPartName(), 2, tiedPoint),
+                    Tuple.tuple(Part.DESIGN.getPartName(), 2, tiedPoint)
+                );
+        }
+
+        @Test
+        @DisplayName("SUCCESS 이전에 솝탬프 포인트가 동점인 파트가 존재했을 경우 다음 순위는 동점 파트 수를 건너뛰고 계산됨")
+        void SUCCESS_findAllPartRanks_whenAfterTiedPart(){
+            // then
+            assertThat(result)
+                .extracting("part", "rank")
+                .contains(Tuple.tuple(Part.ANDROID.getPartName(), 4));
+        }
+
+    }
+
+
 }
