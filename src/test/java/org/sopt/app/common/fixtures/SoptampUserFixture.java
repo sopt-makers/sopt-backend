@@ -16,6 +16,11 @@
      public static final Long CURRENT_GENERATION = 37L;
 
      public static final String USER_NICKNAME = "testNickname";
+     public static final String USER_NAME = "testName";
+     public static final String USER_PROFILE_IMAGE = "testImage";
+     public static final String USER_BIRTH = "testBirth";
+     public static final String USER_PHONE = "010-1234-5678";
+     public static final String USER_EMAIL = "test@test.com";
 
      public static final String PLATFORM_PART_NAME_SERVER = "서버";
      public static final String PLATFORM_PART_NAME_ANDROID= "안드로이드";
@@ -104,11 +109,11 @@
      ){
          return new PlatformUserInfoResponse(
              userId,
-             "test",
-         "testImage",
-             "testBirth",
-             "010-1234-5678",
-             "test@test.com",
+             USER_NAME,
+             USER_PROFILE_IMAGE,
+             USER_BIRTH,
+             USER_PHONE,
+             USER_EMAIL,
              Math.toIntExact(CURRENT_GENERATION),
              soptActivities
          );
