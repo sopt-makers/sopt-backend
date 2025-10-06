@@ -1,14 +1,20 @@
  package org.sopt.app.common.fixtures;
 
+ import java.util.LinkedHashSet;
  import java.util.List;
+ import java.util.Map;
+ import java.util.Set;
  import java.util.concurrent.atomic.AtomicInteger;
+ import org.hibernate.metamodel.model.domain.TupleType;
  import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
  import org.sopt.app.application.platform.dto.PlatformUserInfoResponse.SoptActivities;
+ import org.sopt.app.application.rank.CachedUserInfo;
  import org.sopt.app.application.soptamp.SoptampUserInfo;
  import org.sopt.app.domain.entity.soptamp.SoptampUser;
  import org.sopt.app.domain.enums.SoptPart;
  import org.sopt.app.presentation.rank.RankResponse;
  import org.sopt.app.presentation.rank.RankResponse.RankMission;
+ import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
  import software.amazon.awssdk.services.s3.endpoints.internal.Value.Int;
 
  public class SoptampUserFixture {
@@ -57,6 +63,26 @@
      public static final List<SoptampUserInfo> SOPTAMP_USER_INFO_LIST =
          List.of(SOPTAMP_USER_INFO_1, SOPTAMP_USER_INFO_2, SOPTAMP_USER_INFO_3,
                      SOPTAMP_USER_INFO_4, SOPTAMP_USER_INFO_5, SOPTAMP_USER_INFO_6);
+
+     public static final Set<TypedTuple<Long>> SOPTAMP_SCORE_CACHE = new LinkedHashSet<>(
+         List.of(
+             TypedTuple.of(SOPTAMP_USER_6.getUserId(), (double) SOPTAMP_USER_6.getTotalPoints()),
+             TypedTuple.of(SOPTAMP_USER_5.getUserId(), (double) SOPTAMP_USER_5.getTotalPoints()),
+             TypedTuple.of(SOPTAMP_USER_4.getUserId(), (double) SOPTAMP_USER_4.getTotalPoints()),
+             TypedTuple.of(SOPTAMP_USER_3.getUserId(), (double) SOPTAMP_USER_3.getTotalPoints()),
+             TypedTuple.of(SOPTAMP_USER_2.getUserId(), (double) SOPTAMP_USER_2.getTotalPoints()),
+             TypedTuple.of(SOPTAMP_USER_1.getUserId(), (double) SOPTAMP_USER_1.getTotalPoints())
+         )
+     );
+
+     public static final Map<Long, CachedUserInfo> SOPTAMP_PROFILE_MESSAGE_CACHE = Map.of(
+         SOPTAMP_USER_1.getUserId(), CachedUserInfo.of(SOPTAMP_USER_INFO_1),
+         SOPTAMP_USER_2.getUserId(), CachedUserInfo.of(SOPTAMP_USER_INFO_2),
+         SOPTAMP_USER_3.getUserId(), CachedUserInfo.of(SOPTAMP_USER_INFO_3),
+         SOPTAMP_USER_4.getUserId(), CachedUserInfo.of(SOPTAMP_USER_INFO_4),
+         SOPTAMP_USER_5.getUserId(), CachedUserInfo.of(SOPTAMP_USER_INFO_5),
+         SOPTAMP_USER_6.getUserId(), CachedUserInfo.of(SOPTAMP_USER_INFO_6)
+     );
 
      public static final List<SoptampUserInfo> SERVER_PART_SOPTAMP_USER_INFO_LIST =
          List.of(SOPTAMP_USER_INFO_6, SOPTAMP_USER_INFO_5, SOPTAMP_USER_INFO_1);
