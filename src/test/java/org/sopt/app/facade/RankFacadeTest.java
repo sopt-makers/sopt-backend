@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.*;
+import static org.sopt.app.domain.enums.Part.ANDROID;
 import static org.sopt.app.domain.enums.Part.DESIGN;
 import static org.sopt.app.domain.enums.Part.IOS;
 import static org.sopt.app.domain.enums.Part.PLAN;
@@ -25,6 +26,7 @@ import org.sopt.app.application.rank.RankCacheService;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampUserFinder;
+import org.sopt.app.domain.entity.soptamp.SoptampUser;
 import org.sopt.app.domain.enums.Part;
 
 @ExtendWith(MockitoExtension.class)
@@ -169,6 +171,63 @@ class RankFacadeTest {
         }
 
     }
+
+    @Nested
+    @DisplayName("파트 랭크 조회 테스트")
+    class findPartRankTest{
+
+        @BeforeEach
+        void setUp(){
+            given(soptampUserFinder.findAllOfCurrentGeneration()).willReturn(SOPTAMP_USER_INFO_LIST);
+        }
+
+        @Test
+        @DisplayName("SUCCESS_파트 랭크를 정상적으로 조회함")
+        void SUCCESS_findPartRank() {
+            // when
+            PartRank result = rankFacade.findPartRank(Part.SERVER);
+
+            // then
+            assertThat(result)
+                .extracting("part", "rank", "points")
+                .contains(Part.SERVER.getPartName(), 1, SERVER_PART_SOPTAMP_USER.stream()
+                    .mapToLong(SoptampUser::getTotalPoints)
+                    .sum());
+        }
+
+        @Test
+        @DisplayName("SUCCESS_포인트가 동점일 경우 동일한 순위로 조회됨")
+        void SUCCESS_findPartRank_whenTiedPart() {
+            // when
+            PartRank designResult = rankFacade.findPartRank(DESIGN);
+            PartRank iosResult = rankFacade.findPartRank(IOS);
+
+            // then
+            assertThat(designResult)
+                .extracting("part", "rank", "points")
+                .contains(Part.DESIGN.getPartName(), 2, SOPTAMP_USER_4.getTotalPoints());
+
+            assertThat(iosResult)
+                .extracting("part", "rank", "points")
+                .contains(Part.IOS.getPartName(), 2, SOPTAMP_USER_3.getTotalPoints());
+        }
+
+        @Test
+        @DisplayName("SUCCESS_이전에 포인트가 동점인 파트가 존재했을 경우 다음 순위는 동점 파트 수를 건너뛰고 계산됨")
+        void SUCCESS_findPartRank_whenAfterTiedPart() {
+            // when
+            PartRank result = rankFacade.findPartRank(ANDROID);
+
+            // then
+            assertThat(result)
+                .extracting("part", "rank", "points")
+                .contains(ANDROID.getPartName(), 4, SOPTAMP_USER_2.getTotalPoints());
+        }
+
+    }
+
+
+
 
 
 }
