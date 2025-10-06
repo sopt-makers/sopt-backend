@@ -2,6 +2,7 @@ package org.sopt.app.facade;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.*;
 import static org.sopt.app.domain.enums.Part.ANDROID;
@@ -11,9 +12,7 @@ import static org.sopt.app.domain.enums.Part.PLAN;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Stream;
 import org.assertj.core.groups.Tuple;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,6 +25,7 @@ import org.sopt.app.application.rank.RankCacheService;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampUserFinder;
+import org.sopt.app.common.fixtures.SoptampUserFixture;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
 import org.sopt.app.domain.enums.Part;
 
@@ -40,6 +40,118 @@ class RankFacadeTest {
 
     @InjectMocks
     private RankFacade rankFacade;
+
+    @Nested
+    @DisplayName("현재 기수의 솝탬프 유저 랭킹 조회 테스트")
+    class FindCurrentRanksTest{
+
+        @Nested
+        @DisplayName("캐시가 존재하는 경우")
+        class FindCurrentRanksWithCache{
+            private List<Main> result;
+
+            @BeforeEach
+            void setUp(){
+                // given
+                given(rankCacheService.getRanking()).willReturn(SOPTAMP_SCORE_CACHE);
+                given(rankCacheService.getUserInfo(anyLong()))
+                    .willAnswer(invocation -> {
+                        Long userId  = invocation.getArgument(0);
+                        return SOPTAMP_PROFILE_MESSAGE_CACHE.get(userId);
+                    });
+
+                // when
+                result = rankFacade.findCurrentRanks();
+            }
+
+            @Test
+            @DisplayName("SUCCESS_현재 기수의 솝탬프 유저 랭킹을 정상적으로 조회함")
+            void SUCCESS_findCurrentRanks() {
+                assertThat(result)
+                    .hasSize(SOPTAMP_USER_INFO_LIST.size())
+                    .extracting("rank", "nickname", "point")
+                    .contains(
+                        Tuple.tuple(1, SOPTAMP_USER_6.getNickname(), SOPTAMP_USER_6.getTotalPoints()),
+                        Tuple.tuple(2, SOPTAMP_USER_5.getNickname(), SOPTAMP_USER_5.getTotalPoints()),
+                        Tuple.tuple(5, SOPTAMP_USER_2.getNickname(), SOPTAMP_USER_2.getTotalPoints()),
+                        Tuple.tuple(6, SOPTAMP_USER_1.getNickname(), SOPTAMP_USER_1.getTotalPoints())
+                    );
+            }
+
+            @Test
+            @DisplayName("SUCCESS_동점자가 존재할 경우 순위 보장은 되지 않으며 동일 순위없이 조회됨")
+            void SUCCESS_findCurrentRanks_whenTiedUsers() {
+                List<Main> tiedUsers = result.stream()
+                    .filter(main -> main.getPoint().equals(SOPTAMP_USER_3.getTotalPoints()))
+                    .toList();
+
+                assertThat(tiedUsers)
+                    .hasSize(2)
+                    .extracting("nickname", "point")
+                    .containsExactlyInAnyOrder(
+                        Tuple.tuple(SOPTAMP_USER_3.getNickname(), SOPTAMP_USER_3.getTotalPoints()),
+                        Tuple.tuple(SOPTAMP_USER_4.getNickname(), SOPTAMP_USER_4.getTotalPoints())
+                    );
+
+                assertThat(tiedUsers)
+                    .extracting(Main::getRank)
+                    .containsExactlyInAnyOrder(3, 4);
+            }
+
+        }
+
+        @Nested
+        @DisplayName("캐시가 존재하지 않는 경우")
+        class FindCurrentRanksWithOutCache{
+
+            private List<Main> result;
+
+            @BeforeEach
+            void setUp(){
+                // given
+                given(rankCacheService.getRanking()).willReturn(Collections.emptySet());
+                given(soptampUserFinder.findAllOfCurrentGeneration()).willReturn(SOPTAMP_USER_INFO_LIST);
+
+                // when
+                result = rankFacade.findCurrentRanks();
+            }
+
+            @Test
+            @DisplayName("SUCCESS_현재 기수의 솝탬프 유저 랭킹을 정상적으로 조회함")
+            void SUCCESS_findCurrentRanks() {
+                assertThat(result)
+                    .hasSize(SOPTAMP_USER_INFO_LIST.size())
+                    .extracting("rank", "nickname", "point")
+                    .contains(
+                        Tuple.tuple(1, SOPTAMP_USER_6.getNickname(), SOPTAMP_USER_6.getTotalPoints()),
+                        Tuple.tuple(2, SOPTAMP_USER_5.getNickname(), SOPTAMP_USER_5.getTotalPoints()),
+                        Tuple.tuple(5, SOPTAMP_USER_2.getNickname(), SOPTAMP_USER_2.getTotalPoints()),
+                        Tuple.tuple(6, SOPTAMP_USER_1.getNickname(), SOPTAMP_USER_1.getTotalPoints())
+                    );
+            }
+
+            @Test
+            @DisplayName("SUCCESS_동점자가 존재할 경우 순위 보장은 되지 않으며 동일 순위없이 조회됨")
+            void SUCCESS_findCurrentRanks_whenTiedUsers() {
+                List<Main> tiedUsers = result.stream()
+                    .filter(main -> main.getPoint().equals(SOPTAMP_USER_3.getTotalPoints()))
+                    .toList();
+
+                assertThat(tiedUsers)
+                    .hasSize(2)
+                    .extracting("nickname", "point")
+                    .containsExactlyInAnyOrder(
+                        Tuple.tuple(SOPTAMP_USER_3.getNickname(), SOPTAMP_USER_3.getTotalPoints()),
+                        Tuple.tuple(SOPTAMP_USER_4.getNickname(), SOPTAMP_USER_4.getTotalPoints())
+                    );
+
+                assertThat(tiedUsers)
+                    .extracting(Main::getRank)
+                    .containsExactlyInAnyOrder(3, 4);
+            }
+        }
+
+    }
 
     @Test
     @DisplayName("SUCCESS_동점자가 포함된 현재 기수의 솝탬프 유저 랭킹을 정상적으로 조회함")
@@ -114,7 +226,7 @@ class RankFacadeTest {
 
     @Nested
     @DisplayName("파트별 랭킹 조회 테스트")
-    class findAllPartRanksTest{
+    class FindAllPartRanksTest{
 
         private List<PartRank> result;
 
@@ -174,7 +286,7 @@ class RankFacadeTest {
 
     @Nested
     @DisplayName("파트 랭크 조회 테스트")
-    class findPartRankTest{
+    class FindPartRankTest{
 
         @BeforeEach
         void setUp(){
@@ -228,7 +340,7 @@ class RankFacadeTest {
 
     @Nested
     @DisplayName("유저 랭킹 조회 테스트")
-    class findUserRankTest{
+    class FindUserRankTest{
 
         @BeforeEach
         public void setUp(){
