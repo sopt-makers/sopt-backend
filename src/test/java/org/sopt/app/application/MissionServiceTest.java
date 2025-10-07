@@ -3,8 +3,10 @@ package org.sopt.app.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.groups.Tuple;
@@ -12,12 +14,14 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.mission.MissionInfo.Completeness;
 import org.sopt.app.application.mission.MissionInfo.Level;
 import org.sopt.app.application.mission.MissionService;
+import org.sopt.app.application.stamp.StampDeletedEvent;
 import org.sopt.app.common.fixtures.MissionFixture;
 import org.sopt.app.common.fixtures.SoptampFixture;
 import org.sopt.app.domain.entity.soptamp.Mission;
@@ -81,25 +85,37 @@ class MissionServiceTest {
             );
     }
 
-//    @Test
-//    @DisplayName("SUCCESS_미션 업로드")
-//    void SUCCESS_uploadMission() {
-//        // given
-//        RegisterMissionRequest registerMissionRequest = new RegisterMissionRequest("image", "title", 1);
-//
-//        // when
-//        Mission expected = Mission.builder()
-//                .title("title")
-//                .level(1)
-//                .profileImage(List.of("image"))
-//                .build();
-//        when(missionRepository.save(any(Mission.class))).thenReturn(expected);
-//
-//        Mission result = missionService.uploadMission(registerMissionRequest);
-//
-//        // then
-//        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
-//    }
+    @Test
+    @DisplayName("SUCCESS_미션을 정상적으로 업로드함")
+    void SUCCESS_uploadMission() {
+        // given
+        final String image = "upload test image";
+        final String title = "upload test title";
+        final Integer level = 2;
+
+        RegisterMissionRequest registerMissionRequest = new RegisterMissionRequest(image, title, level);
+
+        Mission expected = Mission.builder()
+            .title(title)
+            .level(level)
+            .profileImage(List.of(image))
+            .display(true)
+            .build();
+
+        when(missionRepository.save(any(Mission.class))).thenReturn(expected);
+
+        // when
+        Mission result = missionService.uploadMission(registerMissionRequest);
+
+        // then
+        ArgumentCaptor<Mission> missionRepositoryArgumentCaptor = ArgumentCaptor.forClass(Mission.class);
+        verify(missionRepository).save(missionRepositoryArgumentCaptor.capture());
+        Mission capturedMission = missionRepositoryArgumentCaptor.getValue();
+
+        assertThat(capturedMission).usingRecursiveComparison().isEqualTo(expected);
+
+        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
+    }
 //
 //    @Test
 //    @DisplayName("SUCCESS_완료한 미션 조회")
