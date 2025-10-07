@@ -112,7 +112,7 @@ class StampServiceTest {
 
         StampRequest.EditStampRequest editStampRequest = SoptampFixture.getEditStampRequestWithMissionId(missionId);
 
-        Stamp oldStamp = getStamp(userId, missionId);
+        Stamp oldStamp = getStampWithUserIdAndMissionId(userId, missionId);
         Mockito.when(stampRepository.findByUserIdAndMissionId(userId, missionId)).thenReturn(Optional.of(oldStamp));
 
         //when
@@ -134,7 +134,7 @@ class StampServiceTest {
         StampRequest.EditStampRequest editStampRequest =
             new EditStampRequest(missionId, EDITED_STAMP_IMAGE, "", EDITED_STAMP_ACTIVITY_DATE);
 
-        Stamp oldStamp = getStamp(userId, missionId);
+        Stamp oldStamp = getStampWithUserIdAndMissionId(userId, missionId);
         String oldContents = oldStamp.getContents();
         Mockito.when(stampRepository.findByUserIdAndMissionId(userId, missionId)).thenReturn(Optional.of(oldStamp));
 
@@ -157,7 +157,7 @@ class StampServiceTest {
         StampRequest.EditStampRequest editStampRequest =
             new EditStampRequest(missionId, "", EDITED_STAMP_CONTENTS, EDITED_STAMP_ACTIVITY_DATE);
 
-        Stamp oldStamp = getStamp(userId, missionId);
+        Stamp oldStamp = getStampWithUserIdAndMissionId(userId, missionId);
         List<String> oldImages = oldStamp.getImages();
         Mockito.when(stampRepository.findByUserIdAndMissionId(userId, missionId)).thenReturn(Optional.of(oldStamp));
 
@@ -231,7 +231,7 @@ class StampServiceTest {
     void SUCCESS_deleteStampById() {
         //given
         final Long stampId = 1L;
-        final Stamp stamp = getStamp(stampId);
+        final Stamp stamp = getStampWithUserId(stampId);
 
         List<String> images = stamp.getImages();
 
@@ -348,7 +348,8 @@ class StampServiceTest {
     }
 
     private Stamp getSavedStamp(Long userId, Long missionId) {
-        final Optional<Stamp> savedStamp = Optional.of(getStamp(userId, missionId));
+        final Optional<Stamp> savedStamp = Optional.of(
+            getStampWithUserIdAndMissionId(userId, missionId));
 
         Mockito.when(stampRepository.findByUserIdAndMissionId(userId, missionId)).thenReturn(savedStamp);
 

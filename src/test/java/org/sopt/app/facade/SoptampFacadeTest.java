@@ -92,7 +92,7 @@ class SoptampFacadeTest {
     @DisplayName("SUCCESS_스탬프를 정상적으로 삭제하여 total point 가 미션 레벨에 맞게 차감됨")
     void SUCCESS_deleteStamp() {
         // given
-        Stamp stamp = getStamp(USER_ID);
+        Stamp stamp = getStampWithUserId(USER_ID);
         Level missionLevel = MissionInfo.Level.of(MISSION_LEVEL);
 
         given(stampService.getStampForDelete(STAMP_ID, USER_ID)).willReturn(stamp);

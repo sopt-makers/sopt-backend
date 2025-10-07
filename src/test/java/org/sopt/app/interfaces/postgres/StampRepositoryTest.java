@@ -33,8 +33,8 @@
      void SUCCESS_findAllByUserId() {
 
          //given
-         Stamp stamp1 = stampRepository.save(SoptampFixture.getStamp(newUser.getId()));
-         Stamp stamp2 = stampRepository.save(SoptampFixture.getStamp(newUser.getId()));
+         Stamp stamp1 = stampRepository.save(SoptampFixture.getStampWithUserId(newUser.getId()));
+         Stamp stamp2 = stampRepository.save(SoptampFixture.getStampWithUserId(newUser.getId()));
 
          //when & then
          assertThat(List.of(stamp1, stamp2)).isEqualTo(stampRepository.findAllByUserId(newUser.getId()));
@@ -45,7 +45,7 @@
      void SUCCESS_findByUserIdAndMissionIdSuccess() {
          //given
          final Long missionId = 1L;
-         Stamp stamp = stampRepository.save(SoptampFixture.getStamp(newUser.getId(), missionId));
+         Stamp stamp = stampRepository.save(SoptampFixture.getStampWithUserIdAndMissionId(newUser.getId(), missionId));
 
          //when
          Optional<Stamp> result = stampRepository.findByUserIdAndMissionId(newUser.getId(), missionId);
@@ -58,8 +58,8 @@
      @DisplayName("SUCCESS_유저 아이디를 이용하여 유저의 스탬프 모두 삭제")
      void SUCCESS_deleteAllByUserIdSuccess() {
          //given
-         stampRepository.save(SoptampFixture.getStamp(newUser.getId()));
-         stampRepository.save(SoptampFixture.getStamp(newUser.getId()));
+         stampRepository.save(SoptampFixture.getStampWithUserId(newUser.getId()));
+         stampRepository.save(SoptampFixture.getStampWithUserId(newUser.getId()));
          assertThat(stampRepository.findAllByUserId(newUser.getId()).size()).isNotZero();
 
          //when
@@ -73,7 +73,7 @@
      @DisplayName("SUCCESS_스탬프 아이디와 유저 아이디를 통해 해당 유저의 스탬프임을 확인하며 조회")
      void SUCCESS_findByIdAndUserId(){
          // given
-         Stamp savedStamp = stampRepository.save(SoptampFixture.getStamp(newUser.getId()));
+         Stamp savedStamp = stampRepository.save(SoptampFixture.getStampWithUserId(newUser.getId()));
 
          // when
          Optional<Stamp> result = stampRepository.findByIdAndUserId(savedStamp.getId(), newUser.getId());
@@ -87,7 +87,7 @@
      void FAIL_findByIdAndUserIdWhenForbidden(){
          // given
          User stampOwner = UserFixture.createUser(1L);
-         Stamp savedStamp = stampRepository.save(SoptampFixture.getStamp(stampOwner.getId()));
+         Stamp savedStamp = stampRepository.save(SoptampFixture.getStampWithUserId(stampOwner.getId()));
 
          User otherUser = UserFixture.createUser(2L);
 

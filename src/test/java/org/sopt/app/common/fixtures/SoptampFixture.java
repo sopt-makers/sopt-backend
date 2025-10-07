@@ -7,8 +7,6 @@
  import org.sopt.app.application.soptamp.SoptampUserInfo;
  import org.sopt.app.application.stamp.StampInfo;
  import org.sopt.app.domain.entity.soptamp.Stamp;
- import org.sopt.app.presentation.rank.RankResponse;
- import org.sopt.app.presentation.rank.RankResponse.RankMission;
  import org.sopt.app.presentation.stamp.StampRequest.EditStampRequest;
  import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
  import org.springframework.web.multipart.MultipartFile;
@@ -36,7 +34,7 @@
      public static final String EDITED_STAMP_ACTIVITY_DATE
          = LocalDateTime.of(2025, 9, 23, 0, 0, 0).toString();
 
-     public static Stamp getStamp(Long userId) {
+     public static Stamp getStampWithUserId(Long userId) {
          return Stamp.builder()
              .userId(userId)
              .missionId(MISSION_ID)
@@ -46,7 +44,7 @@
              .build();
      }
 
-     public static Stamp getStamp(Long userId, Long missionId) {
+     public static Stamp getStampWithUserIdAndMissionId(Long userId, Long missionId) {
          return Stamp.builder()
              .userId(userId)
              .missionId(missionId)
