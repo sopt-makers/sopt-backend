@@ -86,7 +86,7 @@ class MissionServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_미션을 정상적으로 업로드함")
+    @DisplayName("SUCCESS_새로운 미션을 정상적으로 업로드함")
     void SUCCESS_uploadMission() {
         // given
         final String image = "upload test image";
@@ -116,28 +116,36 @@ class MissionServiceTest {
 
         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
     }
-//
-//    @Test
-//    @DisplayName("SUCCESS_완료한 미션 조회")
-//    void SUCCESS_getCompleteMission() {
-//        // given
-//        final Long anyUserId = anyLong();
-//        final List<Long> missionIdList = List.of(1L, 2L);
-//
-//        // when
-//        final List<Mission> expected = List.of(
-//                Mission.builder().id(1L).build(),
-//                Mission.builder().id(2L).build()
-//        );
-//        when(stampRepository.findAllByUserId(anyUserId)).thenReturn(stampList);
-//        when(missionRepository.findMissionInOrderByLevelAndTitle(missionIdList)).thenReturn(expected);
-//
-//        List<Mission> result = missionService.getCompleteMission(anyUserId);
-//
-//        // then
-//        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
-//    }
-//
+
+    @Test
+    @DisplayName("SUCCESS_완료한 미션만 정상적으로 조회함")
+    void SUCCESS_getCompleteMission() {
+        // given
+        final Long userId = 1L;
+
+        final Mission mission1 = MissionFixture.getMissionWithTitleAndLevel("test1", 3);
+        final Mission mission2 = MissionFixture.getMissionWithTitleAndLevel("test2", 2);
+        final Mission mission3 = MissionFixture.getMissionWithTitleAndLevel("test3", 2);
+
+        List<Mission> expectedSortedMissions = List.of(mission2, mission3, mission1);
+        List<Stamp> completedStamps = List.of(
+            SoptampFixture.getStampWithUserIdAndMissionId(userId, mission1.getId()),
+            SoptampFixture.getStampWithUserIdAndMissionId(userId, mission2.getId()),
+            SoptampFixture.getStampWithUserIdAndMissionId(userId, mission3.getId())
+        );
+
+        when(stampRepository.findAllByUserId(userId)).thenReturn(completedStamps);
+        when(missionRepository.findMissionInOrderByLevelAndTitle(
+            List.of(mission1.getId(), mission2.getId(), mission3.getId())))
+            .thenReturn(expectedSortedMissions);
+
+        // when
+        List<Mission> result = missionService.getCompleteMission(userId);
+
+        // then
+        assertThat(result).containsAnyElementsOf(expectedSortedMissions);
+    }
+
 //    @Test
 //    @DisplayName("SUCCESS_미완료한 미션 조회")
 //    void SUCCESS_getIncompleteMission() {

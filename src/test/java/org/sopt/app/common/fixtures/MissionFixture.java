@@ -27,6 +27,16 @@ public class MissionFixture {
             .build();
     }
 
+    public static Mission getMissionWithTitleAndLevel(String title, Integer level){
+        return Mission.builder()
+            .id(idGenerator.getAndIncrement())
+            .level(level)
+            .title(title)
+            .profileImage(MISSION_PROFILE_IMAGES)
+            .display(MISSION_DISPLAY)
+            .build();
+    }
+
     public static RankResponse.RankMission getRankMission(
         Long missionId
     ){
