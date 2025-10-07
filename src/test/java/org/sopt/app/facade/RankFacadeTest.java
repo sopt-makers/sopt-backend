@@ -102,7 +102,7 @@ class RankFacadeTest {
 
         @Nested
         @DisplayName("캐시가 존재하지 않는 경우")
-        class FindCurrentRanksWithOutCache{
+        class FindCurrentRanksWithoutCache{
 
             private List<Main> result;
 
@@ -342,32 +342,69 @@ class RankFacadeTest {
     @DisplayName("유저 랭킹 조회 테스트")
     class FindUserRankTest{
 
-        @BeforeEach
-        public void setUp(){
-            given(rankCacheService.getRanking()).willReturn(Collections.emptySet());
-            given(soptampUserFinder.findAllOfCurrentGeneration()).willReturn(SOPTAMP_USER_INFO_LIST);
+        @Nested
+        @DisplayName("캐시가 존재하는 경우")
+        class FindUserRankTestWithCache{
+            @BeforeEach
+            public void setUp() {
+                given(rankCacheService.getRanking()).willReturn(SOPTAMP_SCORE_CACHE);
+            }
+
+            @Test
+            @DisplayName("SUCCESS_유저 랭크를 정상적으로 조회함")
+            void SUCCESS_findUserRank() {
+                // when
+                Long result = rankFacade.findUserRank(SOPTAMP_USER_6.getUserId());
+
+                // then
+                assertThat(result).isEqualTo(1L);
+            }
+
+            @Test
+            @DisplayName("SUCCESS_동점인 유저가 존재할 경우 순위가 보장되지 않음")
+            void SUCCESS_findUserRank_whenTiedUser() {
+                // when
+                Long resultUser3 = rankFacade.findUserRank(SOPTAMP_USER_3.getUserId());
+                Long resultUser4 = rankFacade.findUserRank(SOPTAMP_USER_4.getUserId());
+
+                // then
+                assertThat(resultUser3).isBetween(3L, 4L);
+                assertThat(resultUser4).isBetween(3L, 4L);
+            }
         }
 
-        @Test
-        @DisplayName("SUCCESS_유저 랭크를 정상적으로 조회함")
-        void SUCCESS_findUserRank() {
-            // when
-            Long result = rankFacade.findUserRank(SOPTAMP_USER_6.getUserId());
+        @Nested
+        @DisplayName("캐시가 존재하지 않는 경우")
+        class FindUserRankTestWithoutCache {
 
-            // then
-            assertThat(result).isEqualTo(1L);
-        }
+            @BeforeEach
+            public void setUp() {
+                given(rankCacheService.getRanking()).willReturn(Collections.emptySet());
+                given(soptampUserFinder.findAllOfCurrentGeneration()).willReturn(
+                    SOPTAMP_USER_INFO_LIST);
+            }
 
-        @Test
-        @DisplayName("SUCCESS_동점인 유저가 존재할 경우 순위가 보장되지 않음")
-        void SUCCESS_findUserRank_whenTiedUser() {
-            // when
-            Long resultUser3 = rankFacade.findUserRank(SOPTAMP_USER_3.getUserId());
-            Long resultUser4 = rankFacade.findUserRank(SOPTAMP_USER_4.getUserId());
+            @Test
+            @DisplayName("SUCCESS_유저 랭크를 정상적으로 조회함")
+            void SUCCESS_findUserRank() {
+                // when
+                Long result = rankFacade.findUserRank(SOPTAMP_USER_6.getUserId());
 
-            // then
-            assertThat(resultUser3).isBetween(3L, 4L);
-            assertThat(resultUser4).isBetween(3L, 4L);
+                // then
+                assertThat(result).isEqualTo(1L);
+            }
+
+            @Test
+            @DisplayName("SUCCESS_동점인 유저가 존재할 경우 순위가 보장되지 않음")
+            void SUCCESS_findUserRank_whenTiedUser() {
+                // when
+                Long resultUser3 = rankFacade.findUserRank(SOPTAMP_USER_3.getUserId());
+                Long resultUser4 = rankFacade.findUserRank(SOPTAMP_USER_4.getUserId());
+
+                // then
+                assertThat(resultUser3).isBetween(3L, 4L);
+                assertThat(resultUser4).isBetween(3L, 4L);
+            }
         }
 
     }

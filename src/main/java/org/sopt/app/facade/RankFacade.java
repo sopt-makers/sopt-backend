@@ -102,7 +102,7 @@ public class RankFacade {
 
     @Transactional(readOnly = true)
     public Long findUserRank(Long userId) {
-        Set<TypedTuple<Long>> sortedScoreCaches =  rankCacheService.getRanking();
+        Set<TypedTuple<Long>> sortedScoreCaches = rankCacheService.getRanking();
         if (sortedScoreCaches != null && !sortedScoreCaches.isEmpty()) {
             Long rank = 1L;
             for(TypedTuple<Long> cache : sortedScoreCaches){
