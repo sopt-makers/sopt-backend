@@ -28,6 +28,7 @@ import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.presentation.rank.RankResponse;
 import org.sopt.app.presentation.rank.RankResponse.Detail;
+import org.sopt.app.presentation.rank.RankResponse.RankMission;
 import org.sopt.app.presentation.rank.RankResponseMapper;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.EditStampRequest;
@@ -175,15 +176,15 @@ class SoptampFacadeTest {
 
         // then
         assertThat(result)
-            .extracting("nickname", "profileMessage")
+            .extracting(Detail::getNickname, Detail::getProfileMessage)
             .contains(soptampUserInfo.getNickname(), soptampUserInfo.getProfileMessage());
 
         assertThat(result.getUserMissions())
             .hasSize(2)
-            .extracting("id", "level")
+            .extracting(RankMission::getId, RankMission::getLevel)
             .containsExactlyInAnyOrder(
-                Tuple.tuple(1L, MISSION_LEVEL),
-                Tuple.tuple(2L, MISSION_LEVEL)
+                Tuple.tuple(rankMission1.getId(), MISSION_LEVEL),
+                Tuple.tuple(rankMission2.getId(), MISSION_LEVEL)
             );
     }
 

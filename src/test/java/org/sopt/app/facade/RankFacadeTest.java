@@ -68,7 +68,7 @@ class RankFacadeTest {
             void SUCCESS_findCurrentRanks() {
                 assertThat(result)
                     .hasSize(SOPTAMP_USER_INFO_LIST.size())
-                    .extracting("rank", "nickname", "point")
+                    .extracting(Main::getRank, Main::getNickname, Main::getPoint)
                     .contains(
                         Tuple.tuple(1, SOPTAMP_USER_6.getNickname(), SOPTAMP_USER_6.getTotalPoints()),
                         Tuple.tuple(2, SOPTAMP_USER_5.getNickname(), SOPTAMP_USER_5.getTotalPoints()),
@@ -86,7 +86,7 @@ class RankFacadeTest {
 
                 assertThat(tiedUsers)
                     .hasSize(2)
-                    .extracting("nickname", "point")
+                    .extracting(Main::getNickname, Main::getPoint)
                     .containsExactlyInAnyOrder(
                         Tuple.tuple(SOPTAMP_USER_3.getNickname(), SOPTAMP_USER_3.getTotalPoints()),
                         Tuple.tuple(SOPTAMP_USER_4.getNickname(), SOPTAMP_USER_4.getTotalPoints())
@@ -120,7 +120,7 @@ class RankFacadeTest {
             void SUCCESS_findCurrentRanks() {
                 assertThat(result)
                     .hasSize(SOPTAMP_USER_INFO_LIST.size())
-                    .extracting("rank", "nickname", "point")
+                    .extracting(Main::getRank, Main::getNickname, Main::getPoint)
                     .contains(
                         Tuple.tuple(1, SOPTAMP_USER_6.getNickname(), SOPTAMP_USER_6.getTotalPoints()),
                         Tuple.tuple(2, SOPTAMP_USER_5.getNickname(), SOPTAMP_USER_5.getTotalPoints()),
@@ -138,7 +138,7 @@ class RankFacadeTest {
 
                 assertThat(tiedUsers)
                     .hasSize(2)
-                    .extracting("nickname", "point")
+                    .extracting(Main::getNickname, Main::getPoint)
                     .containsExactlyInAnyOrder(
                         Tuple.tuple(SOPTAMP_USER_3.getNickname(), SOPTAMP_USER_3.getTotalPoints()),
                         Tuple.tuple(SOPTAMP_USER_4.getNickname(), SOPTAMP_USER_4.getTotalPoints())
@@ -165,7 +165,7 @@ class RankFacadeTest {
         // then
         assertThat(result)
             .hasSize(SOPTAMP_USER_INFO_LIST.size())
-            .extracting("rank", "nickname", "point")
+            .extracting(Main::getRank, Main::getNickname, Main::getPoint)
             .contains(
                 Tuple.tuple(1, SOPTAMP_USER_6.getNickname(), SOPTAMP_USER_6.getTotalPoints()),
                 Tuple.tuple(2, SOPTAMP_USER_5.getNickname(), SOPTAMP_USER_5.getTotalPoints()),
@@ -179,7 +179,7 @@ class RankFacadeTest {
 
         assertThat(tiedUsers)
             .hasSize(2)
-            .extracting("nickname", "point")
+            .extracting(Main::getNickname, Main::getPoint)
             .containsExactlyInAnyOrder(
                 Tuple.tuple(SOPTAMP_USER_3.getNickname(), SOPTAMP_USER_3.getTotalPoints()),
                 Tuple.tuple(SOPTAMP_USER_4.getNickname(), SOPTAMP_USER_4.getTotalPoints())
@@ -202,7 +202,7 @@ class RankFacadeTest {
         // then
        assertThat(result)
            .hasSize(SERVER_PART_SOPTAMP_USER_INFO_LIST.size())
-           .extracting("rank", "nickname", "point")
+           .extracting(Main::getRank, Main::getNickname, Main::getPoint)
            .containsExactlyInAnyOrder(
                Tuple.tuple(1, SOPTAMP_USER_6.getNickname(), SOPTAMP_USER_6.getTotalPoints()),
                Tuple.tuple(2, SOPTAMP_USER_5.getNickname(), SOPTAMP_USER_5.getTotalPoints()),
@@ -265,7 +265,7 @@ class RankFacadeTest {
 
             assertThat(tiedPart)
                 .hasSize(2)
-                .extracting("part", "rank", "points")
+                .extracting(PartRank::getPart, PartRank::getRank, PartRank::getPoints)
                 .contains(
                     Tuple.tuple(Part.IOS.getPartName(), 2, tiedPoint),
                     Tuple.tuple(Part.DESIGN.getPartName(), 2, tiedPoint)
@@ -277,7 +277,7 @@ class RankFacadeTest {
         void SUCCESS_findAllPartRanks_whenAfterTiedPart(){
             // then
             assertThat(result)
-                .extracting("part", "rank")
+                .extracting(PartRank::getPart, PartRank::getRank)
                 .contains(Tuple.tuple(Part.ANDROID.getPartName(), 4));
         }
 
@@ -300,7 +300,7 @@ class RankFacadeTest {
 
             // then
             assertThat(result)
-                .extracting("part", "rank", "points")
+                .extracting(PartRank::getPart, PartRank::getRank, PartRank::getPoints)
                 .contains(Part.SERVER.getPartName(), 1, SERVER_PART_SOPTAMP_USER.stream()
                     .mapToLong(SoptampUser::getTotalPoints)
                     .sum());
@@ -315,11 +315,11 @@ class RankFacadeTest {
 
             // then
             assertThat(designResult)
-                .extracting("part", "rank", "points")
+                .extracting(PartRank::getPart, PartRank::getRank, PartRank::getPoints)
                 .contains(Part.DESIGN.getPartName(), 2, SOPTAMP_USER_4.getTotalPoints());
 
             assertThat(iosResult)
-                .extracting("part", "rank", "points")
+                .extracting(PartRank::getPart, PartRank::getRank, PartRank::getPoints)
                 .contains(Part.IOS.getPartName(), 2, SOPTAMP_USER_3.getTotalPoints());
         }
 
@@ -331,7 +331,7 @@ class RankFacadeTest {
 
             // then
             assertThat(result)
-                .extracting("part", "rank", "points")
+                .extracting(PartRank::getPart, PartRank::getRank, PartRank::getPoints)
                 .contains(ANDROID.getPartName(), 4, SOPTAMP_USER_2.getTotalPoints());
         }
 

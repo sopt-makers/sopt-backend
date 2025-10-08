@@ -121,7 +121,7 @@ class StampServiceTest {
         //then
         assertThat(result.getId()).isEqualTo(oldStamp.getId());
         assertThat(oldStamp)
-            .extracting( "missionId", "userId", "contents", "images",  "activityDate")
+            .extracting(Stamp::getMissionId, Stamp::getUserId, Stamp::getContents, Stamp::getImages, Stamp::getActivityDate)
             .contains(missionId, userId, List.of(EDITED_STAMP_IMAGE), EDITED_STAMP_CONTENTS, EDITED_STAMP_ACTIVITY_DATE);
     }
 
@@ -144,7 +144,7 @@ class StampServiceTest {
         //then
         assertThat(result.getId()).isEqualTo(oldStamp.getId());
         assertThat(oldStamp)
-            .extracting( "missionId", "userId", "contents", "images",  "activityDate")
+            .extracting(Stamp::getMissionId, Stamp::getUserId, Stamp::getContents, Stamp::getImages, Stamp::getActivityDate)
             .contains(missionId, userId, oldContents, List.of(EDITED_STAMP_IMAGE), EDITED_STAMP_ACTIVITY_DATE);
     }
 
@@ -168,7 +168,7 @@ class StampServiceTest {
         assertThat(result.getId()).isEqualTo(oldStamp.getId());
         System.out.println(oldStamp.getImages());
         assertThat(oldStamp)
-            .extracting("missionId", "userId", "contents", "images", "activityDate")
+            .extracting(Stamp::getMissionId, Stamp::getUserId, Stamp::getContents, Stamp::getImages, Stamp::getActivityDate)
             .contains(missionId, userId, EDITED_STAMP_CONTENTS, oldImages, EDITED_STAMP_ACTIVITY_DATE);
     }
 

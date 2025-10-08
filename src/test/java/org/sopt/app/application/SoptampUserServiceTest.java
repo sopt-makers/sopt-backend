@@ -157,7 +157,7 @@ class SoptampUserServiceTest {
         SoptampUser capturedSoptampUser = soptampUserArgumentCaptor.getValue();
 
         assertThat(capturedSoptampUser)
-            .extracting("userId", "nickname", "generation")
+            .extracting(SoptampUser::getUserId, SoptampUser::getNickname, SoptampUser::getGeneration)
             .contains(userId, PLATFORM_PART_NAME_SERVER + platformUserInfoResponse.name(), generation);
         verify(rankCacheService, times(1)).createNewRank(userId);
     }
@@ -187,7 +187,7 @@ class SoptampUserServiceTest {
         SoptampUser capturedSoptampUser = soptampUserArgumentCaptor.getValue();
 
         assertThat(capturedSoptampUser)
-            .extracting("userId", "nickname", "generation")
+            .extracting(SoptampUser::getUserId, SoptampUser::getNickname, SoptampUser::getGeneration)
             .contains(userId, "아요" + platformUserInfoResponse.name(), generation);
         verify(rankCacheService, times(1)).createNewRank(userId);
     }
@@ -217,7 +217,7 @@ class SoptampUserServiceTest {
         SoptampUser capturedSoptampUser = soptampUserArgumentCaptor.getValue();
 
         assertThat(capturedSoptampUser)
-            .extracting("userId", "nickname", "generation")
+            .extracting(SoptampUser::getUserId, SoptampUser::getNickname, SoptampUser::getGeneration)
             .contains(userId, "안드" + platformUserInfoResponse.name(), generation);
         verify(rankCacheService, times(1)).createNewRank(userId);
     }
@@ -253,7 +253,7 @@ class SoptampUserServiceTest {
         SoptampUser capturedSoptampUser = soptampUserArgumentCaptor.getValue();
 
         assertThat(capturedSoptampUser)
-            .extracting("userId", "nickname", "generation")
+            .extracting(SoptampUser::getUserId, SoptampUser::getNickname, SoptampUser::getGeneration)
             .contains(userId, expectedNickName, generation);
         verify(rankCacheService, times(1)).createNewRank(userId);
     }
@@ -289,7 +289,7 @@ class SoptampUserServiceTest {
 
         // then
         assertThat(soptampUser)
-            .extracting("userId", "generation", "totalPoints", "part")
+            .extracting(SoptampUser::getUserId, SoptampUser::getGeneration, SoptampUser::getTotalPoints, SoptampUser::getPart)
             .contains(userId, generation, 0L, SoptPart.SERVER);
         verify(rankCacheService, times(1)).removeRank(userId);
         verify(rankCacheService, times(1)).createNewRank(userId);
@@ -459,7 +459,5 @@ class SoptampUserServiceTest {
                 assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.USER_NOT_FOUND);
             });
     }
-
-
 
 }
