@@ -59,7 +59,7 @@ class SoptampFacadeTest {
         final StampRequest.RegisterStampRequest registerStampRequest = SoptampFixture.getRegisterStampRequest();
 
         given(stampService.uploadStamp(registerStampRequest, USER_ID)).willReturn(uploadedStamp);
-        given(missionService.getMissionById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
+        given(missionService.getMissionLevelById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
 
         // when
         StampInfo.Stamp result = soptampFacade.uploadStamp(USER_ID, registerStampRequest);
@@ -96,7 +96,7 @@ class SoptampFacadeTest {
         Level missionLevel = MissionInfo.Level.of(MISSION_LEVEL);
 
         given(stampService.getStampForDelete(STAMP_ID, USER_ID)).willReturn(stamp);
-        given(missionService.getMissionById(stamp.getMissionId())).willReturn(missionLevel);
+        given(missionService.getMissionLevelById(stamp.getMissionId())).willReturn(missionLevel);
 
         // when
         soptampFacade.deleteStamp(USER_ID, STAMP_ID);
