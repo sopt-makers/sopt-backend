@@ -1,13 +1,13 @@
 package org.sopt.app.application;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import jakarta.persistence.criteria.CriteriaBuilder.In;
 import java.util.List;
 import java.util.Optional;
 import org.assertj.core.groups.Tuple;
@@ -19,12 +19,13 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sopt.app.application.mission.MissionInfo;
 import org.sopt.app.application.mission.MissionInfo.Completeness;
-import org.sopt.app.application.mission.MissionInfo.Level;
 import org.sopt.app.application.mission.MissionService;
-import org.sopt.app.application.stamp.StampDeletedEvent;
+import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.fixtures.MissionFixture;
 import org.sopt.app.common.fixtures.SoptampFixture;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.interfaces.postgres.MissionRepository;
@@ -178,37 +179,42 @@ class MissionServiceTest {
         assertThat(result).containsAnyElementsOf(displayedMissions);
     }
 
-//
-//    @Test
-//    @DisplayName("SUCCESS_미션 조회")
-//    void SUCCESS_getMissionById() {
-//        // given
-//        final Long anyMissionId = anyLong();
-//        final Integer level = 1;
-//
-//        // when
-//        when(missionRepository.findById(anyMissionId)).thenReturn(
-//                Optional.of(Mission.builder().id(anyMissionId).level(level).build()));
-//        Level result = missionService.getMissionById(anyMissionId);
-//
-//        // then
-//        assertThat(result.getLevel()).isEqualTo(level);
-//    }
-//
-//    @Test
-//    @DisplayName("FAIL_미션 조회")
-//    void FAIL_getMissionById() {
-//        // given
-//        final Long anyMissionId = anyLong();
-//
-//        // when
-//        when(missionRepository.findById(anyMissionId)).thenReturn(Optional.empty());
-//
-//        // then
-//        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-//            missionService.getMissionById(anyMissionId);
-//        });
-//    }
+
+    @Test
+    @DisplayName("SUCCESS_미션 Id로 미션 레벨을 정상적으로 조회함")
+    void SUCCESS_getMissionLevelById() {
+        // given
+        Mission mission = MissionFixture.getMission();
+        final Long missionId = mission.getId();
+        final Integer missionLevel = mission.getLevel();
+
+        when(missionRepository.findById(missionId))
+            .thenReturn(Optional.of(mission));
+
+        // when
+        MissionInfo.Level result = missionService.getMissionLevelById(missionId);
+
+        // then
+        assertThat(result.getLevel()).isEqualTo(missionLevel);
+    }
+
+    @Test
+    @DisplayName("FAIL_미션 Id로 미션을 찾을 수 없을 경우 정상적으로 예외를 반환함")
+    void FAIL_getMissionLevelById_whenNotFoundMission() {
+        // given
+        final Long anyMissionId = anyLong();
+
+        // when
+        when(missionRepository.findById(anyMissionId)).thenReturn(Optional.empty());
+
+        // then
+        assertThatThrownBy(() -> missionService.getMissionLevelById(anyMissionId))
+            .isInstanceOf(NotFoundException.class)
+            .satisfies(e -> {
+                NotFoundException exception = (NotFoundException) e;
+                assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.MISSION_NOT_FOUND);
+            });
+    }
 
     private boolean isCompletedMission(List<Stamp> completedStamps, Mission mission){
         return completedStamps.stream()
