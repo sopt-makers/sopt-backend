@@ -25,7 +25,6 @@ import org.sopt.app.application.rank.RankCacheService;
 import org.sopt.app.application.soptamp.SoptampPointInfo.Main;
 import org.sopt.app.application.soptamp.SoptampPointInfo.PartRank;
 import org.sopt.app.application.soptamp.SoptampUserFinder;
-import org.sopt.app.common.fixtures.SoptampUserFixture;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
 import org.sopt.app.domain.enums.Part;
 
@@ -246,7 +245,7 @@ class RankFacadeTest {
             //then
             assertThat(result)
                 .extracting(PartRank::getPart)
-                .contains(Part.PLAN.getPartName(),
+                 .containsExactly(Part.PLAN.getPartName(),
                     Part.DESIGN.getPartName(),
                     Part.WEB.getPartName(),
                     Part.IOS.getPartName(),
