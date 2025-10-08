@@ -3,6 +3,7 @@ package org.sopt.app.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -118,7 +119,7 @@ class MissionServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_완료한 미션만 정상적으로 조회함")
+    @DisplayName("SUCCESS_완료한 미션만 level 오름차순, title 오름차순으로 조회함")
     void SUCCESS_getCompleteMission() {
         // given
         final Long userId = 1L;
@@ -146,24 +147,37 @@ class MissionServiceTest {
         assertThat(result).containsAnyElementsOf(expectedSortedMissions);
     }
 
-//    @Test
-//    @DisplayName("SUCCESS_미완료한 미션 조회")
-//    void SUCCESS_getIncompleteMission() {
-//        // given
-//        Long anyUserId = anyLong();
-//
-//        // when
-//        List<Mission> expected = List.of(Mission.builder().id(3L).build());
-//
-//        when(stampRepository.findAllByUserId(anyUserId)).thenReturn(stampList);
-//        when(missionRepository.findMissionInOrderByLevelAndTitleAndDisplayTrue(any())).thenReturn(expected);
-//        when(missionRepository.findAllByDisplay(true)).thenReturn(displayedMissionList);
-//
-//        List<Mission> result = missionService.getIncompleteMission(anyUserId);
-//
-//        // then
-//        assertThat(result).usingRecursiveComparison().isEqualTo(expected);
-//    }
+    @Test
+    @DisplayName("SUCCESS_display true인 미완료 미션만 level 오름차순, title 오름차순으로 조회함")
+    void SUCCESS_getIncompleteMission() {
+        // given
+        final Long userId = 1L;
+        final Mission mission1 = MissionFixture.getMissionWithTitleAndLevel("test1", 2);
+        final Mission mission2 = MissionFixture.getMissionWithTitleAndLevel("test2", 2);
+        final Mission mission3 = MissionFixture.getMissionWithTitleAndLevel("test3", 2);
+        final Mission mission4 = MissionFixture.getMissionWithTitleAndLevel("test4", 1);
+
+        List<Mission> displayedMissions = List.of(mission1, mission2, mission3, mission4);
+        List<Stamp> completedStamps = List.of(
+            SoptampFixture.getStampWithUserIdAndMissionId(userId, mission2.getId()));
+        List<Mission> sortedInCompletedMissions = List.of(mission4, mission1, mission3);
+
+        when(missionRepository.findAllByDisplay(true)).thenReturn(displayedMissions);
+        when(stampRepository.findAllByUserId(userId)).thenReturn(completedStamps);
+        when(missionRepository.findMissionInOrderByLevelAndTitleAndDisplayTrue(
+            argThat((List<Long> missionIds) -> {
+                assertThat(missionIds).containsAnyElementsOf(sortedInCompletedMissions.stream().map(Mission::getId).toList());
+                return true;
+            })))
+            .thenReturn(sortedInCompletedMissions);
+
+        // when
+        List<Mission> result = missionService.getIncompleteMission(userId);
+
+        // then
+        assertThat(result).containsAnyElementsOf(displayedMissions);
+    }
+
 //
 //    @Test
 //    @DisplayName("SUCCESS_미션 조회")
