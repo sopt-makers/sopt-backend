@@ -176,7 +176,7 @@ class MissionServiceTest {
         List<Mission> result = missionService.getIncompleteMission(userId);
 
         // then
-        assertThat(result).containsAnyElementsOf(displayedMissions);
+        assertThat(result).usingRecursiveComparison().isEqualTo(sortedInCompletedMissions);
     }
 
 
