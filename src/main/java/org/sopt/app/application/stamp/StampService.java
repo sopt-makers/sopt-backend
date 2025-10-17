@@ -11,6 +11,7 @@ import org.sopt.app.application.user.UserWithdrawEvent;
 import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ForbiddenException;
+import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.interfaces.postgres.StampRepository;
@@ -193,5 +194,12 @@ public class StampService {
 
     public void deleteAll() {
         stampRepository.deleteAll();
+    }
+
+    @Transactional(readOnly = true)
+    public int getStampClapCount(Long stampId) {
+        return stampRepository.findById(stampId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.STAMP_NOT_FOUND))
+            .getClapCount();
     }
 }
