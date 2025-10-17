@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface StampRepository extends JpaRepository<Stamp, Long> {
+public interface StampRepository extends JpaRepository<Stamp, Long>, StampRepositoryCustom {
 
     List<Stamp> findAllByUserId(Long userId);
 
