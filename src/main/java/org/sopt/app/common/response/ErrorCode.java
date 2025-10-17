@@ -69,6 +69,10 @@ public enum ErrorCode {
     INVALID_STAMP_ID("스탬프 ID가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
     STAMP_DELETE_FORBIDDEN("자신의 스탬프만 삭제할 수 있습니다.", HttpStatus.FORBIDDEN),
 
+    // CLAP
+    SELF_CLAP_FORBIDDEN("타인의 스탬프에만 박수 칠 수 있습니다.", HttpStatus.FORBIDDEN),
+    INVALID_CLAP_COUNT("잘못된 박수 횟수입니다.", HttpStatus.BAD_REQUEST),
+
     // NOTIFICATION
     NOTIFICATION_NOT_FOUND("존재하지 않는 알림입니다.", HttpStatus.NOT_FOUND),
 
