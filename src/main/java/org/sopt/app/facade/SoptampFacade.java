@@ -2,13 +2,13 @@ package org.sopt.app.facade;
 
 import java.util.List;
 
-import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.sopt.app.application.mission.MissionInfo.Level;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.soptamp.*;
+import org.sopt.app.application.stamp.ClapService;
 import org.sopt.app.application.stamp.StampInfo.Stamp;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.domain.entity.soptamp.Mission;
@@ -31,6 +31,7 @@ public class SoptampFacade {
     private final SoptampUserService soptampUserService;
     private final RankResponseMapper rankResponseMapper;
     private final SoptampUserFinder soptampUserFinder;
+    private final ClapService clapService;
 
     @Value("${makers.app.soptamp.report.url}")
     private String formUrl;
@@ -79,6 +80,16 @@ public class SoptampFacade {
         List<Mission> missionList = missionService.getCompleteMission(soptampUserInfo.getUserId());
 
         return rankResponseMapper.of(soptampUserInfo, missionList);
+    }
+
+    @Transactional
+    public int addClap(Long userId, Long stampId, int increment) {
+        return clapService.addClap(userId, stampId, increment);
+    }
+
+    @Transactional(readOnly = true)
+    public int getStampClapCount(Long stampId) {
+        return stampService.getStampClapCount(stampId);
     }
 
     public SoptampReportResponse getReportUrl(){
