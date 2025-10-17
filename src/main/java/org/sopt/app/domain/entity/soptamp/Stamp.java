@@ -34,6 +34,13 @@ public class Stamp extends BaseEntity {
     @Column(length = 10)
     private String activityDate;
 
+    private int clapCount = 0;
+
+    private int viewCount = 0;
+
+    @Version
+    private Long version;
+
     public void changeContents(String contents) {
         this.contents = contents;
     }
@@ -59,6 +66,15 @@ public class Stamp extends BaseEntity {
         if (this.missionId == null) {
             throw new BadRequestException(ErrorCode.INVALID_STAMP_MISSION_ID);
         }
+    }
+
+    public void incrementClapCount(int increment) {
+        if (increment <= 0) return;
+        this.clapCount += increment;
+    }
+
+    public void incrementViewCount() {
+        this.viewCount += 1;
     }
 
 }
