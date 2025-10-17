@@ -16,4 +16,7 @@ public interface StampResponseMapper {
 
     StampResponse.StampId of(Long stampId);
 
+    default ClapResponse.AddClapResponse of(Long stampId, int appliedCount, int totalClapCount) {
+        return new ClapResponse.AddClapResponse(stampId, appliedCount, totalClapCount);
+    }
 }
