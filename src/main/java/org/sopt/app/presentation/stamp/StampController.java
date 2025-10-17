@@ -99,6 +99,23 @@ public class StampController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "스탬프에 박수치기")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "success", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @PostMapping("/{stampId}/clap")
+    public ResponseEntity<ClapResponse.AddClapResponse> addClap(
+        @AuthenticationPrincipal Long userId,
+        @PathVariable Long stampId,
+        @Valid @RequestBody ClapRequest.AddClapRequest request
+    ) {
+        int appliedCount = soptampFacade.addClap(userId, stampId, request.getClapCount());
+        int totalClapCount = soptampFacade.getStampClapCount(stampId);
+        ClapResponse.AddClapResponse response = stampResponseMapper.of(stampId, appliedCount, totalClapCount);
+        return ResponseEntity.ok(response);
+    }
+
     @Operation(summary = "솝탬프 신고 URL 조회하기")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success", content = @Content),
