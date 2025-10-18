@@ -12,8 +12,7 @@ import org.springframework.util.StringUtils;
 
 @Entity
 @Getter
-@Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Stamp extends BaseEntity {
 
@@ -77,4 +76,15 @@ public class Stamp extends BaseEntity {
         this.viewCount += 1;
     }
 
+    @Builder
+    private Stamp(String activityDate, Long userId, Long missionId,
+        String contents, List<String> images) {
+        this.activityDate = activityDate;
+        this.userId = userId;
+        this.missionId = missionId;
+        this.contents = contents;
+        this.images = images;
+        this.clapCount = 0;
+        this.viewCount = 0;
+    }
 }
