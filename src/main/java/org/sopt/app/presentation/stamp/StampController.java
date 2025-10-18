@@ -33,10 +33,10 @@ public class StampController {
     })
     @GetMapping("")
     public ResponseEntity<StampResponse.StampMain> findStampByMissionAndUserId(
+            @AuthenticationPrincipal Long userId,
             @Valid @ModelAttribute StampRequest.FindStampRequest findStampRequest
     ) {
-        val result = soptampFacade.getStampInfo(findStampRequest.getMissionId(), findStampRequest.getNickname());
-        val response = stampResponseMapper.of(result);
+        val response = soptampFacade.getStampInfo(userId, findStampRequest.getMissionId(), findStampRequest.getNickname());
         return ResponseEntity.ok(response);
     }
 
@@ -52,8 +52,7 @@ public class StampController {
             @AuthenticationPrincipal Long userId,
             @Valid @RequestBody StampRequest.RegisterStampRequest registerStampRequest
     ) {
-        val result = soptampFacade.uploadStamp(userId, registerStampRequest);
-        val response = stampResponseMapper.of(result);
+        val response = soptampFacade.uploadStamp(userId, registerStampRequest);
         return ResponseEntity.ok(response);
     }
 
