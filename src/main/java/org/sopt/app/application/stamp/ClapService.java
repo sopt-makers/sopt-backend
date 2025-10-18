@@ -11,6 +11,8 @@ import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.interfaces.postgres.ClapRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,12 @@ public class ClapService {
 
 	private final ClapRepository clapRepository;
 	private final StampRepository stampRepository;
+
+	@Transactional(readOnly = true)
+	public Page<Clap> getClapsOfMyStamp(Long stampId, Pageable pageable) {
+
+		return clapRepository.findAllByStampIdOrderByClapCountDescUpdatedAtDesc(stampId, pageable);
+	}
 
 	/**
 	 * 사용자(userId)가 스탬프(stampId)에 increment만큼 박수를 친다.
