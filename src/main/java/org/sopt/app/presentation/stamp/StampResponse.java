@@ -30,6 +30,14 @@ public class StampResponse {
         private LocalDateTime updatedAt;
         @Schema(description = "미션 아이디", example = "3")
         private Long missionId;
+        @Schema(description = "총 박수 횟수", example = "124")
+        private int clapCount;
+        @Schema(description = "해당 스탬프에 대한 내 박수 횟수", example = "33")
+        private int myClapCount;
+        @Schema(description = "조회수", example = "58")
+        private int viewCount;
+        @Schema(description = "내 스탬프인지 여부", example = "false")
+        private boolean isMine;
     }
 
     @Getter
