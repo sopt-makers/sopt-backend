@@ -48,9 +48,15 @@ public class Clap extends BaseEntity {
 	@Version
 	private Long version;
 
-	public void incrementClapCount(int increment) {
-		if (increment <= 0) return;
-		int nextCount = this.clapCount + increment;
-		this.clapCount = Math.min(nextCount, 50);
+	/**
+	 * @param increment 요청된 증가값
+	 * @return 실제로 적용된 증가값 (0 ~ increment)
+	 */
+	public int incrementClapCount(int increment) {
+		if (increment <= 0) return 0;
+		int before = this.clapCount;
+		int next = before + increment;
+		this.clapCount = Math.min(next, 50);
+		return this.clapCount - before;
 	}
 }
