@@ -43,6 +43,8 @@ public class StampService {
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .missionId(entity.getMissionId())
+                .clapCount(entity.getClapCount())
+                .viewCount(entity.getViewCount())
                 .build();
     }
 
@@ -76,6 +78,7 @@ public class StampService {
                 .missionId(stampRequest.getMissionId())
                 .activityDate(stampRequest.getActivityDate())
                 .userId(userId)
+                .clapCount(0)
                 .build();
 
         val newStamp = stampRepository.save(stamp);
@@ -87,6 +90,8 @@ public class StampService {
                 .createdAt(newStamp.getCreatedAt())
                 .updatedAt(newStamp.getUpdatedAt())
                 .missionId(newStamp.getMissionId())
+                .clapCount(newStamp.getClapCount())
+                .viewCount(newStamp.getViewCount())
                 .build();
     }
 

@@ -24,5 +24,7 @@ public class StampInfo {
         private String activityDate;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
+        private int clapCount;
+        private int viewCount;
     }
 }
