@@ -207,4 +207,9 @@ public class StampService {
             .orElseThrow(() -> new NotFoundException(ErrorCode.STAMP_NOT_FOUND))
             .getClapCount();
     }
+
+    @Transactional
+    public void increaseViewCountById(Long stampId) {
+        stampRepository.increaseViewCount(stampId);
+    }
 }
