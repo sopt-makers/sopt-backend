@@ -37,6 +37,7 @@ public class StampService {
         entity.validate();
         return StampInfo.Stamp.builder()
                 .id(entity.getId())
+                .userId(entity.getUserId())
                 .contents(entity.getContents())
                 .images(entity.getImages())
                 .activityDate(entity.getActivityDate())
@@ -78,7 +79,6 @@ public class StampService {
                 .missionId(stampRequest.getMissionId())
                 .activityDate(stampRequest.getActivityDate())
                 .userId(userId)
-                .clapCount(0)
                 .build();
 
         val newStamp = stampRepository.save(stamp);
