@@ -7,16 +7,21 @@ import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.sopt.app.application.mission.MissionInfo.Level;
 import org.sopt.app.application.mission.MissionService;
+import org.sopt.app.application.platform.PlatformService;
+import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
 import org.sopt.app.application.soptamp.*;
 import org.sopt.app.application.stamp.ClapService;
 import org.sopt.app.application.stamp.StampInfo.Stamp;
 import org.sopt.app.application.stamp.StampService;
+import org.sopt.app.domain.entity.soptamp.Clap;
 import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.presentation.rank.*;
+import org.sopt.app.presentation.stamp.ClapResponse;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
 import org.sopt.app.presentation.stamp.StampResponse.SoptampReportResponse;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +34,7 @@ public class SoptampFacade {
     private final StampService stampService;
     private final MissionService missionService;
     private final SoptampUserService soptampUserService;
+    private final PlatformService platformService;
     private final RankResponseMapper rankResponseMapper;
     private final SoptampUserFinder soptampUserFinder;
     private final ClapService clapService;
@@ -73,6 +79,27 @@ public class SoptampFacade {
     public Stamp getStampInfo(Long missionId, String nickname){
         val userId = soptampUserFinder.findByNickname(nickname).getUserId();
         return stampService.findStamp(missionId, userId);
+    }
+
+    @Transactional(readOnly = true)
+    public ClapResponse.ClapUsersPage getClapUsersPage(Long userId, Long stampId, Pageable pageable) {
+        stampService.checkOwnedStamp(stampId, userId);
+
+        val page = clapService.getClapsOfMyStamp(stampId, pageable);
+        val userIds = page.getContent().stream()
+                .map(Clap::getUserId)
+                .distinct()
+                .toList();
+
+        val profiles = soptampUserFinder.findUserInfosByIdsAsMap(userIds);
+        val platformInfos = platformService.getPlatformUserInfosResponse(userIds);
+        val imageMap = platformInfos.stream()
+                .collect(java.util.stream.Collectors.toMap(
+                        p -> (long) p.userId(),
+                        PlatformUserInfoResponse::profileImage
+                ));
+
+        return new ClapResponse.ClapUsersPage(page, profiles, imageMap);
     }
 
     public RankResponse.Detail findSoptampUserAndCompletedMissionByNickname(String nickname) {
