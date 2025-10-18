@@ -60,6 +60,12 @@ public class ClapService {
         return clapRepository.findByUserIdAndStampId(userId, stampId);
     }
 
+    public int getUserClapCount(Long userId, Long stampId) {
+        Optional<Clap> clap = getClap(userId, stampId);
+
+        return clap.map(Clap::getClapCount).orElse(0);
+    }
+
 	/**
 	 * Clap(유저별 1행) 업데이트.
 	 * - 없으면 생성하고, 있으면 도메인 메서드로 상한(50) 컷팅
