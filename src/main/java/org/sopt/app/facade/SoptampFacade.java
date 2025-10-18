@@ -2,6 +2,7 @@ package org.sopt.app.facade;
 
 import java.util.List;
 
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -15,7 +16,9 @@ import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.presentation.rank.*;
 import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
+import org.sopt.app.presentation.stamp.StampResponse;
 import org.sopt.app.presentation.stamp.StampResponse.SoptampReportResponse;
+import org.sopt.app.presentation.stamp.StampResponseMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,20 +32,23 @@ public class SoptampFacade {
     private final StampService stampService;
     private final MissionService missionService;
     private final SoptampUserService soptampUserService;
-    private final RankResponseMapper rankResponseMapper;
     private final SoptampUserFinder soptampUserFinder;
     private final ClapService clapService;
+
+    private final RankResponseMapper rankResponseMapper;
+    private final StampResponseMapper stampResponseMapper;
 
     @Value("${makers.app.soptamp.report.url}")
     private String formUrl;
 
     @Transactional
-    public Stamp uploadStamp(Long userId, RegisterStampRequest registerStampRequest){
+    public StampResponse.StampMain uploadStamp(Long userId, RegisterStampRequest registerStampRequest){
         stampService.checkDuplicateStamp(userId, registerStampRequest.getMissionId());
         Stamp result = stampService.uploadStamp(registerStampRequest, userId);
         Level mission = missionService.getMissionById(registerStampRequest.getMissionId());
         soptampUserService.addPointByLevel(userId, mission.getLevel());
-        return result;
+
+        return stampResponseMapper.of(result, 0, true);
     }
 
     @Transactional
@@ -70,9 +76,15 @@ public class SoptampFacade {
         return soptampUserService.editProfileMessage(userId, newProfileMessage);
     }
 
-    public Stamp getStampInfo(Long missionId, String nickname){
-        val userId = soptampUserFinder.findByNickname(nickname).getUserId();
-        return stampService.findStamp(missionId, userId);
+    public StampResponse.StampMain getStampInfo(Long requestUserId, Long missionId, String nickname){
+        val soptampUserId = soptampUserFinder.findByNickname(nickname).getUserId();
+        val stamp = stampService.findStamp(missionId, soptampUserId);
+        int requestUserClapCount = clapService.getUserClapCount(requestUserId, stamp.getId());
+
+        stampService.increaseViewCountById(stamp.getId());
+
+        return stampResponseMapper.of(
+            stamp, requestUserClapCount, Objects.equals(requestUserId, soptampUserId));
     }
 
     public RankResponse.Detail findSoptampUserAndCompletedMissionByNickname(String nickname) {
