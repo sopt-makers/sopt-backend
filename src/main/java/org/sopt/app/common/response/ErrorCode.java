@@ -72,6 +72,7 @@ public enum ErrorCode {
     // CLAP
     SELF_CLAP_FORBIDDEN("타인의 스탬프에만 박수 칠 수 있습니다.", HttpStatus.FORBIDDEN),
     INVALID_CLAP_COUNT("잘못된 박수 횟수입니다.", HttpStatus.BAD_REQUEST),
+    CLAP_LIST_FORBIDDEN("내 미션에서만 박수 목록을 조회할 수 있습니다.", HttpStatus.FORBIDDEN),
 
     // NOTIFICATION
     NOTIFICATION_NOT_FOUND("존재하지 않는 알림입니다.", HttpStatus.NOT_FOUND),

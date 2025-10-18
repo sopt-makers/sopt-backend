@@ -148,6 +148,12 @@ public class StampService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public void checkOwnedStamp(Long stampId, Long userId) {
+        stampRepository.findByIdAndUserId(stampId, userId)
+                .orElseThrow(() -> new ForbiddenException(ErrorCode.CLAP_LIST_FORBIDDEN));
+    }
+
     @Transactional
     public void deleteStampById(Long stampId) {
 
