@@ -8,9 +8,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.val;
-import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.SoptampFacade;
 import org.sopt.app.presentation.stamp.StampResponse.SoptampReportResponse;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -113,6 +114,23 @@ public class StampController {
         int appliedCount = soptampFacade.addClap(userId, stampId, request.getClapCount());
         int totalClapCount = soptampFacade.getStampClapCount(stampId);
         ClapResponse.AddClapResponse response = stampResponseMapper.of(stampId, appliedCount, totalClapCount);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "박수 친 유저 목록 조회 (본인 미션)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/{stampId}/clappers")
+    public ResponseEntity<ClapResponse.ClapUserList> getClappersByStampId(
+            @AuthenticationPrincipal Long userId,
+            @PathVariable Long stampId,
+            @PageableDefault(size = 25) Pageable pageable
+    ) {
+        val page = soptampFacade.getClapUsersPage(userId, stampId, pageable);
+        val response = stampResponseMapper.of(page.getPage(), page.getProfiles(), page.getImageMap());
+
         return ResponseEntity.ok(response);
     }
 
