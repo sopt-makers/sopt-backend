@@ -10,6 +10,7 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.BaseEntity;
 import org.springframework.util.StringUtils;
 
+@Builder
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -33,8 +34,10 @@ public class Stamp extends BaseEntity {
     @Column(length = 10)
     private String activityDate;
 
+    @Builder.Default
     private int clapCount = 0;
 
+    @Builder.Default
     private int viewCount = 0;
 
     @Version
@@ -67,25 +70,4 @@ public class Stamp extends BaseEntity {
         }
     }
 
-    public void incrementClapCount(int increment) {
-        if (increment <= 0) return;
-        this.clapCount += increment;
-    }
-
-    public void incrementViewCount() {
-        this.viewCount += 1;
-    }
-
-    @Builder
-    private Stamp(Long id, String activityDate, Long userId, Long missionId,
-        String contents, List<String> images) {
-        this.id = id;
-        this.activityDate = activityDate;
-        this.userId = userId;
-        this.missionId = missionId;
-        this.contents = contents;
-        this.images = images;
-        this.clapCount = 0;
-        this.viewCount = 0;
-    }
 }
