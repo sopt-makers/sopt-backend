@@ -40,7 +40,7 @@ public class SoptampFacade {
     public Stamp uploadStamp(Long userId, RegisterStampRequest registerStampRequest){
         stampService.checkDuplicateStamp(userId, registerStampRequest.getMissionId());
         Stamp result = stampService.uploadStamp(registerStampRequest, userId);
-        Level mission = missionService.getMissionById(registerStampRequest.getMissionId());
+        Level mission = missionService.getMissionLevelById(registerStampRequest.getMissionId());
         soptampUserService.addPointByLevel(userId, mission.getLevel());
         return result;
     }
@@ -53,7 +53,7 @@ public class SoptampFacade {
     @Transactional
     public void deleteStamp(Long userId, Long stampId){
         val stamp = stampService.getStampForDelete(stampId, userId);
-        val mission = missionService.getMissionById(stamp.getMissionId());
+        val mission = missionService.getMissionLevelById(stamp.getMissionId());
         soptampUserService.subtractPointByLevel(userId, mission.getLevel());
 
         stampService.deleteStampById(stampId);

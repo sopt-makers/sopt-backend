@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.common.exception.NotFoundException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.interfaces.postgres.MissionRepository;
@@ -82,10 +84,10 @@ public class MissionService {
         return missionRepository.findMissionInOrderByLevelAndTitleAndDisplayTrue(inCompleteIdList);
     }
 
-    public MissionInfo.Level getMissionById(Long missionId) {
+    public MissionInfo.Level getMissionLevelById(Long missionId) {
         val mission = missionRepository.findById(missionId).orElseThrow(
-                () -> new IllegalArgumentException("해당 미션을 찾을 수 없습니다.")
-        );
+            () -> new NotFoundException(ErrorCode.MISSION_NOT_FOUND));
+
         return MissionInfo.Level.of(mission.getLevel());
     }
 
