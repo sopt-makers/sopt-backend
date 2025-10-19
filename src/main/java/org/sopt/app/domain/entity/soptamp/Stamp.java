@@ -77,8 +77,9 @@ public class Stamp extends BaseEntity {
     }
 
     @Builder
-    private Stamp(String activityDate, Long userId, Long missionId,
+    private Stamp(Long id, String activityDate, Long userId, Long missionId,
         String contents, List<String> images) {
+        this.id = id;
         this.activityDate = activityDate;
         this.userId = userId;
         this.missionId = missionId;
