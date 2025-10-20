@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.stamp.ClapService;
+import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ForbiddenException;
 import org.sopt.app.common.exception.NotFoundException;
@@ -26,6 +27,7 @@ class ClapServiceTest {
 	@Mock ClapRepository clapRepository;
 	@Mock StampRepository stampRepository;
 	@InjectMocks ClapService clapService;
+	@Mock EventPublisher eventPublisher;
 
 	@Test
 	void addClap_success_applies_fully_and_increments_stamp_total() {
