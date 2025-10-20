@@ -41,9 +41,10 @@ public class ClapEventListener {
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onClap(ClapEvent event) {
-        int total = stampService.getStampClapCount(event.getStampId());
-        Long missionId = stampService.getMissionIdByStampId(event.getStampId());
+        final int oldClapTotal = event.getOldClapTotal();
+        final int newClapTotal = event.getNewClapTotal();
 
+        Long missionId = stampService.getMissionIdByStampId(event.getStampId());
         String missionTitle = missionService.getMissionTitleById(missionId);
 
         val ownerProfile = platformService.getPlatformUserInfoResponse(event.getOwnerUserId());
@@ -51,24 +52,27 @@ public class ClapEventListener {
         String ownerPart = Optional.ofNullable(ownerProfile.getLatestActivity())
                 .map(PlatformUserInfoResponse.SoptActivities::part)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.USER_PART_NOT_FOUND));
-
         String nickname = soptampUserFinder.findById(event.getOwnerUserId()).getNickname();
 
-        if (total == 1) {
+        if (crossed(oldClapTotal, newClapTotal, 1)) {
             send(ClapRequest.ClapAlarmRequest.of(event.getOwnerUserId(), missionTitle, nickname));
         }
 
-        if (total == 100) {
-            send(ClapRequest.ClapAlarmRequest.of(event.getOwnerUserId(), 100, missionTitle, ownerName, ownerPart,
-                    nickname));
-        } else if (total == 500) {
-            send(ClapRequest.ClapAlarmRequest.of(event.getOwnerUserId(), 500, missionTitle, ownerName, ownerPart,
-                    nickname));
+        if (crossed(oldClapTotal, newClapTotal, 100)) {
+            send(ClapRequest.ClapAlarmRequest.of(event.getOwnerUserId(), 100, missionTitle, ownerName, ownerPart, nickname));
+        } else if (crossed(oldClapTotal, newClapTotal, 500)) {
+            send(ClapRequest.ClapAlarmRequest.of(event.getOwnerUserId(), 500, missionTitle, ownerName, ownerPart, nickname));
         }
 
-        if (total >= 1000 && total <= 10000 && total % 1000 == 0) {
-            send(ClapRequest.ClapAlarmRequest.of(total, missionTitle, nickname));
+        int beforeClap = (oldClapTotal / 1000) * 1000;
+        int afterClap = Math.min((newClapTotal / 1000) * 1000, 10000);
+        if (afterClap >= 1000 && afterClap > beforeClap) {
+            send(ClapRequest.ClapAlarmRequest.of(afterClap, missionTitle, nickname));
         }
+    }
+
+    private boolean crossed(int oldTotal, int newTotal, int threshold) {
+        return oldTotal < threshold && newTotal >= threshold;
     }
 
     private void send(ClapRequest.ClapAlarmRequest body) {

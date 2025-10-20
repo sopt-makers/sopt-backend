@@ -11,8 +11,10 @@ public class ClapEvent extends Event {
 
     private final Long ownerUserId;
     private final Long stampId;
+    private final int oldClapTotal;
+    private final int newClapTotal;
 
-    public static ClapEvent of(Long ownerUserId, Long stampId) {
-        return new ClapEvent(ownerUserId, stampId);
+    public static ClapEvent of(Long ownerUserId, Long stampId, int oldClapTotal, int newClapTotal) {
+        return new ClapEvent(ownerUserId, stampId, oldClapTotal, newClapTotal);
     }
 }
