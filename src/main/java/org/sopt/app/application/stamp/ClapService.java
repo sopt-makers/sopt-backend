@@ -2,6 +2,7 @@ package org.sopt.app.application.stamp;
 
 import java.util.Objects;
 
+import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ForbiddenException;
 import org.sopt.app.common.exception.NotFoundException;
@@ -25,6 +26,7 @@ public class ClapService {
 
 	private static final int MAX_RETRY = 3;
 
+	private final EventPublisher eventPublisher;
 	private final ClapRepository clapRepository;
 	private final StampRepository stampRepository;
 
@@ -51,6 +53,8 @@ public class ClapService {
 		// 3) 총합 반영 (네이티브 RETURNING) — applied가 0이면 스킵
 		if (applied > 0) {
 			stampRepository.incrementClapCountReturning(stampId, applied);
+
+			eventPublisher.raise(ClapEvent.of(stamp.getUserId(), stampId));
 		}
 		return applied;
 	}
