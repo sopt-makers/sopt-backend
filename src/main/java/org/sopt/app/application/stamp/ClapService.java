@@ -3,6 +3,7 @@ package org.sopt.app.application.stamp;
 import java.util.Objects;
 
 import java.util.Optional;
+import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ForbiddenException;
 import org.sopt.app.common.exception.NotFoundException;
@@ -27,7 +28,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ClapService {
 
 	private static final int MAX_RETRY = 3;
-
+    private final EventPublisher eventPublisher;
 	private final ClapRepository clapRepository;
 	private final StampRepository stampRepository;
 
@@ -54,12 +55,16 @@ public class ClapService {
 		if (Objects.equals(stamp.getUserId(), userId))
 			throw new ForbiddenException(ErrorCode.SELF_CLAP_FORBIDDEN);
 
+		final int oldClapTotal = stamp.getClapCount();
+
 		// 2) Clap upsert (낙관적 락 + 재시도). 실제 적용된 양(applied)을 계산
 		int applied = upsertUserClapWithRetry(userId, stampId, increment);
 
 		// 3) 총합 반영 (네이티브 RETURNING) — applied가 0이면 스킵
 		if (applied > 0) {
 			stampRepository.incrementClapCountReturning(stampId, applied);
+			final int newClapTotal = oldClapTotal + applied;
+			eventPublisher.raise(ClapEvent.of(stamp.getUserId(), stampId, oldClapTotal, newClapTotal));
 		}
 		return applied;
 	}
