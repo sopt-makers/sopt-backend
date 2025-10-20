@@ -13,6 +13,7 @@ import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
@@ -40,8 +41,10 @@ class RestTemplateConfig {
             retryTemplate.setBackOffPolicy(backOffPolicy);
             try {
                 return retryTemplate.execute(context -> execution.execute(request, body));
-            } catch (Throwable throwable) {
-                throw new RuntimeException(throwable);
+            } catch (RuntimeException e) {
+                throw e; // 원본 유지
+            } catch (Exception e) {
+                throw new RestClientException("request failed", e);
             }
         };
     }
