@@ -12,8 +12,10 @@ import org.sopt.app.application.stamp.StampInfo;
 )
 public interface StampResponseMapper {
 
-    default StampResponse.StampMain from(StampInfo.StampView stampView) {
-        return StampResponse.StampMain.builder()
+    StampResponse.StampMain from(StampInfo.Stamp stampInfo);
+
+    default StampResponse.StampView from(StampInfo.StampView stampView) {
+        return StampResponse.StampView.builder()
             .id(stampView.getId())
             .contents(stampView.getContents())
             .images(stampView.getImages())

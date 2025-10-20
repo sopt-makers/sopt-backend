@@ -42,13 +42,13 @@ public class SoptampFacade {
     private String formUrl;
 
     @Transactional
-    public StampInfo.StampView uploadStamp(Long userId, RegisterStampRequest registerStampRequest){
+    public StampInfo.Stamp uploadStamp(Long userId, RegisterStampRequest registerStampRequest){
         stampService.checkDuplicateStamp(userId, registerStampRequest.getMissionId());
         Stamp result = stampService.uploadStamp(registerStampRequest, userId);
         Level mission = missionService.getMissionById(registerStampRequest.getMissionId());
         soptampUserService.addPointByLevel(userId, mission.getLevel());
 
-        return StampInfo.StampView.of(result, 0, true);
+        return result;
     }
 
     @Transactional

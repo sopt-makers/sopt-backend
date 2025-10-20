@@ -32,7 +32,7 @@ public class StampController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("")
-    public ResponseEntity<StampResponse.StampMain> findStampByMissionAndUserId(
+    public ResponseEntity<StampResponse.StampView> findStampByMissionAndUserId(
             @AuthenticationPrincipal Long userId,
             @Valid @ModelAttribute StampRequest.FindStampRequest findStampRequest
     ) {

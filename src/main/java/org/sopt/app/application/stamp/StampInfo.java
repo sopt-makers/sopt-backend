@@ -59,7 +59,7 @@ public class StampInfo {
                 .updatedAt(stamp.getUpdatedAt())
                 .missionId(stamp.getMissionId())
                 .clapCount(stamp.getClapCount())
-                .viewCount(stamp.getViewCount())
+                .viewCount(stamp.getViewCount() + 1)
                 .isMine(isMine)
                 .myClapCount(myClapCount)
                 .build();
