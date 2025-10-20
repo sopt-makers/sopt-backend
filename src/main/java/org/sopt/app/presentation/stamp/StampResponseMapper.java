@@ -12,7 +12,23 @@ import org.sopt.app.application.stamp.StampInfo;
 )
 public interface StampResponseMapper {
 
-    StampResponse.StampMain of(StampInfo.Stamp stamp);
+    StampResponse.StampMain from(StampInfo.Stamp stampInfo);
+
+    default StampResponse.StampView from(StampInfo.StampView stampView) {
+        return StampResponse.StampView.builder()
+            .id(stampView.getId())
+            .contents(stampView.getContents())
+            .images(stampView.getImages())
+            .activityDate(stampView.getActivityDate())
+            .createdAt(stampView.getCreatedAt())
+            .updatedAt(stampView.getUpdatedAt())
+            .missionId(stampView.getMissionId())
+            .clapCount(stampView.getClapCount())
+            .viewCount(stampView.getViewCount())
+            .myClapCount(stampView.getMyClapCount())
+            .isMine(stampView.isMine())
+            .build();
+    }
 
     StampResponse.StampId of(Long stampId);
 

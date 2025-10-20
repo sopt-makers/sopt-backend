@@ -1,8 +1,8 @@
 package org.sopt.app.application.stamp;
 
 import java.util.Objects;
-
 import org.sopt.app.common.event.EventPublisher;
+import java.util.Optional;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ForbiddenException;
 import org.sopt.app.common.exception.NotFoundException;
@@ -58,6 +58,16 @@ public class ClapService {
 		}
 		return applied;
 	}
+
+    public Optional<Clap> getClap(Long userId, Long stampId) {
+        return clapRepository.findByUserIdAndStampId(userId, stampId);
+    }
+
+    public int getUserClapCount(Long userId, Long stampId) {
+        Optional<Clap> clap = getClap(userId, stampId);
+
+        return clap.map(Clap::getClapCount).orElse(0);
+    }
 
 	/**
 	 * Clap(유저별 1행) 업데이트.
