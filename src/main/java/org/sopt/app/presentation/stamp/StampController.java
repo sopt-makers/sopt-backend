@@ -32,11 +32,12 @@ public class StampController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("")
-    public ResponseEntity<StampResponse.StampMain> findStampByMissionAndUserId(
+    public ResponseEntity<StampResponse.StampView> findStampByMissionAndUserId(
+            @AuthenticationPrincipal Long userId,
             @Valid @ModelAttribute StampRequest.FindStampRequest findStampRequest
     ) {
-        val result = soptampFacade.getStampInfo(findStampRequest.getMissionId(), findStampRequest.getNickname());
-        val response = stampResponseMapper.of(result);
+        val result = soptampFacade.getStampInfo(userId, findStampRequest.getMissionId(), findStampRequest.getNickname());
+        val response = stampResponseMapper.from(result);
         return ResponseEntity.ok(response);
     }
 
@@ -53,7 +54,7 @@ public class StampController {
             @Valid @RequestBody StampRequest.RegisterStampRequest registerStampRequest
     ) {
         val result = soptampFacade.uploadStamp(userId, registerStampRequest);
-        val response = stampResponseMapper.of(result);
+        val response = stampResponseMapper.from(result);
         return ResponseEntity.ok(response);
     }
 
