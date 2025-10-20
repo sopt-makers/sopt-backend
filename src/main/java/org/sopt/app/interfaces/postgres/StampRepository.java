@@ -18,7 +18,7 @@ public interface StampRepository extends JpaRepository<Stamp, Long>, StampReposi
 
     Optional<Stamp> findByIdAndUserId(Long id, Long userId);
 
-    @Modifying
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
       update Stamp s set s.viewCount = s.viewCount + 1
            where s.id = :stampId
