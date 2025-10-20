@@ -10,10 +10,10 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.BaseEntity;
 import org.springframework.util.StringUtils;
 
+@Builder
 @Entity
 @Getter
-@Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Stamp extends BaseEntity {
 
@@ -34,8 +34,10 @@ public class Stamp extends BaseEntity {
     @Column(length = 10)
     private String activityDate;
 
+    @Builder.Default
     private int clapCount = 0;
 
+    @Builder.Default
     private int viewCount = 0;
 
     @Version
@@ -66,15 +68,6 @@ public class Stamp extends BaseEntity {
         if (this.missionId == null) {
             throw new BadRequestException(ErrorCode.INVALID_STAMP_MISSION_ID);
         }
-    }
-
-    public void incrementClapCount(int increment) {
-        if (increment <= 0) return;
-        this.clapCount += increment;
-    }
-
-    public void incrementViewCount() {
-        this.viewCount += 1;
     }
 
 }

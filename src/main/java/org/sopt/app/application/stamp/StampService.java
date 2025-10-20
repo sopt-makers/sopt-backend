@@ -37,12 +37,15 @@ public class StampService {
         entity.validate();
         return StampInfo.Stamp.builder()
                 .id(entity.getId())
+                .userId(entity.getUserId())
                 .contents(entity.getContents())
                 .images(entity.getImages())
                 .activityDate(entity.getActivityDate())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .missionId(entity.getMissionId())
+                .clapCount(entity.getClapCount())
+                .viewCount(entity.getViewCount())
                 .build();
     }
 
@@ -87,6 +90,8 @@ public class StampService {
                 .createdAt(newStamp.getCreatedAt())
                 .updatedAt(newStamp.getUpdatedAt())
                 .missionId(newStamp.getMissionId())
+                .clapCount(newStamp.getClapCount())
+                .viewCount(newStamp.getViewCount())
                 .build();
     }
 
@@ -207,5 +212,10 @@ public class StampService {
         return stampRepository.findById(stampId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.STAMP_NOT_FOUND))
             .getClapCount();
+    }
+
+    @Transactional
+    public void increaseViewCountById(Long stampId) {
+        stampRepository.increaseViewCount(stampId);
     }
 }
