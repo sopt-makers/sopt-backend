@@ -1,5 +1,6 @@
 package org.sopt.app.application.stamp;
 
+import org.sopt.app.interfaces.postgres.ClapMilestoneGuard;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
@@ -35,6 +36,8 @@ public class ClapEventListener {
     private final PlatformService platformService;
     private final SoptampUserFinder soptampUserFinder;
 
+    private final ClapMilestoneGuard clapMilestoneGuard;
+
     @Value("${makers.push.server}")
     private String baseURI;
 
@@ -55,20 +58,25 @@ public class ClapEventListener {
                 .orElseThrow(() -> new NotFoundException(ErrorCode.USER_PART_NOT_FOUND));
         String nickname = soptampUserFinder.findById(event.getOwnerUserId()).getNickname();
 
-        if (crossed(oldClapTotal, newClapTotal, 1)) {
+        if (crossed(oldClapTotal, newClapTotal, 1) && clapMilestoneGuard.tryMark(event.getStampId(), 1)) {
             send(ClapRequest.ClapAlarmRequest.of(event.getOwnerUserId(), missionTitle, nickname));
         }
 
-        if (crossed(oldClapTotal, newClapTotal, 100)) {
+        if (crossed(oldClapTotal, newClapTotal, 100)
+                && clapMilestoneGuard.tryMark(event.getStampId(), 100)) {
             send(ClapRequest.ClapAlarmRequest.of(event.getOwnerUserId(), 100, missionTitle, ownerName, ownerPart, nickname));
-        } else if (crossed(oldClapTotal, newClapTotal, 500)) {
+        } else if (crossed(oldClapTotal, newClapTotal, 500)
+                && clapMilestoneGuard.tryMark(event.getStampId(), 500)) {
             send(ClapRequest.ClapAlarmRequest.of(event.getOwnerUserId(), 500, missionTitle, ownerName, ownerPart, nickname));
         }
 
-        int beforeClap = (oldClapTotal / 1000) * 1000;
-        int afterClap = Math.min((newClapTotal / 1000) * 1000, 10000);
-        if (afterClap >= 1000 && afterClap > beforeClap) {
-            send(ClapRequest.ClapAlarmRequest.of(afterClap, missionTitle, nickname));
+        // 한 번에 여러 구간(2000, 3000)을 넘어도 낮은 것만 처리
+        for (int k = 1000; k <= 10000; k += 1000) {
+            if (crossed(oldClapTotal, newClapTotal, k)
+                    && clapMilestoneGuard.tryMark(event.getStampId(), k)) {
+                send(ClapRequest.ClapAlarmRequest.of(k, missionTitle, nickname));
+                break;
+            }
         }
     }
 
