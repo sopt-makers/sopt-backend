@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import jakarta.validation.Valid;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -150,8 +151,11 @@ public class StampService {
 
     @Transactional(readOnly = true)
     public void checkOwnedStamp(Long stampId, Long userId) {
-        stampRepository.findByIdAndUserId(stampId, userId)
-                .orElseThrow(() -> new ForbiddenException(ErrorCode.CLAP_LIST_FORBIDDEN));
+        var stamp = stampRepository.findById(stampId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.STAMP_NOT_FOUND));
+        if (!Objects.equals(stamp.getUserId(), userId)) {
+            throw new ForbiddenException(ErrorCode.CLAP_LIST_FORBIDDEN);
+        }
     }
 
     @Transactional
