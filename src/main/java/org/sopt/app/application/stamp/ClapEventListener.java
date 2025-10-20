@@ -1,6 +1,7 @@
 package org.sopt.app.application.stamp;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -38,7 +39,7 @@ public class ClapEventListener {
     private String baseURI;
 
     @Async
-    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onClap(ClapEvent event) {
         final int oldClapTotal = event.getOldClapTotal();
