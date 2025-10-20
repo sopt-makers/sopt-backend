@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import jakarta.validation.Valid;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -145,6 +146,15 @@ public class StampService {
     public void checkDuplicateStamp(Long userId, Long missionId) {
         if (stampRepository.findByUserIdAndMissionId(userId, missionId).isPresent()) {
             throw new BadRequestException(ErrorCode.DUPLICATE_STAMP);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    public void checkOwnedStamp(Long stampId, Long userId) {
+        var stamp = stampRepository.findById(stampId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.STAMP_NOT_FOUND));
+        if (!Objects.equals(stamp.getUserId(), userId)) {
+            throw new ForbiddenException(ErrorCode.CLAP_LIST_FORBIDDEN);
         }
     }
 
