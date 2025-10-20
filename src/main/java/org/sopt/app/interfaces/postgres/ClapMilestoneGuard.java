@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.intellij.lang.annotations.Language;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 
@@ -21,8 +20,8 @@ public class ClapMilestoneGuard {
         ON CONFLICT (stamp_id, milestone) DO NOTHING
         """;
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public boolean tryMark(long stampId, int milestone) {
+    @Transactional
+    public boolean tryMarkFirstHit(long stampId, int milestone) {
         return jdbcTemplate.update(SQL, stampId, milestone) == 1;
     }
 }
