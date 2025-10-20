@@ -10,7 +10,9 @@ import org.sopt.app.application.mission.MissionInfo.Level;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.soptamp.*;
 import org.sopt.app.application.stamp.ClapService;
+import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampInfo.Stamp;
+import org.sopt.app.application.stamp.StampInfo.StampView;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.presentation.rank.*;
@@ -35,19 +37,18 @@ public class SoptampFacade {
     private final ClapService clapService;
 
     private final RankResponseMapper rankResponseMapper;
-    private final StampResponseMapper stampResponseMapper;
 
     @Value("${makers.app.soptamp.report.url}")
     private String formUrl;
 
     @Transactional
-    public StampResponse.StampMain uploadStamp(Long userId, RegisterStampRequest registerStampRequest){
+    public StampInfo.StampView uploadStamp(Long userId, RegisterStampRequest registerStampRequest){
         stampService.checkDuplicateStamp(userId, registerStampRequest.getMissionId());
         Stamp result = stampService.uploadStamp(registerStampRequest, userId);
         Level mission = missionService.getMissionById(registerStampRequest.getMissionId());
         soptampUserService.addPointByLevel(userId, mission.getLevel());
 
-        return stampResponseMapper.of(result, 0, true);
+        return StampInfo.StampView.of(result, 0, true);
     }
 
     @Transactional
@@ -75,14 +76,14 @@ public class SoptampFacade {
         return soptampUserService.editProfileMessage(userId, newProfileMessage);
     }
 
-    public StampResponse.StampMain getStampInfo(Long requestUserId, Long missionId, String nickname){
+    public StampInfo.StampView getStampInfo(Long requestUserId, Long missionId, String nickname){
         val soptampUserId = soptampUserFinder.findByNickname(nickname).getUserId();
         val stamp = stampService.findStamp(missionId, soptampUserId);
-        int requestUserClapCount = clapService.getUserClapCount(requestUserId, stamp.getId());
+        val requestUserClapCount = clapService.getUserClapCount(requestUserId, stamp.getId());
 
         stampService.increaseViewCountById(stamp.getId());
 
-        return stampResponseMapper.of(
+        return StampInfo.StampView.of(
             stamp, requestUserClapCount, Objects.equals(requestUserId, soptampUserId));
     }
 

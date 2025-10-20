@@ -12,19 +12,19 @@ import org.sopt.app.application.stamp.StampInfo;
 )
 public interface StampResponseMapper {
 
-    default StampResponse.StampMain of(StampInfo.Stamp stamp, int userClapCount, boolean isMine){
+    default StampResponse.StampMain from(StampInfo.StampView stampView) {
         return StampResponse.StampMain.builder()
-            .id(stamp.getId())
-            .contents(stamp.getContents())
-            .images(stamp.getImages())
-            .activityDate(stamp.getActivityDate())
-            .createdAt(stamp.getCreatedAt())
-            .updatedAt(stamp.getUpdatedAt())
-            .missionId(stamp.getMissionId())
-            .clapCount(userClapCount)
-            .viewCount(stamp.getViewCount())
-            .myClapCount(userClapCount)
-            .isMine(isMine)
+            .id(stampView.getId())
+            .contents(stampView.getContents())
+            .images(stampView.getImages())
+            .activityDate(stampView.getActivityDate())
+            .createdAt(stampView.getCreatedAt())
+            .updatedAt(stampView.getUpdatedAt())
+            .missionId(stampView.getMissionId())
+            .clapCount(stampView.getClapCount())
+            .viewCount(stampView.getViewCount())
+            .myClapCount(stampView.getMyClapCount())
+            .isMine(stampView.isMine())
             .build();
     }
 
