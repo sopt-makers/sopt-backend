@@ -44,12 +44,12 @@ public interface StampResponseMapper {
     default ClapResponse.ClapUserList of(Page<Clap> page, Map<Long, SoptampUserInfo> profileMap, Map<Long, String> imageMap) {
         List<ClapResponse.ClapUserProfile> users = page.getContent().stream()
                 .map(clap -> {
-                    var p = profileMap.get(clap.getUserId());
+                    var soptampUserInfo = profileMap.get(clap.getUserId());
 
                     return new ClapResponse.ClapUserProfile(
-                            p.getNickname(),
+                            soptampUserInfo.getNickname(),
                             imageMap.getOrDefault(clap.getUserId(), ""),
-                            p.getProfileMessage(),
+                            soptampUserInfo.getProfileMessage(),
                             clap.getClapCount()
                     );
                 })
