@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -12,16 +13,19 @@ public class StampRepositoryImpl implements StampRepositoryCustom {
 	@PersistenceContext
 	private EntityManager em;
 
+	@Value("${spring.jpa.properties.hibernate.default_schema}")
+	private String schema;
+
 	@Override
 	public StampCounts incrementClapCountReturning(Long stampId, int increment) {
-		// Postgres 네이티브. 버전 증가까지 함께 처리해 JPA @Version과 의미 일치.
-		String sql = """
-			    UPDATE stamp
-			       SET clap_count = clap_count + :increment,
-			           version     = version + 1
-			     WHERE id = :id
-			 RETURNING clap_count, version
-			""";
+		// 스키마를 붙여서 안전하게 실행
+		final String sql = String.format("""
+            UPDATE %s.stamp
+               SET clap_count = clap_count + :increment,
+                   version     = version + 1
+             WHERE id = :id
+         RETURNING clap_count, version
+        """, schema);
 
 		Query q = em.createNativeQuery(sql);
 		q.setParameter("increment", increment);
