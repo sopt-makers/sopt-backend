@@ -10,8 +10,8 @@ import lombok.AllArgsConstructor;
 import lombok.val;
 import org.sopt.app.facade.SoptampFacade;
 import org.sopt.app.presentation.stamp.StampResponse.SoptampReportResponse;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -120,17 +120,21 @@ public class StampController {
 
     @Operation(summary = "박수 친 유저 목록 조회 (본인 미션)")
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "success"),
-            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/{stampId}/clappers")
     public ResponseEntity<ClapResponse.ClapUserList> getClappersByStampId(
-            @AuthenticationPrincipal Long userId,
-            @PathVariable Long stampId,
-            @PageableDefault(size = 25) Pageable pageable
+        @AuthenticationPrincipal Long userId,
+        @PathVariable Long stampId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "25") int size
     ) {
-        val page = soptampFacade.getClapUsersPage(userId, stampId, pageable);
-        val response = stampResponseMapper.of(page.getPage(), page.getProfiles(), page.getImageMap());
+        if (page < 0) page = 0;
+        if (size < 1) size = 25;
+        Pageable pageable = PageRequest.of(page, size);
+        val pageData = soptampFacade.getClapUsersPage(userId, stampId, pageable);
+        val response = stampResponseMapper.of(pageData.getPage(), pageData.getProfiles(), pageData.getImageMap());
 
         return ResponseEntity.ok(response);
     }
