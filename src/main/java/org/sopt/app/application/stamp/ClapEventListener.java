@@ -82,7 +82,8 @@ public class ClapEventListener {
             alarmData.getStampId(),
             alarmData.getMissionTitle(),
             alarmData.getOwnerPart(),
-            alarmData.getOwnerNickname()));
+            alarmData.getOwnerNickname(),
+            alarmData.getMissionId()));
     }
 
     private void sendWhenClap100Or500(AlarmData alarmData, int mileStone){
@@ -93,7 +94,8 @@ public class ClapEventListener {
             alarmData.getMissionTitle(),
             alarmData.getOwnerName(),
             alarmData.getOwnerPart(),
-            alarmData.getOwnerNickname()));
+            alarmData.getOwnerNickname(),
+            alarmData.getMissionId()));
     }
 
     private void sendWhenClapKilo(AlarmData alarmData, int mileStone){
@@ -103,7 +105,8 @@ public class ClapEventListener {
             mileStone,
             alarmData.getMissionTitle(),
             alarmData.getOwnerPart(),
-            alarmData.getOwnerNickname()));
+            alarmData.getOwnerNickname(),
+            alarmData.getMissionId()));
     }
 
     private boolean crossed(int oldTotal, int newTotal, int threshold) {
