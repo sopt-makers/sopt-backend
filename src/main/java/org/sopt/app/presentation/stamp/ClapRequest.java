@@ -40,12 +40,15 @@ public class ClapRequest {
 		@Schema(description = "알림 제목")
 		@NotNull
 		private String title;
+
 		@Schema(description = "알림 내용")
 		@NotNull
 		private String content;
+
 		@Schema(description = "알림 카테고리")
 		@NotNull
 		private String category;
+
 		@Schema(description = "딥링크")
 		private String deepLink;
 

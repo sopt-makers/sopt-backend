@@ -30,7 +30,7 @@ import org.springframework.web.client.RestTemplate;
 @RequiredArgsConstructor
 public class ClapEventListener {
 
-    private final RestTemplate restTemplate;
+    private final RestTemplate restTemplate = new RestTemplate();
     private final HttpHeadersUtils headersUtils;
 
     private final StampService stampService;

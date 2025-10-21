@@ -49,6 +49,10 @@ public class PlatformService {
     public List<PlatformUserInfoResponse> getPlatformUserInfosResponse(List<Long> userIds) {
         final Map<String, String> headers = createAuthorizationHeader();
 
+        if(userIds == null || userIds.isEmpty()){
+            return Collections.emptyList();
+        }
+
         // 중복 제거
         userIds = userIds.stream().distinct().toList();
         final Map<String, String> params = createQueryParams(userIds);
