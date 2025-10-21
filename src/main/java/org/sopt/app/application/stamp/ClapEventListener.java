@@ -166,7 +166,7 @@ public class ClapEventListener {
             return getOwnerInfo().name();
         }
 
-        public String getOwnerPart() {
+        public SoptPart getOwnerPart() {
             return getOwnerInfo().part();
         }
 
@@ -186,9 +186,10 @@ public class ClapEventListener {
         private OwnerInfo fetchOwnerInfo(ClapEvent clapEvent) {
             val ownerProfile = platformService.getPlatformUserInfoResponse(clapEvent.getOwnerUserId());
             String ownerName = ownerProfile.name();
-            String ownerPart = Optional.ofNullable(ownerProfile.getLatestActivity())
+            String ownerPartName = Optional.ofNullable(ownerProfile.getLatestActivity())
                 .map(PlatformUserInfoResponse.SoptActivities::part)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.USER_PART_NOT_FOUND));
+            SoptPart ownerPart = SoptPart.findSoptPartByPartName(ownerPartName);
             String nickname = soptampUserFinder.findById(clapEvent.getOwnerUserId()).getNickname();
 
             return new OwnerInfo(ownerName, ownerPart, nickname);
@@ -203,7 +204,7 @@ public class ClapEventListener {
 
     }
 
-    private record OwnerInfo(String name, String part, String nickname) {}
+    private record OwnerInfo(String name, SoptPart part, String nickname) {}
     private record MissionInfo(Long id, String title) {}
 
 }
