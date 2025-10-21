@@ -76,9 +76,9 @@ public class ClapRequest {
 			String missionTitle, String ownerName, SoptPart ownerPart, String ownerNickname) {
 			return ClapAlarmRequest.builder()
 				.userIds(List.of(String.valueOf(ownerUserId)))
-				.title(String.format("축하해요! [%d]번째 박수를 받았어요 🎉", targetClapCount))
+				.title(String.format("축하해요! %d번째 박수를 받았어요 🎉", targetClapCount))
 				.content(String.format("""
-					[%s] [%s]님의 ‘%s’ 미션 사진이 %d번째 박수를 받았습니다. 짝짝짝짝! 👏
+					%s %s님의 ‘%s’ 미션 사진이 %d번째 박수를 받았습니다. 짝짝짝짝! 👏
 
 					정말 대단해요! 앞으로도 계속해서 멋진 미션을 인증하고 파트/개인 랭킹을 올려보세요.
 
@@ -96,7 +96,7 @@ public class ClapRequest {
 			String missionTitle, SoptPart ownerPart, String ownerNickname) {
 			return ClapAlarmRequest.builder()
 				.userIds(List.of(String.valueOf(ownerUserId)))
-				.title(String.format("박수 누적 [%d]개 🎉 ‘%s’에 박수 갈채를 받고 있어요.", targetClapCount, missionTitle))
+				.title(String.format("박수 누적 %d개 🎉 ‘%s’에 박수 갈채를 받고 있어요.", targetClapCount, missionTitle))
 				.content(String.format("""
 					미션 ‘%s’ 사진이 %d번째 박수를 받았습니다. 짝짝짝짝! 👏
 
