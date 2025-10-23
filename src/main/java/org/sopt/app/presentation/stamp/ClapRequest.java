@@ -67,7 +67,7 @@ public class ClapRequest {
 					서로에게 응원의 박수를 보내며 소통해 보세요!
 					""")
 				.category(NotificationCategory.NEWS.name())
-				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.name(), missionId))
+				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.getShortedPartName(), missionId))
 				.build();
 		}
 
@@ -78,7 +78,7 @@ public class ClapRequest {
 				.userIds(List.of(String.valueOf(ownerUserId)))
 				.title(String.format("축하해요! %d번째 박수를 받았어요 🎉", targetClapCount))
 				.content(String.format("""
-					%s %s님의 ‘%s’ 미션 사진이 %d번째 박수를 받았습니다. 짝짝짝짝! 👏
+					%s파트 %s님의 ‘%s’ 미션 사진이 %d번째 박수를 받았습니다. 짝짝짝짝! 👏
 
 					정말 대단해요! 앞으로도 계속해서 멋진 미션을 인증하고 파트/개인 랭킹을 올려보세요.
 
@@ -87,7 +87,7 @@ public class ClapRequest {
 					서로에게 응원의 박수를 보내며 소통해 보세요!
 					""", ownerPart.getPartName(), ownerName, missionTitle, targetClapCount))
 				.category(NotificationCategory.NEWS.name())
-				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.name(), missionId))
+				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.getShortedPartName(), missionId))
 				.build();
 		}
 
@@ -107,7 +107,7 @@ public class ClapRequest {
 					서로에게 응원의 박수를 보내며 소통해 보세요!
 					""", missionTitle, targetClapCount))
 				.category(NotificationCategory.NEWS.name())
-				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.name(), missionId))
+				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.getShortedPartName(), missionId))
 				.build();
 		}
 	}
