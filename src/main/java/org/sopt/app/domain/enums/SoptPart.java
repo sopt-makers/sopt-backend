@@ -33,9 +33,9 @@ public enum SoptPart {
     final String partName;
     final String shortedPartName;
 
-    public static SoptPart findPlaygroundPartByPartName(String partName) {
+    public static SoptPart findSoptPartByPartName(String partName) {
         return Arrays.stream(SoptPart.values())
-                .filter(playgroundPart -> playgroundPart.partName.equalsIgnoreCase(partName))
+                .filter(soptPart -> soptPart.partName.equalsIgnoreCase(partName))
                 .findAny()
                 .orElse(SoptPart.NONE);
     }

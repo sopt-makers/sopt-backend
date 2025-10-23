@@ -1,7 +1,7 @@
 package org.sopt.app.application.soptamp;
 
 import static org.sopt.app.domain.entity.soptamp.SoptampUser.createNewSoptampUser;
-import static org.sopt.app.domain.enums.SoptPart.findPlaygroundPartByPartName;
+import static org.sopt.app.domain.enums.SoptPart.findSoptPartByPartName;
 
 import java.util.*;
 import lombok.*;
@@ -66,7 +66,7 @@ public class SoptampUserService {
         registeredUser.initTotalPoints();
         registeredUser.updateChangedGenerationInfo(
             (long)profile.lastGeneration(),
-            findPlaygroundPartByPartName(part),
+            findSoptPartByPartName(part),
             newNickname
         );
         rankCacheService.removeRank(userId);
@@ -76,7 +76,7 @@ public class SoptampUserService {
     private void createSoptampUser(PlatformUserInfoResponse profile, Long userId, PlatformUserInfoResponse.SoptActivities latest) {
         String part = latest.part() == null ? "미상" : latest.part();
         String uniqueNickname = generateUniqueNickname(profile.name(), part);
-        SoptampUser newSoptampUser = createNewSoptampUser(userId, uniqueNickname, (long)profile.lastGeneration(), findPlaygroundPartByPartName(part));
+        SoptampUser newSoptampUser = createNewSoptampUser(userId, uniqueNickname, (long)profile.lastGeneration(), findSoptPartByPartName(part));
         soptampUserRepository.save(newSoptampUser);
         rankCacheService.createNewRank(userId);
     }
@@ -86,7 +86,7 @@ public class SoptampUserService {
     }
 
     private String generateUniqueNickname(String nickname, String part) {
-        String prefixPartName = SoptPart.findPlaygroundPartByPartName(part).getShortedPartName();
+        String prefixPartName = SoptPart.findSoptPartByPartName(part).getShortedPartName();
         StringBuilder uniqueNickname = new StringBuilder().append(prefixPartName).append(nickname);
         if (soptampUserRepository.existsByNickname(uniqueNickname.toString())) {
             return addSuffixToNickname(uniqueNickname);
