@@ -1,5 +1,7 @@
 package org.sopt.app.facade;
 
+import static java.util.Optional.*;
+
 import java.util.List;
 
 import java.util.Objects;
@@ -112,7 +114,7 @@ public class SoptampFacade {
         val imageMap = platformInfos.stream()
             .collect(Collectors.toMap(
                 p -> (long) p.userId(),
-                p -> java.util.Optional.ofNullable(p.profileImage()).orElse(""),
+                p -> ofNullable(p.profileImage()).orElse(""),
                 (a, b) -> a,
                 java.util.LinkedHashMap::new
             ));
