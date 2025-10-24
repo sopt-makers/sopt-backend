@@ -1,8 +1,12 @@
 package org.sopt.app.facade;
 
+import static java.util.Optional.*;
+
 import java.util.List;
 
 import java.util.Objects;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -108,10 +112,12 @@ public class SoptampFacade {
         val profiles = soptampUserFinder.findUserInfosByIdsAsMap(userIds);
         val platformInfos = platformService.getPlatformUserInfosResponse(userIds);
         val imageMap = platformInfos.stream()
-                .collect(java.util.stream.Collectors.toMap(
-                        p -> (long) p.userId(),
-                        PlatformUserInfoResponse::profileImage
-                ));
+            .collect(Collectors.toMap(
+                p -> (long) p.userId(),
+                p -> ofNullable(p.profileImage()).orElse(""),
+                (a, b) -> a,
+                java.util.LinkedHashMap::new
+            ));
 
         return new ClapResponse.ClapUsersPage(page, profiles, imageMap);
     }
