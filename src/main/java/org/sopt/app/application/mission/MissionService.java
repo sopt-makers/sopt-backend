@@ -98,6 +98,13 @@ public class MissionService {
         return MissionInfo.Level.of(mission.getLevel());
     }
 
+    public Mission getMissionById(Long missionId) {
+        val mission = missionRepository.findById(missionId).orElseThrow(
+            () -> new NotFoundException(ErrorCode.MISSION_NOT_FOUND)
+        );
+        return mission;
+    }
+
     public void deleteAll() {
         missionRepository.deleteAll();
     }
