@@ -1,5 +1,6 @@
 package org.sopt.app.application.stamp;
 
+import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.domain.enums.SoptPart;
 import org.sopt.app.interfaces.postgres.ClapMilestoneGuard;
 import org.springframework.transaction.annotation.Propagation;
@@ -83,7 +84,9 @@ public class ClapEventListener {
             alarmData.getMissionTitle(),
             alarmData.getOwnerPart(),
             alarmData.getOwnerNickname(),
-            alarmData.getMissionId()));
+            alarmData.getMissionId(),
+            alarmData.getMissionLevel()
+        ));
     }
 
     private void sendWhenClap100Or500(AlarmData alarmData, int mileStone){
@@ -95,7 +98,9 @@ public class ClapEventListener {
             alarmData.getOwnerName(),
             alarmData.getOwnerPart(),
             alarmData.getOwnerNickname(),
-            alarmData.getMissionId()));
+            alarmData.getMissionId(),
+            alarmData.getMissionLevel()
+        ));
     }
 
     private void sendWhenClapKilo(AlarmData alarmData, int mileStone){
@@ -106,7 +111,9 @@ public class ClapEventListener {
             alarmData.getMissionTitle(),
             alarmData.getOwnerPart(),
             alarmData.getOwnerNickname(),
-            alarmData.getMissionId()));
+            alarmData.getMissionId(),
+            alarmData.getMissionLevel()
+        ));
     }
 
     private boolean crossed(int oldTotal, int newTotal, int threshold) {
@@ -177,12 +184,16 @@ public class ClapEventListener {
             return getOwnerInfo().nickname();
         }
 
-        public Long getMissionId() {
+        public long getMissionId() {
             return getMissionInfo().id();
         }
 
         public String getMissionTitle() {
             return getMissionInfo().title();
+        }
+
+        public int getMissionLevel(){
+            return getMissionInfo().level();
         }
 
 
@@ -200,14 +211,14 @@ public class ClapEventListener {
 
         private MissionInfo fetchMissionInfo(ClapEvent clapEvent){
             Long missionId = stampService.getMissionIdByStampId(clapEvent.getStampId());
-            String missionTitle = missionService.getMissionTitleById(missionId);
+            Mission mission = missionService.getMissionById(missionId);
 
-            return new MissionInfo(missionId, missionTitle);
+            return new MissionInfo(missionId, mission.getTitle(), mission.getLevel());
         }
 
     }
 
     private record OwnerInfo(String name, SoptPart part, String nickname) {}
-    private record MissionInfo(Long id, String title) {}
+    private record MissionInfo(long id, String title, int level) {}
 
 }

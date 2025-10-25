@@ -55,7 +55,7 @@ public class ClapRequest {
 
 		/** 첫 박수 (소유자에게만, isMine=true) */
 		public static ClapAlarmRequest ofOwnerClapFirst(Long ownerUserId, Long stampId, String missionTitle,
-			SoptPart ownerPart, String ownerNickname, Long missionId) {
+			SoptPart ownerPart, String ownerNickname, long missionId, int  missionLevel) {
 			return ClapAlarmRequest.builder()
 				.userIds(List.of(String.valueOf(ownerUserId)))
 				.title(String.format("첫 박수 도착! 💌 ‘%s’ 에 누군가가 박수를 쳤어요 👀", missionTitle))
@@ -67,13 +67,13 @@ public class ClapRequest {
 					서로에게 응원의 박수를 보내며 소통해 보세요!
 					""")
 				.category(NotificationCategory.NEWS.name())
-				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.getShortedPartName(), missionId))
+				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.getShortedPartName(), missionId, missionLevel))
 				.build();
 		}
 
 		/** 100/500번째 박수 (소유자에게만, isMine=true) */
 		public static ClapAlarmRequest ofOwnerClap100Or500(Long ownerUserId, Long stampId, int targetClapCount,
-			String missionTitle, String ownerName, SoptPart ownerPart, String ownerNickname, Long missionId) {
+			String missionTitle, String ownerName, SoptPart ownerPart, String ownerNickname, long missionId, int missionLevel) {
 			return ClapAlarmRequest.builder()
 				.userIds(List.of(String.valueOf(ownerUserId)))
 				.title(String.format("축하해요! %d번째 박수를 받았어요 🎉", targetClapCount))
@@ -87,13 +87,13 @@ public class ClapRequest {
 					서로에게 응원의 박수를 보내며 소통해 보세요!
 					""", ownerPart.getPartName(), ownerName, missionTitle, targetClapCount))
 				.category(NotificationCategory.NEWS.name())
-				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.getShortedPartName(), missionId))
+				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.getShortedPartName(), missionId, missionLevel))
 				.build();
 		}
 
 		/** 1000 단위 박수 (소유자에게만, isMine=true) */
 		public static ClapAlarmRequest ofOwnerClapKilo(Long ownerUserId, Long stampId, int targetClapCount,
-			String missionTitle, SoptPart ownerPart, String ownerNickname, Long missionId) {
+			String missionTitle, SoptPart ownerPart, String ownerNickname, long missionId, int missionLevel) {
 			return ClapAlarmRequest.builder()
 				.userIds(List.of(String.valueOf(ownerUserId)))
 				.title(String.format("박수 누적 %d개 🎉 ‘%s’에 박수 갈채를 받고 있어요.", targetClapCount, missionTitle))
@@ -107,7 +107,7 @@ public class ClapRequest {
 					서로에게 응원의 박수를 보내며 소통해 보세요!
 					""", missionTitle, targetClapCount))
 				.category(NotificationCategory.NEWS.name())
-				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.getShortedPartName(), missionId))
+				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.getShortedPartName(), missionId, missionLevel))
 				.build();
 		}
 	}

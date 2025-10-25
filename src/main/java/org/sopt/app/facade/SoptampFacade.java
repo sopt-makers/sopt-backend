@@ -13,24 +13,18 @@ import lombok.val;
 import org.sopt.app.application.mission.MissionInfo.Level;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.platform.PlatformService;
-import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
-import org.sopt.app.application.platform.PlatformService;
 import org.sopt.app.application.soptamp.*;
 import org.sopt.app.application.stamp.ClapService;
 import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampInfo.Stamp;
-import org.sopt.app.application.stamp.StampInfo.StampView;
-import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.domain.entity.soptamp.Clap;
 import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.presentation.rank.*;
 import org.sopt.app.presentation.stamp.ClapResponse;
 import org.sopt.app.presentation.stamp.StampRequest;
-import org.sopt.app.presentation.stamp.StampResponse;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
 import org.sopt.app.presentation.stamp.StampResponse.SoptampReportResponse;
-import org.sopt.app.presentation.stamp.StampResponseMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -57,7 +51,7 @@ public class SoptampFacade {
     public StampInfo.Stamp uploadStamp(Long userId, RegisterStampRequest registerStampRequest){
         stampService.checkDuplicateStamp(userId, registerStampRequest.getMissionId());
         Stamp result = stampService.uploadStamp(registerStampRequest, userId);
-        Level mission = missionService.getMissionById(registerStampRequest.getMissionId());
+        Level mission = missionService.getMissionLevelById(registerStampRequest.getMissionId());
         soptampUserService.addPointByLevel(userId, mission.getLevel());
 
         return result;
@@ -71,7 +65,7 @@ public class SoptampFacade {
     @Transactional
     public void deleteStamp(Long userId, Long stampId){
         val stamp = stampService.getStampForDelete(stampId, userId);
-        val mission = missionService.getMissionById(stamp.getMissionId());
+        val mission = missionService.getMissionLevelById(stamp.getMissionId());
         soptampUserService.subtractPointByLevel(userId, mission.getLevel());
 
         stampService.deleteStampById(stampId);
