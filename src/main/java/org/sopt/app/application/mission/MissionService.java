@@ -91,9 +91,9 @@ public class MissionService {
                 .getTitle();
     }
 
-    public MissionInfo.Level getMissionById(Long missionId) {
+    public MissionInfo.Level getMissionLevelById(Long missionId) {
         val mission = missionRepository.findById(missionId).orElseThrow(
-                () -> new IllegalArgumentException("해당 미션을 찾을 수 없습니다.")
+            () -> new NotFoundException(ErrorCode.MISSION_NOT_FOUND)
         );
         return MissionInfo.Level.of(mission.getLevel());
     }
