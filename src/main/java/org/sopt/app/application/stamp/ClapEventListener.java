@@ -184,7 +184,7 @@ public class ClapEventListener {
             return getOwnerInfo().nickname();
         }
 
-        public Long getMissionId() {
+        public long getMissionId() {
             return getMissionInfo().id();
         }
 
@@ -219,6 +219,6 @@ public class ClapEventListener {
     }
 
     private record OwnerInfo(String name, SoptPart part, String nickname) {}
-    private record MissionInfo(Long id, String title, int level) {}
+    private record MissionInfo(long id, String title, int level) {}
 
 }
