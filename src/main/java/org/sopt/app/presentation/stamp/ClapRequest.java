@@ -67,7 +67,7 @@ public class ClapRequest {
 					서로에게 응원의 박수를 보내며 소통해 보세요!
 					""")
 				.category(NotificationCategory.NEWS.name())
-				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.getShortedPartName(), missionId, missionLevel))
+				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.getShortedPartName(), missionId, missionLevel, missionTitle))
 				.build();
 		}
 
@@ -87,7 +87,7 @@ public class ClapRequest {
 					서로에게 응원의 박수를 보내며 소통해 보세요!
 					""", ownerPart.getPartName(), ownerName, missionTitle, targetClapCount))
 				.category(NotificationCategory.NEWS.name())
-				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.getShortedPartName(), missionId, missionLevel))
+				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.getShortedPartName(), missionId, missionLevel, missionTitle))
 				.build();
 		}
 
@@ -107,7 +107,7 @@ public class ClapRequest {
 					서로에게 응원의 박수를 보내며 소통해 보세요!
 					""", missionTitle, targetClapCount))
 				.category(NotificationCategory.NEWS.name())
-				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.getShortedPartName(), missionId, missionLevel))
+				.deepLink(SoptampDeepLinkBuilder.buildStampDetailLink(stampId, true, ownerNickname, ownerPart.getShortedPartName(), missionId, missionLevel, missionTitle))
 				.build();
 		}
 	}

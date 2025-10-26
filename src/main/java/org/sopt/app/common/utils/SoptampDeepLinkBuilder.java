@@ -9,8 +9,8 @@ public final class SoptampDeepLinkBuilder {
 
 	private SoptampDeepLinkBuilder() {}
 
-	public static String buildStampDetailLink(long stampId, boolean isMine, String nickname, String part, long missionId, int missionLevel) {
-		return String.format("%s?id=%d&isMine=%s&nickname=%s&part=%s&missionId=%d&level=%d",
-			BASE, stampId, Boolean.toString(isMine), nickname, part, missionId, missionLevel);
+	public static String buildStampDetailLink(long stampId, boolean isMine, String nickname, String part, long missionId, int missionLevel, String missionTitle) {
+		return String.format("%s?id=%d&isMine=%s&nickname=%s&part=%s&missionId=%d&level=%d&missionTitle=%s",
+			BASE, stampId, Boolean.toString(isMine), nickname, part, missionId, missionLevel, missionTitle);
 	}
 }
