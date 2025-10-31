@@ -10,10 +10,10 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.BaseEntity;
 import org.springframework.util.StringUtils;
 
+@Builder
 @Entity
 @Getter
-@Builder
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 public class Stamp extends BaseEntity {
 
@@ -33,6 +33,15 @@ public class Stamp extends BaseEntity {
 
     @Column(length = 10)
     private String activityDate;
+
+    @Builder.Default
+    private int clapCount = 0;
+
+    @Builder.Default
+    private int viewCount = 0;
+
+    @Version
+    private Long version;
 
     public void changeContents(String contents) {
         this.contents = contents;

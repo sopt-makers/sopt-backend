@@ -8,9 +8,10 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.val;
-import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.SoptampFacade;
 import org.sopt.app.presentation.stamp.StampResponse.SoptampReportResponse;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,11 +33,12 @@ public class StampController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("")
-    public ResponseEntity<StampResponse.StampMain> findStampByMissionAndUserId(
+    public ResponseEntity<StampResponse.StampView> findStampByMissionAndUserId(
+            @AuthenticationPrincipal Long userId,
             @Valid @ModelAttribute StampRequest.FindStampRequest findStampRequest
     ) {
-        val result = soptampFacade.getStampInfo(findStampRequest.getMissionId(), findStampRequest.getNickname());
-        val response = stampResponseMapper.of(result);
+        val result = soptampFacade.getStampInfo(userId, findStampRequest.getMissionId(), findStampRequest.getNickname());
+        val response = stampResponseMapper.from(result);
         return ResponseEntity.ok(response);
     }
 
@@ -53,7 +55,7 @@ public class StampController {
             @Valid @RequestBody StampRequest.RegisterStampRequest registerStampRequest
     ) {
         val result = soptampFacade.uploadStamp(userId, registerStampRequest);
-        val response = stampResponseMapper.of(result);
+        val response = stampResponseMapper.from(result);
         return ResponseEntity.ok(response);
     }
 
@@ -97,6 +99,44 @@ public class StampController {
     public ResponseEntity<Void> deleteStampByUserId(@AuthenticationPrincipal Long userId) {
         soptampFacade.deleteStampAll(userId);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "스탬프에 박수치기")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "success", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @PostMapping("/{stampId}/clap")
+    public ResponseEntity<ClapResponse.AddClapResponse> addClap(
+        @AuthenticationPrincipal Long userId,
+        @PathVariable Long stampId,
+        @Valid @RequestBody ClapRequest.AddClapRequest request
+    ) {
+        int appliedCount = soptampFacade.addClap(userId, stampId, request.getClapCount());
+        int totalClapCount = soptampFacade.getStampClapCount(stampId);
+        ClapResponse.AddClapResponse response = stampResponseMapper.of(stampId, appliedCount, totalClapCount);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "박수 친 유저 목록 조회 (본인 미션)")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/{stampId}/clappers")
+    public ResponseEntity<ClapResponse.ClapUserList> getClappersByStampId(
+        @AuthenticationPrincipal Long userId,
+        @PathVariable Long stampId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "25") int size
+    ) {
+        if (page < 0) page = 0;
+        if (size < 1) size = 25;
+        Pageable pageable = PageRequest.of(page, size);
+        val pageData = soptampFacade.getClapUsersPage(userId, stampId, pageable);
+        val response = stampResponseMapper.of(pageData.getPage(), pageData.getProfiles(), pageData.getImageMap());
+
+        return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "솝탬프 신고 URL 조회하기")

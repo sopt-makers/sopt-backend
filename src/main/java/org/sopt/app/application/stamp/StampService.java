@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import jakarta.validation.Valid;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -11,6 +12,7 @@ import org.sopt.app.application.user.UserWithdrawEvent;
 import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ForbiddenException;
+import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.interfaces.postgres.StampRepository;
@@ -36,12 +38,15 @@ public class StampService {
         entity.validate();
         return StampInfo.Stamp.builder()
                 .id(entity.getId())
+                .userId(entity.getUserId())
                 .contents(entity.getContents())
                 .images(entity.getImages())
                 .activityDate(entity.getActivityDate())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .missionId(entity.getMissionId())
+                .clapCount(entity.getClapCount())
+                .viewCount(entity.getViewCount())
                 .build();
     }
 
@@ -86,6 +91,8 @@ public class StampService {
                 .createdAt(newStamp.getCreatedAt())
                 .updatedAt(newStamp.getUpdatedAt())
                 .missionId(newStamp.getMissionId())
+                .clapCount(newStamp.getClapCount())
+                .viewCount(newStamp.getViewCount())
                 .build();
     }
 
@@ -142,6 +149,15 @@ public class StampService {
         }
     }
 
+    @Transactional(readOnly = true)
+    public void checkOwnedStamp(Long stampId, Long userId) {
+        var stamp = stampRepository.findById(stampId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.STAMP_NOT_FOUND));
+        if (!Objects.equals(stamp.getUserId(), userId)) {
+            throw new ForbiddenException(ErrorCode.CLAP_LIST_FORBIDDEN);
+        }
+    }
+
     @Transactional
     public void deleteStampById(Long stampId) {
 
@@ -193,5 +209,17 @@ public class StampService {
 
     public void deleteAll() {
         stampRepository.deleteAll();
+    }
+
+    @Transactional(readOnly = true)
+    public int getStampClapCount(Long stampId) {
+        return stampRepository.findById(stampId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.STAMP_NOT_FOUND))
+            .getClapCount();
+    }
+
+    @Transactional
+    public void increaseViewCountById(Long stampId) {
+        stampRepository.increaseViewCount(stampId);
     }
 }

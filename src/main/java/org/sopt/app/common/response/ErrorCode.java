@@ -55,6 +55,7 @@ public enum ErrorCode {
     DUPLICATE_NICKNAME("사용 중인 닉네임입니다.", HttpStatus.CONFLICT),
     NICKNAME_IS_FULL("사용 가능한 닉네임이 없습니다.", HttpStatus.CONFLICT),
     USER_GENERATION_INFO_NOT_FOUND("기수 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    USER_PART_NOT_FOUND("파트 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     // MISSION
     MISSION_NOT_FOUND("존재하지 않는 미션입니다.", HttpStatus.NOT_FOUND),
@@ -68,6 +69,11 @@ public enum ErrorCode {
     INVALID_STAMP_MISSION_ID("스탬프 미션 ID가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
     INVALID_STAMP_ID("스탬프 ID가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
     STAMP_DELETE_FORBIDDEN("자신의 스탬프만 삭제할 수 있습니다.", HttpStatus.FORBIDDEN),
+
+    // CLAP
+    SELF_CLAP_FORBIDDEN("타인의 스탬프에만 박수 칠 수 있습니다.", HttpStatus.FORBIDDEN),
+    INVALID_CLAP_COUNT("잘못된 박수 횟수입니다.", HttpStatus.BAD_REQUEST),
+    CLAP_LIST_FORBIDDEN("내 미션에서만 박수 목록을 조회할 수 있습니다.", HttpStatus.FORBIDDEN),
 
     // NOTIFICATION
     NOTIFICATION_NOT_FOUND("존재하지 않는 알림입니다.", HttpStatus.NOT_FOUND),

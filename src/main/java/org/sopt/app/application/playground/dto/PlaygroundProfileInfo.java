@@ -1,6 +1,6 @@
 package org.sopt.app.application.playground.dto;
 
-import static org.sopt.app.domain.enums.SoptPart.findPlaygroundPartByPartName;
+import static org.sopt.app.domain.enums.SoptPart.findSoptPartByPartName;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
@@ -132,7 +132,7 @@ public class PlaygroundProfileInfo {
                     log.warn("Invalid cardinalInfo format: {}", cardinalInfo);
                     return SoptPart.NONE;
                 }
-                return findPlaygroundPartByPartName(parts[1]);
+                return findSoptPartByPartName(parts[1]);
             } catch (Exception e) {
                 log.warn("Error parsing PlaygroundPart from cardinalInfo: {}", cardinalInfo, e);
                 return SoptPart.NONE;

@@ -18,4 +18,6 @@ public interface SoptampUserRepository extends JpaRepository<SoptampUser, Long> 
     boolean existsByNickname(String nickname);
 
     void deleteByUserId(Long userId);
+
+    List<SoptampUser> findAllByUserIdIn(List<Long> userIds);
 }
