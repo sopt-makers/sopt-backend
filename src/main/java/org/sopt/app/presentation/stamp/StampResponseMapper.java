@@ -28,6 +28,7 @@ public interface StampResponseMapper {
             .createdAt(stampView.getCreatedAt())
             .updatedAt(stampView.getUpdatedAt())
             .missionId(stampView.getMissionId())
+            .ownerNickname(stampView.getOwnerNickName())
             .clapCount(stampView.getClapCount())
             .viewCount(stampView.getViewCount())
             .myClapCount(stampView.getMyClapCount())

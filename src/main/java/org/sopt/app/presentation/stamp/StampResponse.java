@@ -58,6 +58,8 @@ public class StampResponse {
         private LocalDateTime updatedAt;
         @Schema(description = "미션 아이디", example = "3")
         private Long missionId;
+        @Schema(description = "솝탬프 주인 닉네임", example = "서버홍길동")
+        private String ownerNickname;
         @Schema(description = "총 박수 횟수", example = "124")
         private int clapCount;
         @Schema(description = "조회수", example = "58")
