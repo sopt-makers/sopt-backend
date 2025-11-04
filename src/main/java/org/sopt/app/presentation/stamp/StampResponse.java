@@ -1,5 +1,6 @@
 package org.sopt.app.presentation.stamp;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -68,6 +69,11 @@ public class StampResponse {
         private boolean isMine;
         @Schema(description = "해당 스탬프에 대한 내 박수 횟수", example = "33")
         private int myClapCount;
+
+        @JsonProperty("isMine")
+        public boolean isMine() {
+            return isMine;
+        }
     }
 
     @Getter
