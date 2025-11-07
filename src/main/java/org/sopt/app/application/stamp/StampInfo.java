@@ -41,6 +41,7 @@ public class StampInfo {
         private List<String> images;
         private Long userId;
         private Long missionId;
+        private String ownerNickName;
         private String activityDate;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
@@ -49,7 +50,7 @@ public class StampInfo {
         private boolean isMine;
         private int myClapCount;
 
-        public static StampView of(Stamp stamp, int myClapCount, boolean isMine) {
+        public static StampView of(Stamp stamp, int myClapCount, boolean isMine, String ownerNickName) {
             return StampView.builder()
                 .id(stamp.getId())
                 .contents(stamp.getContents())
@@ -58,6 +59,7 @@ public class StampInfo {
                 .createdAt(stamp.getCreatedAt())
                 .updatedAt(stamp.getUpdatedAt())
                 .missionId(stamp.getMissionId())
+                .ownerNickName(ownerNickName)
                 .clapCount(stamp.getClapCount())
                 .viewCount(stamp.getViewCount() + 1)
                 .isMine(isMine)

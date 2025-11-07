@@ -2,6 +2,7 @@ package org.sopt.app.common.utils;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import org.sopt.app.domain.enums.SoptPart;
 
 public final class SoptampDeepLinkBuilder {
 	private static final String BASE =
@@ -9,8 +10,8 @@ public final class SoptampDeepLinkBuilder {
 
 	private SoptampDeepLinkBuilder() {}
 
-	public static String buildStampDetailLink(long stampId, boolean isMine, String nickname, String part, long missionId, int missionLevel, String missionTitle) {
+	public static String buildStampDetailLink(long stampId, boolean isMine, String nickname, SoptPart part, long missionId, int missionLevel, String missionTitle) {
 		return String.format("%s?id=%d&isMine=%s&nickname=%s&part=%s&missionId=%d&level=%d&missionTitle=%s",
-			BASE, stampId, Boolean.toString(isMine), nickname, part, missionId, missionLevel, missionTitle);
+			BASE, stampId, Boolean.toString(isMine), nickname, part.getShortedPartName(), missionId, missionLevel, missionTitle);
 	}
 }

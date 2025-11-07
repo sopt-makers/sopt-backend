@@ -83,14 +83,15 @@ public class SoptampFacade {
     }
 
     public StampInfo.StampView getStampInfo(Long requestUserId, Long missionId, String nickname){
-        val soptampUserId = soptampUserFinder.findByNickname(nickname).getUserId();
+        val owner = soptampUserFinder.findByNickname(nickname);
+        val soptampUserId = owner.getUserId();
         val stamp = stampService.findStamp(missionId, soptampUserId);
         val requestUserClapCount = clapService.getUserClapCount(requestUserId, stamp.getId());
 
         stampService.increaseViewCountById(stamp.getId());
 
         return StampInfo.StampView.of(
-                stamp, requestUserClapCount, Objects.equals(requestUserId, soptampUserId));
+                stamp, requestUserClapCount, Objects.equals(requestUserId, soptampUserId), owner.getNickname());
     }
 
     @Transactional(readOnly = true)
