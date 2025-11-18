@@ -69,6 +69,13 @@ public class ClapService {
 		return applied;
 	}
 
+	@Transactional(readOnly = true)
+	public int getTotalGivenClapCount(Long userId) {
+		return clapRepository.findAllByUserId(userId).stream()
+			.mapToInt(Clap::getClapCount)
+			.sum();
+	}
+
     public Optional<Clap> getClap(Long userId, Long stampId) {
         return clapRepository.findByUserIdAndStampId(userId, stampId);
     }
