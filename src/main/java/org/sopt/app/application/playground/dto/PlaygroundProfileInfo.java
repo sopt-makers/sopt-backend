@@ -107,6 +107,16 @@ public class PlaygroundProfileInfo {
                     .sorted(Comparator.comparing(ActivityCardinalInfo::getGeneration, Comparator.reverseOrder()))
                     .toList();
         }
+
+        public boolean isActiveGeneration(Long currentGeneration) {
+            return activities.stream()
+                .filter(activity -> !activity.getPlaygroundPart().getPartName()
+                    .equals(SoptPart.NONE.getPartName()))
+                .map(ActivityCardinalInfo::getGeneration)
+                .max(Comparator.naturalOrder())
+                .map(latestGeneration -> latestGeneration.equals(currentGeneration))
+                .orElse(false);
+        }
     }
 
     @Getter
