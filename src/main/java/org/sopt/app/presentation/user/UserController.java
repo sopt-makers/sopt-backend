@@ -20,6 +20,7 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.utils.ActivityDurationCalculator;
+import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.domain.enums.IconType;
 import org.sopt.app.domain.enums.SoptPart;
 import org.sopt.app.facade.AuthFacade;
@@ -141,4 +142,48 @@ public class UserController {
                         partTypeToKorean,isFortuneChecked, fortuneText));
     }
 
+    @Operation(summary = "나의 솝트로그 조회")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/my-sopt-log")
+    public ResponseEntity<UserResponse.MySoptLog> getMySoptLog(
+        @AuthenticationPrincipal Long userId
+    ) {
+        PlaygroundProfile playgroundProfile = authFacade.getUserDetails(userId);
+        boolean isActive = playgroundProfile.isActiveGeneration(generation);
+
+        int soptampCount = soptampFacade.getTotalCompletedMissionCount(userId);
+        int viewCount = soptampFacade.getTotalMissionViewCount(userId);
+        int myClapCount = soptampFacade.getTotalReceivedClapCount(userId);
+        int clapCount = soptampFacade.getTotalGivenClapCount(userId);
+
+        if (isActive) {
+            int totalPokeCount = pokeFacade.getUserPokeCount(userId).intValue();
+            int newFriendsPokeCount = pokeFacade.getPokeCountByFriendship(userId, Friendship.NEW_FRIEND);
+            int bestFriendsPokeCount = pokeFacade.getPokeCountByFriendship(userId, Friendship.BEST_FRIEND);
+            int soulmatesPokeCount = pokeFacade.getPokeCountByFriendship(userId, Friendship.SOULMATE);
+
+            UserResponse.MySoptLog response = UserResponse.MySoptLog.ofActive(
+                soptampCount,
+                viewCount,
+                myClapCount,
+                clapCount,
+                totalPokeCount,
+                newFriendsPokeCount,
+                bestFriendsPokeCount,
+                soulmatesPokeCount
+            );
+            return ResponseEntity.ok(response);
+        }
+
+        UserResponse.MySoptLog response = UserResponse.MySoptLog.ofInactive(
+            soptampCount,
+            viewCount,
+            myClapCount,
+            clapCount
+        );
+        return ResponseEntity.ok(response);
+    }
 }
