@@ -134,6 +134,26 @@ public class SoptampFacade {
         return stampService.getStampClapCount(stampId);
     }
 
+    @Transactional(readOnly = true)
+    public int getTotalCompletedMissionCount(Long userId) {
+        return stampService.getCompletedMissionCount(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public int getTotalMissionViewCount(Long userId) {
+        return stampService.getTotalViewCount(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public int getTotalReceivedClapCount(Long userId) {
+        return stampService.getTotalReceivedClapCount(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public int getTotalGivenClapCount(Long userId) {
+        return clapService.getTotalGivenClapCount(userId);
+    }
+
     public SoptampReportResponse getReportUrl(){
         return new SoptampReportResponse(formUrl);
     }
