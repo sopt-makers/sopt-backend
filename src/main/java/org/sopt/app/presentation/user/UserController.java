@@ -98,6 +98,7 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping(value = "/sopt-log")
+    @Deprecated
     public ResponseEntity<UserResponse.SoptLog> getUserSoptLog(
             @AuthenticationPrincipal Long userId, @RequestParam(required = false, value = "ko") boolean partTypeToKorean
     ) {
