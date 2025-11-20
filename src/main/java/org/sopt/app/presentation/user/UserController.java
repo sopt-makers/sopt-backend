@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.sopt.app.application.fortune.FortuneService;
+import org.sopt.app.application.platform.PlatformService;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.soptamp.SoptampUserService;
@@ -23,6 +24,7 @@ import org.sopt.app.common.utils.ActivityDurationCalculator;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.domain.enums.IconType;
 import org.sopt.app.domain.enums.SoptPart;
+import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.facade.AuthFacade;
 import org.sopt.app.facade.PokeFacade;
 import org.sopt.app.facade.RankFacade;
@@ -51,6 +53,7 @@ public class UserController {
     private final PokeFacade pokeFacade;
     private final RankFacade rankFacade;
     private final FortuneService fortuneService;
+    private final PlatformService platformService;
 
     @Value("${sopt.current.generation}")
     private Long generation;
@@ -152,8 +155,8 @@ public class UserController {
     public ResponseEntity<UserResponse.MySoptLog> getMySoptLog(
         @AuthenticationPrincipal Long userId
     ) {
-        PlaygroundProfile playgroundProfile = authFacade.getUserDetails(userId);
-        boolean isActive = playgroundProfile.isActiveGeneration(generation);
+        UserStatus userStatus = platformService.getStatus(userId);
+        boolean isActive = (userStatus == UserStatus.ACTIVE);
 
         int soptampCount = soptampFacade.getTotalCompletedMissionCount(userId);
         int viewCount = soptampFacade.getTotalMissionViewCount(userId);
