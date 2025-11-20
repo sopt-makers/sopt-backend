@@ -16,12 +16,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.sopt.app.application.fortune.FortuneService;
+import org.sopt.app.application.platform.PlatformService;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.utils.ActivityDurationCalculator;
+import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.domain.enums.IconType;
 import org.sopt.app.domain.enums.SoptPart;
+import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.facade.AuthFacade;
 import org.sopt.app.facade.PokeFacade;
 import org.sopt.app.facade.RankFacade;
@@ -50,6 +53,7 @@ public class UserController {
     private final PokeFacade pokeFacade;
     private final RankFacade rankFacade;
     private final FortuneService fortuneService;
+    private final PlatformService platformService;
 
     @Value("${sopt.current.generation}")
     private Long generation;
@@ -97,6 +101,7 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping(value = "/sopt-log")
+    @Deprecated
     public ResponseEntity<UserResponse.SoptLog> getUserSoptLog(
             @AuthenticationPrincipal Long userId, @RequestParam(required = false, value = "ko") boolean partTypeToKorean
     ) {
@@ -141,4 +146,48 @@ public class UserController {
                         partTypeToKorean,isFortuneChecked, fortuneText));
     }
 
+    @Operation(summary = "나의 솝트로그 조회")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/my-sopt-log")
+    public ResponseEntity<UserResponse.MySoptLog> getMySoptLog(
+        @AuthenticationPrincipal Long userId
+    ) {
+        UserStatus userStatus = platformService.getStatus(userId);
+        boolean isActive = (userStatus == UserStatus.ACTIVE);
+
+        int soptampCount = soptampFacade.getTotalCompletedMissionCount(userId);
+        int viewCount = soptampFacade.getTotalMissionViewCount(userId);
+        int myClapCount = soptampFacade.getTotalReceivedClapCount(userId);
+        int clapCount = soptampFacade.getTotalGivenClapCount(userId);
+
+        if (isActive) {
+            int totalPokeCount = pokeFacade.getUserPokeCount(userId).intValue();
+            int newFriendsPokeCount = pokeFacade.getPokeCountByFriendship(userId, Friendship.NEW_FRIEND);
+            int bestFriendsPokeCount = pokeFacade.getPokeCountByFriendship(userId, Friendship.BEST_FRIEND);
+            int soulmatesPokeCount = pokeFacade.getPokeCountByFriendship(userId, Friendship.SOULMATE);
+
+            UserResponse.MySoptLog response = UserResponse.MySoptLog.ofActive(
+                soptampCount,
+                viewCount,
+                myClapCount,
+                clapCount,
+                totalPokeCount,
+                newFriendsPokeCount,
+                bestFriendsPokeCount,
+                soulmatesPokeCount
+            );
+            return ResponseEntity.ok(response);
+        }
+
+        UserResponse.MySoptLog response = UserResponse.MySoptLog.ofInactive(
+            soptampCount,
+            viewCount,
+            myClapCount,
+            clapCount
+        );
+        return ResponseEntity.ok(response);
+    }
 }

@@ -207,6 +207,30 @@ public class StampService {
             .orElseThrow(() -> new ForbiddenException(ErrorCode.STAMP_DELETE_FORBIDDEN));
     }
 
+    @Transactional(readOnly = true)
+    public List<Stamp> findAllByUserId(Long userId) {
+        return stampRepository.findAllByUserId(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public int getCompletedMissionCount(Long userId) {
+        return stampRepository.findAllByUserId(userId).size();
+    }
+
+    @Transactional(readOnly = true)
+    public int getTotalViewCount(Long userId) {
+        return stampRepository.findAllByUserId(userId).stream()
+            .mapToInt(Stamp::getViewCount)
+            .sum();
+    }
+
+    @Transactional(readOnly = true)
+    public int getTotalReceivedClapCount(Long userId) {
+        return stampRepository.findAllByUserId(userId).stream()
+            .mapToInt(Stamp::getClapCount)
+            .sum();
+    }
+
     public void deleteAll() {
         stampRepository.deleteAll();
     }

@@ -172,6 +172,15 @@ public class FriendService {
         return friendRepository.findAllOfFriendIdsByUserId(userId);
     }
 
+    public int sumPokeCountByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
+        HashMap<Long, Integer> map = getPokeCountMap(userId);
+
+        return map.values().stream()
+            .filter(count -> count >= lowerLimit && count < upperLimit)
+            .mapToInt(Integer::intValue)
+            .sum();
+    }
+
     @EventListener(UserWithdrawEvent.class)
     public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
         friendRepository.deleteAllByFriendUserIdInQuery(event.getUserId());
