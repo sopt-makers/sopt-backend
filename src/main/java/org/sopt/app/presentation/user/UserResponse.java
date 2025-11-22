@@ -204,46 +204,46 @@ public class UserResponse {
         boolean isActive,
 
         @Schema(description = "총 완료한 미션 개수")
-        int soptampCount,
+        Integer soptampCount,
 
         @Schema(description = "완료한 미션 총 조회수")
-        int viewCount,
+        Integer viewCount,
 
         @Schema(description = "총 받은 박수 개수")
-        int myClapCount,
+        Integer myClapCount,
 
         @Schema(description = "총 쳐준 박수 개수")
-        int clapCount,
+        Integer clapCount,
 
-        @Schema(description = "총 콕찌르기 개수 (활동 기만 반환)")
-        Integer totalPokeCount,
+        @Schema(description = "총 콕찌르기 개수 (활동 기수만 반환)")
+        int totalPokeCount,
 
         @Schema(description = "친한 친구 콕 찌르기 횟수의 총합 (2~4회 찌른 사람 대상, 활동 기수만)")
-        Integer newFriendsPokeCount,
+        int newFriendsPokeCount,
 
         @Schema(description = "단짝 친구 콕 찌르기 횟수의 총합 (5~10회 찌른 사람 대상, 활동 기수만)")
-        Integer bestFriendsPokeCount,
+        int bestFriendsPokeCount,
 
         @Schema(description = "천생 연분 콕 찌르기 횟수의 총합 (11회부터 찌른 사람 대상, 활동 기수만)")
-        Integer soulmatesPokeCount
+        int soulmatesPokeCount
     ) {
 
         public static MySoptLog ofInactive(
-            int soptampCount,
-            int viewCount,
-            int myClapCount,
-            int clapCount
+            int totalPokeCount,
+            int newFriendsPokeCount,
+            int bestFriendsPokeCount,
+            int soulmatesPokeCount
         ) {
             return new MySoptLog(
                 false,
-                soptampCount,
-                viewCount,
-                myClapCount,
-                clapCount,
                 null,
                 null,
                 null,
-                null
+                null,
+                totalPokeCount,
+                newFriendsPokeCount,
+                bestFriendsPokeCount,
+                soulmatesPokeCount
             );
         }
 

@@ -158,16 +158,16 @@ public class UserController {
         UserStatus userStatus = platformService.getStatus(userId);
         boolean isActive = (userStatus == UserStatus.ACTIVE);
 
-        int soptampCount = soptampFacade.getTotalCompletedMissionCount(userId);
-        int viewCount = soptampFacade.getTotalMissionViewCount(userId);
-        int myClapCount = soptampFacade.getTotalReceivedClapCount(userId);
-        int clapCount = soptampFacade.getTotalGivenClapCount(userId);
+        int totalPokeCount = pokeFacade.getUserPokeCount(userId).intValue();
+        int newFriendsPokeCount = pokeFacade.getPokeCountByFriendship(userId, Friendship.NEW_FRIEND);
+        int bestFriendsPokeCount = pokeFacade.getPokeCountByFriendship(userId, Friendship.BEST_FRIEND);
+        int soulmatesPokeCount = pokeFacade.getPokeCountByFriendship(userId, Friendship.SOULMATE);
 
         if (isActive) {
-            int totalPokeCount = pokeFacade.getUserPokeCount(userId).intValue();
-            int newFriendsPokeCount = pokeFacade.getPokeCountByFriendship(userId, Friendship.NEW_FRIEND);
-            int bestFriendsPokeCount = pokeFacade.getPokeCountByFriendship(userId, Friendship.BEST_FRIEND);
-            int soulmatesPokeCount = pokeFacade.getPokeCountByFriendship(userId, Friendship.SOULMATE);
+            int soptampCount = soptampFacade.getTotalCompletedMissionCount(userId);
+            int viewCount = soptampFacade.getTotalMissionViewCount(userId);
+            int myClapCount = soptampFacade.getTotalReceivedClapCount(userId);
+            int clapCount = soptampFacade.getTotalGivenClapCount(userId);
 
             UserResponse.MySoptLog response = UserResponse.MySoptLog.ofActive(
                 soptampCount,
@@ -179,15 +179,16 @@ public class UserController {
                 bestFriendsPokeCount,
                 soulmatesPokeCount
             );
+
             return ResponseEntity.ok(response);
         }
-
         UserResponse.MySoptLog response = UserResponse.MySoptLog.ofInactive(
-            soptampCount,
-            viewCount,
-            myClapCount,
-            clapCount
+            totalPokeCount,
+            newFriendsPokeCount,
+            bestFriendsPokeCount,
+            soulmatesPokeCount
         );
+
         return ResponseEntity.ok(response);
     }
 }
