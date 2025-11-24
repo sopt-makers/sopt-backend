@@ -257,15 +257,6 @@ public class PokeFacade {
                 .build();
     }
 
-    @Transactional(readOnly = true)
-    public int getPokeCountByFriendship(Long userId, Friendship friendship) {
-        return friendService.sumPokeCountByFriendship(
-            userId,
-            friendship.getLowerLimit(),
-            friendship.getUpperLimit()
-        );
-    }
-
     public SimplePokeProfile getPokeHistoryProfile(Long userId, Long friendId, Long pokeId) {
         PokeInfo.PokeDetail pokeDetail = pokeService.getPokeDetail(pokeId);
         PokeInfo.PokedUserInfo friendUserInfo = getFriendUserInfo(userId, friendId);
