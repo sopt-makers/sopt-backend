@@ -203,6 +203,12 @@ public class UserResponse {
         @Schema(description = "활동 기수 여부")
         boolean isActive,
 
+        @Schema(description = "오늘의 운세 확인 여부")
+        boolean isFortuneChecked,
+
+        @Schema(description = "오늘의 운세 텍스트")
+        String todayFortuneText,
+
         @Schema(description = "총 완료한 미션 개수")
         Integer soptampCount,
 
@@ -229,6 +235,8 @@ public class UserResponse {
     ) {
 
         public static MySoptLog ofInactive(
+            boolean isFortuneChecked,
+            String todayFortuneText,
             int totalPokeCount,
             int newFriendsPokeCount,
             int bestFriendsPokeCount,
@@ -236,6 +244,8 @@ public class UserResponse {
         ) {
             return new MySoptLog(
                 false,
+                isFortuneChecked,
+                todayFortuneText,
                 null,
                 null,
                 null,
@@ -248,6 +258,8 @@ public class UserResponse {
         }
 
         public static MySoptLog ofActive(
+            boolean isFortuneChecked,
+            String todayFortuneText,
             int soptampCount,
             int viewCount,
             int myClapCount,
@@ -259,6 +271,8 @@ public class UserResponse {
         ) {
             return new MySoptLog(
                 true,
+                isFortuneChecked,
+                todayFortuneText,
                 soptampCount,
                 viewCount,
                 myClapCount,

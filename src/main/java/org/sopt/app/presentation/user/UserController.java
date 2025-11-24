@@ -21,14 +21,13 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.utils.ActivityDurationCalculator;
-import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.domain.enums.IconType;
 import org.sopt.app.domain.enums.SoptPart;
-import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.facade.AuthFacade;
 import org.sopt.app.facade.PokeFacade;
 import org.sopt.app.facade.RankFacade;
 import org.sopt.app.facade.SoptampFacade;
+import org.sopt.app.facade.UserFacade;
 import org.sopt.app.presentation.user.UserResponse.SoptLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +51,7 @@ public class UserController {
     private final AuthFacade authFacade;
     private final PokeFacade pokeFacade;
     private final RankFacade rankFacade;
+    private final UserFacade userFacade;
     private final FortuneService fortuneService;
     private final PlatformService platformService;
 
@@ -147,47 +147,11 @@ public class UserController {
     }
 
     @Operation(summary = "나의 솝트로그 조회")
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "success"),
-        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
-    })
     @GetMapping("/my-sopt-log")
     public ResponseEntity<UserResponse.MySoptLog> getMySoptLog(
         @AuthenticationPrincipal Long userId
     ) {
-        UserStatus userStatus = platformService.getStatus(userId);
-        boolean isActive = (userStatus == UserStatus.ACTIVE);
-
-        int totalPokeCount = pokeFacade.getUserPokeCount(userId).intValue();
-        int newFriendsPokeCount = pokeFacade.getPokeCountByFriendship(userId, Friendship.NEW_FRIEND);
-        int bestFriendsPokeCount = pokeFacade.getPokeCountByFriendship(userId, Friendship.BEST_FRIEND);
-        int soulmatesPokeCount = pokeFacade.getPokeCountByFriendship(userId, Friendship.SOULMATE);
-
-        if (isActive) {
-            int soptampCount = soptampFacade.getTotalCompletedMissionCount(userId);
-            int viewCount = soptampFacade.getTotalMissionViewCount(userId);
-            int myClapCount = soptampFacade.getTotalReceivedClapCount(userId);
-            int clapCount = soptampFacade.getTotalGivenClapCount(userId);
-
-            UserResponse.MySoptLog response = UserResponse.MySoptLog.ofActive(
-                soptampCount,
-                viewCount,
-                myClapCount,
-                clapCount,
-                totalPokeCount,
-                newFriendsPokeCount,
-                bestFriendsPokeCount,
-                soulmatesPokeCount
-            );
-
-            return ResponseEntity.ok(response);
-        }
-        UserResponse.MySoptLog response = UserResponse.MySoptLog.ofInactive(
-            totalPokeCount,
-            newFriendsPokeCount,
-            bestFriendsPokeCount,
-            soulmatesPokeCount
-        );
+        UserResponse.MySoptLog response = userFacade.getMySoptLog(userId);
 
         return ResponseEntity.ok(response);
     }
