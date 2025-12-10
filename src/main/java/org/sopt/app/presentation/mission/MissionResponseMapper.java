@@ -5,12 +5,13 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
 import org.sopt.app.application.mission.MissionInfo;
+import org.sopt.app.application.mission.MissionInfo.TeamMissionInfos;
 import org.sopt.app.domain.entity.soptamp.Mission;
 
 @Mapper(
-        componentModel = "spring",
-        injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        unmappedTargetPolicy = ReportingPolicy.ERROR
+    componentModel = "spring",
+    injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+    unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface MissionResponseMapper {
 
@@ -19,5 +20,7 @@ public interface MissionResponseMapper {
     List<MissionResponse.MissionMain> of(List<Mission> missionList);
 
     List<MissionResponse.Completeness> ofCompleteness(List<MissionInfo.Completeness> missionList);
+
+    MissionResponse.TeamMissionResponses of(TeamMissionInfos missionList);
 
 }
