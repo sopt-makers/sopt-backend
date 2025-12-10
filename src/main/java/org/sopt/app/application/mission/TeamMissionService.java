@@ -40,6 +40,15 @@ public class TeamMissionService {
             .toList();
     }
 
+    public List<MissionInfo.TeamMissionInfo> getMissionsByCondition(TeamNumber teamNumber,
+        boolean isCompleted) {
+        List<TeamMissionInfo> allMissions = getAllMissions(teamNumber);
+
+        return allMissions.stream()
+            .filter(mission -> Objects.equals(mission.isCompleted(), isCompleted))
+            .toList();
+    }
+
     private TeamMissionInfo toTeamMissionInfo(
         Mission mission,
         Map<Long, Stamp> stampByMissionId,
