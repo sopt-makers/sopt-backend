@@ -8,9 +8,9 @@ import org.sopt.app.application.mission.MissionInfo;
 import org.sopt.app.domain.entity.soptamp.Mission;
 
 @Mapper(
-        componentModel = "spring",
-        injectionStrategy = InjectionStrategy.CONSTRUCTOR,
-        unmappedTargetPolicy = ReportingPolicy.ERROR
+    componentModel = "spring",
+    injectionStrategy = InjectionStrategy.CONSTRUCTOR,
+    unmappedTargetPolicy = ReportingPolicy.ERROR
 )
 public interface MissionResponseMapper {
 

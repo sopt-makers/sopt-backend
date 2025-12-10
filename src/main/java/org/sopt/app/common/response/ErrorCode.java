@@ -1,6 +1,7 @@
 package org.sopt.app.common.response;
 
-import lombok.*;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
 @Getter
@@ -60,6 +61,9 @@ public enum ErrorCode {
     // MISSION
     MISSION_NOT_FOUND("존재하지 않는 미션입니다.", HttpStatus.NOT_FOUND),
 
+    //TEAM
+    TEAM_NOT_FOUND("존재하지 않는 팀입니다.", HttpStatus.NOT_FOUND),
+
     // STAMP
     STAMP_NOT_FOUND("존재하지 않는 스탬프입니다.", HttpStatus.BAD_REQUEST),
     DUPLICATE_STAMP("이미 해당 미션에 대한 스탬프가 존재합니다.", HttpStatus.CONFLICT),
@@ -100,7 +104,7 @@ public enum ErrorCode {
     //Fortune
     FORTUNE_NOT_FOUND("운세 ID에 해당하는 FortuneWord가 없습니다.", HttpStatus.NOT_FOUND),
     FORTUNE_NOT_FOUND_FROM_USER("유저에게 할당된 오늘의 운세가 없습니다.", HttpStatus.NOT_FOUND),
-    SLACK_ERROR("슬랙 메시지 알림 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR );
+    SLACK_ERROR("슬랙 메시지 알림 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 
     private final String message;
     private final HttpStatus httpStatus;
