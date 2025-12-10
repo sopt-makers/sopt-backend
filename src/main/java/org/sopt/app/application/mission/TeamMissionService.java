@@ -37,14 +37,20 @@ public class TeamMissionService {
         val soptampUserByUserId = getSoptampUserByUserId(userIds);
 
         return displayedMissions.stream()
-            .map(mission -> {
-                Optional<Stamp> stamp = Optional.ofNullable(stampsByMissionId.get(mission.getId()));
-                Optional<String> ownerName = stamp.map(Stamp::getUserId)
-                    .map(soptampUserByUserId::get)
-                    .map(SoptampUser::getNickname);
-                return TeamMissionInfo.of(mission, stamp.isPresent(), ownerName);
-            })
+            .map(mission -> toTeamMissionInfo(mission, stampsByMissionId, soptampUserByUserId))
             .toList();
+    }
+
+    private TeamMissionInfo toTeamMissionInfo(
+        Mission mission,
+        Map<Long, Stamp> stampByMissionId,
+        Map<Long, SoptampUser> soptampUserByUserId
+    ) {
+        Optional<Stamp> stamp = Optional.ofNullable(stampByMissionId.get(mission.getId()));
+        Optional<String> ownerName = stamp.map(Stamp::getUserId)
+            .map(soptampUserByUserId::get)
+            .map(SoptampUser::getNickname);
+        return TeamMissionInfo.of(mission, stamp.isPresent(), ownerName);
     }
 
     private List<Long> getTeamUserIds(TeamNumber teamNumber) {
@@ -55,7 +61,10 @@ public class TeamMissionService {
 
     private Map<Long, Stamp> getStampsByMissionId(Collection<Long> userIds) {
         return stampRepository.findAllByUserIdIn(userIds).stream()
-            .collect(Collectors.toMap(Stamp::getMissionId, Function.identity()));
+            .collect(Collectors.toMap(
+                Stamp::getMissionId,
+                Function.identity(),
+                (exist, replace) -> exist));
     }
 
     private Map<Long, SoptampUser> getSoptampUserByUserId(Collection<Long> userIds) {
