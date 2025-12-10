@@ -47,9 +47,10 @@ public class TeamMissionService {
         Map<Long, SoptampUser> soptampUserByUserId
     ) {
         Optional<Stamp> stamp = Optional.ofNullable(stampByMissionId.get(mission.getId()));
-        Optional<String> ownerName = stamp.map(Stamp::getUserId)
+        String ownerName = stamp.map(Stamp::getUserId)
             .map(soptampUserByUserId::get)
-            .map(SoptampUser::getNickname);
+            .map(SoptampUser::getNickname)
+            .orElse(null);
         return TeamMissionInfo.of(mission, stamp.isPresent(), ownerName);
     }
 

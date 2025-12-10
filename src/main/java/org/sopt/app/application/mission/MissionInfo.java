@@ -50,12 +50,12 @@ public class MissionInfo {
         public static TeamMissionInfo of(
             Mission mission,
             boolean isCompleted,
-            Optional<String> ownerName
+            String ownerName
         ) {
             return TeamMissionInfo.builder()
                 .id(mission.getId())
                 .title(mission.getTitle())
-                .ownerName(ownerName.orElse(null))
+                .ownerName(ownerName)
                 .level(mission.getLevel())
                 .profileImage(mission.getProfileImage())
                 .isCompleted(isCompleted)
