@@ -1,5 +1,6 @@
 package org.sopt.app.interfaces.postgres;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
@@ -19,5 +20,5 @@ public interface SoptampUserRepository extends JpaRepository<SoptampUser, Long> 
 
     void deleteByUserId(Long userId);
 
-    List<SoptampUser> findAllByUserIdIn(List<Long> userIds);
+    List<SoptampUser> findAllByUserIdIn(Collection<Long> userIds);
 }

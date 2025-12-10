@@ -29,6 +29,7 @@ public class MissionInfo {
     @Builder
     @ToString
     public static class Level {
+
         private Integer level;
 
         public static Level of(Integer level) {
@@ -63,6 +64,28 @@ public class MissionInfo {
                 .build();
         }
     }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class TeamMissionInfos {
+
+        private TeamNumber teamNumber;
+        private String teamName;
+        private List<TeamMissionInfo> teamMissionInfos;
+
+        public static TeamMissionInfos of(
+            TeamSummary teamSummary,
+            List<TeamMissionInfo> missions
+        ) {
+            return TeamMissionInfos.builder()
+                .teamNumber(teamSummary.teamNumber)
+                .teamName(teamSummary.teamName)
+                .teamMissionInfos(missions)
+                .build();
+        }
+    }
+
     @Getter
     @Builder
     @ToString
