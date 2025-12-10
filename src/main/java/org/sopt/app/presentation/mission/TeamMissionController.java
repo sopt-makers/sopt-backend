@@ -35,9 +35,9 @@ public class TeamMissionController {
     @GetMapping()
     public ResponseEntity<TeamMissionResponses> getMissions(
         @RequestParam TeamNumber teamNumber,
-        @RequestParam(required = false) Boolean complete
+        @RequestParam(required = false) Boolean isCompleted
     ) {
-        val result = missionFacade.getMissions(teamNumber, Optional.ofNullable(complete));
+        val result = missionFacade.getMissions(teamNumber, Optional.ofNullable(isCompleted));
         val response = missionResponseMapper.of(result);
         return ResponseEntity.ok(response);
     }

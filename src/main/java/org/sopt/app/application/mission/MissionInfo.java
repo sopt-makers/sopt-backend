@@ -72,7 +72,7 @@ public class MissionInfo {
 
         private TeamNumber teamNumber;
         private String teamName;
-        private List<TeamMissionInfo> teamMissionInfos;
+        private List<TeamMissionInfo> missions;
 
         public static TeamMissionInfos of(
             TeamSummary teamSummary,
@@ -81,7 +81,7 @@ public class MissionInfo {
             return TeamMissionInfos.builder()
                 .teamNumber(teamSummary.teamNumber)
                 .teamName(teamSummary.teamName)
-                .teamMissionInfos(missions)
+                .missions(missions)
                 .build();
         }
     }

@@ -82,6 +82,6 @@ public class MissionResponse {
         @Schema(description = "팀 이름", example = "보핏")
         private String teamName;
         @Schema(description = "미션 정보")
-        private List<TeamMissionResponse> missionResponses;
+        private List<TeamMissionResponse> missions;
     }
 }
