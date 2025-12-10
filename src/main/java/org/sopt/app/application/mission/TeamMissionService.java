@@ -30,11 +30,10 @@ public class TeamMissionService {
     private final SoptampUserRepository soptampUserRepository;
 
     public List<MissionInfo.TeamMissionInfo> getAllMissions(TeamNumber teamNumber) {
-        List<Mission> displayedMissions = missionRepository.findAllByDisplay(true);
-
         val userIds = getTeamUserIds(teamNumber);
-        val stampsByMissionId = getStampsByMissionId(userIds);
-        val soptampUserByUserId = getSoptampUserByUserId(userIds);
+        val stampsByMissionId = getStampMapByUserIds(userIds);
+        val soptampUserByUserId = getSoptampUserMapByUserIds(userIds);
+        val displayedMissions = missionRepository.findAllByDisplay(true);
 
         return displayedMissions.stream()
             .map(mission -> toTeamMissionInfo(mission, stampsByMissionId, soptampUserByUserId))
@@ -46,8 +45,8 @@ public class TeamMissionService {
         Map<Long, Stamp> stampByMissionId,
         Map<Long, SoptampUser> soptampUserByUserId
     ) {
-        Optional<Stamp> stamp = Optional.ofNullable(stampByMissionId.get(mission.getId()));
-        String ownerName = stamp.map(Stamp::getUserId)
+        val stamp = Optional.ofNullable(stampByMissionId.get(mission.getId()));
+        val ownerName = stamp.map(Stamp::getUserId)
             .map(soptampUserByUserId::get)
             .map(SoptampUser::getNickname)
             .orElse(null);
@@ -60,7 +59,7 @@ public class TeamMissionService {
             .toList();
     }
 
-    private Map<Long, Stamp> getStampsByMissionId(Collection<Long> userIds) {
+    private Map<Long, Stamp> getStampMapByUserIds(Collection<Long> userIds) {
         return stampRepository.findAllByUserIdIn(userIds).stream()
             .collect(Collectors.toMap(
                 Stamp::getMissionId,
@@ -68,9 +67,8 @@ public class TeamMissionService {
                 (exist, replace) -> exist));
     }
 
-    private Map<Long, SoptampUser> getSoptampUserByUserId(Collection<Long> userIds) {
+    private Map<Long, SoptampUser> getSoptampUserMapByUserIds(Collection<Long> userIds) {
         return soptampUserRepository.findAllByUserIdIn(userIds).stream()
             .collect(Collectors.toMap(SoptampUser::getUserId, Function.identity()));
-
     }
 }
