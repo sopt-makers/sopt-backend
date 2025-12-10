@@ -1,13 +1,14 @@
 package org.sopt.app.application.mission;
 
 import java.util.List;
-import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.sopt.app.domain.entity.TeamInfo;
 import org.sopt.app.domain.entity.soptamp.Mission;
+import org.sopt.app.domain.enums.TeamNumber;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class MissionInfo {
@@ -59,6 +60,21 @@ public class MissionInfo {
                 .level(mission.getLevel())
                 .profileImage(mission.getProfileImage())
                 .isCompleted(isCompleted)
+                .build();
+        }
+    }
+    @Getter
+    @Builder
+    @ToString
+    public static class TeamSummary {
+
+        private TeamNumber teamNumber;
+        private String teamName;
+
+        public static TeamSummary from(TeamInfo teamInfo) {
+            return TeamSummary.builder().
+                teamNumber(teamInfo.getTeamNumber())
+                .teamName(teamInfo.getTeamName())
                 .build();
         }
     }

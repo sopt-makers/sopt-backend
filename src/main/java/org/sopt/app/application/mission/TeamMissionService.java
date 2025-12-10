@@ -3,12 +3,16 @@ package org.sopt.app.application.mission;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.application.mission.MissionInfo.TeamMissionInfo;
+import org.sopt.app.application.mission.MissionInfo.TeamSummary;
+import org.sopt.app.common.exception.NotFoundException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.TeamInfo;
 import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
@@ -28,6 +32,12 @@ public class TeamMissionService {
     private final MissionRepository missionRepository;
     private final StampRepository stampRepository;
     private final SoptampUserRepository soptampUserRepository;
+
+    public TeamSummary getTeamSummary(TeamNumber teamNumber) {
+        TeamInfo teamInfo = teamInfoRepository.findTopByTeamNumberOrderById(teamNumber)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
+        return TeamSummary.from(teamInfo);
+    }
 
     public List<MissionInfo.TeamMissionInfo> getAllMissions(TeamNumber teamNumber) {
         val userIds = getTeamUserIds(teamNumber);
