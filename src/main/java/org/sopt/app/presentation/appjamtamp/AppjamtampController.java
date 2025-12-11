@@ -9,6 +9,8 @@ import jakarta.validation.Valid;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.val;
+
+import org.sopt.app.application.appjam_rank.AppjamRankListInfo;
 import org.sopt.app.domain.enums.TeamNumber;
 import org.sopt.app.facade.AppjamtampFacade;
 import org.sopt.app.facade.MissionFacade;
@@ -62,4 +64,16 @@ public class AppjamtampController {
         return ResponseEntity.ok(response);
     }
 
+    @Operation(summary = "앱잼 탬프 최근 인증한 팀 TOP3 조회하기")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/rank")
+    public ResponseEntity<AppjamtampResponse.AppjamtampRankListResponse> getRecentTeamRanks() {
+        AppjamRankListInfo appjamRankListInfo = appjamtampFacade.getRecentTeamRanks();
+        AppjamtampResponse.AppjamtampRankListResponse response = appjamtampResponseMapper.of(appjamRankListInfo);
+
+        return ResponseEntity.ok(response);
+    }
 }
