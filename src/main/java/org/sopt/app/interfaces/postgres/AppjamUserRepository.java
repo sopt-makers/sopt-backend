@@ -11,4 +11,6 @@ public interface AppjamUserRepository extends JpaRepository<AppjamUser, Long> {
     List<AppjamUser> findAllByTeamNumber(TeamNumber teamNumber);
 
     Optional<AppjamUser> findTopByTeamNumberOrderById(TeamNumber teamNumber);
+
+    Optional<AppjamUser> findByUserId(Long userId);
 }

@@ -20,4 +20,10 @@ public class AppjamUserService {
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
         return TeamSummary.from(appjamUser);
     }
+
+    public TeamSummary getTeamSummary(Long userId) {
+        AppjamUser appjamUser = appjamUserRepository.findByUserId(userId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+        return TeamSummary.from(appjamUser);
+    }
 }
