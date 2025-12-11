@@ -1,7 +1,7 @@
-package org.sopt.app.application.appjamuser;
+package org.sopt.app.application.appjam_user;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.application.appjamuser.AppjamUserInfo.TeamSummary;
+import org.sopt.app.application.appjam_user.AppjamUserInfo.TeamSummary;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.AppjamUser;
