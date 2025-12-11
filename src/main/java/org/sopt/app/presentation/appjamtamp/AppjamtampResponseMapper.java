@@ -4,7 +4,10 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import org.sopt.app.application.mission.MissionInfo;
+import org.sopt.app.application.mission.MissionInfo.AppjamMissionInfo;
+import org.sopt.app.application.mission.MissionInfo.AppjamMissionInfos;
+import org.sopt.app.presentation.appjamtamp.AppjamtampResponse.AppjamMissionResponse;
+import org.sopt.app.presentation.appjamtamp.AppjamtampResponse.AppjamMissionResponses;
 
 @Mapper(
     componentModel = "spring",
@@ -13,9 +16,9 @@ import org.sopt.app.application.mission.MissionInfo;
 )
 public interface AppjamtampResponseMapper {
 
-    AppjamtampResponse.TeamMissionResponses of(MissionInfo.TeamMissionInfos missionList);
+    AppjamMissionResponses of(AppjamMissionInfos missionList);
 
     // TeamMissionInfo to TeamMissionResponse
     @Mapping(source = "completed", target = "isCompleted")
-    AppjamtampResponse.TeamMissionResponse toResponse(MissionInfo.TeamMissionInfo info);
+    AppjamMissionResponse toResponse(AppjamMissionInfo info);
 }

@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.sopt.app.domain.entity.TeamInfo;
+import org.sopt.app.application.appjamuser.AppjamUserInfo.TeamSummary;
 import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.domain.enums.TeamNumber;
 
@@ -40,7 +40,7 @@ public class MissionInfo {
     @Getter
     @Builder
     @ToString
-    public static class TeamMissionInfo {
+    public static class AppjamMissionInfo {
 
         private Long id;
         private String title;
@@ -49,12 +49,12 @@ public class MissionInfo {
         private List<String> profileImage;
         private boolean isCompleted;
 
-        public static TeamMissionInfo of(
+        public static AppjamMissionInfo of(
             Mission mission,
             boolean isCompleted,
             String ownerName
         ) {
-            return TeamMissionInfo.builder()
+            return AppjamMissionInfo.builder()
                 .id(mission.getId())
                 .title(mission.getTitle())
                 .ownerName(ownerName)
@@ -68,37 +68,22 @@ public class MissionInfo {
     @Getter
     @Builder
     @ToString
-    public static class TeamMissionInfos {
+    public static class AppjamMissionInfos {
 
         private TeamNumber teamNumber;
         private String teamName;
-        private List<TeamMissionInfo> missions;
+        private List<AppjamMissionInfo> missions;
 
-        public static TeamMissionInfos of(
+        public static AppjamMissionInfos of(
             TeamSummary teamSummary,
-            List<TeamMissionInfo> missions
+            List<AppjamMissionInfo> missions
         ) {
-            return TeamMissionInfos.builder()
-                .teamNumber(teamSummary.teamNumber)
-                .teamName(teamSummary.teamName)
+            return AppjamMissionInfos.builder()
+                .teamNumber(teamSummary.getTeamNumber())
+                .teamName(teamSummary.getTeamName())
                 .missions(missions)
                 .build();
         }
     }
 
-    @Getter
-    @Builder
-    @ToString
-    public static class TeamSummary {
-
-        private TeamNumber teamNumber;
-        private String teamName;
-
-        public static TeamSummary from(TeamInfo teamInfo) {
-            return TeamSummary.builder().
-                teamNumber(teamInfo.getTeamNumber())
-                .teamName(teamInfo.getTeamName())
-                .build();
-        }
-    }
 }

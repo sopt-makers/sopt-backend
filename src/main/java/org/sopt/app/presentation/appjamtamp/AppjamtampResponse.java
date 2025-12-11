@@ -14,7 +14,7 @@ public class AppjamtampResponse {
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
-    public static class TeamMissionResponse {
+    public static class AppjamMissionResponse {
 
         @Schema(description = "미션 아이디", example = "1")
         private Long id;
@@ -33,14 +33,14 @@ public class AppjamtampResponse {
     @Getter
     @NoArgsConstructor(access = AccessLevel.PRIVATE)
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
-    public static class TeamMissionResponses {
+    public static class AppjamMissionResponses {
 
         @Schema(description = "팀 번호", example = "FIRST")
         private TeamNumber teamNumber;
         @Schema(description = "팀 이름", example = "보핏")
         private String teamName;
         @Schema(description = "미션 정보")
-        private List<TeamMissionResponse> missions;
+        private List<AppjamMissionResponse> missions;
     }
 
 }
