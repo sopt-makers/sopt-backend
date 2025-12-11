@@ -22,7 +22,7 @@ public class MissionFacade {
         TeamNumber teamNumber,
         Optional<Boolean> complete
     ) {
-        val teamSummary = appjamUserService.getTeamSummary(teamNumber);
+        val teamSummary = appjamUserService.getTeamSummaryByTeamNumber(teamNumber);
         if (complete.isPresent()) {
             return AppjamMissionInfos.of(
                 teamSummary,

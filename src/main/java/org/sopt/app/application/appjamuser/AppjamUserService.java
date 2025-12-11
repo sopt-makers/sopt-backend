@@ -15,15 +15,15 @@ public class AppjamUserService {
 
     private final AppjamUserRepository appjamUserRepository;
 
-    public TeamSummary getTeamSummary(TeamNumber teamNumber) {
+    public TeamSummary getTeamSummaryByTeamNumber(TeamNumber teamNumber) {
         AppjamUser appjamUser = appjamUserRepository.findTopByTeamNumberOrderById(teamNumber)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
         return TeamSummary.from(appjamUser);
     }
 
-    public TeamSummary getTeamSummary(Long userId) {
+    public TeamSummary getTeamSummaryByUserId(Long userId) {
         AppjamUser appjamUser = appjamUserRepository.findByUserId(userId)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND));
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
         return TeamSummary.from(appjamUser);
     }
 }

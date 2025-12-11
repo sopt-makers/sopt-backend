@@ -26,7 +26,7 @@ public class AppjamtampFacade {
         val owner = soptampUserFinder.findByNickname(nickname);
         val ownerUserId = owner.getUserId();
         val platformUserInfoResponse = platformService.getPlatformUserInfoResponse(ownerUserId);
-        val teamSummary = appjamUserService.getTeamSummary(ownerUserId);
+        val teamSummary = appjamUserService.getTeamSummaryByUserId(ownerUserId);
         val stamp = stampService.findStamp(missionId, ownerUserId);
         val requestUserClapCount = clapService.getUserClapCount(requestUserId, stamp.getId());
         stampService.increaseViewCountById(stamp.getId());
