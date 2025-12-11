@@ -4,6 +4,7 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
+import org.sopt.app.application.appjam_rank.AppjamRankListInfo;
 import org.sopt.app.application.mission.MissionInfo.AppjamMissionInfo;
 import org.sopt.app.application.mission.MissionInfo.AppjamMissionInfos;
 import org.sopt.app.application.stamp.StampInfo.AppjamtampView;
@@ -18,6 +19,8 @@ import org.sopt.app.presentation.appjamtamp.AppjamtampResponse.AppjamMissionResp
 public interface AppjamtampResponseMapper {
 
     AppjamMissionResponses of(AppjamMissionInfos missionList);
+
+    AppjamtampResponse.AppjamtampRankListResponse of(AppjamRankListInfo appjamRankListInfo);
 
     // TeamMissionInfo to TeamMissionResponse
     @Mapping(source = "completed", target = "isCompleted")
@@ -42,5 +45,4 @@ public interface AppjamtampResponseMapper {
             .isMine(appjamtampView.isMine())
             .build();
     }
-
 }
