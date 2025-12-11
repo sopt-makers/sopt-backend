@@ -3,7 +3,7 @@ package org.sopt.app.facade;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.appjamuser.AppjamUserService;
+import org.sopt.app.application.appjam_user.AppjamUserService;
 import org.sopt.app.application.mission.AppjamMissionService;
 import org.sopt.app.application.mission.MissionInfo.AppjamMissionInfos;
 import org.sopt.app.domain.enums.TeamNumber;
