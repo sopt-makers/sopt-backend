@@ -9,37 +9,29 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.mission.MissionInfo.TeamMissionInfo;
-import org.sopt.app.application.mission.MissionInfo.TeamSummary;
-import org.sopt.app.common.exception.NotFoundException;
-import org.sopt.app.common.response.ErrorCode;
-import org.sopt.app.domain.entity.TeamInfo;
+import org.sopt.app.application.mission.MissionInfo.AppjamMissionInfo;
+import org.sopt.app.domain.entity.AppjamUser;
 import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.domain.enums.TeamNumber;
+import org.sopt.app.interfaces.postgres.AppjamUserRepository;
 import org.sopt.app.interfaces.postgres.MissionRepository;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
-import org.sopt.app.interfaces.postgres.TeamInfoRepository;
 import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class TeamMissionService {
+public class AppjamMissionService {
 
-    private final TeamInfoRepository teamInfoRepository;
+    private final AppjamUserRepository appjamUserRepository;
     private final MissionRepository missionRepository;
     private final StampRepository stampRepository;
     private final SoptampUserRepository soptampUserRepository;
 
-    public TeamSummary getTeamSummary(TeamNumber teamNumber) {
-        TeamInfo teamInfo = teamInfoRepository.findTopByTeamNumberOrderById(teamNumber)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
-        return TeamSummary.from(teamInfo);
-    }
 
-    public List<MissionInfo.TeamMissionInfo> getAllMissions(TeamNumber teamNumber) {
+    public List<AppjamMissionInfo> getAllMissions(TeamNumber teamNumber) {
         val userIds = getTeamUserIds(teamNumber);
         val stampsByMissionId = getStampMapByUserIds(userIds);
         val soptampUserByUserId = getSoptampUserMapByUserIds(userIds);
@@ -50,16 +42,16 @@ public class TeamMissionService {
             .toList();
     }
 
-    public List<MissionInfo.TeamMissionInfo> getMissionsByCondition(TeamNumber teamNumber,
+    public List<AppjamMissionInfo> getMissionsByCondition(TeamNumber teamNumber,
         boolean isCompleted) {
-        List<TeamMissionInfo> allMissions = getAllMissions(teamNumber);
+        List<AppjamMissionInfo> allMissions = getAllMissions(teamNumber);
 
         return allMissions.stream()
             .filter(mission -> Objects.equals(mission.isCompleted(), isCompleted))
             .toList();
     }
 
-    private TeamMissionInfo toTeamMissionInfo(
+    private AppjamMissionInfo toTeamMissionInfo(
         Mission mission,
         Map<Long, Stamp> stampByMissionId,
         Map<Long, SoptampUser> soptampUserByUserId
@@ -69,12 +61,12 @@ public class TeamMissionService {
             .map(soptampUserByUserId::get)
             .map(SoptampUser::getNickname)
             .orElse(null);
-        return TeamMissionInfo.of(mission, stamp.isPresent(), ownerName);
+        return AppjamMissionInfo.of(mission, stamp.isPresent(), ownerName);
     }
 
     private List<Long> getTeamUserIds(TeamNumber teamNumber) {
-        return teamInfoRepository.findAllByTeamNumber(teamNumber).stream()
-            .map(TeamInfo::getUserId)
+        return appjamUserRepository.findAllByTeamNumber(teamNumber).stream()
+            .map(AppjamUser::getUserId)
             .toList();
     }
 

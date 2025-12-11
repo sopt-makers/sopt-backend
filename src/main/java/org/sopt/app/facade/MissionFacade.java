@@ -2,9 +2,10 @@ package org.sopt.app.facade;
 
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.application.mission.MissionInfo.TeamMissionInfos;
-import org.sopt.app.application.mission.MissionInfo.TeamSummary;
-import org.sopt.app.application.mission.TeamMissionService;
+import lombok.val;
+import org.sopt.app.application.appjamuser.AppjamUserService;
+import org.sopt.app.application.mission.AppjamMissionService;
+import org.sopt.app.application.mission.MissionInfo.AppjamMissionInfos;
 import org.sopt.app.domain.enums.TeamNumber;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,19 +14,21 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class MissionFacade {
 
-    private final TeamMissionService teamMissionService;
+    private final AppjamMissionService appjamMissionService;
+    private final AppjamUserService appjamUserService;
 
     @Transactional(readOnly = true)
-    public TeamMissionInfos getMissions(
+    public AppjamMissionInfos getTeamMissions(
         TeamNumber teamNumber,
         Optional<Boolean> complete
     ) {
-        TeamSummary teamSummary = teamMissionService.getTeamSummary(teamNumber);
+        val teamSummary = appjamUserService.getTeamSummaryByTeamNumber(teamNumber);
         if (complete.isPresent()) {
-            return TeamMissionInfos.of(
-                teamSummary, teamMissionService.getMissionsByCondition(teamNumber, complete.get()));
+            return AppjamMissionInfos.of(
+                teamSummary,
+                appjamMissionService.getMissionsByCondition(teamNumber, complete.get()));
         }
-        return TeamMissionInfos.of(teamSummary, teamMissionService.getAllMissions(teamNumber));
+        return AppjamMissionInfos.of(teamSummary, appjamMissionService.getAllMissions(teamNumber));
     }
 
 }
