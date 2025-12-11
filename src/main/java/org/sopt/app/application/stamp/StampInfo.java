@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.sopt.app.application.appjamuser.AppjamUserInfo.TeamSummary;
+import org.sopt.app.domain.enums.TeamNumber;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class StampInfo {
@@ -39,7 +41,6 @@ public class StampInfo {
         private Long id;
         private String contents;
         private List<String> images;
-        private Long userId;
         private Long missionId;
         private String ownerNickName;
         private String activityDate;
@@ -50,7 +51,8 @@ public class StampInfo {
         private boolean isMine;
         private int myClapCount;
 
-        public static StampView of(Stamp stamp, int myClapCount, boolean isMine, String ownerNickName) {
+        public static StampView of(Stamp stamp, int myClapCount, boolean isMine,
+            String ownerNickName) {
             return StampView.builder()
                 .id(stamp.getId())
                 .contents(stamp.getContents())
@@ -67,4 +69,55 @@ public class StampInfo {
                 .build();
         }
     }
+
+    @Getter
+    @Builder
+    @ToString
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class AppjamtampView {
+
+        private Long id;
+        private String contents;
+        private List<String> images;
+        private Long missionId;
+        private TeamNumber teamNumber;
+        private String teamName;
+        private String ownerNickName;
+        private String ownerProfileImage;
+        private String activityDate;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
+        private int clapCount;
+        private int viewCount;
+        private boolean isMine;
+        private int myClapCount;
+
+        public static AppjamtampView of(
+            Stamp stamp,
+            int myClapCount,
+            boolean isMine,
+            String ownerNickName,
+            String ownerProfileImage,
+            TeamSummary teamSummary
+        ) {
+            return AppjamtampView.builder()
+                .id(stamp.getId())
+                .contents(stamp.getContents())
+                .images(stamp.getImages())
+                .activityDate(stamp.getActivityDate())
+                .createdAt(stamp.getCreatedAt())
+                .updatedAt(stamp.getUpdatedAt())
+                .missionId(stamp.getMissionId())
+                .ownerNickName(ownerNickName)
+                .ownerProfileImage(ownerProfileImage)
+                .teamNumber(teamSummary.getTeamNumber())
+                .teamName(teamSummary.getTeamName())
+                .clapCount(stamp.getClapCount())
+                .viewCount(stamp.getViewCount() + 1)
+                .isMine(isMine)
+                .myClapCount(myClapCount)
+                .build();
+        }
+    }
+
 }
