@@ -1,7 +1,6 @@
 package org.sopt.app.application.appjamrank;
 
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -9,7 +8,6 @@ import java.util.stream.Collectors;
 
 import org.sopt.app.domain.entity.AppjamUser;
 import org.sopt.app.domain.entity.soptamp.Stamp;
-import org.sopt.app.domain.enums.TeamNumber;
 import org.sopt.app.interfaces.postgres.AppjamUserRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.interfaces.postgres.StampRepositoryCustom;
@@ -29,7 +27,6 @@ public class AppjamRankService {
 	private final AppjamUserRepository appjamUserRepository;
 
 	public AppjamRankInfo.RankAggregate findRecentTeamRanks() {
-
 		Pageable latestStampPageable = PageRequest.of(0, RECENT_RANK_LIMIT);
 
 		List<Stamp> latestStamps = stampRepository.findLatestStamps(latestStampPageable);
@@ -48,30 +45,13 @@ public class AppjamRankService {
 			.collect(Collectors.toMap(
 				AppjamUser::getUserId,
 				Function.identity(),
-				(existing, replacement) -> existing,
-				LinkedHashMap::new
-			));
-
-		List<TeamNumber> teamNumbers = uploaderAppjamUsers.stream()
-			.map(AppjamUser::getTeamNumber)
-			.distinct()
-			.toList();
-
-		List<AppjamUser> teamUsers = appjamUserRepository.findAllByTeamNumberIn(teamNumbers);
-
-		Map<TeamNumber, AppjamUser> teamInfoByTeamNumber = teamUsers.stream()
-			.collect(Collectors.toMap(
-				AppjamUser::getTeamNumber,
-				Function.identity(),
-				(existing, replacement) -> existing,
-				LinkedHashMap::new
+				(existing, replacement) -> existing
 			));
 
 		return AppjamRankInfo.RankAggregate.of(
 			latestStamps,
 			uploaderUserIds,
-			uploaderAppjamUserByUserId,
-			teamInfoByTeamNumber
+			uploaderAppjamUserByUserId
 		);
 	}
 

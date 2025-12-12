@@ -2,7 +2,6 @@ package org.sopt.app.facade;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -16,6 +15,7 @@ import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.rank.RankCacheService;
 import org.sopt.app.domain.entity.AppjamUser;
+import org.sopt.app.interfaces.postgres.StampRepositoryCustom;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,33 +32,28 @@ public class AppjamRankFacade {
 
 	@Transactional(readOnly = true)
 	public AppjamRankInfo.RankList findRecentTeamRanks() {
-
-		AppjamRankInfo.RankAggregate rankAggregate = appjamRankService.findRecentTeamRanks();
-		if (rankAggregate.getLatestStamps().isEmpty()) {
+		AppjamRankInfo.RankAggregate aggregate = appjamRankService.findRecentTeamRanks();
+		if (aggregate.getLatestStamps().isEmpty()) {
 			return AppjamRankInfo.RankList.of(List.of());
 		}
 
 		List<PlaygroundProfileInfo.PlaygroundProfile> playgroundProfiles =
-			playgroundAuthService.getPlaygroundMemberProfiles(rankAggregate.getUploaderUserIds());
+			playgroundAuthService.getPlaygroundMemberProfiles(aggregate.getUploaderUserIds());
 
 		Map<Long, PlaygroundProfileInfo.PlaygroundProfile> playgroundProfileByUserId = playgroundProfiles.stream()
 			.collect(Collectors.toMap(
 				PlaygroundProfileInfo.PlaygroundProfile::getMemberId,
 				Function.identity(),
-				(existing, replacement) -> existing,
-				LinkedHashMap::new
+				(existing, replacement) -> existing
 			));
 
-		AppjamRankCalculator appjamRankCalculator = new AppjamRankCalculator(
-			rankAggregate.getLatestStamps(),
-			rankAggregate.getUploaderAppjamUserByUserId(),
-			rankAggregate.getTeamInfoByTeamNumber(),
+		AppjamRankCalculator calculator = new AppjamRankCalculator(
+			aggregate.getLatestStamps(),
+			aggregate.getUploaderAppjamUserByUserId(),
 			playgroundProfileByUserId
 		);
 
-		List<AppjamRankInfo.TeamRank> ranks = appjamRankCalculator.calculateRecentTeamRanks();
-
-		return AppjamRankInfo.RankList.of(ranks);
+		return AppjamRankInfo.RankList.of(calculator.calculateRecentTeamRanks());
 	}
 
 	@Transactional(readOnly = true)
@@ -68,17 +63,17 @@ public class AppjamRankFacade {
 		LocalDateTime tomorrowStart = todayStart.plusDays(1);
 
 		List<AppjamRankInfo.TodayRank> todayUserRanks = findTodayUserRanks(todayStart, tomorrowStart);
+
 		Map<Long, Long> totalPointsByUserId = buildTotalPointsByUserId();
 		List<AppjamUser> allAppjamUsers = appjamRankService.findAllAppjamUsers();
 
-		AppjamRankCalculator appjamRankCalculator = new AppjamRankCalculator(
+		AppjamRankCalculator calculator = new AppjamRankCalculator(
 			List.of(),
-			Map.of(),
 			Map.of(),
 			Map.of()
 		);
 
-		return appjamRankCalculator.calculateTodayTeamRanksTop10(
+		return calculator.calculateTodayTeamRanksTop10(
 			todayUserRanks,
 			totalPointsByUserId,
 			allAppjamUsers
@@ -86,11 +81,13 @@ public class AppjamRankFacade {
 	}
 
 	private List<AppjamRankInfo.TodayRank> findTodayUserRanks(LocalDateTime todayStart, LocalDateTime tomorrowStart) {
-		return appjamRankService.findTodayUserRankSources(todayStart, tomorrowStart).stream()
+		List<StampRepositoryCustom.AppjamTodayRankSource> sources =
+			appjamRankService.findTodayUserRankSources(todayStart, tomorrowStart);
+
+		return sources.stream()
 			.map(source -> AppjamRankInfo.TodayRank.of(
 				source.userId(),
 				source.todayPoints(),
-				0L,
 				source.firstCertifiedAtToday()
 			))
 			.toList();
@@ -107,8 +104,7 @@ public class AppjamRankFacade {
 			.collect(Collectors.toMap(
 				ZSetOperations.TypedTuple::getValue,
 				tuple -> tuple.getScore() == null ? 0L : tuple.getScore().longValue(),
-				(existing, replacement) -> existing,
-				LinkedHashMap::new
+				(existing, replacement) -> existing
 			));
 	}
 }

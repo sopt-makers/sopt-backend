@@ -2,7 +2,6 @@ package org.sopt.app.application.appjamrank;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -11,6 +10,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.AppjamUser;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.domain.enums.TeamNumber;
@@ -25,28 +26,29 @@ public class AppjamRankCalculator {
 
 	private final List<Stamp> latestStamps;
 	private final Map<Long, AppjamUser> uploaderAppjamUserByUserId;
-	private final Map<TeamNumber, AppjamUser> teamInfoByTeamNumber;
 	private final Map<Long, PlaygroundProfileInfo.PlaygroundProfile> playgroundProfileByUserId;
 
 	public List<AppjamRankInfo.TeamRank> calculateRecentTeamRanks() {
 		return latestStamps.stream()
 			.map(stamp -> {
-				AppjamUser uploaderAppjamUser = uploaderAppjamUserByUserId.get(stamp.getUserId());
-				TeamNumber teamNumber = uploaderAppjamUser.getTeamNumber();
+				AppjamUser uploaderAppjamUser = Optional.ofNullable(uploaderAppjamUserByUserId.get(stamp.getUserId()))
+					.orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
 
-				AppjamUser teamInfo = teamInfoByTeamNumber.get(teamNumber);
+				PlaygroundProfileInfo.PlaygroundProfile playgroundProfile =
+					Optional.ofNullable(playgroundProfileByUserId.get(stamp.getUserId()))
+						.orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
+
+				TeamNumber teamNumber = uploaderAppjamUser.getTeamNumber();
 
 				String firstImageUrl = Optional.ofNullable(stamp.getImages())
 					.filter(images -> !images.isEmpty())
 					.map(List::getFirst)
 					.orElse("");
 
-				PlaygroundProfileInfo.PlaygroundProfile playgroundProfile = playgroundProfileByUserId.get(stamp.getUserId());
-
 				return AppjamRankInfo.TeamRank.of(
 					stamp,
 					firstImageUrl,
-					teamInfo,
+					uploaderAppjamUser,
 					teamNumber,
 					playgroundProfile
 				);
@@ -63,21 +65,26 @@ public class AppjamRankCalculator {
 			.collect(Collectors.toMap(
 				AppjamRankInfo.TodayRank::getUserId,
 				Function.identity(),
-				(existing, replacement) -> existing,
-				LinkedHashMap::new
+				(existing, replacement) -> existing
+			));
+
+		Map<TeamNumber, String> teamNameByTeamNumber = allAppjamUsers.stream()
+			.collect(Collectors.toMap(
+				AppjamUser::getTeamNumber,
+				AppjamUser::getTeamName,
+				(existing, replacement) -> existing
 			));
 
 		Map<TeamNumber, List<AppjamUser>> membersByTeamNumber = allAppjamUsers.stream()
 			.collect(Collectors.groupingBy(
-				AppjamUser::getTeamNumber,
-				LinkedHashMap::new,
-				Collectors.toList()
+				AppjamUser::getTeamNumber
 			));
 
 		List<TeamAggregate> teamAggregates = membersByTeamNumber.entrySet().stream()
 			.map(entry -> aggregateTeam(
 				entry.getKey(),
 				entry.getValue(),
+				teamNameByTeamNumber.getOrDefault(entry.getKey(), ""),
 				todayRankByUserId,
 				totalPointsByUserId
 			))
@@ -96,8 +103,7 @@ public class AppjamRankCalculator {
 				teamAggregate.teamNumber(),
 				teamAggregate.teamName(),
 				teamAggregate.todayPoints(),
-				teamAggregate.totalPoints(),
-				teamAggregate.firstCertifiedAtToday()
+				teamAggregate.totalPoints()
 			))
 			.toList();
 
@@ -107,11 +113,10 @@ public class AppjamRankCalculator {
 	private TeamAggregate aggregateTeam(
 		TeamNumber teamNumber,
 		List<AppjamUser> teamMembers,
+		String teamName,
 		Map<Long, AppjamRankInfo.TodayRank> todayRankByUserId,
 		Map<Long, Long> totalPointsByUserId
 	) {
-		String teamName = teamMembers.isEmpty() ? "" : teamMembers.getFirst().getTeamName();
-
 		long todayPointsSum = 0L;
 		long totalPointsSum = 0L;
 		LocalDateTime firstCertifiedAtToday = null;

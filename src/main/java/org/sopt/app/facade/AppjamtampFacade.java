@@ -1,10 +1,8 @@
 package org.sopt.app.facade;
 
 import java.util.Objects;
-
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-
 import org.sopt.app.application.appjamuser.AppjamUserService;
 import org.sopt.app.application.platform.PlatformService;
 import org.sopt.app.application.soptamp.SoptampUserFinder;
