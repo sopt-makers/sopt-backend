@@ -14,6 +14,9 @@ import org.sopt.app.application.app_service.dto.AppServiceInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.domain.enums.SoptPart;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserResponse {
 
@@ -192,5 +195,93 @@ public class UserResponse {
     public static class Create {
         @Schema(description = "생성된 유저 ID", example = "101")
         private Long userId;
+    }
+
+    @JsonInclude(Include.NON_NULL)
+    public record MySoptLog(
+
+        @Schema(description = "활동 기수 여부")
+        boolean isActive,
+
+        @Schema(description = "오늘의 운세 확인 여부")
+        boolean isFortuneChecked,
+
+        @Schema(description = "오늘의 운세 텍스트")
+        String todayFortuneText,
+
+        @Schema(description = "총 완료한 미션 개수")
+        Integer soptampCount,
+
+        @Schema(description = "완료한 미션 총 조회수")
+        Integer viewCount,
+
+        @Schema(description = "총 받은 박수 개수")
+        Integer myClapCount,
+
+        @Schema(description = "총 쳐준 박수 개수")
+        Integer clapCount,
+
+        @Schema(description = "총 콕찌르기 개수 (활동 기수만 반환)")
+        int totalPokeCount,
+
+        @Schema(description = "친한 친구 콕 찌르기 횟수의 총합 (2~4회 찌른 사람 대상, 활동 기수만)")
+        int newFriendsPokeCount,
+
+        @Schema(description = "단짝 친구 콕 찌르기 횟수의 총합 (5~10회 찌른 사람 대상, 활동 기수만)")
+        int bestFriendsPokeCount,
+
+        @Schema(description = "천생 연분 콕 찌르기 횟수의 총합 (11회부터 찌른 사람 대상, 활동 기수만)")
+        int soulmatesPokeCount
+    ) {
+
+        public static MySoptLog ofInactive(
+            boolean isFortuneChecked,
+            String todayFortuneText,
+            int totalPokeCount,
+            int newFriendsPokeCount,
+            int bestFriendsPokeCount,
+            int soulmatesPokeCount
+        ) {
+            return new MySoptLog(
+                false,
+                isFortuneChecked,
+                todayFortuneText,
+                null,
+                null,
+                null,
+                null,
+                totalPokeCount,
+                newFriendsPokeCount,
+                bestFriendsPokeCount,
+                soulmatesPokeCount
+            );
+        }
+
+        public static MySoptLog ofActive(
+            boolean isFortuneChecked,
+            String todayFortuneText,
+            int soptampCount,
+            int viewCount,
+            int myClapCount,
+            int clapCount,
+            int totalPokeCount,
+            int newFriendsPokeCount,
+            int bestFriendsPokeCount,
+            int soulmatesPokeCount
+        ) {
+            return new MySoptLog(
+                true,
+                isFortuneChecked,
+                todayFortuneText,
+                soptampCount,
+                viewCount,
+                myClapCount,
+                clapCount,
+                totalPokeCount,
+                newFriendsPokeCount,
+                bestFriendsPokeCount,
+                soulmatesPokeCount
+            );
+        }
     }
 }

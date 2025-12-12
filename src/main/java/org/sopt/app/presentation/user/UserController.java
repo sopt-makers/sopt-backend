@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.sopt.app.application.fortune.FortuneService;
+import org.sopt.app.application.platform.PlatformService;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.soptamp.SoptampUserService;
@@ -26,6 +27,7 @@ import org.sopt.app.facade.AuthFacade;
 import org.sopt.app.facade.PokeFacade;
 import org.sopt.app.facade.RankFacade;
 import org.sopt.app.facade.SoptampFacade;
+import org.sopt.app.facade.UserFacade;
 import org.sopt.app.presentation.user.UserResponse.SoptLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -49,7 +51,9 @@ public class UserController {
     private final AuthFacade authFacade;
     private final PokeFacade pokeFacade;
     private final RankFacade rankFacade;
+    private final UserFacade userFacade;
     private final FortuneService fortuneService;
+    private final PlatformService platformService;
 
     @Value("${sopt.current.generation}")
     private Long generation;
@@ -97,6 +101,7 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping(value = "/sopt-log")
+    @Deprecated
     public ResponseEntity<UserResponse.SoptLog> getUserSoptLog(
             @AuthenticationPrincipal Long userId, @RequestParam(required = false, value = "ko") boolean partTypeToKorean
     ) {
@@ -141,4 +146,13 @@ public class UserController {
                         partTypeToKorean,isFortuneChecked, fortuneText));
     }
 
+    @Operation(summary = "나의 솝트로그 조회")
+    @GetMapping("/my-sopt-log")
+    public ResponseEntity<UserResponse.MySoptLog> getMySoptLog(
+        @AuthenticationPrincipal Long userId
+    ) {
+        UserResponse.MySoptLog response = userFacade.getMySoptLog(userId);
+
+        return ResponseEntity.ok(response);
+    }
 }

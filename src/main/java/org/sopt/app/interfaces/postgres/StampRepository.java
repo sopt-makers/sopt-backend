@@ -1,5 +1,6 @@
 package org.sopt.app.interfaces.postgres;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.sopt.app.domain.entity.soptamp.Stamp;
@@ -17,6 +18,8 @@ public interface StampRepository extends JpaRepository<Stamp, Long>, StampReposi
     void deleteAllByUserId(Long userId);
 
     Optional<Stamp> findByIdAndUserId(Long id, Long userId);
+
+    List<Stamp> findAllByUserIdIn(Collection<Long> userIds);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""

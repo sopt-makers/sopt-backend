@@ -1,18 +1,27 @@
 package org.sopt.app.facade;
 
+import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
+import org.sopt.app.application.fortune.FortuneService;
+import org.sopt.app.application.friend.FriendService;
 import org.sopt.app.application.platform.PlatformService;
 import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.notification.NotificationService;
 import org.sopt.app.application.app_service.AppServiceService;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
+import org.sopt.app.application.poke.PokeService;
+import org.sopt.app.application.stamp.ClapService;
+import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.application.user.UserService;
 import org.sopt.app.domain.entity.User;
+import org.sopt.app.domain.enums.Friendship;
+import org.sopt.app.domain.enums.UserStatus;
+import org.sopt.app.presentation.user.UserResponse;
 import org.sopt.app.presentation.user.UserResponse.*;
 import org.sopt.app.presentation.user.UserResponseMapper;
 import org.springframework.stereotype.Service;
@@ -27,6 +36,11 @@ public class UserFacade {
     private final AppServiceService appServiceService;
     private final UserResponseMapper userResponseMapper;
     private final PlatformService platformService;
+    private final StampService stampService;
+    private final ClapService clapService;
+    private final FriendService friendService;
+    private final PokeService pokeService;
+    private final FortuneService fortuneService;
     private final UserService userService;
 
     @Transactional(readOnly = true)
@@ -62,5 +76,53 @@ public class UserFacade {
     @Transactional
     public void deleteUser(Long userId) {
         userService.deleteUser(userId);
+    }
+
+    @Transactional(readOnly = true)
+    public UserResponse.MySoptLog getMySoptLog(Long userId) {
+        UserStatus userStatus = platformService.getStatus(userId);
+        boolean isActive = (userStatus == UserStatus.ACTIVE);
+
+        boolean isFortuneChecked = fortuneService.isExistTodayFortune(userId);
+        String todayFortuneText = isFortuneChecked
+            ? fortuneService.getTodayFortuneWordByUserId(userId, LocalDate.now()).title()
+            : "오늘 내 운세는?";
+
+        int totalPokeCount = pokeService.getUserPokeCount(userId).intValue();
+        int newFriendsPokeCount = friendService.sumPokeCountByFriendship(
+            userId, Friendship.NEW_FRIEND.getLowerLimit(), Friendship.NEW_FRIEND.getUpperLimit());
+        int bestFriendsPokeCount = friendService.sumPokeCountByFriendship(
+            userId, Friendship.BEST_FRIEND.getLowerLimit(), Friendship.BEST_FRIEND.getUpperLimit());
+        int soulmatesPokeCount = friendService.sumPokeCountByFriendship(
+            userId, Friendship.SOULMATE.getLowerLimit(), Friendship.SOULMATE.getUpperLimit());
+
+        if (isActive) {
+            int soptampCount = stampService.getCompletedMissionCount(userId);
+            int viewCount = stampService.getTotalViewCount(userId);
+            int myClapCount = stampService.getTotalReceivedClapCount(userId);
+            int clapCount = clapService.getTotalGivenClapCount(userId);
+
+            return UserResponse.MySoptLog.ofActive(
+                isFortuneChecked,
+                todayFortuneText,
+                soptampCount,
+                viewCount,
+                myClapCount,
+                clapCount,
+                totalPokeCount,
+                newFriendsPokeCount,
+                bestFriendsPokeCount,
+                soulmatesPokeCount
+            );
+        }
+
+        return UserResponse.MySoptLog.ofInactive(
+            isFortuneChecked,
+            todayFortuneText,
+            totalPokeCount,
+            newFriendsPokeCount,
+            bestFriendsPokeCount,
+            soulmatesPokeCount
+        );
     }
 }

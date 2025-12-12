@@ -51,4 +51,5 @@ public class MissionResponse {
         @Schema(description = "미션 아이디", example = "1")
         private Long missionId;
     }
+
 }
