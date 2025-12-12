@@ -1,4 +1,4 @@
-package org.sopt.app.application.appjam_user;
+package org.sopt.app.application.appjamuser;
 
 import lombok.AccessLevel;
 import lombok.Builder;

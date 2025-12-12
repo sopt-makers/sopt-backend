@@ -1,4 +1,4 @@
-package org.sopt.app.application.appjam_rank;
+package org.sopt.app.application.appjamrank;
 
 import java.time.LocalDateTime;
 import java.util.Collections;

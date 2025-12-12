@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.sopt.app.application.appjam_user.AppjamUserInfo.TeamSummary;
+import org.sopt.app.application.appjamuser.AppjamUserInfo.TeamSummary;
 import org.sopt.app.domain.enums.TeamNumber;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)

@@ -10,7 +10,7 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.val;
 
-import org.sopt.app.application.appjam_rank.AppjamRankListInfo;
+import org.sopt.app.application.appjamrank.AppjamRankListInfo;
 import org.sopt.app.domain.enums.TeamNumber;
 import org.sopt.app.facade.AppjamtampFacade;
 import org.sopt.app.facade.MissionFacade;

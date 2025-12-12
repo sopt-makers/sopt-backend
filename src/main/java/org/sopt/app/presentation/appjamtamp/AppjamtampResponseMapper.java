@@ -4,7 +4,7 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import org.sopt.app.application.appjam_rank.AppjamRankListInfo;
+import org.sopt.app.application.appjamrank.AppjamRankListInfo;
 import org.sopt.app.application.mission.MissionInfo.AppjamMissionInfo;
 import org.sopt.app.application.mission.MissionInfo.AppjamMissionInfos;
 import org.sopt.app.application.stamp.StampInfo.AppjamtampView;

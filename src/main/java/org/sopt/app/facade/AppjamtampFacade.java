@@ -10,9 +10,9 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 
-import org.sopt.app.application.appjam_rank.AppjamRankListInfo;
-import org.sopt.app.application.appjam_rank.AppjamRankService;
-import org.sopt.app.application.appjam_user.AppjamUserService;
+import org.sopt.app.application.appjamrank.AppjamRankListInfo;
+import org.sopt.app.application.appjamrank.AppjamRankService;
+import org.sopt.app.application.appjamuser.AppjamUserService;
 import org.sopt.app.application.platform.PlatformService;
 import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
 import org.sopt.app.application.soptamp.SoptampUserFinder;
