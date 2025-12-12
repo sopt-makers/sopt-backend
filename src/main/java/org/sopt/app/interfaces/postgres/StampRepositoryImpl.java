@@ -1,5 +1,8 @@
 package org.sopt.app.interfaces.postgres;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
@@ -35,5 +38,38 @@ public class StampRepositoryImpl implements StampRepositoryCustom {
 		int newClapCount = ((Number)row[0]).intValue();
 		long newVersion = ((Number)row[1]).longValue();
 		return new StampCounts(newClapCount, newVersion);
+	}
+
+	private static final int TODAY_POINT_PER_STAMP = 1000;
+
+	@Override
+	public List<AppjamTodayRankSource> findTodayUserRankSources(LocalDateTime todayStart, LocalDateTime tomorrowStart) {
+		final String sql = String.format("""
+        SELECT
+            s.user_id AS user_id,
+            (COUNT(*) * :todayPointPerStamp) AS today_points,
+            MIN(s.created_at) AS first_certified_at_today
+        FROM %s.stamp s
+        WHERE s.created_at >= :todayStart
+          AND s.created_at <  :tomorrowStart
+        GROUP BY s.user_id
+        ORDER BY today_points DESC, first_certified_at_today ASC
+    """, schema);
+
+		Query query = em.createNativeQuery(sql);
+		query.setParameter("todayStart", todayStart);
+		query.setParameter("tomorrowStart", tomorrowStart);
+		query.setParameter("todayPointPerStamp", TODAY_POINT_PER_STAMP);
+
+		@SuppressWarnings("unchecked")
+		List<Object[]> rows = query.getResultList();
+
+		return rows.stream()
+			.map(row -> new AppjamTodayRankSource(
+				((Number) row[0]).longValue(),
+				((Number) row[1]).longValue(),
+				(LocalDateTime) row[2]
+			))
+			.toList();
 	}
 }

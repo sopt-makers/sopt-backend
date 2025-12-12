@@ -1,8 +1,14 @@
 package org.sopt.app.application.appjamrank;
 
+import java.time.LocalDateTime;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.domain.entity.AppjamUser;
@@ -15,12 +21,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 public class AppjamRankCalculator {
 
+	private static final int TODAY_TEAM_RANK_LIMIT = 10;
+
 	private final List<Stamp> latestStamps;
 	private final Map<Long, AppjamUser> uploaderAppjamUserByUserId;
 	private final Map<TeamNumber, AppjamUser> teamInfoByTeamNumber;
 	private final Map<Long, PlaygroundProfileInfo.PlaygroundProfile> playgroundProfileByUserId;
 
-	public List<AppjamRankListInfo.TeamRankInfo> calculateRecentTeamRanks() {
+	public List<AppjamRankInfo.TeamRank> calculateRecentTeamRanks() {
 		return latestStamps.stream()
 			.map(stamp -> {
 				AppjamUser uploaderAppjamUser = uploaderAppjamUserByUserId.get(stamp.getUserId());
@@ -35,7 +43,7 @@ public class AppjamRankCalculator {
 
 				PlaygroundProfileInfo.PlaygroundProfile playgroundProfile = playgroundProfileByUserId.get(stamp.getUserId());
 
-				return AppjamRankListInfo.TeamRankInfo.of(
+				return AppjamRankInfo.TeamRank.of(
 					stamp,
 					firstImageUrl,
 					teamInfo,
@@ -45,4 +53,93 @@ public class AppjamRankCalculator {
 			})
 			.toList();
 	}
+
+	public AppjamRankInfo.TodayTeamRankList calculateTodayTeamRanksTop10(
+		List<AppjamRankInfo.TodayRank> todayUserRanks,
+		Map<Long, Long> totalPointsByUserId,
+		List<AppjamUser> allAppjamUsers
+	) {
+		Map<Long, AppjamRankInfo.TodayRank> todayRankByUserId = todayUserRanks.stream()
+			.collect(Collectors.toMap(
+				AppjamRankInfo.TodayRank::getUserId,
+				Function.identity(),
+				(existing, replacement) -> existing,
+				LinkedHashMap::new
+			));
+
+		Map<TeamNumber, List<AppjamUser>> membersByTeamNumber = allAppjamUsers.stream()
+			.collect(Collectors.groupingBy(
+				AppjamUser::getTeamNumber,
+				LinkedHashMap::new,
+				Collectors.toList()
+			));
+
+		List<TeamAggregate> teamAggregates = membersByTeamNumber.entrySet().stream()
+			.map(entry -> aggregateTeam(
+				entry.getKey(),
+				entry.getValue(),
+				todayRankByUserId,
+				totalPointsByUserId
+			))
+			.sorted(Comparator
+				.comparingLong(TeamAggregate::todayPoints).reversed()
+				.thenComparing(TeamAggregate::firstCertifiedAtToday, Comparator.nullsLast(Comparator.naturalOrder()))
+				.thenComparing(TeamAggregate::teamNumber)
+			)
+			.limit(TODAY_TEAM_RANK_LIMIT)
+			.toList();
+
+		AtomicInteger rankCounter = new AtomicInteger(1);
+		List<AppjamRankInfo.TodayTeamRank> ranks = teamAggregates.stream()
+			.map(teamAggregate -> AppjamRankInfo.TodayTeamRank.of(
+				rankCounter.getAndIncrement(),
+				teamAggregate.teamNumber(),
+				teamAggregate.teamName(),
+				teamAggregate.todayPoints(),
+				teamAggregate.totalPoints(),
+				teamAggregate.firstCertifiedAtToday()
+			))
+			.toList();
+
+		return AppjamRankInfo.TodayTeamRankList.of(ranks);
+	}
+
+	private TeamAggregate aggregateTeam(
+		TeamNumber teamNumber,
+		List<AppjamUser> teamMembers,
+		Map<Long, AppjamRankInfo.TodayRank> todayRankByUserId,
+		Map<Long, Long> totalPointsByUserId
+	) {
+		String teamName = teamMembers.isEmpty() ? "" : teamMembers.getFirst().getTeamName();
+
+		long todayPointsSum = 0L;
+		long totalPointsSum = 0L;
+		LocalDateTime firstCertifiedAtToday = null;
+
+		for (AppjamUser teamMember : teamMembers) {
+			Long userId = teamMember.getUserId();
+
+			AppjamRankInfo.TodayRank todayRank = todayRankByUserId.get(userId);
+			if (todayRank != null) {
+				todayPointsSum += todayRank.getTodayPoints();
+
+				LocalDateTime certifiedAt = todayRank.getFirstCertifiedAtToday();
+				if (certifiedAt != null && (firstCertifiedAtToday == null || certifiedAt.isBefore(firstCertifiedAtToday))) {
+					firstCertifiedAtToday = certifiedAt;
+				}
+			}
+
+			totalPointsSum += totalPointsByUserId.getOrDefault(userId, 0L);
+		}
+
+		return new TeamAggregate(teamNumber, teamName, todayPointsSum, totalPointsSum, firstCertifiedAtToday);
+	}
+
+	private record TeamAggregate(
+		TeamNumber teamNumber,
+		String teamName,
+		long todayPoints,
+		long totalPoints,
+		LocalDateTime firstCertifiedAtToday
+	) {}
 }

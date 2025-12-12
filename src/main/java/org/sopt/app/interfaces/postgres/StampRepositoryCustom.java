@@ -1,5 +1,8 @@
 package org.sopt.app.interfaces.postgres;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 public interface StampRepositoryCustom {
 
 	/**
@@ -9,4 +12,12 @@ public interface StampRepositoryCustom {
 	StampCounts incrementClapCountReturning(Long stampId, int increment);
 
 	record StampCounts(int clapCount, long version) {}
+
+	List<AppjamTodayRankSource> findTodayUserRankSources(LocalDateTime todayStart, LocalDateTime tomorrowStart);
+
+	record AppjamTodayRankSource(
+		Long userId,
+		long todayPoints,
+		LocalDateTime firstCertifiedAtToday
+	) {}
 }

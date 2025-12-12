@@ -1,5 +1,6 @@
 package org.sopt.app.application.appjamrank;
 
+import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +12,7 @@ import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.domain.enums.TeamNumber;
 import org.sopt.app.interfaces.postgres.AppjamUserRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
+import org.sopt.app.interfaces.postgres.StampRepositoryCustom;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,18 +23,18 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class AppjamRankService {
 
-	private static final int RANK_LIMIT = 3;
+	private static final int RECENT_RANK_LIMIT = 3;
 
 	private final StampRepository stampRepository;
 	private final AppjamUserRepository appjamUserRepository;
 
-	public AppjamRankInfo findRecentTeamRanks() {
+	public AppjamRankInfo.RankAggregate findRecentTeamRanks() {
 
-		Pageable latestStampPageable = PageRequest.of(0, RANK_LIMIT);
+		Pageable latestStampPageable = PageRequest.of(0, RECENT_RANK_LIMIT);
 
 		List<Stamp> latestStamps = stampRepository.findLatestStamps(latestStampPageable);
 		if (latestStamps.isEmpty()) {
-			return AppjamRankInfo.empty();
+			return AppjamRankInfo.RankAggregate.empty();
 		}
 
 		List<Long> uploaderUserIds = latestStamps.stream()
@@ -65,11 +67,22 @@ public class AppjamRankService {
 				LinkedHashMap::new
 			));
 
-		return AppjamRankInfo.of(
+		return AppjamRankInfo.RankAggregate.of(
 			latestStamps,
 			uploaderUserIds,
 			uploaderAppjamUserByUserId,
 			teamInfoByTeamNumber
 		);
+	}
+
+	public List<StampRepositoryCustom.AppjamTodayRankSource> findTodayUserRankSources(
+		LocalDateTime todayStart,
+		LocalDateTime tomorrowStart
+	) {
+		return stampRepository.findTodayUserRankSources(todayStart, tomorrowStart);
+	}
+
+	public List<AppjamUser> findAllAppjamUsers() {
+		return appjamUserRepository.findAll();
 	}
 }
