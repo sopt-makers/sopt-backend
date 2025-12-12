@@ -1,44 +1,170 @@
 package org.sopt.app.application.appjamrank;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.domain.entity.AppjamUser;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.domain.enums.TeamNumber;
 
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-@Getter
-@Builder
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AppjamRankInfo {
 
-	private final List<Stamp> latestStamps;
-	private final List<Long> uploaderUserIds;
-	private final Map<Long, AppjamUser> uploaderAppjamUserByUserId;
-	private final Map<TeamNumber, AppjamUser> teamInfoByTeamNumber;
+	@Getter
+	@Builder
+	public static class RankAggregate {
 
-	public static AppjamRankInfo of(
-		List<Stamp> latestStamps,
-		List<Long> uploaderUserIds,
-		Map<Long, AppjamUser> uploaderAppjamUserByUserId,
-		Map<TeamNumber, AppjamUser> teamInfoByTeamNumber
-	) {
-		return AppjamRankInfo.builder()
-			.latestStamps(latestStamps)
-			.uploaderUserIds(uploaderUserIds)
-			.uploaderAppjamUserByUserId(uploaderAppjamUserByUserId)
-			.teamInfoByTeamNumber(teamInfoByTeamNumber)
-			.build();
+		private final List<Stamp> latestStamps;
+		private final List<Long> uploaderUserIds;
+		private final Map<Long, AppjamUser> uploaderAppjamUserByUserId;
+		private final Map<TeamNumber, AppjamUser> teamInfoByTeamNumber;
+
+		public static RankAggregate of(
+			List<Stamp> latestStamps,
+			List<Long> uploaderUserIds,
+			Map<Long, AppjamUser> uploaderAppjamUserByUserId,
+			Map<TeamNumber, AppjamUser> teamInfoByTeamNumber
+		) {
+			return RankAggregate.builder()
+				.latestStamps(latestStamps)
+				.uploaderUserIds(uploaderUserIds)
+				.uploaderAppjamUserByUserId(uploaderAppjamUserByUserId)
+				.teamInfoByTeamNumber(teamInfoByTeamNumber)
+				.build();
+		}
+
+		public static RankAggregate empty() {
+			return RankAggregate.builder()
+				.latestStamps(List.of())
+				.uploaderUserIds(List.of())
+				.uploaderAppjamUserByUserId(Map.of())
+				.teamInfoByTeamNumber(Map.of())
+				.build();
+		}
 	}
 
-	public static AppjamRankInfo empty() {
-		return AppjamRankInfo.builder()
-			.latestStamps(List.of())
-			.uploaderUserIds(List.of())
-			.uploaderAppjamUserByUserId(Map.of())
-			.teamInfoByTeamNumber(Map.of())
-			.build();
+	@Getter
+	@Builder
+	public static class TeamRank {
+
+		private final Long stampId;
+		private final Long missionId;
+		private final Long userId;
+		private final String imageUrl;
+		private final LocalDateTime createdAt;
+		private final String userName;
+		private final String userProfileImage;
+		private final String teamName;
+		private final TeamNumber teamNumber;
+
+		public static TeamRank of(
+			Stamp stamp,
+			String firstImageUrl,
+			AppjamUser appjamUser,
+			TeamNumber teamNumber,
+			PlaygroundProfileInfo.PlaygroundProfile playgroundProfile
+		) {
+			return TeamRank.builder()
+				.stampId(stamp.getId())
+				.missionId(stamp.getMissionId())
+				.userId(stamp.getUserId())
+				.imageUrl(firstImageUrl)
+				.createdAt(stamp.getCreatedAt())
+				.userName(playgroundProfile.getName())
+				.userProfileImage(
+					Optional.ofNullable(playgroundProfile.getProfileImage()).orElse("")
+				)
+				.teamName(appjamUser.getTeamName())
+				.teamNumber(teamNumber)
+				.build();
+		}
+	}
+
+	@Getter
+	@Builder
+	@ToString
+	public static class TodayRank {
+
+		private final Long userId;
+		private final long todayPoints;
+		private final long totalPoints;
+		private final LocalDateTime firstCertifiedAtToday;
+
+		public static TodayRank of(
+			Long userId,
+			long todayPoints,
+			long totalPoints,
+			LocalDateTime firstCertifiedAtToday
+		) {
+			return TodayRank.builder()
+				.userId(userId)
+				.todayPoints(todayPoints)
+				.totalPoints(totalPoints)
+				.firstCertifiedAtToday(firstCertifiedAtToday)
+				.build();
+		}
+	}
+
+	@Getter
+	@Builder
+	public static class RankList {
+
+		private final List<TeamRank> ranks;
+
+		public static RankList of(List<TeamRank> ranks) {
+			return RankList.builder()
+				.ranks(ranks)
+				.build();
+		}
+	}
+
+	@Getter
+	@Builder
+	public static class TodayTeamRank {
+		private final int rank;
+		private final TeamNumber teamNumber;
+		private final String teamName;
+		private final long todayPoints;
+		private final long totalPoints;
+		private final LocalDateTime firstCertifiedAtToday;
+
+		public static TodayTeamRank of(
+			int rank,
+			TeamNumber teamNumber,
+			String teamName,
+			long todayPoints,
+			long totalPoints,
+			LocalDateTime firstCertifiedAtToday
+		) {
+			return TodayTeamRank.builder()
+				.rank(rank)
+				.teamNumber(teamNumber)
+				.teamName(teamName)
+				.todayPoints(todayPoints)
+				.totalPoints(totalPoints)
+				.firstCertifiedAtToday(firstCertifiedAtToday)
+				.build();
+		}
+	}
+
+	@Getter
+	@Builder
+	public static class TodayTeamRankList {
+		private final List<TodayTeamRank> ranks;
+
+		public static TodayTeamRankList of(List<TodayTeamRank> ranks) {
+			return TodayTeamRankList.builder()
+				.ranks(ranks)
+				.build();
+		}
 	}
 }
