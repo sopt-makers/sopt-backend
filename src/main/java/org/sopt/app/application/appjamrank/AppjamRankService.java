@@ -1,10 +1,8 @@
 package org.sopt.app.application.appjamrank;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -16,7 +14,6 @@ import org.sopt.app.interfaces.postgres.StampRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,60 +26,50 @@ public class AppjamRankService {
 	private final StampRepository stampRepository;
 	private final AppjamUserRepository appjamUserRepository;
 
-	@Transactional(readOnly = true)
-	public List<AppjamRankListInfo.TeamRankInfo> getRecentTeamRankBaseInfos() {
-		Pageable top3Pageable = PageRequest.of(0, RANK_LIMIT);
+	public AppjamRankInfo findRecentTeamRanks() {
 
-		List<TeamNumber> topTeamNumbers = stampRepository.findTopTeamNumbersByLatestStamp(top3Pageable);
+		Pageable latestStampPageable = PageRequest.of(0, RANK_LIMIT);
 
-		if (topTeamNumbers.isEmpty()) {
-			return List.of();
+		List<Stamp> latestStamps = stampRepository.findLatestStamps(latestStampPageable);
+		if (latestStamps.isEmpty()) {
+			return AppjamRankInfo.empty();
 		}
 
-		Map<TeamNumber, Stamp> latestStampByTeamNumber = new LinkedHashMap<>();
-		for (TeamNumber teamNumber : topTeamNumbers) {
-			List<Stamp> stamps = stampRepository.findLatestStampByTeamNumber(
-				teamNumber,
-				PageRequest.of(0, 1)
-			);
-			stamps.stream().findFirst()
-				.ifPresent(stamp -> latestStampByTeamNumber.put(teamNumber, stamp));
-		}
+		List<Long> uploaderUserIds = latestStamps.stream()
+			.map(Stamp::getUserId)
+			.distinct()
+			.toList();
 
-		if (latestStampByTeamNumber.isEmpty()) {
-			return List.of();
-		}
+		List<AppjamUser> uploaderAppjamUsers = appjamUserRepository.findAllByUserIdIn(uploaderUserIds);
 
-		List<AppjamUser> teamInfos = appjamUserRepository.findAllByTeamNumberIn(topTeamNumbers);
-
-		Map<TeamNumber, AppjamUser> teamInfoByTeamNumber = teamInfos.stream()
+		Map<Long, AppjamUser> uploaderAppjamUserByUserId = uploaderAppjamUsers.stream()
 			.collect(Collectors.toMap(
-				AppjamUser::getTeamNumber,
-				Function.identity()
+				AppjamUser::getUserId,
+				Function.identity(),
+				(existing, replacement) -> existing,
+				LinkedHashMap::new
 			));
 
-		List<AppjamRankListInfo.TeamRankInfo> teamRankInfos = new ArrayList<>();
+		List<TeamNumber> teamNumbers = uploaderAppjamUsers.stream()
+			.map(AppjamUser::getTeamNumber)
+			.distinct()
+			.toList();
 
-		for (TeamNumber teamNumber : topTeamNumbers) {
-			Stamp stamp = latestStampByTeamNumber.get(teamNumber);
-			AppjamUser appjamUser = teamInfoByTeamNumber.get(teamNumber);
+		List<AppjamUser> teamUsers = appjamUserRepository.findAllByTeamNumberIn(teamNumbers);
 
-			String firstImageUrl = Optional.ofNullable(stamp.getImages())
-				.filter(images -> !images.isEmpty())
-				.map(images -> images.getFirst())
-				.orElse("");
+		Map<TeamNumber, AppjamUser> teamInfoByTeamNumber = teamUsers.stream()
+			.collect(Collectors.toMap(
+				AppjamUser::getTeamNumber,
+				Function.identity(),
+				(existing, replacement) -> existing,
+				LinkedHashMap::new
+			));
 
-			teamRankInfos.add(AppjamRankListInfo.TeamRankInfo.builder()
-				.stampId(stamp.getId())
-				.missionId(stamp.getMissionId())
-				.userId(stamp.getUserId())
-				.imageUrl(firstImageUrl)
-				.createdAt(stamp.getCreatedAt())
-				.teamName(appjamUser.getTeamName())
-				.teamNumber(teamNumber)
-				.build());
-		}
-
-		return teamRankInfos;
+		return AppjamRankInfo.of(
+			latestStamps,
+			uploaderUserIds,
+			uploaderAppjamUserByUserId,
+			teamInfoByTeamNumber
+		);
 	}
 }

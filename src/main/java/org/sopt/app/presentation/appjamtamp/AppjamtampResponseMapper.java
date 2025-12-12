@@ -1,5 +1,7 @@
 package org.sopt.app.presentation.appjamtamp;
 
+import java.util.List;
+
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -20,11 +22,18 @@ public interface AppjamtampResponseMapper {
 
     AppjamMissionResponses of(AppjamMissionInfos missionList);
 
-    AppjamtampResponse.AppjamtampRankListResponse of(AppjamRankListInfo appjamRankListInfo);
+    AppjamtampResponse.AppjamtampRankResponse toResponse(AppjamRankListInfo.TeamRankInfo teamRankInfo);
 
     // TeamMissionInfo to TeamMissionResponse
     @Mapping(source = "completed", target = "isCompleted")
     AppjamMissionResponse toResponse(AppjamMissionInfo info);
+
+    default AppjamtampResponse.AppjamtampRankListResponse of(AppjamRankListInfo appjamRankListInfo) {
+        List<AppjamtampResponse.AppjamtampRankResponse> ranks = appjamRankListInfo.getRanks().stream()
+            .map(this::toResponse)
+            .toList();
+        return new AppjamtampResponse.AppjamtampRankListResponse(ranks);
+    }
 
     default AppjamtampResponse.AppjamtampView of(AppjamtampView appjamtampView) {
         return AppjamtampResponse.AppjamtampView.builder()

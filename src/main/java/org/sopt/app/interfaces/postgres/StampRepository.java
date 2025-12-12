@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.sopt.app.domain.entity.soptamp.Stamp;
-import org.sopt.app.domain.enums.TeamNumber;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -31,20 +30,9 @@ public interface StampRepository extends JpaRepository<Stamp, Long>, StampReposi
     void increaseViewCount(@Param("stampId") Long stampId);
 
     @Query("""
-    select au.teamNumber
-    from Stamp s, AppjamUser au
-    where au.userId = s.userId
-    group by au.teamNumber
-    order by max(s.createdAt) desc
-    """)
-    List<TeamNumber> findTopTeamNumbersByLatestStamp(Pageable pageable);
-
-    @Query("""
     select s
-    from Stamp s, AppjamUser au
-    where au.userId = s.userId
-      and au.teamNumber = :teamNumber
+    from Stamp s
     order by s.createdAt desc
     """)
-    List<Stamp> findLatestStampByTeamNumber(@Param("teamNumber") TeamNumber teamNumber, Pageable pageable);
+    List<Stamp> findLatestStamps(Pageable pageable);
 }
