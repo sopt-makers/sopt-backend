@@ -1,12 +1,16 @@
 package org.sopt.app.interfaces.postgres;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
@@ -68,8 +72,25 @@ public class StampRepositoryImpl implements StampRepositoryCustom {
 			.map(row -> new AppjamTodayRankSource(
 				((Number) row[0]).longValue(),
 				((Number) row[1]).longValue(),
-				(LocalDateTime) row[2]
+				toLocalDateTime(row[2])
 			))
 			.toList();
+	}
+
+	private LocalDateTime toLocalDateTime(Object value) {
+		if (value == null) {
+			return null;
+		}
+		if (value instanceof LocalDateTime localDateTime) {
+			return localDateTime;
+		}
+		if (value instanceof Timestamp timestamp) {
+			return timestamp.toLocalDateTime();
+		}
+		if (value instanceof OffsetDateTime offsetDateTime) {
+			return offsetDateTime.toLocalDateTime();
+		}
+
+		throw new BadRequestException(ErrorCode.INVALID_PARAMETER);
 	}
 }
