@@ -27,13 +27,13 @@ public class AppjamRankFacade {
 	@Transactional(readOnly = true)
 	public AppjamRankListInfo findRecentTeamRanks() {
 
-		AppjamRankInfo baseResult = appjamRankService.findRecentTeamRanks();
-		if (baseResult.getLatestStamps().isEmpty()) {
+		AppjamRankInfo appjamRankInfo = appjamRankService.findRecentTeamRanks();
+		if (appjamRankInfo.getLatestStamps().isEmpty()) {
 			return AppjamRankListInfo.of(List.of());
 		}
 
 		List<PlaygroundProfileInfo.PlaygroundProfile> playgroundProfiles =
-			playgroundAuthService.getPlaygroundMemberProfiles(baseResult.getUploaderUserIds());
+			playgroundAuthService.getPlaygroundMemberProfiles(appjamRankInfo.getUploaderUserIds());
 
 		Map<Long, PlaygroundProfileInfo.PlaygroundProfile> playgroundProfileByUserId = playgroundProfiles.stream()
 			.collect(Collectors.toMap(
@@ -44,9 +44,9 @@ public class AppjamRankFacade {
 			));
 
 		AppjamRankCalculator appjamRankCalculator = new AppjamRankCalculator(
-			baseResult.getLatestStamps(),
-			baseResult.getUploaderAppjamUserByUserId(),
-			baseResult.getTeamInfoByTeamNumber(),
+			appjamRankInfo.getLatestStamps(),
+			appjamRankInfo.getUploaderAppjamUserByUserId(),
+			appjamRankInfo.getTeamInfoByTeamNumber(),
 			playgroundProfileByUserId
 		);
 
