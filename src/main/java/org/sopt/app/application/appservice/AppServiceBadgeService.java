@@ -1,10 +1,10 @@
-package org.sopt.app.application.app_service;
+package org.sopt.app.application.appservice;
 
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.application.app_service.dto.AppServiceBadgeInfo;
-import org.sopt.app.application.app_service.dto.AppServiceEntryStatusResponse;
-import org.sopt.app.application.app_service.dto.AppServiceInfo;
+import org.sopt.app.application.appservice.dto.AppServiceBadgeInfo;
+import org.sopt.app.application.appservice.dto.AppServiceEntryStatusResponse;
+import org.sopt.app.application.appservice.dto.AppServiceInfo;
 import org.springframework.stereotype.Service;
 
 @Service

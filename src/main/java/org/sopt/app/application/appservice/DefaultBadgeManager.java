@@ -1,7 +1,7 @@
-package org.sopt.app.application.app_service;
+package org.sopt.app.application.appservice;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.application.app_service.dto.AppServiceBadgeInfo;
+import org.sopt.app.application.appservice.dto.AppServiceBadgeInfo;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 

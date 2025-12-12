@@ -1,6 +1,6 @@
-package org.sopt.app.application.app_service;
+package org.sopt.app.application.appservice;
 
-import org.sopt.app.application.app_service.dto.AppServiceBadgeInfo;
+import org.sopt.app.application.appservice.dto.AppServiceBadgeInfo;
 
 public interface AppServiceBadgeManager {
 

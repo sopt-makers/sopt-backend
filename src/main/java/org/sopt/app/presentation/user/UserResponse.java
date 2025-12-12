@@ -10,7 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.sopt.app.application.app_service.dto.AppServiceInfo;
+import org.sopt.app.application.appservice.dto.AppServiceInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.domain.enums.SoptPart;
 
