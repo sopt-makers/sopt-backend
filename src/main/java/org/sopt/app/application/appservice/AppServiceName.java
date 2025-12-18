@@ -1,4 +1,4 @@
-package org.sopt.app.application.app_service;
+package org.sopt.app.application.appservice;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

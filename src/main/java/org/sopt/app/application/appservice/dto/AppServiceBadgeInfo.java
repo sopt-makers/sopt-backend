@@ -1,4 +1,4 @@
-package org.sopt.app.application.app_service.dto;
+package org.sopt.app.application.appservice.dto;
 
 import lombok.*;
 

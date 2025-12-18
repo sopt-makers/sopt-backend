@@ -1,5 +1,6 @@
 package org.sopt.app.interfaces.postgres;
 
+import org.springframework.data.domain.Pageable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -28,4 +29,10 @@ public interface StampRepository extends JpaRepository<Stamp, Long>, StampReposi
     """)
     void increaseViewCount(@Param("stampId") Long stampId);
 
+    @Query("""
+    select s
+    from Stamp s
+    order by s.createdAt desc
+    """)
+    List<Stamp> findLatestStamps(Pageable pageable);
 }

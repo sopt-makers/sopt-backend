@@ -11,6 +11,7 @@ import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampInfo.AppjamtampView;
 import org.sopt.app.application.stamp.StampService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -22,6 +23,7 @@ public class AppjamtampFacade {
     private final ClapService clapService;
     private final AppjamUserService appjamUserService;
 
+    @Transactional(readOnly = true)
     public AppjamtampView getAppjamtamps(Long requestUserId, Long missionId, String nickname) {
         val owner = soptampUserFinder.findByNickname(nickname);
         val ownerUserId = owner.getUserId();

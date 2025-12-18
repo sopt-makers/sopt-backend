@@ -1,5 +1,6 @@
 package org.sopt.app.interfaces.postgres;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.sopt.app.domain.entity.AppjamUser;
@@ -13,4 +14,8 @@ public interface AppjamUserRepository extends JpaRepository<AppjamUser, Long> {
     Optional<AppjamUser> findTopByTeamNumberOrderById(TeamNumber teamNumber);
 
     Optional<AppjamUser> findByUserId(Long userId);
+
+    List<AppjamUser> findAllByTeamNumberIn(Collection<TeamNumber> teamNumbers);
+
+    List<AppjamUser> findAllByUserIdIn(Collection<Long> userIds);
 }

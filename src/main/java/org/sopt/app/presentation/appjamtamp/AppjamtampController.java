@@ -61,5 +61,4 @@ public class AppjamtampController {
         val response = appjamtampResponseMapper.of(result);
         return ResponseEntity.ok(response);
     }
-
 }
