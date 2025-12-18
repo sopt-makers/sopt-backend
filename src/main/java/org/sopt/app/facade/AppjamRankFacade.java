@@ -16,6 +16,8 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.rank.RankCacheService;
 import org.sopt.app.domain.entity.AppjamUser;
 import org.sopt.app.interfaces.postgres.StampRepositoryCustom;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,14 +33,15 @@ public class AppjamRankFacade {
 	private final RankCacheService rankCacheService;
 
 	@Transactional(readOnly = true)
-	public AppjamRankInfo.RankList findRecentTeamRanks() {
-		AppjamRankInfo.RankAggregate aggregate = appjamRankService.findRecentTeamRanks();
+	public AppjamRankInfo.RankList findRecentTeamRanks(int size) {
+		Pageable pageable = PageRequest.of(0, size);
+
+		AppjamRankInfo.RankAggregate aggregate = appjamRankService.findRecentTeamRanks(pageable);
 		if (aggregate.getLatestStamps().isEmpty()) {
 			return AppjamRankInfo.RankList.of(List.of());
 		}
 
-		List<PlaygroundProfileInfo.PlaygroundProfile> playgroundProfiles =
-			playgroundAuthService.getPlaygroundMemberProfiles(aggregate.getUploaderUserIds());
+		List<PlaygroundProfileInfo.PlaygroundProfile> playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(aggregate.getUploaderUserIds());
 
 		Map<Long, PlaygroundProfileInfo.PlaygroundProfile> playgroundProfileByUserId = playgroundProfiles.stream()
 			.collect(Collectors.toMap(
@@ -53,17 +56,16 @@ public class AppjamRankFacade {
 			playgroundProfileByUserId
 		);
 
-		return AppjamRankInfo.RankList.of(calculator.calculateRecentTeamRanks());
+		List<AppjamRankInfo.TeamRank> ranks = calculator.calculateRecentTeamRanks(size);
+		return AppjamRankInfo.RankList.of(ranks);
 	}
 
 	@Transactional(readOnly = true)
-	public AppjamRankInfo.TodayTeamRankList findTodayTeamRanks() {
+	public AppjamRankInfo.TodayTeamRankList findTodayTeamRanks(int size) {
 
 		LocalDateTime todayStart = LocalDate.now().atStartOfDay();
 		LocalDateTime tomorrowStart = todayStart.plusDays(1);
-
 		List<AppjamRankInfo.TodayRank> todayUserRanks = findTodayUserRanks(todayStart, tomorrowStart);
-
 		Map<Long, Long> totalPointsByUserId = buildTotalPointsByUserId();
 		List<AppjamUser> allAppjamUsers = appjamRankService.findAllAppjamUsers();
 
@@ -73,10 +75,11 @@ public class AppjamRankFacade {
 			Map.of()
 		);
 
-		return calculator.calculateTodayTeamRanksTop10(
+		return calculator.calculateTodayTeamRanks(
 			todayUserRanks,
 			totalPointsByUserId,
-			allAppjamUsers
+			allAppjamUsers,
+			size
 		);
 	}
 

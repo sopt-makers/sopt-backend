@@ -11,8 +11,10 @@ import org.sopt.app.presentation.appjamtamp.AppjamtampResponseMapper;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 
 @RestController
@@ -25,14 +27,12 @@ public class AppjamRankController {
 
 	private final AppjamtampResponseMapper appjamtampResponseMapper;
 
-	@Operation(summary = "앱잼팀 랭킹 최근 인증한 미션 TOP3 조회하기")
-	@ApiResponses({
-		@ApiResponse(responseCode = "200", description = "success"),
-		@ApiResponse(responseCode = "500", description = "server error")
-	})
+	@Operation(summary = "앱잼팀 랭킹 최근 인증한 미션 TOP 조회하기")
 	@GetMapping("/recent")
-	public ResponseEntity<AppjamRankResponse.AppjamtampRankListResponse> getRecentTeamRanks() {
-		AppjamRankInfo.RankList appjamRankList = appjamRankFacade.findRecentTeamRanks();
+	public ResponseEntity<AppjamRankResponse.AppjamtampRankListResponse> getRecentTeamRanks(
+		@RequestParam(defaultValue = "3") @Min(1) int size
+	) {
+		AppjamRankInfo.RankList appjamRankList = appjamRankFacade.findRecentTeamRanks(size);
 		AppjamRankResponse.AppjamtampRankListResponse response = appjamtampResponseMapper.of(appjamRankList);
 
 		return ResponseEntity.ok(response);
@@ -44,9 +44,12 @@ public class AppjamRankController {
 		@ApiResponse(responseCode = "500", description = "server error")
 	})
 	@GetMapping("/today")
-	public ResponseEntity<AppjamRankResponse.AppjamTodayRankListResponse> getTodayTeamRanks() {
-		AppjamRankInfo.TodayTeamRankList appjamTodayTeamRankList = appjamRankFacade.findTodayTeamRanks();
+	public ResponseEntity<AppjamRankResponse.AppjamTodayRankListResponse> getTodayTeamRanks(
+		@RequestParam(defaultValue = "10") @Min(1) int size
+	) {
+		AppjamRankInfo.TodayTeamRankList appjamTodayTeamRankList = appjamRankFacade.findTodayTeamRanks(size);
 		AppjamRankResponse.AppjamTodayRankListResponse response = appjamtampResponseMapper.of(appjamTodayTeamRankList);
+
 		return ResponseEntity.ok(response);
 	}
 }

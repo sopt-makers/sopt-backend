@@ -11,7 +11,6 @@ import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.interfaces.postgres.AppjamUserRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.interfaces.postgres.StampRepositoryCustom;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -20,16 +19,12 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 public class AppjamRankService {
-
-	private static final int RECENT_RANK_LIMIT = 3;
-
 	private final StampRepository stampRepository;
 	private final AppjamUserRepository appjamUserRepository;
 
-	public AppjamRankInfo.RankAggregate findRecentTeamRanks() {
-		Pageable latestStampPageable = PageRequest.of(0, RECENT_RANK_LIMIT);
+	public AppjamRankInfo.RankAggregate findRecentTeamRanks(Pageable pageable) {
 
-		List<Stamp> latestStamps = stampRepository.findLatestStamps(latestStampPageable);
+		List<Stamp> latestStamps = stampRepository.findLatestStamps(pageable);
 		if (latestStamps.isEmpty()) {
 			return AppjamRankInfo.RankAggregate.empty();
 		}
