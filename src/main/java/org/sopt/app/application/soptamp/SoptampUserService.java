@@ -30,7 +30,7 @@ public class SoptampUserService {
     private final AppjamUserRepository appjamUserRepository;
     private final RankCacheService rankCacheService;
 
-    @Value("${app.soptamp.appjam-mode:false}")
+    @Value("${makers.app.soptamp.appjam-mode:false}")
     private boolean appjamMode;
 
     /* ==================== 조회/프로필 ==================== */
