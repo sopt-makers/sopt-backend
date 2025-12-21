@@ -1,331 +1,429 @@
-// package org.sopt.app.application;
-//
-// import static org.assertj.core.api.Assertions.assertThat;
-// import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-// import static org.junit.jupiter.api.Assertions.assertThrows;
-// import static org.mockito.ArgumentMatchers.*;
-// import static org.mockito.BDDMockito.given;
-// import static org.mockito.Mockito.mock;
-// import static org.mockito.Mockito.never;
-// import static org.mockito.Mockito.times;
-// import static org.mockito.Mockito.verify;
-// import static org.mockito.Mockito.when;
-// import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_1;
-//
-// import java.util.List;
-// import java.util.Optional;
-// import org.junit.jupiter.api.Assertions;
-// import org.junit.jupiter.api.DisplayName;
-// import org.junit.jupiter.api.Test;
-// import org.junit.jupiter.api.extension.ExtendWith;
-// import org.mockito.ArgumentCaptor;
-// import org.mockito.InjectMocks;
-// import org.mockito.Mock;
-// import org.mockito.junit.jupiter.MockitoExtension;
-// import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.ActivityCardinalInfo;
-// import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
-// import org.sopt.app.application.rank.RankCacheService;
-// import org.sopt.app.application.soptamp.SoptampUserInfo;
-// import org.sopt.app.application.soptamp.SoptampUserService;
-// import org.sopt.app.common.exception.BadRequestException;
-// import org.sopt.app.domain.enums.PlaygroundPart;
-// import org.sopt.app.interfaces.postgres.SoptampUserRepository;
-// import org.sopt.app.domain.entity.soptamp.SoptampUser;
-//
-// @ExtendWith(MockitoExtension.class)
-// class SoptampUserServiceTest {
-//
-//     @Mock
-//     private SoptampUserRepository soptampUserRepository;
-//
-//     @Mock
-//     private RankCacheService rankCacheService;
-//
-//     @InjectMocks
-//     private SoptampUserService soptampUserService;
-//
-//     @Test
-//     @DisplayName("SUCCESS_솝탬프 유저 정보 조회")
-//     void SUCCESS_getSoptampUserInfo() {
-//         //given
-//         final Long id = 1L;
-//         final Long anyUserId = anyLong();
-//         final String profileMessage = "profileMessage";
-//         final Long totalPoints = 100L;
-//         final String nickname = "nickname";
-//
-//         Optional<SoptampUser> soptampUser = Optional.of(SoptampUser.builder()
-//                 .id(id)
-//                 .userId(anyUserId)
-//                 .profileMessage(profileMessage)
-//                 .totalPoints(totalPoints)
-//                 .nickname(nickname)
-//                 .build());
-//
-//         //when
-//         SoptampUserInfo expected = SoptampUserInfo.builder()
-//                 .id(id)
-//                 .userId(anyUserId)
-//                 .profileMessage(profileMessage)
-//                 .totalPoints(totalPoints)
-//                 .nickname(nickname)
-//                 .build();
-//
-//         when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(soptampUser);
-//         SoptampUserInfo result = soptampUserService.getSoptampUserInfo(anyUserId);
-//         //then
-//
-//         assertThat(result).usingRecursiveComparison().isEqualTo(expected);
-//     }
-//
-//     @Test
-//     @DisplayName("FAIL_솝탬프 유저 정보 조회")
-//     void FAIL_getSoptampUserInfo() {
-//         //given
-//         final Long anyUserId = anyLong();
-//
-//         //when
-//         when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.empty());
-//
-//         //then
-//         assertThrows(BadRequestException.class, () -> {
-//             soptampUserService.getSoptampUserInfo(anyUserId);
-//         });
-//     }
-//
-//     @Test
-//     @DisplayName("SUCCESS_프로필 메시지 변경")
-//     void SUCCESS_editProfileMessage() {
-//         //given
-//         final String newProfileMessage = "newProfileMessage";
-//         final SoptampUser editedSoptampUser = SoptampUser.builder()
-//                 .id(SOPTAMP_USER_1.getId())
-//                 .userId(SOPTAMP_USER_1.getUserId())
-//                 .nickname(SOPTAMP_USER_1.getNickname())
-//                 .totalPoints(SOPTAMP_USER_1.getTotalPoints())
-//                 .part(PlaygroundPart.SERVER)
-//                 .profileMessage(newProfileMessage)
-//                 .build();
-//
-//         given(soptampUserRepository.findByUserId(anyLong())).willReturn(Optional.of(editedSoptampUser));
-//
-//         // when
-//         String result = soptampUserService.editProfileMessage(SOPTAMP_USER_1.getUserId(), newProfileMessage)
-//                 .getProfileMessage();
-//
-//         //then
-//         Assertions.assertEquals(newProfileMessage, result);
-//     }
-//
-//     @Test
-//     @DisplayName("SUCCESS_기존 솝탬프 유저가 없다면 새로 생성")
-//     void SUCCESS_upsertSoptampUserIfEmpty() {
-//         //given
-//         given(soptampUserRepository.findByUserId(anyLong())).willReturn(Optional.empty());
-//         PlaygroundProfile profile = PlaygroundProfile.builder()
-//                 .name("name")
-//                 .activities(List.of(new ActivityCardinalInfo("35,서버")))
-//                 .build();
-//         Long userId = 1L;
-//         //when
-//         soptampUserService.upsertSoptampUser(profile, userId);
-//         String expectedNickname = profile.getLatestActivity().getPlaygroundPart().getShortedPartName()+ profile.getName();
-//
-//         //then
-//         ArgumentCaptor<SoptampUser> captor = ArgumentCaptor.forClass(SoptampUser.class);
-//         verify(soptampUserRepository, times(1)).existsByNickname(anyString());
-//         verify(soptampUserRepository, times(1)).save(captor.capture());
-//         assertThat(captor.getValue().getUserId()).isEqualTo(userId);
-//         assertThat(captor.getValue().getNickname()).isEqualTo(expectedNickname);
-//         assertThat(captor.getValue().getPart().getPartName())
-//                 .isEqualTo(profile.getLatestActivity().getPlaygroundPart().getPartName());
-//         assertThat(captor.getValue().getGeneration()).isEqualTo(profile.getLatestActivity().getGeneration());
-//     }
-//
-//     @Test
-//     void 기존_솝탬프_유저가_없다면_새로_생성_닉네임_중복시_suffix_추가() {
-//         //given
-//         Long userId = 1L;
-//         PlaygroundProfile profile = PlaygroundProfile.builder()
-//                 .name("name")
-//                 .activities(List.of(new ActivityCardinalInfo("35,서버")))
-//                 .build();
-//         given(soptampUserRepository.findByUserId(anyLong())).willReturn(Optional.empty());
-//         given(soptampUserRepository.existsByNickname(
-//                 profile.getLatestActivity().getPlaygroundPart().getShortedPartName() + profile.getName()))
-//                 .willReturn(true);
-//         given(soptampUserRepository.existsByNickname(
-//                 profile.getLatestActivity().getPlaygroundPart().getShortedPartName() + profile.getName() + 'A'))
-//                 .willReturn(true);
-//
-//         //when
-//         soptampUserService.upsertSoptampUser(profile, userId);
-//         String expectedNickname =
-//                 profile.getLatestActivity().getPlaygroundPart().getShortedPartName() + profile.getName() + 'B';
-//
-//         //then
-//         ArgumentCaptor<SoptampUser> captor = ArgumentCaptor.forClass(SoptampUser.class);
-//         verify(soptampUserRepository, times(3)).existsByNickname(anyString());
-//         verify(soptampUserRepository, times(1)).save(captor.capture());
-//         assertThat(captor.getValue().getUserId()).isEqualTo(userId);
-//         assertThat(captor.getValue().getNickname()).isEqualTo(expectedNickname);
-//         assertThat(captor.getValue().getPart().getPartName())
-//                 .isEqualTo(profile.getLatestActivity().getPlaygroundPart().getPartName());
-//         assertThat(captor.getValue().getGeneration()).isEqualTo(profile.getLatestActivity().getGeneration());
-//     }
-//
-//     @Test
-//     void 기존_솝탬프_유저가_없다면_새로_생성_닉네임_중복시_suffix_추가_모든_suffix_사용시_에러() {
-//         //given
-//         Long userId = 1L;
-//         PlaygroundProfile profile = PlaygroundProfile.builder()
-//                 .name("name")
-//                 .activities(List.of(new ActivityCardinalInfo("35,서버")))
-//                 .build();
-//         given(soptampUserRepository.findByUserId(userId)).willReturn(Optional.empty());
-//         given(soptampUserRepository.existsByNickname(anyString())).willReturn(true);
-//
-//         //when & then
-//         assertThrows(BadRequestException.class, () -> soptampUserService.upsertSoptampUser(profile, userId));
-//     }
-//
-//     @Test
-//     void 기존_솝탬프_유저가_있고_기수가_변경되었다면_업데이트() {
-//         //given
-//         Long userId = 1L;
-//         PlaygroundProfile profile = PlaygroundProfile.builder()
-//                 .name("name")
-//                 .activities(List.of(new ActivityCardinalInfo("36,아요"))) // 기수와 파트가 변경됨
-//                 .build();
-//         SoptampUser existingUser = mock(SoptampUser.class);
-//         given(soptampUserRepository.findByUserId(anyLong())).willReturn(Optional.of(existingUser));
-//
-//         //when
-//         soptampUserService.upsertSoptampUser(profile, userId);
-//
-//         //then
-//         verify(existingUser, times(1)).updateChangedGenerationInfo(anyLong(), any(), anyString());
-//     }
-//
-//     @Test
-//     void 기존_솝탬프_유저가_있고_기수가_변경되지_않았다면_변경하지_않음() {
-//         //given
-//         SoptampUser existingUser = mock(SoptampUser.class);
-//         Long userId = 1L;
-//         PlaygroundProfile profile = PlaygroundProfile.builder()
-//                 .name("name")
-//                 .activities(List.of(new ActivityCardinalInfo("36,아요")))
-//                 .build();
-//         given(soptampUserRepository.findByUserId(userId)).willReturn(Optional.of(existingUser));
-//         given(existingUser.getGeneration()).willReturn(36L);
-//
-//         //when
-//         soptampUserService.upsertSoptampUser(profile, userId);
-//
-//         //then
-//         verify(soptampUserRepository, times(1)).findByUserId(userId);
-//         verify(existingUser, never()).updateChangedGenerationInfo(anyLong(), any(), anyString());
-//         verify(soptampUserRepository, never()).save(any(SoptampUser.class));
-//     }
-//
-//     @Test
-//     @DisplayName("SUCCESS_미션 레벨별로 유저의 포인트 추가")
-//     void SUCCESS_addPointByLevel() {
-//         //given
-//         final Long anyUserId = anyLong();
-//         final Integer level = 1;
-//         final Long soptampUserTotalPoints = 100L;
-//         final SoptampUser oldSoptampUser = SoptampUser.builder()
-//                 .userId(anyUserId)
-//                 .totalPoints(soptampUserTotalPoints)
-//                 .build();
-//         //when
-//
-//         when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.of(oldSoptampUser));
-//
-//         //then
-//         assertDoesNotThrow(() -> soptampUserService.addPointByLevel(anyUserId, level));
-//     }
-//
-//     @Test
-//     @DisplayName("FAIL_유저를 찾지 못하면 BadRequestException 발생")
-//     void FAIL_addPointByLevel() {
-//         //given
-//         final Long anyUserId = anyLong();
-//
-//         //when
-//         when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.empty());
-//
-//         //then
-//         assertThrows(BadRequestException.class, () -> {
-//             soptampUserService.addPointByLevel(anyUserId, 1);
-//         });
-//     }
-//
-//     @Test
-//     @DisplayName("SUCCESS_미션 레벨별로 유저의 포인트 감소")
-//     void SUCCESS_subtractPointByLevel() {
-//         //given
-//         final Long anyUserId = anyLong();
-//         final Integer level = 1;
-//         final Long soptampUserTotalPoints = 100L;
-//         final SoptampUser oldSoptampUser = SoptampUser.builder()
-//                 .userId(anyUserId)
-//                 .totalPoints(soptampUserTotalPoints)
-//                 .build();
-//
-//         //when
-//         when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.of(oldSoptampUser));
-//
-//         //then
-//         assertDoesNotThrow(()-> soptampUserService.subtractPointByLevel(anyUserId, level));
-//     }
-//
-//     @Test
-//     @DisplayName("FAIL_유저를 찾지 못하면 BadRequestException 발생")
-//     void FAIL_subtractPointByLevel() {
-//         //given
-//         final Long anyUserId = anyLong();
-//
-//         //when
-//         when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.empty());
-//
-//         //then
-//         assertThrows(BadRequestException.class, () -> {
-//             soptampUserService.subtractPointByLevel(anyUserId, 1);
-//         });
-//     }
-//
-//     @Test
-//     @DisplayName("SUCCESS_포인트 초기화")
-//     void SUCCESS_initPoint() {
-//         //given
-//         final Long anyUserId = anyLong();
-//         final SoptampUser soptampUser = SoptampUser.builder()
-//                 .userId(anyUserId)
-//                 .build();
-//
-//         //when
-//         when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.of(soptampUser));
-//         when(soptampUserRepository.save(any(SoptampUser.class))).thenReturn(soptampUser);
-//
-//         //then
-//         assertDoesNotThrow(() -> {
-//             soptampUserService.initPoint(anyUserId);
-//         });
-//     }
-//
-//     @Test
-//     @DisplayName("FAIL_포인트 초기화")
-//     void FAIL_initPoint() {
-//         //given
-//         final Long anyUserId = anyLong();
-//
-//         //when
-//         when(soptampUserRepository.findByUserId(anyUserId)).thenReturn(Optional.empty());
-//
-//         //then
-//         assertThrows(BadRequestException.class, () -> soptampUserService.initPoint(anyUserId));
-//     }
-//
-// }
+package org.sopt.app.application;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
+import org.sopt.app.application.rank.RankCacheService;
+import org.sopt.app.application.soptamp.SoptampUserService;
+import org.sopt.app.domain.entity.AppjamUser;
+import org.sopt.app.domain.entity.soptamp.SoptampUser;
+import org.sopt.app.domain.enums.SoptPart;
+import org.sopt.app.domain.enums.TeamNumber;
+import org.sopt.app.interfaces.postgres.AppjamUserRepository;
+import org.sopt.app.interfaces.postgres.SoptampUserRepository;
+import org.springframework.test.util.ReflectionTestUtils;
+
+@ExtendWith(MockitoExtension.class)
+class SoptampUserServiceTest {
+
+	@Mock
+	SoptampUserRepository soptampUserRepository;
+
+	@Mock
+	AppjamUserRepository appjamUserRepository;
+
+	@Mock
+	RankCacheService rankCacheService;
+
+	@InjectMocks
+	SoptampUserService soptampUserService;
+
+	private PlatformUserInfoResponse buildProfile(String name, int lastGeneration, String part) {
+		PlatformUserInfoResponse.SoptActivities latest =
+			new PlatformUserInfoResponse.SoptActivities(
+				1,                // activityId
+				lastGeneration,   // generation
+				part,             // part
+				"아무팀"            // team (여기선 안 씀)
+			);
+
+		return new PlatformUserInfoResponse(
+			1,                  // userId
+			name,
+			null, null, null, null,
+			lastGeneration,
+			List.of(latest)
+		);
+	}
+
+	@BeforeEach
+	void setUp() {
+		// 기본은 NORMAL 모드로 두고, 테스트에서 필요할 때 변경
+		ReflectionTestUtils.setField(soptampUserService, "appjamMode", false);
+	}
+
+	/* ==================== NORMAL 모드 테스트 ==================== */
+
+	@Test
+	@DisplayName("NORMAL 모드 - 프로필이 null이면 아무 동작도 하지 않는다")
+	void 일반모드_프로필널이면_동작없음() {
+		// given
+		long userId = 1L;
+
+		// when
+		soptampUserService.upsertSoptampUser(null, userId);
+
+		// then
+		verifyNoInteractions(soptampUserRepository, appjamUserRepository, rankCacheService);
+	}
+
+	@Test
+	@DisplayName("NORMAL 모드 - 활동 내역이 없으면 아무 동작도 하지 않는다")
+	void 일반모드_활동내역없으면_동작없음() {
+		// given
+		long userId = 1L;
+
+		PlatformUserInfoResponse profile = new PlatformUserInfoResponse(
+			1,
+			"김솝트",
+			null, null, null, null,
+			37,
+			Collections.emptyList() // soptActivities 비어있음 → getLatestActivity() = null
+		);
+
+		// when
+		soptampUserService.upsertSoptampUser(profile, userId);
+
+		// then
+		verifyNoInteractions(soptampUserRepository, appjamUserRepository, rankCacheService);
+	}
+
+	@Test
+	@DisplayName("NORMAL 모드 - SoptampUser가 없으면 파트+이름 기반 닉네임으로 새 유저를 생성한다")
+	void 일반모드_신규유저면_파트기반닉네임으로_생성() {
+		// given
+		ReflectionTestUtils.setField(soptampUserService, "appjamMode", false);
+
+		long userId = 1L;
+		PlatformUserInfoResponse profile = buildProfile("김솝트", 37, "서버");
+
+		when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.empty());
+		when(soptampUserRepository.existsByNickname(anyString())).thenReturn(false);
+
+		ArgumentCaptor<SoptampUser> captor = ArgumentCaptor.forClass(SoptampUser.class);
+
+		// when
+		soptampUserService.upsertSoptampUser(profile, userId);
+
+		// then
+		verify(soptampUserRepository).save(captor.capture());
+		SoptampUser saved = captor.getValue();
+
+		assertThat(saved.getUserId()).isEqualTo(userId);
+		assertThat(saved.getGeneration()).isEqualTo(37L);
+		assertThat(saved.getNickname()).contains("김솝트");
+		assertThat(saved.getNickname())
+			.startsWith(SoptPart.findSoptPartByPartName("서버").getShortedPartName());
+		assertThat(saved.getTotalPoints()).isZero();
+
+		verify(rankCacheService).createNewRank(userId);
+	}
+
+	@Test
+	@DisplayName("NORMAL 모드 - 동일 기수라면 닉네임과 포인트는 변경되지 않는다")
+	void 일반모드_기수변경없으면_업데이트안함() {
+		// given
+		ReflectionTestUtils.setField(soptampUserService, "appjamMode", false);
+
+		long userId = 1L;
+		PlatformUserInfoResponse profile = buildProfile("김솝트", 37, "서버");
+
+		SoptampUser existing = SoptampUser.builder()
+			.id(10L)
+			.userId(userId)
+			.nickname("서버김솝트")
+			.generation(37L)
+			.part(SoptPart.findSoptPartByPartName("서버"))
+			.totalPoints(100L)
+			.profileMessage("")
+			.build();
+
+		when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
+
+		// when
+		soptampUserService.upsertSoptampUser(profile, userId);
+
+		// then
+		assertThat(existing.getNickname()).isEqualTo("서버김솝트");
+		assertThat(existing.getGeneration()).isEqualTo(37L);
+		assertThat(existing.getTotalPoints()).isEqualTo(100L);
+
+		verify(rankCacheService, never()).removeRank(anyLong());
+		verify(rankCacheService, never()).createNewRank(anyLong());
+	}
+
+	@Test
+	@DisplayName("NORMAL 모드 - 기수가 변경되면 닉네임을 재생성하고 포인트를 초기화한다")
+	void 일반모드_기수변경되면_닉네임재생성과_포인트리셋() {
+		// given
+		ReflectionTestUtils.setField(soptampUserService, "appjamMode", false);
+
+		long userId = 1L;
+		PlatformUserInfoResponse profile = buildProfile("김솝트", 38, "서버");
+
+		SoptampUser existing = SoptampUser.builder()
+			.id(10L)
+			.userId(userId)
+			.nickname("서버김솝트")
+			.generation(37L)
+			.part(SoptPart.findSoptPartByPartName("서버"))
+			.totalPoints(120L)
+			.profileMessage("")
+			.build();
+
+		when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
+		when(soptampUserRepository.existsByNicknameAndUserIdNot(anyString(), anyLong()))
+			.thenReturn(false);
+
+		// when
+		soptampUserService.upsertSoptampUser(profile, userId);
+
+		// then
+		assertThat(existing.getGeneration()).isEqualTo(38L);
+		assertThat(existing.getNickname()).contains("김솝트");
+		assertThat(existing.getNickname())
+			.startsWith(SoptPart.findSoptPartByPartName("서버").getShortedPartName());
+		assertThat(existing.getTotalPoints()).isZero();
+
+		verify(rankCacheService).removeRank(userId);
+		verify(rankCacheService).createNewRank(userId);
+	}
+
+	/* ==================== APPJAM 모드 테스트 ==================== */
+
+	@Test
+	@DisplayName("APPJAM 모드 - SoptampUser가 없고 AppjamUser가 있으면 팀명+이름으로 앱잼 유저 생성")
+	void 앱잼모드_신규유저_AppjamUser있으면_팀명닉네임으로생성() {
+		// given
+		ReflectionTestUtils.setField(soptampUserService, "appjamMode", true);
+
+		long userId = 1L;
+		PlatformUserInfoResponse profile = buildProfile("김솝트", 37, "서버");
+
+		when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.empty());
+
+		AppjamUser appjamUser = new AppjamUser(
+			100L,
+			userId,
+			"비트",
+			TeamNumber.FIRST
+		);
+		when(appjamUserRepository.findByUserId(userId)).thenReturn(Optional.of(appjamUser));
+
+		when(soptampUserRepository.existsByNickname(anyString())).thenReturn(false);
+
+		ArgumentCaptor<SoptampUser> captor = ArgumentCaptor.forClass(SoptampUser.class);
+
+		// when
+		soptampUserService.upsertSoptampUser(profile, userId);
+
+		// then
+		verify(soptampUserRepository).save(captor.capture());
+		SoptampUser saved = captor.getValue();
+
+		assertThat(saved.getNickname()).startsWith("비트");
+		assertThat(saved.getNickname()).contains("김솝트");
+		assertThat(saved.getTotalPoints()).isZero();
+		assertThat(saved.getGeneration()).isEqualTo(37L);
+
+		verify(rankCacheService).createNewRank(userId);
+	}
+
+	@Test
+	@DisplayName("APPJAM 모드 - SoptampUser와 AppjamUser가 모두 없으면 기수+기+이름으로 앱잼 유저 생성")
+	void 앱잼모드_신규유저_AppjamUser없으면_기수닉네임으로생성() {
+		// given
+		ReflectionTestUtils.setField(soptampUserService, "appjamMode", true);
+
+		long userId = 1L;
+		PlatformUserInfoResponse profile = buildProfile("김솝트", 37, "서버");
+
+		when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.empty());
+		when(appjamUserRepository.findByUserId(userId)).thenReturn(Optional.empty());
+		when(soptampUserRepository.existsByNickname(anyString())).thenReturn(false);
+
+		ArgumentCaptor<SoptampUser> captor = ArgumentCaptor.forClass(SoptampUser.class);
+
+		// when
+		soptampUserService.upsertSoptampUser(profile, userId);
+
+		// then
+		verify(soptampUserRepository).save(captor.capture());
+		SoptampUser saved = captor.getValue();
+
+		assertThat(saved.getNickname()).startsWith("37기");
+		assertThat(saved.getNickname()).contains("김솝트");
+		assertThat(saved.getTotalPoints()).isZero();
+
+		verify(rankCacheService).createNewRank(userId);
+	}
+
+	@Test
+	@DisplayName("APPJAM 모드 - 기존 닉네임이 파트 기반이면 앱잼 닉네임으로 1회 마이그레이션 후 포인트 초기화")
+	void 앱잼모드_파트닉네임이면_앱잼닉네임으로변환_포인트초기화() {
+		// given
+		ReflectionTestUtils.setField(soptampUserService, "appjamMode", true);
+
+		long userId = 1L;
+		PlatformUserInfoResponse profile = buildProfile("김솝트", 37, "서버");
+
+		String partPrefix = SoptPart.findSoptPartByPartName("서버").getShortedPartName();
+
+		SoptampUser existing = SoptampUser.builder()
+			.id(10L)
+			.userId(userId)
+			.nickname(partPrefix + "김솝트") // "서버김솝트"
+			.generation(37L)
+			.part(SoptPart.findSoptPartByPartName("서버"))
+			.totalPoints(50L)
+			.profileMessage("")
+			.build();
+
+		when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
+
+		AppjamUser appjamUser = new AppjamUser(
+			100L,
+			userId,
+			"비트",
+			TeamNumber.FIRST
+		);
+		when(appjamUserRepository.findByUserId(userId)).thenReturn(Optional.of(appjamUser));
+
+		when(soptampUserRepository.existsByNicknameAndUserIdNot(anyString(), anyLong()))
+			.thenReturn(false);
+
+		// when
+		soptampUserService.upsertSoptampUser(profile, userId);
+
+		// then
+		assertThat(existing.getNickname()).startsWith("비트");
+		assertThat(existing.getNickname()).contains("김솝트");
+		assertThat(existing.getTotalPoints()).isZero();
+		assertThat(existing.getGeneration()).isEqualTo(37L);
+
+		verify(rankCacheService).updateCachedUserInfo(eq(userId), any());
+	}
+
+	@Test
+	@DisplayName("APPJAM 모드 - 기존 닉네임이 이미 앱잼 스타일이면 아무 업데이트도 하지 않는다")
+	void 앱잼모드_이미앱잼닉이면_업데이트안함() {
+		// given
+		ReflectionTestUtils.setField(soptampUserService, "appjamMode", true);
+
+		long userId = 1L;
+		PlatformUserInfoResponse profile = buildProfile("김솝트", 37, "서버");
+
+		SoptampUser existing = SoptampUser.builder()
+			.id(10L)
+			.userId(userId)
+			.nickname("비트김솝트") // 이미 앱잼 규칙
+			.generation(37L)
+			.part(SoptPart.findSoptPartByPartName("서버"))
+			.totalPoints(30L)
+			.profileMessage("")
+			.build();
+
+		when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
+
+		// when
+		soptampUserService.upsertSoptampUser(profile, userId);
+
+		// then
+		assertThat(existing.getNickname()).isEqualTo("비트김솝트");
+		assertThat(existing.getTotalPoints()).isEqualTo(30L);
+
+		verify(rankCacheService, never()).updateCachedUserInfo(anyLong(), any());
+	}
+
+	@Test
+	@DisplayName("APPJAM 모드 - 다른 유저가 같은 앱잼 닉네임을 쓰고 있으면 접미사 A를 붙여 유니크하게 만든다")
+	void 앱잼모드_닉네임충돌시_접미사A추가() {
+		// given
+		ReflectionTestUtils.setField(soptampUserService, "appjamMode", true);
+
+		long userId = 1L;
+		PlatformUserInfoResponse profile = buildProfile("김솝트", 37, "서버");
+
+		String partPrefix = SoptPart.findSoptPartByPartName("서버").getShortedPartName();
+
+		SoptampUser existing = SoptampUser.builder()
+			.id(10L)
+			.userId(userId)
+			.nickname(partPrefix + "김솝트") // "서버김솝트"
+			.generation(37L)
+			.part(SoptPart.findSoptPartByPartName("서버"))
+			.totalPoints(20L)
+			.profileMessage("")
+			.build();
+
+		when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.of(existing));
+
+		AppjamUser appjamUser = new AppjamUser(
+			100L,
+			userId,
+			"비트",
+			TeamNumber.FIRST
+		);
+		when(appjamUserRepository.findByUserId(userId)).thenReturn(Optional.of(appjamUser));
+
+		// baseNickname = "비트김솝트" 라고 가정
+		// 다른 유저가 이미 baseNickname을 쓰고 있다 → true
+		when(soptampUserRepository.existsByNicknameAndUserIdNot(eq("비트김솝트"), eq(userId)))
+			.thenReturn(true);
+		// "비트김솝트A"는 아직 아무도 안 씀 → false (stub 없으면 기본 false)
+		when(soptampUserRepository.existsByNicknameAndUserIdNot(eq("비트김솝트A"), eq(userId)))
+			.thenReturn(false);
+
+		// when
+		soptampUserService.upsertSoptampUser(profile, userId);
+
+		// then
+		assertThat(existing.getNickname()).isEqualTo("비트김솝트A");
+		assertThat(existing.getTotalPoints()).isZero();
+	}
+
+	@Test
+	@DisplayName("NORMAL 모드 - 다른 유저가 같은 파트 기반 닉네임을 쓰고 있으면 접미사 A를 붙인다")
+	void 일반모드_닉네임충돌시_접미사A추가() {
+		// given
+		ReflectionTestUtils.setField(soptampUserService, "appjamMode", false);
+
+		long userId = 1L;
+		PlatformUserInfoResponse profile = buildProfile("김솝트", 37, "서버");
+
+		when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.empty());
+
+		String partPrefix = SoptPart.findSoptPartByPartName("서버").getShortedPartName();
+		String baseNickname = partPrefix + "김솝트";
+
+		// 다른 유저가 baseNickname 사용 중
+		when(soptampUserRepository.existsByNickname(baseNickname)).thenReturn(true);
+		// baseNicknameA는 사용 안 함
+		when(soptampUserRepository.existsByNickname(baseNickname + "A")).thenReturn(false);
+
+		ArgumentCaptor<SoptampUser> captor = ArgumentCaptor.forClass(SoptampUser.class);
+
+		// when
+		soptampUserService.upsertSoptampUser(profile, userId);
+
+		// then
+		verify(soptampUserRepository).save(captor.capture());
+		SoptampUser saved = captor.getValue();
+
+		assertThat(saved.getNickname()).isEqualTo(baseNickname + "A");
+	}
+}
