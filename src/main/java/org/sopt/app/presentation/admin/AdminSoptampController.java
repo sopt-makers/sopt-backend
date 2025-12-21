@@ -3,19 +3,19 @@ package org.sopt.app.presentation.admin;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.*;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
-import org.sopt.app.domain.entity.User;
 import org.sopt.app.facade.AdminSoptampFacade;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v2/admin/soptamp")
+@SecurityRequirement(name = "Authorization")
 public class AdminSoptampController {
 
     private final AdminSoptampFacade adminSoptampFacade;
