@@ -28,12 +28,42 @@ public class AdminSoptampController {
             @ApiResponse(responseCode = "401", description = "token error", content = @Content),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @DeleteMapping(value = "/point")
+    @DeleteMapping(value = "/stamp")
     public ResponseEntity<Void> initAllMissionAndStampAndPoints(
             @RequestParam(name = "password") String password
     ) {
         validateAdmin(password);
         adminSoptampFacade.initAllMissionAndStampAndPoints();
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "포인트 전체 초기화")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @DeleteMapping(value = "/point")
+    public ResponseEntity<Void> initPoints(
+        @RequestParam(name = "password") String password
+    ) {
+        validateAdmin(password);
+        adminSoptampFacade.initPoints();
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "랭킹 캐시 초기화")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @DeleteMapping(value = "/cache")
+    public ResponseEntity<Void> initRankingCache(
+        @RequestParam(name = "password") String password
+    ) {
+        validateAdmin(password);
+        adminSoptampFacade.initRankCache();
         return ResponseEntity.ok().build();
     }
 
