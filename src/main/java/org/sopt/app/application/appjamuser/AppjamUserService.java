@@ -26,4 +26,8 @@ public class AppjamUserService {
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
         return TeamSummary.from(appjamUser);
     }
+
+    public boolean isAppjamParticipant(Long userId) {
+        return appjamUserRepository.existsByUserId(userId);
+    }
 }

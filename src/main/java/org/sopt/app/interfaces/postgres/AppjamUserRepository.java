@@ -18,4 +18,6 @@ public interface AppjamUserRepository extends JpaRepository<AppjamUser, Long> {
     List<AppjamUser> findAllByTeamNumberIn(Collection<TeamNumber> teamNumbers);
 
     List<AppjamUser> findAllByUserIdIn(Collection<Long> userIds);
+
+    boolean existsByUserId(Long userId);
 }
