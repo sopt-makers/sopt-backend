@@ -1,0 +1,74 @@
+name: Deploy Lambda to Dev
+
+on:
+  workflow_dispatch:              # 수동 실행
+  push:
+    branches:
+      - develop                    # develop 브랜치 푸시 시 자동 실행
+
+jobs:
+  deploy:
+    name: Deploy Lambda Dev
+    runs-on: ubuntu-latest
+
+    env:
+      S3_BUCKET: sopt-makers-app
+      STACK_NAME: app-dev
+      AWS_REGION: ap-northeast-2
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'corretto'
+          java-version: '17'
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get application config from S3 (선택사항)
+        run: |
+          aws s3 cp \
+            s3://${{ env.S3_BUCKET }}/dev/deploy/application-lambda-dev.yml \
+            src/main/resources/application-lambda-dev.yml
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build Lambda JAR
+        run: ./gradlew clean lambdaJar -x test
+
+      - name: Upload JAR to S3
+        run: |
+          # 빌드된 ZIP 파일 찾기
+          JAR_FILE=$(ls build/distributions/*-lambda.zip | head -1)
+          
+          # 타임스탬프 생성
+          TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
+          S3_KEY="lambda/${{ env.STACK_NAME }}-${TIMESTAMP}.zip"
+          
+          # S3 업로드
+          aws s3 cp "$JAR_FILE" "s3://${{ env.S3_BUCKET }}/$S3_KEY"
+          
+          echo "S3_KEY=$S3_KEY" >> $GITHUB_ENV
+
+      - name: Install SAM CLI
+        uses: aws-actions/setup-sam@v2
+
+      - name: Deploy with SAM
+        working-directory: ./lambda
+        run: |
+          sam deploy \
+            --config-env dev \
+            --stack-name ${{ env.STACK_NAME }} \
+            --no-fail-on-empty-changeset \
+            --parameter-overrides \
+              S3Bucket=${{ env.S3_BUCKET }} \
+              S3Key=${{ env.S3_KEY }}
