@@ -22,15 +22,6 @@ Parameters:
     Type: String
     Default: "lambda-dev"
     Description: Spring profile to use
-#  RedisHost:
-#    Type: String
-#    Description: Redis Host URL
-#  RedisPort:
-#    Type: String
-#    Description: Redis Port
-#  RedisPassword:
-#    Type: String
-#    Description: Redis Password
 
 
 Resources:
@@ -48,9 +39,6 @@ Resources:
       Environment:
         Variables:
           SPRING_PROFILES_ACTIVE: !Ref Profile
-          #          REDIS_HOST: !Ref RedisHost
-          #          REDIS_PORT: !Ref RedisPort
-          #          REDIS_PASSWORD: !Ref RedisPassword
           TZ: Asia/Seoul
           JAVA_TOOL_OPTIONS: "-XX:+TieredCompilation -XX:TieredStopAtLevel=1"
       Policies:
