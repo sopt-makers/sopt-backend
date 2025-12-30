@@ -2,6 +2,7 @@ package org.sopt.app.facade;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.appjamuser.AppjamUserInfo.AppjamUserStatus;
 import org.sopt.app.application.appjamuser.AppjamUserInfo.TeamSummary;
 import org.sopt.app.application.appjamuser.AppjamUserService;
 import org.sopt.app.application.mission.AppjamMissionService;
@@ -22,21 +23,25 @@ public class MissionFacade {
 
     @Transactional(readOnly = true)
     public AppjamMissionInfos getTeamMissions(
+        Long userId,
         @Nullable TeamNumber teamNumber,
         @Nullable Boolean complete
     ) {
         if (teamNumber == null) {
             val missions = appjamMissionService.getDisplayedMissions();
-            return AppjamMissionInfos.of(TeamSummary.empty(), missions);
+            return AppjamMissionInfos.of(AppjamUserStatus.appjamNotJoined(), TeamSummary.empty(),
+                missions);
         }
 
         val teamSummary = appjamUserService.getTeamSummaryByTeamNumber(teamNumber);
+        val appjamUserStatus = appjamUserService.getAppjamUserStatus(userId);
         if (complete != null) {
             return AppjamMissionInfos.of(
+                appjamUserStatus,
                 teamSummary,
                 appjamMissionService.getMissionsByTeamAndCondition(teamNumber, complete));
         }
-        return AppjamMissionInfos.of(teamSummary,
+        return AppjamMissionInfos.of(appjamUserStatus, teamSummary,
             appjamMissionService.getMissionsByTeam(teamNumber));
     }
 

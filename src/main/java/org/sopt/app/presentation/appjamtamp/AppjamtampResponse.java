@@ -38,6 +38,10 @@ public class AppjamtampResponse {
     @AllArgsConstructor(access = AccessLevel.PUBLIC)
     public static class AppjamMissionResponses {
 
+        @Schema(description = "요청자의 팀 번호", example = "FIRST")
+        private TeamNumber myTeamNumber;
+        @Schema(description = "앱잼 참여 여부", example = "true")
+        private boolean isAppjamJoined;
         @Schema(description = "팀 번호", example = "FIRST")
         private TeamNumber teamNumber;
         @Schema(description = "팀 이름", example = "보핏")

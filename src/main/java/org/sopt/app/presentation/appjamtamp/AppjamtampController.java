@@ -37,10 +37,11 @@ public class AppjamtampController {
     })
     @GetMapping("/mission")
     public ResponseEntity<AppjamMissionResponses> getMissions(
+        @AuthenticationPrincipal Long userId,
         @RequestParam(required = false) TeamNumber teamNumber,
         @RequestParam(required = false) Boolean isCompleted
     ) {
-        val result = missionFacade.getTeamMissions(teamNumber, isCompleted);
+        val result = missionFacade.getTeamMissions(userId, teamNumber, isCompleted);
         val response = appjamtampResponseMapper.of(result);
         return ResponseEntity.ok(response);
     }
