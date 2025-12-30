@@ -30,8 +30,14 @@ public class AppjamMissionService {
     private final StampRepository stampRepository;
     private final SoptampUserRepository soptampUserRepository;
 
+    public List<AppjamMissionInfo> getDisplayedMissions() {
+        val displayedMissions = missionRepository.findAllByDisplay(true);
+        return displayedMissions.stream()
+            .map(AppjamMissionInfo::createWhenUncompleted)
+            .toList();
+    }
 
-    public List<AppjamMissionInfo> getAllMissions(TeamNumber teamNumber) {
+    public List<AppjamMissionInfo> getMissionsByTeam(TeamNumber teamNumber) {
         val userIds = getTeamUserIds(teamNumber);
         val stampsByMissionId = getStampMapByUserIds(userIds);
         val soptampUserByUserId = getSoptampUserMapByUserIds(userIds);
@@ -42,9 +48,9 @@ public class AppjamMissionService {
             .toList();
     }
 
-    public List<AppjamMissionInfo> getMissionsByCondition(TeamNumber teamNumber,
+    public List<AppjamMissionInfo> getMissionsByTeamAndCondition(TeamNumber teamNumber,
         boolean isCompleted) {
-        List<AppjamMissionInfo> allMissions = getAllMissions(teamNumber);
+        List<AppjamMissionInfo> allMissions = getMissionsByTeam(teamNumber);
 
         return allMissions.stream()
             .filter(mission -> Objects.equals(mission.isCompleted(), isCompleted))

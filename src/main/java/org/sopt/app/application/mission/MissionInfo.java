@@ -63,6 +63,16 @@ public class MissionInfo {
                 .isCompleted(isCompleted)
                 .build();
         }
+
+        public static AppjamMissionInfo createWhenUncompleted(Mission mission) {
+            return AppjamMissionInfo.builder()
+                .id(mission.getId())
+                .title(mission.getTitle())
+                .level(mission.getLevel())
+                .profileImage(mission.getProfileImage())
+                .isCompleted(false)
+                .build();
+        }
     }
 
     @Getter

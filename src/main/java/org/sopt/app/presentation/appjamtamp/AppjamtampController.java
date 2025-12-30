@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.sopt.app.domain.enums.TeamNumber;
@@ -38,10 +37,10 @@ public class AppjamtampController {
     })
     @GetMapping("/mission")
     public ResponseEntity<AppjamMissionResponses> getMissions(
-        @RequestParam TeamNumber teamNumber,
+        @RequestParam(required = false) TeamNumber teamNumber,
         @RequestParam(required = false) Boolean isCompleted
     ) {
-        val result = missionFacade.getTeamMissions(teamNumber, Optional.ofNullable(isCompleted));
+        val result = missionFacade.getTeamMissions(teamNumber, isCompleted);
         val response = appjamtampResponseMapper.of(result);
         return ResponseEntity.ok(response);
     }

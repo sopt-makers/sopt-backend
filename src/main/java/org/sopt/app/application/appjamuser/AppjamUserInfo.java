@@ -25,5 +25,10 @@ public class AppjamUserInfo {
                 .teamName(appjamUser.getTeamName())
                 .build();
         }
+
+        public static TeamSummary empty() {
+            return TeamSummary.builder()
+                .build();
+        }
     }
 }
