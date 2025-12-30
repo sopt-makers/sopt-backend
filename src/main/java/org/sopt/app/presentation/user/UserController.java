@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
@@ -23,11 +22,13 @@ import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.utils.ActivityDurationCalculator;
 import org.sopt.app.domain.enums.IconType;
 import org.sopt.app.domain.enums.SoptPart;
+import org.sopt.app.facade.AppjamtampFacade;
 import org.sopt.app.facade.AuthFacade;
 import org.sopt.app.facade.PokeFacade;
 import org.sopt.app.facade.RankFacade;
 import org.sopt.app.facade.SoptampFacade;
 import org.sopt.app.facade.UserFacade;
+import org.sopt.app.presentation.user.UserResponse.AppjamStatusResponse;
 import org.sopt.app.presentation.user.UserResponse.SoptLog;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -52,6 +53,7 @@ public class UserController {
     private final PokeFacade pokeFacade;
     private final RankFacade rankFacade;
     private final UserFacade userFacade;
+    private final AppjamtampFacade appjamtampFacade;
     private final FortuneService fortuneService;
     private final PlatformService platformService;
 
@@ -154,5 +156,14 @@ public class UserController {
         UserResponse.MySoptLog response = userFacade.getMySoptLog(userId);
 
         return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "앱잼 팀 정보 조회")
+    @GetMapping("/appjam-info")
+    public ResponseEntity<UserResponse.AppjamStatusResponse> getTeamInfo(
+        @AuthenticationPrincipal Long userId
+    ) {
+        val result = appjamtampFacade.getAppjampStatus(userId);
+        return ResponseEntity.ok(AppjamStatusResponse.from(result));
     }
 }

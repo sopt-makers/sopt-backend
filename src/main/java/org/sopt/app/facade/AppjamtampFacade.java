@@ -3,6 +3,7 @@ package org.sopt.app.facade;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.appjamuser.AppjamUserInfo.AppjamUserStatus;
 import org.sopt.app.application.appjamuser.AppjamUserService;
 import org.sopt.app.application.mission.MissionInfo.Level;
 import org.sopt.app.application.mission.MissionService;
@@ -65,5 +66,9 @@ public class AppjamtampFacade {
         Level mission = missionService.getMissionLevelById(registerStampRequest.getMissionId());
         soptampUserService.addPointByLevel(userId, mission.getLevel());
         return result;
+    }
+
+    public AppjamUserStatus getAppjampStatus(Long userId){
+        return appjamUserService.getAppjamUserStatus(userId);
     }
 }
