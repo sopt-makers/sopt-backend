@@ -2,6 +2,7 @@ package org.sopt.app.presentation.user;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -329,6 +330,11 @@ public class UserResponse {
         private String teamName;
         @Schema(description = "앱잼 참여 여부")
         private boolean isAppjamJoined;
+
+        @JsonProperty("isAppjamJoined")
+        public boolean isAppjamJoined() {
+            return isAppjamJoined;
+        }
 
         public static AppjamStatusResponse from(AppjamUserStatus appjamUserStatus){
             return AppjamStatusResponse.builder()
