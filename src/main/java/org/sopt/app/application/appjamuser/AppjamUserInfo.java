@@ -20,14 +20,38 @@ public class AppjamUserInfo {
         private String teamName;
 
         public static TeamSummary from(AppjamUser appjamUser) {
-            return TeamSummary.builder().
-                teamNumber(appjamUser.getTeamNumber())
+            return TeamSummary.builder()
+                .teamNumber(appjamUser.getTeamNumber())
                 .teamName(appjamUser.getTeamName())
                 .build();
         }
 
         public static TeamSummary empty() {
             return TeamSummary.builder()
+                .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class AppjamUserStatus {
+
+        private TeamNumber teamNumber;
+        private String teamName;
+        private boolean isAppjamJoined;
+
+        public static AppjamUserStatus appjamJoined(AppjamUser appjamUser) {
+            return AppjamUserStatus.builder()
+                .teamNumber(appjamUser.getTeamNumber())
+                .teamName(appjamUser.getTeamName())
+                .isAppjamJoined(true)
+                .build();
+        }
+
+        public static AppjamUserStatus appjamNotJoined() {
+            return AppjamUserStatus.builder()
+                .isAppjamJoined(false)
                 .build();
         }
     }
