@@ -30,6 +30,21 @@ public class StampInfo {
         private LocalDateTime updatedAt;
         private int clapCount;
         private int viewCount;
+
+        public static StampInfo.Stamp from(org.sopt.app.domain.entity.soptamp.Stamp stamp) {
+            return Stamp.builder()
+                .id(stamp.getId())
+                .contents(stamp.getContents())
+                .images(stamp.getImages())
+                .userId(stamp.getUserId())
+                .missionId(stamp.getMissionId())
+                .activityDate(stamp.getActivityDate())
+                .createdAt(stamp.getCreatedAt())
+                .updatedAt(stamp.getUpdatedAt())
+                .clapCount(stamp.getClapCount())
+                .viewCount(stamp.getViewCount())
+                .build();
+        }
     }
 
     @Getter

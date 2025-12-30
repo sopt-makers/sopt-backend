@@ -7,7 +7,6 @@ import org.sopt.app.application.appjamuser.AppjamUserInfo.TeamSummary;
 import org.sopt.app.application.appjamuser.AppjamUserService;
 import org.sopt.app.application.mission.AppjamMissionService;
 import org.sopt.app.application.mission.MissionInfo.AppjamMissionInfos;
-import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.domain.enums.TeamNumber;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
@@ -19,7 +18,6 @@ public class MissionFacade {
 
     private final AppjamMissionService appjamMissionService;
     private final AppjamUserService appjamUserService;
-    private final MissionService missionService;
 
     @Transactional(readOnly = true)
     public AppjamMissionInfos getTeamMissions(
