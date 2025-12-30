@@ -23,6 +23,7 @@ public interface AppjamtampResponseMapper {
 
     AppjamtampResponse.StampMain of(StampInfo.Stamp stampInfo);
 
+    @Mapping(source = "appjamJoined", target = "isAppjamJoined")
     AppjamMissionResponses of(AppjamMissionInfos missionList);
 
     AppjamRankResponse.AppjamtampRankResponse toResponse(AppjamRankInfo.TeamRank teamRank);
