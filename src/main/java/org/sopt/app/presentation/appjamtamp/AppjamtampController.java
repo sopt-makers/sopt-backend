@@ -6,7 +6,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.val;
 import org.sopt.app.domain.enums.TeamNumber;
@@ -17,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,10 +39,11 @@ public class AppjamtampController {
     })
     @GetMapping("/mission")
     public ResponseEntity<AppjamMissionResponses> getMissions(
-        @RequestParam TeamNumber teamNumber,
+        @AuthenticationPrincipal Long userId,
+        @RequestParam(required = false) TeamNumber teamNumber,
         @RequestParam(required = false) Boolean isCompleted
     ) {
-        val result = missionFacade.getTeamMissions(teamNumber, Optional.ofNullable(isCompleted));
+        val result = missionFacade.getTeamMissions(userId, teamNumber, isCompleted);
         val response = appjamtampResponseMapper.of(result);
         return ResponseEntity.ok(response);
     }
@@ -58,6 +60,23 @@ public class AppjamtampController {
     ) {
         val result = appjamtampFacade.getAppjamtamps(userId, findStampRequest.getMissionId(),
             findStampRequest.getNickname());
+        val response = appjamtampResponseMapper.of(result);
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "앱잼탬프 스탬프 제출하기")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "403", description = "no team", content = @Content),
+        @ApiResponse(responseCode = "409", description = "duplicate stamp", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @PostMapping("/stamp")
+    public ResponseEntity<AppjamtampResponse.StampMain> registerMissions(
+        @AuthenticationPrincipal Long userId,
+        @Valid @RequestBody AppjamtampRequest.RegisterStampRequest request
+    ) {
+        val result = appjamtampFacade.uploadStamp(userId, request);
         val response = appjamtampResponseMapper.of(result);
         return ResponseEntity.ok(response);
     }

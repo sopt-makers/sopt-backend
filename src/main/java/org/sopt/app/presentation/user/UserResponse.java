@@ -1,21 +1,22 @@
 package org.sopt.app.presentation.user;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.sopt.app.application.appjamuser.AppjamUserInfo.AppjamUserStatus;
 import org.sopt.app.application.appservice.dto.AppServiceInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.domain.enums.SoptPart;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.sopt.app.domain.enums.TeamNumber;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserResponse {
@@ -316,6 +317,31 @@ public class UserResponse {
                 bestFriendsPokeCount,
                 soulmatesPokeCount
             );
+        }
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class AppjamStatusResponse {
+        @Schema(description = "팀 번호")
+        private TeamNumber teamNumber;
+        @Schema(description = "팀 이름")
+        private String teamName;
+        @Schema(description = "앱잼 참여 여부")
+        private boolean isAppjamJoined;
+
+        @JsonProperty("isAppjamJoined")
+        public boolean isAppjamJoined() {
+            return isAppjamJoined;
+        }
+
+        public static AppjamStatusResponse from(AppjamUserStatus appjamUserStatus){
+            return AppjamStatusResponse.builder()
+                .teamNumber(appjamUserStatus.getTeamNumber())
+                .teamName(appjamUserStatus.getTeamName())
+                .isAppjamJoined(appjamUserStatus.isAppjamJoined())
+                .build();
         }
     }
 }
