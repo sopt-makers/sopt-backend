@@ -23,7 +23,7 @@ public class AppjamStampService {
     public void checkDuplicateStamp(TeamNumber teamNumber, Long missionId) {
         val appjamUsers = appjamUserRepository.findAllByTeamNumber(teamNumber);
         val isDuplicated = stampRepository.existsByUserIdInAndMissionId(
-            appjamUsers.stream().map(AppjamUser::getId).toList(), missionId);
+            appjamUsers.stream().map(AppjamUser::getUserId).toList(), missionId);
         if (isDuplicated) {
             throw new BadRequestException(ErrorCode.DUPLICATE_STAMP);
         }
