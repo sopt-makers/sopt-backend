@@ -67,12 +67,12 @@ public class AppjamtampController {
     @Operation(summary = "앱잼탬프 스탬프 제출하기")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "success"),
-        @ApiResponse(responseCode = "401", description = "duplicate stamp"),
         @ApiResponse(responseCode = "403", description = "no team", content = @Content),
+        @ApiResponse(responseCode = "409", description = "duplicate stamp", content = @Content),
         @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @PostMapping("/stamp")
-    public ResponseEntity<AppjamtampResponse.StampMain> getMissions(
+    public ResponseEntity<AppjamtampResponse.StampMain> registerMissions(
         @AuthenticationPrincipal Long userId,
         @Valid @RequestBody AppjamtampRequest.RegisterStampRequest request
     ) {
