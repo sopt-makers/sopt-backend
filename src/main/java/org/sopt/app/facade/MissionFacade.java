@@ -2,7 +2,6 @@ package org.sopt.app.facade;
 
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.sopt.app.application.appjamuser.AppjamUserInfo.AppjamUserStatus;
 import org.sopt.app.application.appjamuser.AppjamUserInfo.TeamSummary;
 import org.sopt.app.application.appjamuser.AppjamUserService;
 import org.sopt.app.application.mission.AppjamMissionService;
@@ -25,22 +24,18 @@ public class MissionFacade {
         @Nullable TeamNumber teamNumber,
         @Nullable Boolean complete
     ) {
-        if (teamNumber == null) {
-            val missions = appjamMissionService.getDisplayedMissions();
-            return AppjamMissionInfos.of(AppjamUserStatus.appjamNotJoined(), TeamSummary.empty(),
-                missions);
-        }
-
-        val teamSummary = appjamUserService.getTeamSummaryByTeamNumber(teamNumber);
+        val teamSummary = resolveTeamSummary(userId, teamNumber);
         val appjamUserStatus = appjamUserService.getAppjamUserStatus(userId);
-        if (complete != null) {
-            return AppjamMissionInfos.of(
-                appjamUserStatus,
-                teamSummary,
-                appjamMissionService.getMissionsByTeamAndCondition(teamNumber, complete));
-        }
+
         return AppjamMissionInfos.of(appjamUserStatus, teamSummary,
-            appjamMissionService.getMissionsByTeam(teamNumber));
+            appjamMissionService.getMissions(teamSummary.getTeamNumber(), complete));
+    }
+
+    private TeamSummary resolveTeamSummary(Long userId, TeamNumber teamNumber) {
+        if (teamNumber != null) {
+            return appjamUserService.getTeamSummaryByTeamNumber(teamNumber);
+        }
+        return appjamUserService.getTeamSummaryByUserId(userId);
     }
 
 }
