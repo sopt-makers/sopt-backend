@@ -158,6 +158,7 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @Deprecated
     @Operation(summary = "앱잼 팀 정보 조회")
     @GetMapping("/appjam-info")
     public ResponseEntity<UserResponse.AppjamStatusResponse> getTeamInfo(

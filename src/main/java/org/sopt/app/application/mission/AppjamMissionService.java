@@ -19,6 +19,7 @@ import org.sopt.app.interfaces.postgres.AppjamUserRepository;
 import org.sopt.app.interfaces.postgres.MissionRepository;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -30,14 +31,30 @@ public class AppjamMissionService {
     private final StampRepository stampRepository;
     private final SoptampUserRepository soptampUserRepository;
 
-    public List<AppjamMissionInfo> getDisplayedMissions() {
+    public List<AppjamMissionInfo> getMissions(
+        @Nullable TeamNumber teamNumber,
+        @Nullable Boolean isCompleted
+    ){
+        val missions = (teamNumber != null)
+            ? getMissionsByTeam(teamNumber)
+            : getDisplayedMissions();
+
+        if (isCompleted != null) {
+            return missions.stream()
+                .filter(mission -> Objects.equals(mission.isCompleted(), isCompleted))
+                .toList();
+        }
+        return missions;
+    }
+
+    private List<AppjamMissionInfo> getDisplayedMissions() {
         val displayedMissions = missionRepository.findAllByDisplay(true);
         return displayedMissions.stream()
             .map(AppjamMissionInfo::createWhenUncompleted)
             .toList();
     }
 
-    public List<AppjamMissionInfo> getMissionsByTeam(TeamNumber teamNumber) {
+    private List<AppjamMissionInfo> getMissionsByTeam(TeamNumber teamNumber) {
         val userIds = getTeamUserIds(teamNumber);
         val stampsByMissionId = getStampMapByUserIds(userIds);
         val soptampUserByUserId = getSoptampUserMapByUserIds(userIds);
@@ -45,15 +62,6 @@ public class AppjamMissionService {
 
         return displayedMissions.stream()
             .map(mission -> toTeamMissionInfo(mission, stampsByMissionId, soptampUserByUserId))
-            .toList();
-    }
-
-    public List<AppjamMissionInfo> getMissionsByTeamAndCondition(TeamNumber teamNumber,
-        boolean isCompleted) {
-        List<AppjamMissionInfo> allMissions = getMissionsByTeam(teamNumber);
-
-        return allMissions.stream()
-            .filter(mission -> Objects.equals(mission.isCompleted(), isCompleted))
             .toList();
     }
 

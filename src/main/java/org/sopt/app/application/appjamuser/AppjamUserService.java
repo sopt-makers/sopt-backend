@@ -29,9 +29,9 @@ public class AppjamUserService {
     }
 
     public TeamSummary getTeamSummaryByUserId(Long userId) {
-        val appjamUser = appjamUserRepository.findByUserId(userId)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
-        return TeamSummary.from(appjamUser);
+        return appjamUserRepository.findByUserId(userId)
+            .map(TeamSummary::from)
+            .orElseGet(TeamSummary::empty);
     }
 
     public boolean isAppjamParticipant(Long userId) {
