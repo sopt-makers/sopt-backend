@@ -21,7 +21,7 @@ import org.sopt.app.presentation.appjamtamp.AppjamtampResponse.AppjamMissionResp
 )
 public interface AppjamtampResponseMapper {
 
-    AppjamtampResponse.StampMain of(StampInfo.Stamp stampInfo);
+    AppjamtampResponse.StampMain of(StampInfo.StampWithProfile stampInfo);
 
     @Mapping(source = "appjamJoined", target = "isAppjamJoined")
     AppjamMissionResponses of(AppjamMissionInfos missionList);
