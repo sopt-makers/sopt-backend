@@ -48,6 +48,7 @@ public interface AppjamtampResponseMapper {
             .map(teamRank -> new AppjamRankResponse.AppjamTodayTeamRankResponse(
                 teamRank.getRank(),
                 teamRank.getTeamName(),
+                teamRank.getTeamNumber(),
                 teamRank.getTodayPoints(),
                 teamRank.getTotalPoints()
             ))
