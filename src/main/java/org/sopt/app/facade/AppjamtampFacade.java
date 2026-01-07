@@ -55,7 +55,7 @@ public class AppjamtampFacade {
     }
 
     @Transactional
-    public StampInfo.Stamp uploadStamp(Long userId, RegisterStampRequest registerStampRequest) {
+    public StampInfo.StampWithProfile uploadStamp(Long userId, RegisterStampRequest registerStampRequest) {
         val appjamUserStatus = appjamUserService.getAppjamUserStatus(userId);
         if (!appjamUserStatus.isAppjamJoined()) {
             throw new BadRequestException(ErrorCode.TEAM_FORBIDDEN);
@@ -65,7 +65,9 @@ public class AppjamtampFacade {
         val result = appjamStampService.uploadStamp(registerStampRequest, userId);
         Level mission = missionService.getMissionLevelById(registerStampRequest.getMissionId());
         soptampUserService.addPointByLevel(userId, mission.getLevel());
-        return result;
+        val soptampUser = soptampUserFinder.findById(userId);
+        val userInfo = platformService.getPlatformUserInfoResponse(userId);
+        return StampInfo.StampWithProfile.of(result, soptampUser.getNickname(), userInfo.profileImage());
     }
 
     public AppjamUserStatus getAppjampStatus(Long userId){

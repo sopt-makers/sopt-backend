@@ -116,6 +116,10 @@ public class AppjamtampResponse {
         private LocalDateTime createdAt;
         @Schema(description = "스탬프 수정 일시", example = "2023-03-29T18:39:42.106369")
         private LocalDateTime updatedAt;
+        @Schema(description = "앱잼탬프 주인 닉네임", example = "서버홍길동")
+        private String ownerNickname;
+        @Schema(description = "앱잼탬프 주인 프로필 이미지", example = "example.com")
+        private String ownerProfileImage;
         @Schema(description = "미션 아이디", example = "3")
         private Long missionId;
         @Schema(description = "총 박수 횟수", example = "124")
