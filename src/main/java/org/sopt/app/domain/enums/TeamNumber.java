@@ -10,5 +10,7 @@ public enum TeamNumber {
 	SEVENTH,
 	EIGHTH,
 	NINTH,
-	TENTH
+	TENTH,
+	ELEVENTH,
+	TWELFTH
 }
