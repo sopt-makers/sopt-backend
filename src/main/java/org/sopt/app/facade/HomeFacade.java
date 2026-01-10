@@ -1,11 +1,11 @@
 package org.sopt.app.facade;
 
-import static org.sopt.app.common.utils.HtmlTagWrapper.*;
+import static org.sopt.app.common.utils.HtmlTagWrapper.wrapWithTag;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
+import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.appservice.AppServiceBadgeService;
 import org.sopt.app.application.appservice.AppServiceName;
 import org.sopt.app.application.appservice.AppServiceService;
@@ -31,8 +31,6 @@ import org.sopt.app.presentation.home.response.HomeDescriptionResponse;
 import org.sopt.app.presentation.home.response.ReviewFormResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -74,14 +72,15 @@ public class HomeFacade {
 
         // TODO : 추후 유저 생성 api response 변경해 생성 api 쪽에서 soptamp user upsert 하도록 변경
         PlatformUserInfoResponse platformUserInfo = platformService.getPlatformUserInfoResponse(userId);
-        soptampUserService.upsertSoptampUser(platformUserInfo, userId);
 
-        return appServiceService.getAllAppService().stream()
-                .filter(appServiceInfo -> isServiceVisibleToUser(appServiceInfo, status))
-                .map(appServiceInfo -> appServiceBadgeService.getAppServiceEntryStatusResponse(
-                        appServiceInfo, userId
-                ))
-                .toList();
+        List<AppServiceEntryStatusResponse> appServiceEntryStatusResponses = appServiceService.getAllAppService().stream()
+            .filter(appServiceInfo -> isServiceVisibleToUser(appServiceInfo, status))
+            .map(appServiceInfo -> appServiceBadgeService.getAppServiceEntryStatusResponse(
+                appServiceInfo, userId
+            ))
+            .toList();
+        soptampUserService.upsertSoptampUser(platformUserInfo, userId);
+        return appServiceEntryStatusResponses;
     }
 
     private List<AppServiceEntryStatusResponse> getOnlyAppServiceInfo() {
