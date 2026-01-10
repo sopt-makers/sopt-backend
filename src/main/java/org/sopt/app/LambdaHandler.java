@@ -17,6 +17,14 @@ public class LambdaHandler implements RequestStreamHandler {
     static {
         try {
             handler = SpringBootLambdaContainerHandler.getAwsProxyHandler(AppApplication.class);
+
+            // Swagger
+            SpringBootLambdaContainerHandler.getContainerConfig().addBinaryContentTypes(
+                "image/png",
+                "image/jpeg",
+                "image/gif",
+                "application/octet-stream"
+            );
         } catch (ContainerInitializationException e) {
             throw new RuntimeException("Could not initialize Spring Boot application", e);
         } catch (Exception e) {
