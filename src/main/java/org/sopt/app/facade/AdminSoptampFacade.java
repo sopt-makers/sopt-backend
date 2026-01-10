@@ -18,4 +18,14 @@ public class AdminSoptampFacade {
         stampService.deleteAll();
         soptampUserService.initAllSoptampUserPoints();
     }
+
+    @Transactional
+    public void initPoints() {
+        soptampUserService.initAllSoptampUserPoints();
+    }
+
+    @Transactional
+    public void initRankCache() {
+        soptampUserService.initSoptampRankCache();
+    }
 }

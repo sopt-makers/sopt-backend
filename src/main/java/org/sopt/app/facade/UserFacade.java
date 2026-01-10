@@ -3,22 +3,21 @@ package org.sopt.app.facade;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 
+import org.sopt.app.application.appjamuser.AppjamUserService;
 import org.sopt.app.application.fortune.FortuneService;
 import org.sopt.app.application.friend.FriendService;
 import org.sopt.app.application.platform.PlatformService;
 import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.notification.NotificationService;
-import org.sopt.app.application.app_service.AppServiceService;
+import org.sopt.app.application.appservice.AppServiceService;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.poke.PokeService;
 import org.sopt.app.application.stamp.ClapService;
 import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.application.user.UserInfo;
 import org.sopt.app.application.user.UserService;
-import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.Friendship;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.user.UserResponse;
@@ -42,6 +41,7 @@ public class UserFacade {
     private final PokeService pokeService;
     private final FortuneService fortuneService;
     private final UserService userService;
+    private final AppjamUserService appjamUserService;
 
     @Transactional(readOnly = true)
     public MainView getMainViewInfo(Long userId) {
@@ -83,6 +83,8 @@ public class UserFacade {
         UserStatus userStatus = platformService.getStatus(userId);
         boolean isActive = (userStatus == UserStatus.ACTIVE);
 
+        boolean isAppjamParticipant = appjamUserService.isAppjamParticipant(userId);
+
         boolean isFortuneChecked = fortuneService.isExistTodayFortune(userId);
         String todayFortuneText = isFortuneChecked
             ? fortuneService.getTodayFortuneWordByUserId(userId, LocalDate.now()).title()
@@ -96,13 +98,31 @@ public class UserFacade {
         int soulmatesPokeCount = friendService.sumPokeCountByFriendship(
             userId, Friendship.SOULMATE.getLowerLimit(), Friendship.SOULMATE.getUpperLimit());
 
-        if (isActive) {
+        boolean isSoptampIncluded = isActive || isAppjamParticipant;
+
+        if (isSoptampIncluded) {
             int soptampCount = stampService.getCompletedMissionCount(userId);
             int viewCount = stampService.getTotalViewCount(userId);
             int myClapCount = stampService.getTotalReceivedClapCount(userId);
             int clapCount = clapService.getTotalGivenClapCount(userId);
 
-            return UserResponse.MySoptLog.ofActive(
+            if (isActive) {
+                return UserResponse.MySoptLog.ofActive(
+                    isAppjamParticipant,
+                    isFortuneChecked,
+                    todayFortuneText,
+                    soptampCount,
+                    viewCount,
+                    myClapCount,
+                    clapCount,
+                    totalPokeCount,
+                    newFriendsPokeCount,
+                    bestFriendsPokeCount,
+                    soulmatesPokeCount
+                );
+            }
+
+            return UserResponse.MySoptLog.ofInactiveAppjamParticipant(
                 isFortuneChecked,
                 todayFortuneText,
                 soptampCount,
@@ -116,7 +136,7 @@ public class UserFacade {
             );
         }
 
-        return UserResponse.MySoptLog.ofInactive(
+        return UserResponse.MySoptLog.ofInactiveNonAppjam(
             isFortuneChecked,
             todayFortuneText,
             totalPokeCount,

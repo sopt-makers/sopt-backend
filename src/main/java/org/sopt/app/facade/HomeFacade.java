@@ -6,13 +6,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.sopt.app.application.app_service.AppServiceBadgeService;
-import org.sopt.app.application.app_service.AppServiceName;
-import org.sopt.app.application.app_service.AppServiceService;
-import org.sopt.app.application.app_service.OperationConfigService;
-import org.sopt.app.application.app_service.dto.AppServiceEntryStatusResponse;
-import org.sopt.app.application.app_service.dto.AppServiceInfo;
-import org.sopt.app.application.description.DescriptionInfo.MainDescription;
+import org.sopt.app.application.appservice.AppServiceBadgeService;
+import org.sopt.app.application.appservice.AppServiceName;
+import org.sopt.app.application.appservice.AppServiceService;
+import org.sopt.app.application.appservice.OperationConfigService;
+import org.sopt.app.application.appservice.dto.AppServiceEntryStatusResponse;
+import org.sopt.app.application.appservice.dto.AppServiceInfo;
 import org.sopt.app.application.description.DescriptionService;
 import org.sopt.app.application.meeting.MeetingResponse;
 import org.sopt.app.application.meeting.MeetingService;
@@ -25,11 +24,8 @@ import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.config.OperationConfig;
 import org.sopt.app.common.config.OperationConfigCategory;
 import org.sopt.app.common.utils.ActivityDurationCalculator;
-import org.sopt.app.domain.entity.User;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.home.MeetingParamRequest;
-import org.sopt.app.presentation.home.response.CoffeeChatResponse;
-import org.sopt.app.presentation.home.response.EmploymentPostResponse;
 import org.sopt.app.presentation.home.response.FloatingButtonResponse;
 import org.sopt.app.presentation.home.response.HomeDescriptionResponse;
 import org.sopt.app.presentation.home.response.ReviewFormResponse;
@@ -37,7 +33,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 
 @Service
 @RequiredArgsConstructor

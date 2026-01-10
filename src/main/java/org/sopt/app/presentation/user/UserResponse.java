@@ -1,21 +1,22 @@
 package org.sopt.app.presentation.user;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.sopt.app.application.app_service.dto.AppServiceInfo;
+import org.sopt.app.application.appjamuser.AppjamUserInfo.AppjamUserStatus;
+import org.sopt.app.application.appservice.dto.AppServiceInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.domain.enums.SoptPart;
-
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.sopt.app.domain.enums.TeamNumber;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class UserResponse {
@@ -34,10 +35,10 @@ public class UserResponse {
 
         public static MainView unauthenticatedMainView() {
             return MainView.builder()
-                    .user(Playground.unauthenticatedUser())
-                    .operation(Operation.defaultOperation())
-                    .isAllConfirm(false)
-                    .build();
+                .user(Playground.unauthenticatedUser())
+                .operation(Operation.defaultOperation())
+                .isAllConfirm(false)
+                .build();
         }
     }
 
@@ -57,11 +58,11 @@ public class UserResponse {
 
         public static Playground unauthenticatedUser() {
             return Playground.builder()
-                    .status("UNAUTHENTICATED")
-                    .name("")
-                    .profileImage("")
-                    .generationList(List.of())
-                    .build();
+                .status("UNAUTHENTICATED")
+                .name("")
+                .profileImage("")
+                .generationList(List.of())
+                .build();
         }
 
     }
@@ -78,9 +79,9 @@ public class UserResponse {
 
         public static Operation defaultOperation() {
             return Operation.builder()
-                    .attendanceScore(0D)
-                    .announcement("")
-                    .build();
+                .attendanceScore(0D)
+                .announcement("")
+                .build();
         }
     }
 
@@ -131,10 +132,10 @@ public class UserResponse {
 
         public static AppService of(final AppServiceInfo appServiceInfo) {
             return AppService.builder()
-                    .serviceName(appServiceInfo.getServiceName())
-                    .activeUser(appServiceInfo.getActiveUser())
-                    .inactiveUser(appServiceInfo.getInactiveUser())
-                    .build();
+                .serviceName(appServiceInfo.getServiceName())
+                .activeUser(appServiceInfo.getActiveUser())
+                .inactiveUser(appServiceInfo.getInactiveUser())
+                .build();
         }
     }
 
@@ -167,26 +168,26 @@ public class UserResponse {
         private String todayFortuneText;
 
         public static SoptLog of(int soptLevel, Long pokeCount, Long soptampRank, Long during, Boolean isActive,
-                                 List<String> icons,
-                                 PlaygroundProfile playgroundProfile,boolean partTypeToKorean,
-                                 boolean isFortuneChecked, String fortuneText) {
+            List<String> icons,
+            PlaygroundProfile playgroundProfile, boolean partTypeToKorean,
+            boolean isFortuneChecked, String fortuneText) {
             return SoptLog.builder()
-                    .soptLevel("Lv." + soptLevel)
-                    .pokeCount(pokeCount + "회")
-                    .soptampRank(soptampRank != null ? soptampRank + "등" : "공개 예정!")
-                    .userName(playgroundProfile.getName())
-                    .profileImage(playgroundProfile.getProfileImage() != null ? playgroundProfile.getProfileImage() : "")
-                    .part(playgroundProfile.getAllActivities().stream()
-                            .map(c -> c.getPlaygroundPart().getPartName())
-                            .filter(c -> !c.equals(SoptPart.NONE.getPartName()))
-                            .collect(Collectors.joining("/")))
-                    .profileMessage(playgroundProfile.getIntroduction() != null ? playgroundProfile.getIntroduction() : "")
-                    .during(during != null ? during + "개월" : "")
-                    .isActive(isActive)
-                    .icons(icons)
-                    .isFortuneChecked(isFortuneChecked)
-                    .todayFortuneText(fortuneText)
-                    .build();
+                .soptLevel("Lv." + soptLevel)
+                .pokeCount(pokeCount + "회")
+                .soptampRank(soptampRank != null ? soptampRank + "등" : "공개 예정!")
+                .userName(playgroundProfile.getName())
+                .profileImage(playgroundProfile.getProfileImage() != null ? playgroundProfile.getProfileImage() : "")
+                .part(playgroundProfile.getAllActivities().stream()
+                    .map(c -> c.getPlaygroundPart().getPartName())
+                    .filter(c -> !c.equals(SoptPart.NONE.getPartName()))
+                    .collect(Collectors.joining("/")))
+                .profileMessage(playgroundProfile.getIntroduction() != null ? playgroundProfile.getIntroduction() : "")
+                .during(during != null ? during + "개월" : "")
+                .isActive(isActive)
+                .icons(icons)
+                .isFortuneChecked(isFortuneChecked)
+                .todayFortuneText(fortuneText)
+                .build();
         }
     }
 
@@ -202,6 +203,9 @@ public class UserResponse {
 
         @Schema(description = "활동 기수 여부")
         boolean isActive,
+
+        @Schema(description = "앱잼 참여 여부")
+        boolean isAppjamParticipant,
 
         @Schema(description = "오늘의 운세 확인 여부")
         boolean isFortuneChecked,
@@ -234,7 +238,7 @@ public class UserResponse {
         int soulmatesPokeCount
     ) {
 
-        public static MySoptLog ofInactive(
+        public static MySoptLog ofInactiveNonAppjam(
             boolean isFortuneChecked,
             String todayFortuneText,
             int totalPokeCount,
@@ -243,6 +247,7 @@ public class UserResponse {
             int soulmatesPokeCount
         ) {
             return new MySoptLog(
+                false,
                 false,
                 isFortuneChecked,
                 todayFortuneText,
@@ -257,7 +262,36 @@ public class UserResponse {
             );
         }
 
+        public static MySoptLog ofInactiveAppjamParticipant(
+            boolean isFortuneChecked,
+            String todayFortuneText,
+            int soptampCount,
+            int viewCount,
+            int myClapCount,
+            int clapCount,
+            int totalPokeCount,
+            int newFriendsPokeCount,
+            int bestFriendsPokeCount,
+            int soulmatesPokeCount
+        ) {
+            return new MySoptLog(
+                false,
+                true,
+                isFortuneChecked,
+                todayFortuneText,
+                soptampCount,
+                viewCount,
+                myClapCount,
+                clapCount,
+                totalPokeCount,
+                newFriendsPokeCount,
+                bestFriendsPokeCount,
+                soulmatesPokeCount
+            );
+        }
+
         public static MySoptLog ofActive(
+            boolean isAppjamParticipant,
             boolean isFortuneChecked,
             String todayFortuneText,
             int soptampCount,
@@ -271,6 +305,7 @@ public class UserResponse {
         ) {
             return new MySoptLog(
                 true,
+                isAppjamParticipant,
                 isFortuneChecked,
                 todayFortuneText,
                 soptampCount,
@@ -282,6 +317,31 @@ public class UserResponse {
                 bestFriendsPokeCount,
                 soulmatesPokeCount
             );
+        }
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    public static class AppjamStatusResponse {
+        @Schema(description = "팀 번호")
+        private TeamNumber teamNumber;
+        @Schema(description = "팀 이름")
+        private String teamName;
+        @Schema(description = "앱잼 참여 여부")
+        private boolean isAppjamJoined;
+
+        @JsonProperty("isAppjamJoined")
+        public boolean isAppjamJoined() {
+            return isAppjamJoined;
+        }
+
+        public static AppjamStatusResponse from(AppjamUserStatus appjamUserStatus){
+            return AppjamStatusResponse.builder()
+                .teamNumber(appjamUserStatus.getTeamNumber())
+                .teamName(appjamUserStatus.getTeamName())
+                .isAppjamJoined(appjamUserStatus.isAppjamJoined())
+                .build();
         }
     }
 }

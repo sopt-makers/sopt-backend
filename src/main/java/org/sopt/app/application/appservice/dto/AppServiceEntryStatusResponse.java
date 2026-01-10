@@ -1,7 +1,7 @@
-package org.sopt.app.application.app_service.dto;
+package org.sopt.app.application.appservice.dto;
 
 import lombok.*;
-import org.sopt.app.application.app_service.AppServiceName;
+import org.sopt.app.application.appservice.AppServiceName;
 
 @Builder
 @Getter

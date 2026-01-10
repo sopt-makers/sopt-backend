@@ -1,7 +1,7 @@
-package org.sopt.app.application.app_service;
+package org.sopt.app.application.appservice;
 
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.application.app_service.dto.AppServiceBadgeInfo;
+import org.sopt.app.application.appservice.dto.AppServiceBadgeInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.domain.enums.Part;
 import org.sopt.app.domain.enums.SoptPart;

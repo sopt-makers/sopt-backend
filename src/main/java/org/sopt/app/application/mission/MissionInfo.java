@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.sopt.app.application.appjamuser.AppjamUserInfo.AppjamUserStatus;
 import org.sopt.app.application.appjamuser.AppjamUserInfo.TeamSummary;
 import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.domain.enums.TeamNumber;
@@ -63,6 +64,16 @@ public class MissionInfo {
                 .isCompleted(isCompleted)
                 .build();
         }
+
+        public static AppjamMissionInfo createWhenUncompleted(Mission mission) {
+            return AppjamMissionInfo.builder()
+                .id(mission.getId())
+                .title(mission.getTitle())
+                .level(mission.getLevel())
+                .profileImage(mission.getProfileImage())
+                .isCompleted(false)
+                .build();
+        }
     }
 
     @Getter
@@ -70,15 +81,20 @@ public class MissionInfo {
     @ToString
     public static class AppjamMissionInfos {
 
+        private TeamNumber myTeamNumber;
+        private boolean isAppjamJoined;
         private TeamNumber teamNumber;
         private String teamName;
         private List<AppjamMissionInfo> missions;
 
         public static AppjamMissionInfos of(
+            AppjamUserStatus appjamUserStatus,
             TeamSummary teamSummary,
             List<AppjamMissionInfo> missions
         ) {
             return AppjamMissionInfos.builder()
+                .myTeamNumber(appjamUserStatus.getTeamNumber())
+                .isAppjamJoined(appjamUserStatus.isAppjamJoined())
                 .teamNumber(teamSummary.getTeamNumber())
                 .teamName(teamSummary.getTeamName())
                 .missions(missions)

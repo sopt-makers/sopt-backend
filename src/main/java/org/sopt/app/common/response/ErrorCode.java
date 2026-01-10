@@ -61,8 +61,9 @@ public enum ErrorCode {
     // MISSION
     MISSION_NOT_FOUND("존재하지 않는 미션입니다.", HttpStatus.NOT_FOUND),
 
-    //TEAM
+    // TEAM
     TEAM_NOT_FOUND("존재하지 않는 팀입니다.", HttpStatus.NOT_FOUND),
+    TEAM_FORBIDDEN("해당 팀에 대한 권한이 없습니다.", HttpStatus.FORBIDDEN),
 
     // STAMP
     STAMP_NOT_FOUND("존재하지 않는 스탬프입니다.", HttpStatus.BAD_REQUEST),

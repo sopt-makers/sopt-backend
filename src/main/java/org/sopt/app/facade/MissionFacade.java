@@ -1,12 +1,13 @@
 package org.sopt.app.facade;
 
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
+import org.sopt.app.application.appjamuser.AppjamUserInfo.TeamSummary;
 import org.sopt.app.application.appjamuser.AppjamUserService;
 import org.sopt.app.application.mission.AppjamMissionService;
 import org.sopt.app.application.mission.MissionInfo.AppjamMissionInfos;
 import org.sopt.app.domain.enums.TeamNumber;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,16 +20,22 @@ public class MissionFacade {
 
     @Transactional(readOnly = true)
     public AppjamMissionInfos getTeamMissions(
-        TeamNumber teamNumber,
-        Optional<Boolean> complete
+        Long userId,
+        @Nullable TeamNumber teamNumber,
+        @Nullable Boolean complete
     ) {
-        val teamSummary = appjamUserService.getTeamSummaryByTeamNumber(teamNumber);
-        if (complete.isPresent()) {
-            return AppjamMissionInfos.of(
-                teamSummary,
-                appjamMissionService.getMissionsByCondition(teamNumber, complete.get()));
+        val teamSummary = resolveTeamSummary(userId, teamNumber);
+        val appjamUserStatus = appjamUserService.getAppjamUserStatus(userId);
+
+        return AppjamMissionInfos.of(appjamUserStatus, teamSummary,
+            appjamMissionService.getMissions(teamSummary.getTeamNumber(), complete));
+    }
+
+    private TeamSummary resolveTeamSummary(Long userId, TeamNumber teamNumber) {
+        if (teamNumber != null) {
+            return appjamUserService.getTeamSummaryByTeamNumber(teamNumber);
         }
-        return AppjamMissionInfos.of(teamSummary, appjamMissionService.getAllMissions(teamNumber));
+        return appjamUserService.getTeamSummaryByUserId(userId);
     }
 
 }
