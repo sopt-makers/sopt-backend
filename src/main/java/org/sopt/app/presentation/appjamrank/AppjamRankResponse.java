@@ -68,6 +68,9 @@ public class AppjamRankResponse {
 		@Schema(description = "팀 이름", example = "로코코")
 		private String teamName;
 
+		@Schema(description = "팀 넘버 enum", example = "FIRST")
+		private TeamNumber teamNumber;
+
 		@Schema(description = "오늘 획득한 점수", example = "1000")
 		private long todayPoints;
 

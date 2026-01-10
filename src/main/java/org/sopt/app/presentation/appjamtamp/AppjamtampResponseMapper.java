@@ -1,7 +1,6 @@
 package org.sopt.app.presentation.appjamtamp;
 
 import java.util.List;
-
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -9,6 +8,7 @@ import org.mapstruct.ReportingPolicy;
 import org.sopt.app.application.appjamrank.AppjamRankInfo;
 import org.sopt.app.application.mission.MissionInfo.AppjamMissionInfo;
 import org.sopt.app.application.mission.MissionInfo.AppjamMissionInfos;
+import org.sopt.app.application.stamp.StampInfo;
 import org.sopt.app.application.stamp.StampInfo.AppjamtampView;
 import org.sopt.app.presentation.appjamrank.AppjamRankResponse;
 import org.sopt.app.presentation.appjamtamp.AppjamtampResponse.AppjamMissionResponse;
@@ -21,6 +21,9 @@ import org.sopt.app.presentation.appjamtamp.AppjamtampResponse.AppjamMissionResp
 )
 public interface AppjamtampResponseMapper {
 
+    AppjamtampResponse.StampMain of(StampInfo.StampWithProfile stampInfo);
+
+    @Mapping(source = "appjamJoined", target = "isAppjamJoined")
     AppjamMissionResponses of(AppjamMissionInfos missionList);
 
     AppjamRankResponse.AppjamtampRankResponse toResponse(AppjamRankInfo.TeamRank teamRank);
@@ -29,7 +32,8 @@ public interface AppjamtampResponseMapper {
     @Mapping(source = "completed", target = "isCompleted")
     AppjamMissionResponse toResponse(AppjamMissionInfo info);
 
-    default AppjamRankResponse.AppjamtampRankListResponse of(AppjamRankInfo.RankList appjamRankList) {
+    default AppjamRankResponse.AppjamtampRankListResponse of(
+        AppjamRankInfo.RankList appjamRankList) {
         List<AppjamRankResponse.AppjamtampRankResponse> ranks = appjamRankList.getRanks().stream()
             .map(this::toResponse)
             .toList();
@@ -37,11 +41,14 @@ public interface AppjamtampResponseMapper {
         return new AppjamRankResponse.AppjamtampRankListResponse(ranks);
     }
 
-    default AppjamRankResponse.AppjamTodayRankListResponse of(AppjamRankInfo.TodayTeamRankList todayTeamRankList) {
-        List<AppjamRankResponse.AppjamTodayTeamRankResponse> ranks = todayTeamRankList.getRanks().stream()
+    default AppjamRankResponse.AppjamTodayRankListResponse of(
+        AppjamRankInfo.TodayTeamRankList todayTeamRankList) {
+        List<AppjamRankResponse.AppjamTodayTeamRankResponse> ranks = todayTeamRankList.getRanks()
+            .stream()
             .map(teamRank -> new AppjamRankResponse.AppjamTodayTeamRankResponse(
                 teamRank.getRank(),
                 teamRank.getTeamName(),
+                teamRank.getTeamNumber(),
                 teamRank.getTodayPoints(),
                 teamRank.getTotalPoints()
             ))

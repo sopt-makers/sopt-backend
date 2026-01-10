@@ -1,9 +1,9 @@
 package org.sopt.app.application.stamp;
 
+import jakarta.validation.Valid;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import jakarta.validation.Valid;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +20,7 @@ import org.sopt.app.presentation.stamp.StampRequest;
 import org.sopt.app.presentation.stamp.StampRequest.RegisterStampRequest;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -242,7 +243,8 @@ public class StampService {
             .getClapCount();
     }
 
-    @Transactional
+    // TODO: 비동기로 별도 스레드 혹은 이벤트로 처리하도록 변경
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void increaseViewCountById(Long stampId) {
         stampRepository.increaseViewCount(stampId);
     }

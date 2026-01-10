@@ -30,6 +30,21 @@ public class StampInfo {
         private LocalDateTime updatedAt;
         private int clapCount;
         private int viewCount;
+
+        public static StampInfo.Stamp from(org.sopt.app.domain.entity.soptamp.Stamp stamp) {
+            return Stamp.builder()
+                .id(stamp.getId())
+                .contents(stamp.getContents())
+                .images(stamp.getImages())
+                .userId(stamp.getUserId())
+                .missionId(stamp.getMissionId())
+                .activityDate(stamp.getActivityDate())
+                .createdAt(stamp.getCreatedAt())
+                .updatedAt(stamp.getUpdatedAt())
+                .clapCount(stamp.getClapCount())
+                .viewCount(stamp.getViewCount())
+                .build();
+        }
     }
 
     @Getter
@@ -116,6 +131,47 @@ public class StampInfo {
                 .viewCount(stamp.getViewCount() + 1)
                 .isMine(isMine)
                 .myClapCount(myClapCount)
+                .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class StampWithProfile {
+
+        private Long id;
+        private String contents;
+        private List<String> images;
+        private Long userId;
+        private Long missionId;
+        private String activityDate;
+        private LocalDateTime createdAt;
+        private LocalDateTime updatedAt;
+        private String ownerNickname;
+        private String ownerProfileImage;
+        private int clapCount;
+        private int viewCount;
+
+        public static StampInfo.StampWithProfile of(
+            StampInfo.Stamp stamp,
+            String ownerNickname,
+            String ownerProfileImage
+        ) {
+            return StampWithProfile.builder()
+                .id(stamp.getId())
+                .contents(stamp.getContents())
+                .images(stamp.getImages())
+                .userId(stamp.getUserId())
+                .missionId(stamp.getMissionId())
+                .activityDate(stamp.getActivityDate())
+                .createdAt(stamp.getCreatedAt())
+                .updatedAt(stamp.getUpdatedAt())
+                .ownerNickname(ownerNickname)
+                .ownerProfileImage(ownerProfileImage)
+                .clapCount(stamp.getClapCount())
+                .viewCount(stamp.getViewCount())
                 .build();
         }
     }

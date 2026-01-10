@@ -22,6 +22,8 @@ public interface StampRepository extends JpaRepository<Stamp, Long>, StampReposi
 
     List<Stamp> findAllByUserIdIn(Collection<Long> userIds);
 
+    boolean existsByUserIdInAndMissionId(Collection<Long> userIds, Long missionId);
+
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("""
       update Stamp s set s.viewCount = s.viewCount + 1
