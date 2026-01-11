@@ -1,15 +1,13 @@
 package org.sopt.app.presentation.appjamrank;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
 import java.util.List;
-
-import org.sopt.app.domain.enums.TeamNumber;
-
-import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.sopt.app.domain.enums.TeamNumber;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AppjamRankResponse {
@@ -33,6 +31,9 @@ public class AppjamRankResponse {
 
 		@Schema(description = "스탬프 생성 시간", example = "2025-12-11T12:34:56")
 		private LocalDateTime createdAt;
+
+        @Schema(description = "스탬프 작성자 닉네임", example = "로코코이지훈")
+        private String ownerNickname;
 
 		@Schema(description = "업로드한 유저 이름", example = "이지훈")
 		private String userName;
