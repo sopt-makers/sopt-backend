@@ -7,9 +7,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import org.sopt.app.application.appjamrank.AppjamRankInfo;
+import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.appjamrank.AppjamRankCalculator;
+import org.sopt.app.application.appjamrank.AppjamRankInfo;
 import org.sopt.app.application.appjamrank.AppjamRankService;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
@@ -21,8 +21,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -53,6 +51,7 @@ public class AppjamRankFacade {
 		AppjamRankCalculator calculator = new AppjamRankCalculator(
 			aggregate.getLatestStamps(),
 			aggregate.getUploaderAppjamUserByUserId(),
+            aggregate.getUploaderSoptampUserByUserId(),
 			playgroundProfileByUserId
 		);
 
@@ -72,7 +71,8 @@ public class AppjamRankFacade {
 		AppjamRankCalculator calculator = new AppjamRankCalculator(
 			List.of(),
 			Map.of(),
-			Map.of()
+			Map.of(),
+            Map.of()
 		);
 
 		return calculator.calculateTodayTeamRanks(

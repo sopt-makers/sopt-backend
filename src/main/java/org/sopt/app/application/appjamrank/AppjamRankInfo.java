@@ -4,17 +4,16 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
-import org.sopt.app.domain.entity.AppjamUser;
-import org.sopt.app.domain.entity.soptamp.Stamp;
-import org.sopt.app.domain.enums.TeamNumber;
-
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
+import org.sopt.app.domain.entity.AppjamUser;
+import org.sopt.app.domain.entity.soptamp.SoptampUser;
+import org.sopt.app.domain.entity.soptamp.Stamp;
+import org.sopt.app.domain.enums.TeamNumber;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AppjamRankInfo {
@@ -26,16 +25,19 @@ public class AppjamRankInfo {
 		private final List<Stamp> latestStamps;
 		private final List<Long> uploaderUserIds;
 		private final Map<Long, AppjamUser> uploaderAppjamUserByUserId;
+        private final Map<Long, SoptampUser> uploaderSoptampUserByUserId;
 
 		public static RankAggregate of(
 			List<Stamp> latestStamps,
 			List<Long> uploaderUserIds,
-			Map<Long, AppjamUser> uploaderAppjamUserByUserId
+			Map<Long, AppjamUser> uploaderAppjamUserByUserId,
+            Map<Long, SoptampUser> uploaderSoptampUserByUserId
 		) {
 			return RankAggregate.builder()
 				.latestStamps(latestStamps)
 				.uploaderUserIds(uploaderUserIds)
 				.uploaderAppjamUserByUserId(uploaderAppjamUserByUserId)
+                .uploaderSoptampUserByUserId(uploaderSoptampUserByUserId)
 				.build();
 		}
 
@@ -56,6 +58,7 @@ public class AppjamRankInfo {
 		private final Long userId;
 		private final String imageUrl;
 		private final LocalDateTime createdAt;
+        private final String ownerNickname;
 		private final String userName;
 		private final String userProfileImage;
 		private final String teamName;
@@ -64,6 +67,7 @@ public class AppjamRankInfo {
 		public static TeamRank of(
 			Stamp stamp,
 			String firstImageUrl,
+            SoptampUser soptampUser,
 			AppjamUser uploaderAppjamUser,
 			TeamNumber teamNumber,
 			PlaygroundProfileInfo.PlaygroundProfile playgroundProfile
@@ -74,6 +78,7 @@ public class AppjamRankInfo {
 				.userId(stamp.getUserId())
 				.imageUrl(firstImageUrl)
 				.createdAt(stamp.getCreatedAt())
+                .ownerNickname(soptampUser.getNickname())
 				.userName(playgroundProfile.getName())
 				.userProfileImage(Optional.ofNullable(playgroundProfile.getProfileImage()).orElse(""))
 				.teamName(uploaderAppjamUser.getTeamName())
