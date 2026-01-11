@@ -1,8 +1,10 @@
 package org.sopt.app.application.appjamrank;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -69,5 +71,22 @@ public class AppjamRankService {
 
 	public List<AppjamUser> findAllAppjamUsers() {
 		return appjamUserRepository.findAll();
+	}
+
+	public Map<Long, Long> findTotalPointsByUserIds(Collection<Long> userIds) {
+		if (userIds == null || userIds.isEmpty()) {
+			return Map.of();
+		}
+
+		return soptampUserRepository.findAllByUserIdIn(userIds).stream()
+			.collect(Collectors.toMap(
+				SoptampUser::getUserId,
+				user -> user.getTotalPoints() == null ? 0L : user.getTotalPoints(),
+				(existing, replacement) -> existing
+			));
+	}
+
+	public Optional<AppjamUser> findAppjamUserByUserId(Long userId) {
+		return appjamUserRepository.findByUserId(userId);
 	}
 }
