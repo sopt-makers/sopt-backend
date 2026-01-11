@@ -38,14 +38,14 @@ public class AppjamRankController {
 		return ResponseEntity.ok(response);
 	}
 
-	@Operation(summary = "앱잼팀 오늘의 득점 랭킹 TOP10 조회하기")
+	@Operation(summary = "앱잼팀 오늘의 득점 랭킹 조회(전체 팀)")
 	@ApiResponses({
 		@ApiResponse(responseCode = "200", description = "success"),
 		@ApiResponse(responseCode = "500", description = "server error")
 	})
 	@GetMapping("/today")
 	public ResponseEntity<AppjamRankResponse.AppjamTodayRankListResponse> getTodayTeamRanks(
-		@RequestParam(defaultValue = "10") @Min(1) int size
+		@RequestParam(defaultValue = "11") @Min(1) int size
 	) {
 		AppjamRankInfo.TodayTeamRankList appjamTodayTeamRankList = appjamRankFacade.findTodayTeamRanks(size);
 		AppjamRankResponse.AppjamTodayRankListResponse response = appjamtampResponseMapper.of(appjamTodayTeamRankList);
