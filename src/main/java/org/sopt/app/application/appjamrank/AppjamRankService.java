@@ -25,7 +25,7 @@ public class AppjamRankService {
 
 	public AppjamRankInfo.RankAggregate findRecentTeamRanks(Pageable pageable) {
 
-		List<Stamp> latestStamps = stampRepository.findLatestStamps(pageable);
+		List<Stamp> latestStamps = stampRepository.findDisplayedLatestStamps(pageable);
 		if (latestStamps.isEmpty()) {
 			return AppjamRankInfo.RankAggregate.empty();
 		}
