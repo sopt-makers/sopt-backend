@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.sopt.app.application.appjamuser.AppjamUserInfo.TeamSummary;
+import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.domain.enums.TeamNumber;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -95,6 +96,8 @@ public class StampInfo {
         private String contents;
         private List<String> images;
         private Long missionId;
+        private String missionTitle;
+        private Integer missionLevel;
         private TeamNumber teamNumber;
         private String teamName;
         private String ownerNickName;
@@ -113,7 +116,8 @@ public class StampInfo {
             boolean isMine,
             String ownerNickName,
             String ownerProfileImage,
-            TeamSummary teamSummary
+            TeamSummary teamSummary,
+            Mission mission
         ) {
             return AppjamtampView.builder()
                 .id(stamp.getId())
@@ -123,6 +127,8 @@ public class StampInfo {
                 .createdAt(stamp.getCreatedAt())
                 .updatedAt(stamp.getUpdatedAt())
                 .missionId(stamp.getMissionId())
+                .missionTitle(mission.getTitle())
+                .missionLevel(mission.getLevel())
                 .ownerNickName(ownerNickName)
                 .ownerProfileImage(ownerProfileImage)
                 .teamNumber(teamSummary.getTeamNumber())

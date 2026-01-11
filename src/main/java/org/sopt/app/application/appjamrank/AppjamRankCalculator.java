@@ -9,27 +9,28 @@ import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
-import org.sopt.app.domain.entity.AppjamUser;
-import org.sopt.app.domain.entity.soptamp.Stamp;
-import org.sopt.app.domain.enums.TeamNumber;
-
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
+import org.sopt.app.domain.entity.AppjamUser;
+import org.sopt.app.domain.entity.soptamp.SoptampUser;
+import org.sopt.app.domain.entity.soptamp.Stamp;
+import org.sopt.app.domain.enums.TeamNumber;
 
 @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 public class AppjamRankCalculator {
 
 	private final List<Stamp> latestStamps;
 	private final Map<Long, AppjamUser> uploaderAppjamUserByUserId;
+    private final Map<Long, SoptampUser> uploaderSoptampUserByUserId;
 	private final Map<Long, PlaygroundProfileInfo.PlaygroundProfile> playgroundProfileByUserId;
 
 	public List<AppjamRankInfo.TeamRank> calculateRecentTeamRanks(int size) {
 		return latestStamps.stream()
 			.map(stamp -> {
 				AppjamUser uploaderAppjamUser = uploaderAppjamUserByUserId.get(stamp.getUserId());
-				if (uploaderAppjamUser == null) {
+                SoptampUser uploaderSoptampUser = uploaderSoptampUserByUserId.get(stamp.getUserId());
+				if (uploaderAppjamUser == null || uploaderSoptampUser == null) {
 					return null;
 				}
 
@@ -47,6 +48,7 @@ public class AppjamRankCalculator {
 				return AppjamRankInfo.TeamRank.of(
 					stamp,
 					firstImageUrl,
+                    uploaderSoptampUser,
 					uploaderAppjamUser,
 					uploaderAppjamUser.getTeamNumber(),
 					playgroundProfile

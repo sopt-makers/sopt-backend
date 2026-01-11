@@ -42,6 +42,7 @@ public class AppjamtampFacade {
         val teamSummary = appjamUserService.getTeamSummaryByUserId(ownerUserId);
         val stamp = stampService.findStamp(missionId, ownerUserId);
         val requestUserClapCount = clapService.getUserClapCount(requestUserId, stamp.getId());
+        val mission = missionService.getMissionById(missionId);
         stampService.increaseViewCountById(stamp.getId());
 
         return StampInfo.AppjamtampView.of(
@@ -50,7 +51,8 @@ public class AppjamtampFacade {
             Objects.equals(requestUserId, ownerUserId),
             owner.getNickname(),
             platformUserInfoResponse.profileImage(),
-            teamSummary
+            teamSummary,
+            mission
         );
     }
 

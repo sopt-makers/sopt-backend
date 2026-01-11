@@ -75,6 +75,10 @@ public class AppjamtampResponse {
         private LocalDateTime updatedAt;
         @Schema(description = "미션 아이디", example = "3")
         private Long missionId;
+        @Schema(description = "미션 타이틀", example = "팀원 칭찬하기")
+        private String missionTitle;
+        @Schema(description = "미션 레벨", example = "3")
+        private Integer missionLevel;
         @Schema(description = "팀 번호", example = "FIRST")
         private TeamNumber teamNumber;
         @Schema(description = "팀 이름", example = "보핏")

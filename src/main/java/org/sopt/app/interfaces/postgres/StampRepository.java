@@ -1,10 +1,10 @@
 package org.sopt.app.interfaces.postgres;
 
-import org.springframework.data.domain.Pageable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.sopt.app.domain.entity.soptamp.Stamp;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -34,7 +34,9 @@ public interface StampRepository extends JpaRepository<Stamp, Long>, StampReposi
     @Query("""
     select s
     from Stamp s
+    inner join Mission m on s.missionId = m.id
+    where m.display = true
     order by s.createdAt desc
     """)
-    List<Stamp> findLatestStamps(Pageable pageable);
+    List<Stamp> findDisplayedLatestStamps(Pageable pageable);
 }
