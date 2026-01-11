@@ -66,6 +66,8 @@ public interface AppjamtampResponseMapper {
             .createdAt(appjamtampView.getCreatedAt())
             .updatedAt(appjamtampView.getUpdatedAt())
             .missionId(appjamtampView.getMissionId())
+            .missionTitle(appjamtampView.getMissionTitle())
+            .missionLevel(appjamtampView.getMissionLevel())
             .teamNumber(appjamtampView.getTeamNumber())
             .teamName(appjamtampView.getTeamName())
             .ownerNickname(appjamtampView.getOwnerNickName())
