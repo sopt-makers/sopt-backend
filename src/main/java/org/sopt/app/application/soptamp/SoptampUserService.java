@@ -146,12 +146,6 @@ public class SoptampUserService {
 
         // 앱잼 변환 시점에 한 번 포인트 초기화
         registeredUser.initTotalPoints();
-
-        // 랭킹 캐시 동기화
-        rankCacheService.updateCachedUserInfo(
-            registeredUser.getUserId(),
-            CachedUserInfo.of(SoptampUserInfo.of(registeredUser))
-        );
     }
 
     private void createSoptampUserAppjam(PlatformUserInfoResponse profile,
@@ -177,7 +171,6 @@ public class SoptampUserService {
         newSoptampUser.initTotalPoints(); // 새 시즌이니 0점부터
 
         soptampUserRepository.save(newSoptampUser);
-        rankCacheService.createNewRank(userId);
     }
 
     private boolean needsAppjamNicknameMigration(SoptampUser user) {
@@ -257,7 +250,10 @@ public class SoptampUserService {
         SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         soptampUser.addPointsByLevel(level);
-        rankCacheService.incrementScore(soptampUser.getUserId(), level);
+
+        if (!appjamMode) {
+            rankCacheService.incrementScore(soptampUser.getUserId(), level);
+        }
     }
 
     @Transactional
@@ -265,7 +261,10 @@ public class SoptampUserService {
         SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         soptampUser.subtractPointsByLevel(level);
-        rankCacheService.decreaseScore(soptampUser.getUserId(), level);
+
+        if (!appjamMode) {
+            rankCacheService.decreaseScore(soptampUser.getUserId(), level);
+        }
     }
 
     @Transactional
@@ -274,7 +273,9 @@ public class SoptampUserService {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         soptampUser.initTotalPoints();
         soptampUserRepository.save(soptampUser);
-        rankCacheService.initScore(soptampUser.getUserId());
+        if (!appjamMode) {
+            rankCacheService.initScore(soptampUser.getUserId());
+        }
     }
 
     @Transactional
@@ -282,12 +283,18 @@ public class SoptampUserService {
         List<SoptampUser> soptampUserList = soptampUserRepository.findAll();
         soptampUserList.forEach(SoptampUser::initTotalPoints);
         soptampUserRepository.saveAll(soptampUserList);
-        rankCacheService.deleteAll();
-        rankCacheService.addAll(soptampUserList.stream().map(SoptampUserInfo::of).toList());
+        if (!appjamMode) {
+            rankCacheService.deleteAll();
+            rankCacheService.addAll(soptampUserList.stream().map(SoptampUserInfo::of).toList());
+        }
     }
 
     @Transactional
     public void initSoptampRankCache() {
+        if (appjamMode) {
+            throw new BadRequestException(ErrorCode.INVALID_APPJAM_SEASON_REQUEST);
+        }
+
         List<SoptampUser> soptampUserList = soptampUserRepository.findAll();
         rankCacheService.deleteAll();
         rankCacheService.addAll(soptampUserList.stream().map(SoptampUserInfo::of).toList());
