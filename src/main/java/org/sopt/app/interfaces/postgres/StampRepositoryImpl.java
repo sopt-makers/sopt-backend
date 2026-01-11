@@ -44,26 +44,26 @@ public class StampRepositoryImpl implements StampRepositoryCustom {
 		return new StampCounts(newClapCount, newVersion);
 	}
 
-	private static final int TODAY_POINT_PER_STAMP = 1000;
-
 	@Override
 	public List<AppjamTodayRankSource> findTodayUserRankSources(LocalDateTime todayStart, LocalDateTime tomorrowStart) {
 		final String sql = String.format("""
         SELECT
             s.user_id AS user_id,
-            (COUNT(*) * :todayPointPerStamp) AS today_points,
+            COALESCE(SUM(COALESCE(m.level, 0)), 0) AS today_points,
             MIN(s.created_at) AS first_certified_at_today
         FROM %s.stamp s
+        JOIN %s.mission m
+          ON m.mission_id = s.mission_id
         WHERE s.created_at >= :todayStart
           AND s.created_at <  :tomorrowStart
+          AND m.display = TRUE
         GROUP BY s.user_id
         ORDER BY today_points DESC, first_certified_at_today ASC
-    """, schema);
+    """, schema, schema);
 
 		Query query = em.createNativeQuery(sql);
 		query.setParameter("todayStart", todayStart);
 		query.setParameter("tomorrowStart", tomorrowStart);
-		query.setParameter("todayPointPerStamp", TODAY_POINT_PER_STAMP);
 
 		@SuppressWarnings("unchecked")
 		List<Object[]> rows = query.getResultList();
