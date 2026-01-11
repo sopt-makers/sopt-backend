@@ -9,6 +9,7 @@ import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 public interface RankCacheService {
     Set<TypedTuple<Long>> getRanking();
 
+    // 랭크 신규 생성용
     void createNewRank(Long userId);
 
     void removeRank(Long userId);
@@ -17,6 +18,7 @@ public interface RankCacheService {
 
     void decreaseScore(Long userId, int score);
 
+    // 점수 0으로 초기화
     void initScore(Long userId);
 
     void deleteAll();

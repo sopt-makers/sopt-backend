@@ -29,6 +29,7 @@ public class RedisRankService implements RankCacheService{
         }
     }
 
+    // 랭크 신규 생성용
     @Override
     public void createNewRank(Long userId) {
         redisTemplate.opsForZSet().add(CacheType.SOPTAMP_SCORE.getCacheName(), userId, 0);
@@ -51,6 +52,7 @@ public class RedisRankService implements RankCacheService{
                 .incrementScore(CacheType.SOPTAMP_SCORE.getCacheName(), userId, -1 * score);
     }
 
+    // 점수 0으로 초기화
     @Override
     public void initScore(Long userId) {
         redisTemplate.opsForZSet()
