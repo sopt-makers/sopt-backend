@@ -42,6 +42,7 @@ public class Clap extends BaseEntity {
 	@Column(name = "user_id", nullable = false)
 	private Long userId;
 
+	@Builder.Default
 	@Column(name = "clap_count", nullable = false)
 	private int clapCount = 0;
 

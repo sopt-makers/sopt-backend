@@ -1,28 +1,24 @@
 package org.sopt.app.facade;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-
-import org.sopt.app.application.appjamrank.AppjamRankInfo;
+import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.appjamrank.AppjamRankCalculator;
+import org.sopt.app.application.appjamrank.AppjamRankInfo;
 import org.sopt.app.application.appjamrank.AppjamRankService;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
-import org.sopt.app.application.rank.RankCacheService;
+import org.sopt.app.common.utils.CurrentDate;
 import org.sopt.app.domain.entity.AppjamUser;
+import org.sopt.app.domain.enums.TeamNumber;
 import org.sopt.app.interfaces.postgres.StampRepositoryCustom;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -30,7 +26,6 @@ public class AppjamRankFacade {
 
 	private final PlaygroundAuthService playgroundAuthService;
 	private final AppjamRankService appjamRankService;
-	private final RankCacheService rankCacheService;
 
 	@Transactional(readOnly = true)
 	public AppjamRankInfo.RankList findRecentTeamRanks(int size) {
@@ -41,7 +36,8 @@ public class AppjamRankFacade {
 			return AppjamRankInfo.RankList.of(List.of());
 		}
 
-		List<PlaygroundProfileInfo.PlaygroundProfile> playgroundProfiles = playgroundAuthService.getPlaygroundMemberProfiles(aggregate.getUploaderUserIds());
+		List<PlaygroundProfileInfo.PlaygroundProfile> playgroundProfiles =
+			playgroundAuthService.getPlaygroundMemberProfiles(aggregate.getUploaderUserIds());
 
 		Map<Long, PlaygroundProfileInfo.PlaygroundProfile> playgroundProfileByUserId = playgroundProfiles.stream()
 			.collect(Collectors.toMap(
@@ -53,24 +49,44 @@ public class AppjamRankFacade {
 		AppjamRankCalculator calculator = new AppjamRankCalculator(
 			aggregate.getLatestStamps(),
 			aggregate.getUploaderAppjamUserByUserId(),
+			aggregate.getUploaderSoptampUserByUserId(),
 			playgroundProfileByUserId
 		);
 
-		List<AppjamRankInfo.TeamRank> ranks = calculator.calculateRecentTeamRanks(size);
-		return AppjamRankInfo.RankList.of(ranks);
+		return AppjamRankInfo.RankList.of(calculator.calculateRecentTeamRanks(size));
 	}
 
+	/**
+	 * 오늘 팀 랭킹 (캐시 없이 DB 기반)
+	 * - 전체 팀을 항상 보여주기 위해 effectiveSize는 teamCount 이상 보장
+	 */
 	@Transactional(readOnly = true)
 	public AppjamRankInfo.TodayTeamRankList findTodayTeamRanks(int size) {
-
-		LocalDateTime todayStart = LocalDate.now().atStartOfDay();
+		LocalDateTime todayStart = CurrentDate.now().atStartOfDay();
 		LocalDateTime tomorrowStart = todayStart.plusDays(1);
+
 		List<AppjamRankInfo.TodayRank> todayUserRanks = findTodayUserRanks(todayStart, tomorrowStart);
-		Map<Long, Long> totalPointsByUserId = buildTotalPointsByUserId();
-		List<AppjamUser> allAppjamUsers = appjamRankService.findAllAppjamUsers();
+		List<AppjamUser> allAppjamUsers = appjamRankService.findAllAppjamUsers().stream()
+			.filter(u -> u.getTeamNumber() != null)
+			.toList();
+
+		List<Long> appjamUserIds = allAppjamUsers.stream()
+			.map(AppjamUser::getUserId)
+			.distinct()
+			.toList();
+
+		Map<Long, Long> totalPointsByUserId = appjamRankService.findTotalPointsByUserIds(appjamUserIds);
+
+		int teamCount = (int) allAppjamUsers.stream()
+			.map(AppjamUser::getTeamNumber)
+			.distinct()
+			.count();
+
+		int effectiveSize = Math.max(Math.max(size, 1), teamCount);
 
 		AppjamRankCalculator calculator = new AppjamRankCalculator(
 			List.of(),
+			Map.of(),
 			Map.of(),
 			Map.of()
 		);
@@ -79,8 +95,25 @@ public class AppjamRankFacade {
 			todayUserRanks,
 			totalPointsByUserId,
 			allAppjamUsers,
-			size
+			effectiveSize
 		);
+	}
+
+	@Transactional(readOnly = true)
+	public Integer findMyTeamRank(final Long userId) {
+		AppjamUser myAppjamUser = appjamRankService.findAppjamUserByUserId(userId).orElse(null);
+		if (myAppjamUser == null || myAppjamUser.getTeamNumber() == null) {
+			return null;
+		}
+
+		TeamNumber myTeamNumber = myAppjamUser.getTeamNumber();
+		AppjamRankInfo.TodayTeamRankList ranks = findTodayTeamRanks(0);
+
+		return ranks.getRanks().stream()
+			.filter(r -> r.getTeamNumber() == myTeamNumber)
+			.map(AppjamRankInfo.TodayTeamRank::getRank)
+			.findFirst()
+			.orElse(null);
 	}
 
 	private List<AppjamRankInfo.TodayRank> findTodayUserRanks(LocalDateTime todayStart, LocalDateTime tomorrowStart) {
@@ -94,20 +127,5 @@ public class AppjamRankFacade {
 				source.firstCertifiedAtToday()
 			))
 			.toList();
-	}
-
-	private Map<Long, Long> buildTotalPointsByUserId() {
-		Set<ZSetOperations.TypedTuple<Long>> ranking = rankCacheService.getRanking();
-		if (ranking == null || ranking.isEmpty()) {
-			return Map.of();
-		}
-
-		return ranking.stream()
-			.filter(tuple -> tuple.getValue() != null)
-			.collect(Collectors.toMap(
-				ZSetOperations.TypedTuple::getValue,
-				tuple -> tuple.getScore() == null ? 0L : tuple.getScore().longValue(),
-				(existing, replacement) -> existing
-			));
 	}
 }

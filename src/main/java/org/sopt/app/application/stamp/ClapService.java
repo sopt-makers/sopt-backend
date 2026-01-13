@@ -1,8 +1,9 @@
 package org.sopt.app.application.stamp;
 
 import java.util.Objects;
-
 import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ForbiddenException;
@@ -18,9 +19,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +62,8 @@ public class ClapService {
 		if (applied > 0) {
 			stampRepository.incrementClapCountReturning(stampId, applied);
 			final int newClapTotal = oldClapTotal + applied;
-			eventPublisher.raise(ClapEvent.of(stamp.getUserId(), stampId, oldClapTotal, newClapTotal));
+            // TODO: 앱잼탬프 운영 기간동안 박수 알림 방지를 위해 주석 처리. 별도 박수 API를 구현 및 연결하기에 시간이 부족하여 주석처리함. 추후 복원하기
+//			eventPublisher.raise(ClapEvent.of(stamp.getUserId(), stampId, oldClapTotal, newClapTotal));
 		}
 		return applied;
 	}
