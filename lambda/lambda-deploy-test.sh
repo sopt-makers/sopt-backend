@@ -8,6 +8,7 @@ ENV=${1:-dev}
 S3_BUCKET="sopt-makers-app"
 STACK_NAME="app-${ENV}"
 AWS_REGION="ap-northeast-2"
+TARGET_PROFILE="${ENV},lambda"
 
 # 색상 정의
 GREEN='\033[0;32m'
@@ -16,8 +17,8 @@ NC='\033[0m' # No Color
 echo "🚀 Lambda JAR 배포 시작 (환경: $ENV)"
 
 # 0. S3에서 yml 파일 가져오기
-echo "📥 S3에서 설정 파일 다운로드 중..."
-aws s3 cp s3://${S3_BUCKET}/dev/deploy/application-lambda-dev.yml src/main/resources/application-lambda-dev.yml
+#echo "📥 S3에서 설정 파일 다운로드 중..."
+#aws s3 cp s3://${S3_BUCKET}/dev/deploy/application-lambda-dev.yml src/main/resources/application-lambda-dev.yml
 
 # 1. JAR 빌드
 echo "📦 JAR 빌드 중..."
@@ -42,8 +43,7 @@ sam deploy \
   --stack-name ${STACK_NAME} \
   --no-fail-on-empty-changeset \
   --parameter-overrides \
-    S3Bucket=${S3_BUCKET} \
-    S3Key=${S3_KEY}
+    "S3Bucket=${S3_BUCKET} S3Key=${S3_KEY} Profile=${TARGET_PROFILE}"
 
 cd ..
 
