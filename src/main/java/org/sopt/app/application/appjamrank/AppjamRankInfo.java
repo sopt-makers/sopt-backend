@@ -46,6 +46,7 @@ public class AppjamRankInfo {
 				.latestStamps(List.of())
 				.uploaderUserIds(List.of())
 				.uploaderAppjamUserByUserId(Map.of())
+				.uploaderSoptampUserByUserId(Map.of())
 				.build();
 		}
 	}

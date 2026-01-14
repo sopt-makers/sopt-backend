@@ -74,6 +74,7 @@ public enum ErrorCode {
     INVALID_STAMP_MISSION_ID("스탬프 미션 ID가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
     INVALID_STAMP_ID("스탬프 ID가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
     STAMP_DELETE_FORBIDDEN("자신의 스탬프만 삭제할 수 있습니다.", HttpStatus.FORBIDDEN),
+    INVALID_APPJAM_SEASON_REQUEST("앱잼탬프 시즌이므로 부적절한 요청입니다.", HttpStatus.BAD_REQUEST),
 
     // CLAP
     SELF_CLAP_FORBIDDEN("타인의 스탬프에만 박수 칠 수 있습니다.", HttpStatus.FORBIDDEN),

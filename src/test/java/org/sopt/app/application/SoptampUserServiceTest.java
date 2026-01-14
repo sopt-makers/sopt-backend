@@ -240,7 +240,8 @@ class SoptampUserServiceTest {
 		assertThat(saved.getTotalPoints()).isZero();
 		assertThat(saved.getGeneration()).isEqualTo(37L);
 
-		verify(rankCacheService).createNewRank(userId);
+		// 앱잼 시즌: 개인 랭킹 캐시 사용 안 함
+		verifyNoInteractions(rankCacheService);
 	}
 
 	@Test
@@ -269,7 +270,8 @@ class SoptampUserServiceTest {
 		assertThat(saved.getNickname()).contains("김솝트");
 		assertThat(saved.getTotalPoints()).isZero();
 
-		verify(rankCacheService).createNewRank(userId);
+		// 앱잼 시즌: 개인 랭킹 캐시 사용 안 함
+		verifyNoInteractions(rankCacheService);
 	}
 
 	@Test
@@ -315,7 +317,8 @@ class SoptampUserServiceTest {
 		assertThat(existing.getTotalPoints()).isZero();
 		assertThat(existing.getGeneration()).isEqualTo(37L);
 
-		verify(rankCacheService).updateCachedUserInfo(eq(userId), any());
+		// 앱잼 시즌: 개인 랭킹 캐시 사용 안 함 (닉네임 마이그레이션도 캐시 갱신 불필요)
+		verifyNoInteractions(rankCacheService);
 	}
 
 	@Test
@@ -346,7 +349,7 @@ class SoptampUserServiceTest {
 		assertThat(existing.getNickname()).isEqualTo("비트김솝트");
 		assertThat(existing.getTotalPoints()).isEqualTo(30L);
 
-		verify(rankCacheService, never()).updateCachedUserInfo(anyLong(), any());
+		verifyNoInteractions(rankCacheService);
 	}
 
 	@Test
@@ -380,11 +383,9 @@ class SoptampUserServiceTest {
 		);
 		when(appjamUserRepository.findByUserId(userId)).thenReturn(Optional.of(appjamUser));
 
-		// baseNickname = "비트김솝트" 라고 가정
-		// 다른 유저가 이미 baseNickname을 쓰고 있다 → true
+		// baseNickname = "비트김솝트"
 		when(soptampUserRepository.existsByNicknameAndUserIdNot(eq("비트김솝트"), eq(userId)))
 			.thenReturn(true);
-		// "비트김솝트A"는 아직 아무도 안 씀 → false (stub 없으면 기본 false)
 		when(soptampUserRepository.existsByNicknameAndUserIdNot(eq("비트김솝트A"), eq(userId)))
 			.thenReturn(false);
 
@@ -394,6 +395,8 @@ class SoptampUserServiceTest {
 		// then
 		assertThat(existing.getNickname()).isEqualTo("비트김솝트A");
 		assertThat(existing.getTotalPoints()).isZero();
+
+		verifyNoInteractions(rankCacheService);
 	}
 
 	@Test
@@ -410,9 +413,7 @@ class SoptampUserServiceTest {
 		String partPrefix = SoptPart.findSoptPartByPartName("서버").getShortedPartName();
 		String baseNickname = partPrefix + "김솝트";
 
-		// 다른 유저가 baseNickname 사용 중
 		when(soptampUserRepository.existsByNickname(baseNickname)).thenReturn(true);
-		// baseNicknameA는 사용 안 함
 		when(soptampUserRepository.existsByNickname(baseNickname + "A")).thenReturn(false);
 
 		ArgumentCaptor<SoptampUser> captor = ArgumentCaptor.forClass(SoptampUser.class);
