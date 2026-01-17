@@ -8,7 +8,4 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 @Profile("!lambda")
 public class SchedulingConfig {
-    public SchedulingConfig(){
-        System.out.println("✅ [DEBUG] 스케줄러 빈이 생성되었습니다! (람다가 아님)");
-    }
 }
