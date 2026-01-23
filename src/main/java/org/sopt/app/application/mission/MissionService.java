@@ -84,11 +84,25 @@ public class MissionService {
         return missionRepository.findMissionInOrderByLevelAndTitleAndDisplayTrue(inCompleteIdList);
     }
 
+    @Transactional(readOnly = true)
+    public String getMissionTitleById(Long missionId) {
+        return missionRepository.findById(missionId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MISSION_NOT_FOUND))
+                .getTitle();
+    }
+
     public MissionInfo.Level getMissionLevelById(Long missionId) {
         val mission = missionRepository.findById(missionId).orElseThrow(
             () -> new NotFoundException(ErrorCode.MISSION_NOT_FOUND));
 
         return MissionInfo.Level.of(mission.getLevel());
+    }
+
+    public Mission getMissionById(Long missionId) {
+        val mission = missionRepository.findById(missionId).orElseThrow(
+            () -> new NotFoundException(ErrorCode.MISSION_NOT_FOUND)
+        );
+        return mission;
     }
 
     public void deleteAll() {

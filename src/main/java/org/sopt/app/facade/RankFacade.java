@@ -6,7 +6,10 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.rank.*;
 import org.sopt.app.application.soptamp.SoptampPointInfo.*;
 import org.sopt.app.application.soptamp.*;
+import org.sopt.app.common.exception.BadRequestException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.Part;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +21,14 @@ public class RankFacade {
     private final SoptampUserFinder soptampUserFinder;
     private final RankCacheService rankCacheService;
 
+    @Value("${makers.app.soptamp.appjam-mode:false}")
+    private boolean appjamMode;
+
     @Transactional(readOnly = true)
     public List<Main> findCurrentRanks() {
+        if (appjamMode) {
+            throw new BadRequestException(ErrorCode.INVALID_APPJAM_SEASON_REQUEST);
+        }
         Set<TypedTuple<Long>> sortedScoreCaches =  rankCacheService.getRanking();
         if (sortedScoreCaches != null && !sortedScoreCaches.isEmpty()) {
             return convertCacheToMain(sortedScoreCaches);
@@ -57,6 +66,9 @@ public class RankFacade {
 
     @Transactional(readOnly = true)
     public List<Main> findCurrentRanksByPart(Part part) {
+        if (appjamMode) {
+            throw new BadRequestException(ErrorCode.INVALID_APPJAM_SEASON_REQUEST);
+        }
         Set<TypedTuple<Long>> sortedScoreCaches =  rankCacheService.getRanking();
         if (sortedScoreCaches != null && !sortedScoreCaches.isEmpty()) {
             return convertCacheToMainByPart(sortedScoreCaches, part);
@@ -86,6 +98,9 @@ public class RankFacade {
 
     @Transactional(readOnly = true)
     public List<PartRank> findAllPartRanks() {
+        if (appjamMode) {
+            throw new BadRequestException(ErrorCode.INVALID_APPJAM_SEASON_REQUEST);
+        }
         List<SoptampUserInfo> soptampUserInfos = soptampUserFinder.findAllOfCurrentGeneration();
         SoptampPartRankCalculator soptampPartRankCalculator = new SoptampPartRankCalculator(soptampUserInfos);
         return soptampPartRankCalculator.calculatePartRank();
@@ -93,6 +108,9 @@ public class RankFacade {
 
     @Transactional(readOnly = true)
     public PartRank findPartRank(Part part) {
+        if (appjamMode) {
+            throw new BadRequestException(ErrorCode.INVALID_APPJAM_SEASON_REQUEST);
+        }
         List<SoptampUserInfo> soptampUserInfos = soptampUserFinder.findAllOfCurrentGeneration();
         SoptampPartRankCalculator soptampPartRankCalculator = new SoptampPartRankCalculator(soptampUserInfos);
         return soptampPartRankCalculator.calculatePartRank().stream()
@@ -102,7 +120,10 @@ public class RankFacade {
 
     @Transactional(readOnly = true)
     public Long findUserRank(Long userId) {
-        Set<TypedTuple<Long>> sortedScoreCaches = rankCacheService.getRanking();
+        if (appjamMode) {
+            throw new BadRequestException(ErrorCode.INVALID_APPJAM_SEASON_REQUEST);
+        }
+        Set<TypedTuple<Long>> sortedScoreCaches =  rankCacheService.getRanking();
         if (sortedScoreCaches != null && !sortedScoreCaches.isEmpty()) {
             Long rank = 1L;
             for(TypedTuple<Long> cache : sortedScoreCaches){

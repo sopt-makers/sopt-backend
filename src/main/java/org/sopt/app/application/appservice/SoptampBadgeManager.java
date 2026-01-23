@@ -1,0 +1,45 @@
+package org.sopt.app.application.appservice;
+
+import lombok.RequiredArgsConstructor;
+import org.sopt.app.application.appservice.dto.AppServiceBadgeInfo;
+import org.sopt.app.application.soptamp.SoptampUserService;
+import org.sopt.app.domain.enums.Part;
+import org.sopt.app.domain.enums.SoptPart;
+import org.sopt.app.facade.AppjamRankFacade;
+import org.sopt.app.facade.RankFacade;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+@Component
+@RequiredArgsConstructor
+@Qualifier("soptampBadgeManager")
+public class SoptampBadgeManager implements AppServiceBadgeManager {
+
+    private final SoptampUserService soptampUserService;
+    private final RankFacade rankFacade;
+    private final AppjamRankFacade appjamRankFacade;
+
+    @Value("${makers.app.soptamp.appjam-mode:false}")
+    private boolean appjamMode;
+
+    @Override
+    public AppServiceBadgeInfo acquireAppServiceBadgeInfo(final Long userId) {
+        if (appjamMode) {
+            Integer myTeamRank = appjamRankFacade.findMyTeamRank(userId);
+            if (myTeamRank == null) {
+                return AppServiceBadgeInfo.createWithAllDisabled();
+            }
+            return AppServiceBadgeInfo.createWithEnabledDisPlayAlarmBadge(myTeamRank + "위");
+        }
+
+        Part part = SoptPart.toPart(soptampUserService.getSoptampUserInfo(userId).getPart());
+        if (part == null) {
+            return AppServiceBadgeInfo.createWithAllDisabled();
+        }
+
+        return AppServiceBadgeInfo.createWithEnabledDisPlayAlarmBadge(
+            rankFacade.findPartRank(part).getRank() + "위"
+        );
+    }
+}

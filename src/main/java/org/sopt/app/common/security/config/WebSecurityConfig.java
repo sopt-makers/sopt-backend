@@ -5,7 +5,8 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.security.filter.JwtAuthenticationFilter;
 import org.sopt.app.common.security.filter.JwtExceptionFilter;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -44,7 +45,9 @@ public class WebSecurityConfig {
             "/internal/api/v1/members/{memberId}",
             "/api/v2/home/app-service",
             "/api/v2/home/floating-button",
-            "/api/v2/home/review-form"
+            "/api/v2/home/review-form",
+            "/api/v2/admin/notification/**",
+            "/.well-known/**",
     };
 
     private final JwtExceptionFilter jwtExceptionFilter;

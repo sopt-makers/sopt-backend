@@ -1,0 +1,21 @@
+version = 0.1
+
+[default.build.parameters]
+cached = true
+parallel = true
+
+[dev.deploy.parameters]
+stack_name = "app-dev"
+region = "ap-northeast-2"
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = false
+template = "template-dev.yaml"
+resolve_s3 = true
+
+[prod.deploy.parameters]
+stack_name = "app-prod"
+region = "ap-northeast-2"
+capabilities = "CAPABILITY_IAM"
+confirm_changeset = true          # 운영은 변경사항 확인
+template = "template-prod.yaml"
+resolve_s3 = true
