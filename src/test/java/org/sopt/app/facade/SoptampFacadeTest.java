@@ -1,7 +1,7 @@
 package org.sopt.app.facade;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
@@ -9,7 +9,12 @@ import static org.sopt.app.common.fixtures.MissionFixture.MISSION_ID;
 import static org.sopt.app.common.fixtures.MissionFixture.MISSION_LEVEL;
 import static org.sopt.app.common.fixtures.MissionFixture.getMission;
 import static org.sopt.app.common.fixtures.MissionFixture.getRankMission;
-import static org.sopt.app.common.fixtures.SoptampFixture.*;
+import static org.sopt.app.common.fixtures.SoptampFixture.NICKNAME;
+import static org.sopt.app.common.fixtures.SoptampFixture.STAMP_ID;
+import static org.sopt.app.common.fixtures.SoptampFixture.USER_ID;
+import static org.sopt.app.common.fixtures.SoptampFixture.getSoptampUserInfo;
+import static org.sopt.app.common.fixtures.SoptampFixture.getStampInfo;
+import static org.sopt.app.common.fixtures.SoptampFixture.getStampWithUserId;
 
 import java.util.List;
 import org.assertj.core.groups.Tuple;
@@ -19,10 +24,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.sopt.app.application.mission.*;
+import org.sopt.app.application.mission.MissionInfo;
 import org.sopt.app.application.mission.MissionInfo.Level;
-import org.sopt.app.application.soptamp.*;
-import org.sopt.app.application.stamp.*;
+import org.sopt.app.application.mission.MissionService;
+import org.sopt.app.application.soptamp.SoptampUserFinder;
+import org.sopt.app.application.soptamp.SoptampUserInfo;
+import org.sopt.app.application.soptamp.SoptampUserService;
+import org.sopt.app.application.stamp.ClapService;
+import org.sopt.app.application.stamp.StampInfo;
+import org.sopt.app.application.stamp.StampInfo.StampView;
+import org.sopt.app.application.stamp.StampService;
 import org.sopt.app.common.fixtures.SoptampFixture;
 import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.domain.entity.soptamp.Stamp;
@@ -47,6 +58,8 @@ class SoptampFacadeTest {
     private SoptampUserFinder soptampUserFinder;
     @Mock
     private RankResponseMapper rankResponseMapper;
+    @Mock
+    private ClapService clapService;
 
     @InjectMocks
     private SoptampFacade soptampFacade;
@@ -138,15 +151,16 @@ class SoptampFacadeTest {
         // given
         final StampInfo.Stamp stampInfo = SoptampFixture.getStampInfo();
         final SoptampUserInfo soptampUserInfo = getSoptampUserInfo();
+        final StampView stampView = StampView.of(stampInfo, 0, true, NICKNAME);
 
         given(soptampUserFinder.findByNickname(NICKNAME)).willReturn(soptampUserInfo);
         given(stampService.findStamp(MISSION_ID, USER_ID)).willReturn(stampInfo);
 
         // when
-        StampInfo.Stamp result = soptampFacade.getStampInfo(MISSION_ID, NICKNAME);
+        StampView result = soptampFacade.getStampInfo(USER_ID, MISSION_ID, NICKNAME);
 
         // then
-        assertThat(result).isEqualTo(stampInfo);
+        assertThat(result).usingRecursiveComparison().isEqualTo(stampView);
     }
 
     @Test

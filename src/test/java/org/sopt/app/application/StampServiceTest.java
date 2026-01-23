@@ -5,7 +5,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.verify;
-import static org.sopt.app.common.fixtures.SoptampFixture.*;
+import static org.sopt.app.common.fixtures.SoptampFixture.EDITED_STAMP_ACTIVITY_DATE;
+import static org.sopt.app.common.fixtures.SoptampFixture.EDITED_STAMP_CONTENTS;
+import static org.sopt.app.common.fixtures.SoptampFixture.EDITED_STAMP_IMAGE;
+import static org.sopt.app.common.fixtures.SoptampFixture.getStampWithUserId;
+import static org.sopt.app.common.fixtures.SoptampFixture.getStampWithUserIdAndMissionId;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -215,7 +219,7 @@ class StampServiceTest {
 
         //when
         Mockito.when(stampRepository.findByUserIdAndMissionId(anyLong(), anyLong()))
-                .thenReturn(Optional.of(new Stamp()));
+                .thenReturn(Optional.of(Stamp.builder().build()));
 
         //then
         assertThatThrownBy(() -> stampService.checkDuplicateStamp(userId, missionId))
