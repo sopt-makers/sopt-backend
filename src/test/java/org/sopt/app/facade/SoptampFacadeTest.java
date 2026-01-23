@@ -2,9 +2,9 @@ package org.sopt.app.facade;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sopt.app.common.fixtures.MissionFixture.MISSION_ID;
 import static org.sopt.app.common.fixtures.MissionFixture.MISSION_LEVEL;
 import static org.sopt.app.common.fixtures.MissionFixture.getMission;
@@ -72,16 +72,22 @@ class SoptampFacadeTest {
         final StampInfo.Stamp uploadedStamp = SoptampFixture.getStampInfo();
         final StampRequest.RegisterStampRequest registerStampRequest = SoptampFixture.getRegisterStampRequest();
 
-        given(stampService.uploadStamp(registerStampRequest, USER_ID)).willReturn(uploadedStamp);
-        given(missionService.getMissionLevelById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
+        when(stampService.uploadStamp(registerStampRequest, USER_ID)).thenReturn(uploadedStamp);
+        when(missionService.getMissionLevelById(MISSION_ID)).thenReturn(MissionInfo.Level.of(MISSION_LEVEL));
+//        given(stampService.uploadStamp(registerStampRequest, USER_ID)).willReturn(uploadedStamp);
+//        given(missionService.getMissionLevelById(MISSION_ID)).willReturn(MissionInfo.Level.of(MISSION_LEVEL));
 
         // when
         StampInfo.Stamp result = soptampFacade.uploadStamp(USER_ID, registerStampRequest);
 
         // then
-        then(stampService).should(times(1)).checkDuplicateStamp(USER_ID, MISSION_ID);
-        then(stampService).should(times(1)).uploadStamp(registerStampRequest,USER_ID);
-        then(soptampUserService).should(times(1)).addPointByLevel(USER_ID, MISSION_LEVEL);
+        verify(stampService, times(1)).checkDuplicateStamp(USER_ID, MISSION_ID);
+        verify(stampService, times(1)).uploadStamp(registerStampRequest, USER_ID);
+        verify(soptampUserService, times(1)).addPointByLevel(USER_ID, MISSION_LEVEL);
+
+//        then(stampService).should(times(1)).checkDuplicateStamp(USER_ID, MISSION_ID);
+//        then(stampService).should(times(1)).uploadStamp(registerStampRequest,USER_ID);
+//        then(soptampUserService).should(times(1)).addPointByLevel(USER_ID, MISSION_LEVEL);
 
         assertEquals(uploadedStamp, result);
     }
@@ -93,13 +99,13 @@ class SoptampFacadeTest {
         EditStampRequest editStampRequest = SoptampFixture.getEditStampRequestWithMissionId(MISSION_ID);
         StampInfo.Stamp stamp = getStampInfo();
 
-        given(stampService.editStampContents(editStampRequest, USER_ID)).willReturn(stamp);
+        when(stampService.editStampContents(editStampRequest, USER_ID)).thenReturn(stamp);
 
         // when
         soptampFacade.editStamp(USER_ID, editStampRequest);
 
         // then
-        then(stampService).should(times(1)).editStampContents(editStampRequest, USER_ID);
+        verify(stampService, times(1)).editStampContents(editStampRequest, USER_ID);
     }
 
     @Test
@@ -109,15 +115,15 @@ class SoptampFacadeTest {
         Stamp stamp = getStampWithUserId(USER_ID);
         Level missionLevel = MissionInfo.Level.of(MISSION_LEVEL);
 
-        given(stampService.getStampForDelete(STAMP_ID, USER_ID)).willReturn(stamp);
-        given(missionService.getMissionLevelById(stamp.getMissionId())).willReturn(missionLevel);
+        when(stampService.getStampForDelete(STAMP_ID, USER_ID)).thenReturn(stamp);
+        when(missionService.getMissionLevelById(stamp.getMissionId())).thenReturn(missionLevel);
 
         // when
         soptampFacade.deleteStamp(USER_ID, STAMP_ID);
 
         // then
-        then(stampService).should(times(1)).deleteStampById(STAMP_ID);
-        then(soptampUserService).should(times(1)).subtractPointByLevel(USER_ID, missionLevel.getLevel());
+        verify(stampService, times(1)).deleteStampById(STAMP_ID);
+        verify(soptampUserService, times(1)).subtractPointByLevel(USER_ID, missionLevel.getLevel());
     }
 
     @Test
@@ -127,8 +133,8 @@ class SoptampFacadeTest {
         soptampFacade.deleteStampAll(USER_ID);
 
         // then
-        then(stampService).should(times(1)).deleteAllStamps(USER_ID);
-        then(soptampUserService).should(times(1)).initPoint(USER_ID);
+        verify(stampService, times(1)).deleteAllStamps(USER_ID);
+        verify(soptampUserService, times(1)).initPoint(USER_ID);
     }
 
     @Test
@@ -142,7 +148,7 @@ class SoptampFacadeTest {
         soptampFacade.editSoptampUserProfileMessage(USER_ID, newProfileMessage);
 
         // then
-        then(soptampUserService).should(times(1)).editProfileMessage(soptampUser.getUserId(), newProfileMessage);
+        verify(soptampUserService, times(1)).editProfileMessage(soptampUser.getUserId(), newProfileMessage);
     }
 
     @Test
@@ -153,8 +159,8 @@ class SoptampFacadeTest {
         final SoptampUserInfo soptampUserInfo = getSoptampUserInfo();
         final StampView stampView = StampView.of(stampInfo, 0, true, NICKNAME);
 
-        given(soptampUserFinder.findByNickname(NICKNAME)).willReturn(soptampUserInfo);
-        given(stampService.findStamp(MISSION_ID, USER_ID)).willReturn(stampInfo);
+        when(soptampUserFinder.findByNickname(NICKNAME)).thenReturn(soptampUserInfo);
+        when(stampService.findStamp(MISSION_ID, USER_ID)).thenReturn(stampInfo);
 
         // when
         StampView result = soptampFacade.getStampInfo(USER_ID, MISSION_ID, NICKNAME);
@@ -181,9 +187,9 @@ class SoptampFacadeTest {
             soptampUserInfo.getProfileMessage(),
             List.of(rankMission1, rankMission2));
 
-        given(soptampUserFinder.findByNickname(NICKNAME)).willReturn(soptampUserInfo);
-        given(missionService.getCompleteMission(USER_ID)).willReturn(completedMissions);
-        given(rankResponseMapper.of(soptampUserInfo, completedMissions)).willReturn(expected);
+        when(soptampUserFinder.findByNickname(NICKNAME)).thenReturn(soptampUserInfo);
+        when(missionService.getCompleteMission(USER_ID)).thenReturn(completedMissions);
+        when(rankResponseMapper.of(soptampUserInfo, completedMissions)).thenReturn(expected);
 
         // when
         Detail result = soptampFacade.findSoptampUserAndCompletedMissionByNickname(NICKNAME);

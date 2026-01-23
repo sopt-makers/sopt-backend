@@ -1,14 +1,22 @@
 package org.sopt.app.facade;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.BDDMockito.given;
-import static org.sopt.app.common.fixtures.SoptampUserFixture.*;
+import static org.mockito.Mockito.when;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SERVER_PART_SOPTAMP_USER;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SERVER_PART_SOPTAMP_USER_INFO_LIST;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_PROFILE_MESSAGE_CACHE;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_SCORE_CACHE;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_1;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_2;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_3;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_4;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_5;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_6;
+import static org.sopt.app.common.fixtures.SoptampUserFixture.SOPTAMP_USER_INFO_LIST;
 import static org.sopt.app.domain.enums.Part.ANDROID;
 import static org.sopt.app.domain.enums.Part.DESIGN;
 import static org.sopt.app.domain.enums.Part.IOS;
-import static org.sopt.app.domain.enums.Part.PLAN;
 
 import java.util.Collections;
 import java.util.List;
@@ -52,12 +60,19 @@ class RankFacadeTest {
             @BeforeEach
             void setUp(){
                 // given
-                given(rankCacheService.getRanking()).willReturn(SOPTAMP_SCORE_CACHE);
-                given(rankCacheService.getUserInfo(anyLong()))
-                    .willAnswer(invocation -> {
+                when(rankCacheService.getRanking()).thenReturn(SOPTAMP_SCORE_CACHE);
+                when(rankCacheService.getUserInfo(anyLong()))
+                    .thenAnswer(invocation -> {
                         Long userId  = invocation.getArgument(0);
                         return SOPTAMP_PROFILE_MESSAGE_CACHE.get(userId);
                     });
+//
+//                given(rankCacheService.getRanking()).willReturn(SOPTAMP_SCORE_CACHE);
+//                given(rankCacheService.getUserInfo(anyLong()))
+//                    .willAnswer(invocation -> {
+//                        Long userId  = invocation.getArgument(0);
+//                        return SOPTAMP_PROFILE_MESSAGE_CACHE.get(userId);
+//                    });
 
                 // when
                 result = rankFacade.findCurrentRanks();
@@ -108,8 +123,8 @@ class RankFacadeTest {
             @BeforeEach
             void setUp(){
                 // given
-                given(rankCacheService.getRanking()).willReturn(Collections.emptySet());
-                given(soptampUserFinder.findAllOfCurrentGeneration()).willReturn(SOPTAMP_USER_INFO_LIST);
+                when(rankCacheService.getRanking()).thenReturn(Collections.emptySet());
+                when(soptampUserFinder.findAllOfCurrentGeneration()).thenReturn(SOPTAMP_USER_INFO_LIST);
 
                 // when
                 result = rankFacade.findCurrentRanks();
@@ -156,8 +171,8 @@ class RankFacadeTest {
     @DisplayName("SUCCESS_동점자가 포함된 현재 기수의 솝탬프 유저 랭킹을 정상적으로 조회함")
     void SUCCESS_findCurrentRanks() {
         //given
-        given(rankCacheService.getRanking()).willReturn(Collections.emptySet());
-        given(soptampUserFinder.findAllOfCurrentGeneration()).willReturn(SOPTAMP_USER_INFO_LIST);
+        when(rankCacheService.getRanking()).thenReturn(Collections.emptySet());
+        when(soptampUserFinder.findAllOfCurrentGeneration()).thenReturn(SOPTAMP_USER_INFO_LIST);
 
         // when
         List<Main> result = rankFacade.findCurrentRanks();
@@ -194,7 +209,7 @@ class RankFacadeTest {
     @DisplayName("SUCCESS_파트별 현재 기수의 솝탬프 유저 랭킹을 정상적으로 조회함")
     void SUCCESS_findCurrentRanksByPart() {
         // given
-        given(soptampUserFinder.findAllByPartAndCurrentGeneration(Part.SERVER)).willReturn(SERVER_PART_SOPTAMP_USER_INFO_LIST);
+        when(soptampUserFinder.findAllByPartAndCurrentGeneration(Part.SERVER)).thenReturn(SERVER_PART_SOPTAMP_USER_INFO_LIST);
 
         // when
         List<Main> result = rankFacade.findCurrentRanksByPart(Part.SERVER);
@@ -214,7 +229,7 @@ class RankFacadeTest {
     @DisplayName("SUCCESS_파트에 soptampUser가 존재하지 않을 경우 파트별 현재 기수의 솝탬프 유저 랭킹 조회 시 빈리스트를 정상적으로 반환함")
     void SUCCESS_findCurrentRanksByPart_whenEmptyUser() {
         // given
-        given(soptampUserFinder.findAllByPartAndCurrentGeneration(Part.SERVER)).willReturn(Collections.emptyList());
+        when(soptampUserFinder.findAllByPartAndCurrentGeneration(Part.SERVER)).thenReturn(Collections.emptyList());
 
         // when
         List<Main> result = rankFacade.findCurrentRanksByPart(Part.SERVER);
@@ -232,7 +247,7 @@ class RankFacadeTest {
         @BeforeEach
         void setUp(){
             // given
-            given(soptampUserFinder.findAllOfCurrentGeneration()).willReturn(SOPTAMP_USER_INFO_LIST);
+            when(soptampUserFinder.findAllOfCurrentGeneration()).thenReturn(SOPTAMP_USER_INFO_LIST);
 
             //when
             result = rankFacade.findAllPartRanks();
@@ -289,7 +304,7 @@ class RankFacadeTest {
 
         @BeforeEach
         void setUp(){
-            given(soptampUserFinder.findAllOfCurrentGeneration()).willReturn(SOPTAMP_USER_INFO_LIST);
+            when(soptampUserFinder.findAllOfCurrentGeneration()).thenReturn(SOPTAMP_USER_INFO_LIST);
         }
 
         @Test
@@ -346,7 +361,7 @@ class RankFacadeTest {
         class FindUserRankTestWithCache{
             @BeforeEach
             public void setUp() {
-                given(rankCacheService.getRanking()).willReturn(SOPTAMP_SCORE_CACHE);
+                when(rankCacheService.getRanking()).thenReturn(SOPTAMP_SCORE_CACHE);
             }
 
             @Test
@@ -378,9 +393,8 @@ class RankFacadeTest {
 
             @BeforeEach
             public void setUp() {
-                given(rankCacheService.getRanking()).willReturn(Collections.emptySet());
-                given(soptampUserFinder.findAllOfCurrentGeneration()).willReturn(
-                    SOPTAMP_USER_INFO_LIST);
+                when(rankCacheService.getRanking()).thenReturn(Collections.emptySet());
+                when(soptampUserFinder.findAllOfCurrentGeneration()).thenReturn(SOPTAMP_USER_INFO_LIST);
             }
 
             @Test

@@ -3,9 +3,16 @@ package org.sopt.app.application;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.PLATFORM_PART_NAME_ANDROID;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.PLATFORM_PART_NAME_IOS;
 import static org.sopt.app.common.fixtures.SoptampUserFixture.PLATFORM_PART_NAME_SERVER;
@@ -15,7 +22,6 @@ import static org.sopt.app.common.fixtures.SoptampUserFixture.getSoptampUserWith
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -487,7 +493,7 @@ class SoptampUserServiceTest {
         final String newProfileMessage = "newProfileMessage";
 
         SoptampUser soptampUser = getSoptampUser(soptampUserId, userId);
-        given(soptampUserRepository.findByUserId(userId)).willReturn(Optional.of(soptampUser));
+        when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.of(soptampUser));
 
         // when
         SoptampUserInfo result = soptampUserService.editProfileMessage(userId, newProfileMessage);
@@ -504,7 +510,7 @@ class SoptampUserServiceTest {
         final Long userId = -1L;
         final String newProfileMessage = "newProfileMessage";
 
-        given(soptampUserRepository.findByUserId(anyLong())).willReturn(Optional.empty());
+        when(soptampUserRepository.findByUserId(anyLong())).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> soptampUserService.editProfileMessage(userId, newProfileMessage))
@@ -694,8 +700,8 @@ class SoptampUserServiceTest {
 
         SoptampUser existingUser = mock(SoptampUser.class);
 
-        given(soptampUserRepository.findByUserId(userId)).willReturn(Optional.of(existingUser));
-        given(existingUser.getGeneration()).willReturn(generation);
+        when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.of(existingUser));
+        when(existingUser.getGeneration()).thenReturn(generation);
 
         //when
         soptampUserService.upsertSoptampUser(platformUserInfoResponse, userId);
