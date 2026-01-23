@@ -37,18 +37,7 @@ public class StampService {
         val entity = stampRepository.findByUserIdAndMissionId(userId, missionId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND));
         entity.validate();
-        return StampInfo.Stamp.builder()
-                .id(entity.getId())
-                .userId(entity.getUserId())
-                .contents(entity.getContents())
-                .images(entity.getImages())
-                .activityDate(entity.getActivityDate())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .missionId(entity.getMissionId())
-                .clapCount(entity.getClapCount())
-                .viewCount(entity.getViewCount())
-                .build();
+
         return StampInfo.Stamp.from(entity);
     }
 
