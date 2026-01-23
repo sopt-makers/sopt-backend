@@ -93,8 +93,8 @@ public class MissionService {
 
     public MissionInfo.Level getMissionLevelById(Long missionId) {
         val mission = missionRepository.findById(missionId).orElseThrow(
-            () -> new NotFoundException(ErrorCode.MISSION_NOT_FOUND)
-        );
+            () -> new NotFoundException(ErrorCode.MISSION_NOT_FOUND));
+
         return MissionInfo.Level.of(mission.getLevel());
     }
 
