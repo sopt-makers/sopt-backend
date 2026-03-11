@@ -1,6 +1,8 @@
 package org.sopt.app.domain.enums;
 
 import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -29,7 +31,19 @@ public enum SoptPart {
     // 파트장이 솝탬프 파트별 랭킹에 관여할 수 있으려면 각 파트의 shortedPartName이 접두사로 필요하다
 
     NONE("미상", "선배"),
+
+    /**
+     * Sopt Makers Chapter
+     */
+    PM("PM", "PM"),
+    FRONTEND("프론트엔드", "FE"),
+    BACKEND("백엔드", "BE"),
+    MARKETER("마케터", "마케터"),
+    RESEARCHER("리서처", "리서처"),
+    ORGANIZER("오거나이저", "오거나이저"),
+    CX("CX", "CX"),
     ;
+
     final String partName;
     final String shortedPartName;
 
@@ -38,6 +52,18 @@ public enum SoptPart {
                 .filter(soptPart -> soptPart.partName.equalsIgnoreCase(partName))
                 .findAny()
                 .orElse(SoptPart.NONE);
+    }
+
+    private static final Set<SoptPart> SOPT_PARTS = EnumSet.of(
+            PLAN, PLAN_PART_LEADER,
+            DESIGN, DESIGN_PART_LEADER,
+            ANDROID, ANDROID_PART_LEADER,
+            IOS, IOS_PART_LEADER,
+            WEB, WEB_PART_LEADER,
+            SERVER, SERVER_PART_LEADER);
+
+    public boolean isSoptPart() {
+        return SOPT_PARTS.contains(this);
     }
 
     public static Part toPart(SoptPart soptPart) {
