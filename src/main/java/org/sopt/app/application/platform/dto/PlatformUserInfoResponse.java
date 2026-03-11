@@ -1,6 +1,7 @@
 package org.sopt.app.application.platform.dto;
 
 
+import java.util.Comparator;
 import java.util.List;
 
 public record PlatformUserInfoResponse(
@@ -20,6 +21,9 @@ public record PlatformUserInfoResponse(
             String team,
             Boolean isSopt
     ){
+        public boolean isSoptActivity() {
+            return Boolean.TRUE.equals(this.isSopt);
+        }
     }
 
     /**
@@ -29,7 +33,7 @@ public record PlatformUserInfoResponse(
     public SoptActivities getLatestActivity() {
         if (soptActivities == null) return null;
         return soptActivities.stream()
-            .max(java.util.Comparator.comparingInt(SoptActivities::generation))
+            .max(Comparator.comparingInt(SoptActivities::generation))
             .orElse(null);
     }
 
@@ -40,8 +44,8 @@ public record PlatformUserInfoResponse(
     public SoptActivities getLatestSoptActivity() {
         if (soptActivities == null) return null;
         return soptActivities.stream()
-            .filter(a -> Boolean.TRUE.equals(a.isSopt()))
-            .max(java.util.Comparator.comparingInt(SoptActivities::generation))
+            .filter(SoptActivities::isSoptActivity)
+            .max(Comparator.comparingInt(SoptActivities::generation))
             .orElse(null);
     }
 
@@ -49,7 +53,7 @@ public record PlatformUserInfoResponse(
         if (soptActivities == null || soptActivities.isEmpty()) return 0;
 
         return soptActivities.stream()
-            .filter(SoptActivities::isSopt)
+            .filter(SoptActivities::isSoptActivity)
             .map(SoptActivities::generation)
             .max(Integer::compareTo)
             .orElse(0);
