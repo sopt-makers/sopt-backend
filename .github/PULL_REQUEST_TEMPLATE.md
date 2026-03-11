@@ -8,17 +8,9 @@
 
 <!-- 작업 내용을 간단히 소개주세요 -->
 
-## Trouble Shooting ⚽️
-
-<!-- 어떤 위험이나 장애를 발견했는지 적어주세요 -->
-
 ## Related ScreenShot 📷
 
 <!-- 관련 스크린샷을 첨부해주세요 -->
-
-## Uncompleted Tasks 😅
-
-<!-- 끝내지 못한 작업을 적어주세요 -->
 
 ## To Reviewers 📢
 
