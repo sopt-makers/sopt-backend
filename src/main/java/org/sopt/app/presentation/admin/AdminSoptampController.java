@@ -2,7 +2,8 @@ package org.sopt.app.presentation.admin;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.*;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.exception.BadRequestException;
@@ -10,7 +11,10 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.facade.AdminSoptampFacade;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,18 +26,21 @@ public class AdminSoptampController {
     @Value("${makers.app.admin.password}")
     private String adminPassword;
 
-    @Operation(summary = "스탬프/포인트 전체 초기화")
+    @Operation(summary = "Stamp / Soptamp 데이터 초기화",
+        description = "쿼리스트링을 통해 선택적으로 삭제 가능. Stamp 삭제 시 해당 이미지, clap 데이터도 함께 삭제됨")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "401", description = "token error", content = @Content),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @DeleteMapping(value = "/stamp")
-    public ResponseEntity<Void> initAllMissionAndStampAndPoints(
-            @RequestParam(name = "password") String password
+    @DeleteMapping(value = "/clear")
+    public ResponseEntity<Void> clearSoptampData(
+            @RequestParam(name = "password") String password,
+            @RequestParam(name = "stamp", defaultValue = "true") boolean stamp,
+            @RequestParam(name = "soptampUser", defaultValue = "true") boolean soptampUser
     ) {
         validateAdmin(password);
-        adminSoptampFacade.initAllMissionAndStampAndPoints();
+        adminSoptampFacade.clearSoptampData(stamp, soptampUser);
         return ResponseEntity.ok().build();
     }
 
