@@ -127,7 +127,16 @@
          int generation,
          String part
      ) {
-         return new SoptActivities(ID_GENERATOR.getAndIncrement(), generation, part, null);
+         // SOPT 정규 활동(isSopt=true) 기본 헬퍼
+         return new SoptActivities(ID_GENERATOR.getAndIncrement(), generation, part, null, true);
+     }
+
+     public static SoptActivities getSoptActivities(
+         int generation,
+         String part,
+         boolean isSopt
+     ) {
+         return new SoptActivities(ID_GENERATOR.getAndIncrement(), generation, part, null, isSopt);
      }
 
      public static PlatformUserInfoResponse getPlatformUserInfoResponse(

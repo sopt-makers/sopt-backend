@@ -61,23 +61,28 @@ class SoptampUserServiceTest {
 	@InjectMocks
 	SoptampUserService soptampUserService;
 
-	private PlatformUserInfoResponse buildProfile(String name, int lastGeneration, String part) {
-		PlatformUserInfoResponse.SoptActivities latest =
-			new PlatformUserInfoResponse.SoptActivities(
-				1,                // activityId
-				lastGeneration,   // generation
-				part,             // part
-				"아무팀"            // team (여기선 안 씀)
-			);
+	    private PlatformUserInfoResponse buildProfile(String name, int lastGeneration, String part) {
+        return buildProfile(name, lastGeneration, part, true); // SOPT 정규 활동 기본값
+    }
 
-		return new PlatformUserInfoResponse(
-			1,                  // userId
-			name,
-			null, null, null, null,
-			lastGeneration,
-			List.of(latest)
-		);
-	}
+    private PlatformUserInfoResponse buildProfile(String name, int lastGeneration, String part, boolean isSopt) {
+        PlatformUserInfoResponse.SoptActivities latest =
+            new PlatformUserInfoResponse.SoptActivities(
+                1,                // activityId
+                lastGeneration,   // generation
+                part,             // part
+                "아무팀",            // team (여기선 안 씀)
+                isSopt
+            );
+
+        return new PlatformUserInfoResponse(
+            1,                  // userId
+            name,
+            null, null, null, null,
+            lastGeneration,
+            List.of(latest)
+        );
+    }
 
 	@BeforeEach
 	void setUp() {
@@ -222,7 +227,54 @@ class SoptampUserServiceTest {
 		verify(rankCacheService).createNewRank(userId);
 	}
 
-	/* ==================== APPJAM 모드 테스트 ==================== */
+    @Test
+    @DisplayName("NORMAL 모드 - isSopt=false인 Makers 활동만 있으면 SoptampUser를 생성하지 않는다")
+    void 일반모드_Makers이면_솝탬프유저_생성안함() {
+        // given
+        long userId = 1L;
+        // "백엔드" 파트, isSopt=false → getLatestSoptActivity() = null
+        PlatformUserInfoResponse profile = buildProfile("김솝트", 37, "백엔드", false);
+
+        // when
+        soptampUserService.upsertSoptampUser(profile, userId);
+
+        // then
+        verifyNoInteractions(soptampUserRepository, appjamUserRepository, rankCacheService);
+    }
+
+    @Test
+    @DisplayName("NORMAL 모드 - 메이커스(isSopt=false)이면서 동시에 SOPT 서버 파트(isSopt=true) 활동이 있으면 SOPT 활동 기준으로 생성된다")
+    void 일반모드_메이커스이면서_솝트파트있으면_솝트파트기준으로_생성() {
+        // given
+        long userId = 1L;
+        PlatformUserInfoResponse.SoptActivities presidentActivity =
+            new PlatformUserInfoResponse.SoptActivities(1, 37, "BE", null, false);
+        PlatformUserInfoResponse.SoptActivities serverActivity =
+            new PlatformUserInfoResponse.SoptActivities(2, 37, "서버", null, true);
+
+        PlatformUserInfoResponse profile = new PlatformUserInfoResponse(
+            1, "김솝트", null, null, null, null, 37,
+            List.of(presidentActivity, serverActivity)
+        );
+
+        when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.empty());
+        when(soptampUserRepository.existsByNickname(anyString())).thenReturn(false);
+
+        ArgumentCaptor<SoptampUser> captor = ArgumentCaptor.forClass(SoptampUser.class);
+
+        // when
+        soptampUserService.upsertSoptampUser(profile, userId);
+
+        // then
+        verify(soptampUserRepository).save(captor.capture());
+        SoptampUser saved = captor.getValue();
+        assertThat(saved.getNickname())
+            .startsWith(SoptPart.findSoptPartByPartName("서버").getShortedPartName());
+        assertThat(saved.getNickname()).contains("김솝트");
+        verify(rankCacheService).createNewRank(userId);
+    }
+
+    /* ==================== APPJAM 모드 테스트 ==================== */
 
 	@Test
 	@DisplayName("APPJAM 모드 - SoptampUser가 없고 AppjamUser가 있으면 팀명+이름으로 앱잼 유저 생성")
@@ -289,13 +341,42 @@ class SoptampUserServiceTest {
 		assertThat(saved.getNickname()).contains("김솝트");
 		assertThat(saved.getTotalPoints()).isZero();
 
-		// 앱잼 시즌: 개인 랭킹 캐시 사용 안 함
-		verifyNoInteractions(rankCacheService);
-	}
+        // 앱잼 시즌: 개인 랭킹 캐시 사용 안 함
+        verifyNoInteractions(rankCacheService);
+    }
 
-	@Test
-	@DisplayName("APPJAM 모드 - 기존 닉네임이 파트 기반이면 앱잼 닉네임으로 1회 마이그레이션 후 포인트 초기화")
-	void 앱잼모드_파트닉네임이면_앱잼닉네임으로변환_포인트초기화() {
+    @Test
+    @DisplayName("APPJAM 모드 - 임원진(isSopt=false)이면서 AppjamUser 없으면 기수+기+이름으로 생성된다")
+    void 앱잼모드_임원진이면서_AppjamUser없으면_기수닉네임으로생성() {
+        // given
+        ReflectionTestUtils.setField(soptampUserService, "appjamMode", true);
+
+        long userId = 1L;
+        // 앱잼 시즌에는 getLatestActivity()를 쓰므로 isSopt 무관 — 임원진도 포함
+        PlatformUserInfoResponse profile = buildProfile("김솝트", 37, "회장", false);
+
+        when(soptampUserRepository.findByUserId(userId)).thenReturn(Optional.empty());
+        when(appjamUserRepository.findByUserId(userId)).thenReturn(Optional.empty());
+        when(soptampUserRepository.existsByNickname(anyString())).thenReturn(false);
+
+        ArgumentCaptor<SoptampUser> captor = ArgumentCaptor.forClass(SoptampUser.class);
+
+        // when
+        soptampUserService.upsertSoptampUser(profile, userId);
+
+        // then: 임원진도 앱잼 시즌에는 "37기김솝트" 형식으로 구경용 유저 생성
+        verify(soptampUserRepository).save(captor.capture());
+        SoptampUser saved = captor.getValue();
+        assertThat(saved.getNickname()).startsWith("37기");
+        assertThat(saved.getNickname()).contains("김솝트");
+        assertThat(saved.getTotalPoints()).isZero();
+
+        verifyNoInteractions(rankCacheService);
+    }
+
+    @Test
+    @DisplayName("APPJAM 모드 - 기존 닉네임이 파트 기반이면 앱잼 닉네임으로 1회 마이그레이션 후 포인트 초기화")
+    void 앱잼모드_파트닉네임이면_앱잼닉네임으로변환_포인트초기화() {
 		// given
 		ReflectionTestUtils.setField(soptampUserService, "appjamMode", true);
 
