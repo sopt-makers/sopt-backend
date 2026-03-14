@@ -144,11 +144,14 @@ public class StampService {
 
     @Transactional
     public void deleteAllStamps(Long userId) {
-        stampRepository.deleteAllByUserId(userId);
-
         val imageUrls = stampRepository.findAllByUserId(userId).stream().map(Stamp::getImages)
                 .flatMap(Collection::stream).toList();
-        eventPublisher.raise(new StampDeletedEvent(imageUrls));
+
+        stampRepository.deleteAllByUserId(userId);
+
+        if (!imageUrls.isEmpty()) {
+            eventPublisher.raise(new StampDeletedEvent(imageUrls));
+        }
     }
 
     @EventListener(UserWithdrawEvent.class)
@@ -206,7 +209,21 @@ public class StampService {
     }
 
     public void deleteAll() {
-        stampRepository.deleteAll();
+        stampRepository.deleteAllInBatch();
+    }
+
+    @Transactional
+    public void deleteAllStampsWithImages() {
+        val imageUrls = stampRepository.findAll().stream()
+                .map(Stamp::getImages)
+                .flatMap(Collection::stream)
+                .toList();
+
+        stampRepository.deleteAllInBatch();
+
+        if (!imageUrls.isEmpty()) {
+            eventPublisher.raise(new StampDeletedEvent(imageUrls));
+        }
     }
 
     @Transactional(readOnly = true)

@@ -351,6 +351,36 @@ class StampServiceTest {
             });
     }
 
+    @Test
+    @DisplayName("SUCCESS_새 기수 준비를 위한 전체 스탬프 삭제 및 S3 삭제 이벤트 발생")
+    void SUCCESS_deleteAllStampsWithImages() {
+        // given
+        List<String> userImages1 = List.of("image1", "image2");
+        List<String> userImages2 = List.of("image3", "image4");
+
+        List<String> allImages = new ArrayList<>(userImages1);
+        allImages.addAll(userImages2);
+
+        Stamp stamp1 = Stamp.builder().images(userImages1).build();
+        Stamp stamp2 = Stamp.builder().images(userImages2).build();
+
+        Mockito.when(stampRepository.findAll()).thenReturn(List.of(stamp1, stamp2));
+
+        // when
+        stampService.deleteAllStampsWithImages();
+
+        // then
+        verify(stampRepository).findAll();
+        verify(stampRepository).deleteAllInBatch();
+
+        ArgumentCaptor<StampDeletedEvent> stampDeletedEventCaptor = ArgumentCaptor.forClass(StampDeletedEvent.class);
+        verify(eventPublisher).raise(stampDeletedEventCaptor.capture());
+        StampDeletedEvent capturedEvent = stampDeletedEventCaptor.getValue();
+        List<String> deletedImages = capturedEvent.getFileUrls();
+
+        assertThat(deletedImages).isEqualTo(allImages);
+    }
+
     private Stamp getSavedStamp(Long userId, Long missionId) {
         final Optional<Stamp> savedStamp = Optional.of(
             getStampWithUserIdAndMissionId(userId, missionId));
@@ -359,5 +389,4 @@ class StampServiceTest {
 
         return savedStamp.get();
     }
-
 }
