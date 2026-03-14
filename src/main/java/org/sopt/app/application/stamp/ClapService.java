@@ -129,4 +129,9 @@ public class ClapService {
 				.orElseThrow(() -> e);
 		}
 	}
+
+    @Transactional
+    public void deleteAll() {
+        clapRepository.deleteAllInBatch();
+    }
 }
