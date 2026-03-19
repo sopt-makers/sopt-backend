@@ -310,6 +310,12 @@ public class SoptampUserService {
         rankCacheService.addAll(soptampUserList.stream().map(SoptampUserInfo::of).toList());
     }
 
+    @Transactional
+    public void deleteAllSoptampUsers() {
+        soptampUserRepository.deleteAllInBatch();
+        rankCacheService.deleteAll();
+    }
+
     @EventListener(UserWithdrawEvent.class)
     public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
         soptampUserRepository.deleteByUserId(event.getUserId());

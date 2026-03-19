@@ -24,4 +24,10 @@ public class ClapMilestoneGuard {
                 "ON CONFLICT (stamp_id, milestone) DO NOTHING";
         return jdbcTemplate.update(sql, stampId, milestone) == 1;
     }
+
+    @Transactional
+    public void deleteAll() {
+        String sql = "TRUNCATE TABLE " + schema + ".clap_milestone_hit";
+        jdbcTemplate.execute(sql);
+    }
 }
