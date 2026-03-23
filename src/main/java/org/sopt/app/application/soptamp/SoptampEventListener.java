@@ -1,5 +1,7 @@
 package org.sopt.app.application.soptamp;
 
+import static org.sopt.app.common.config.AsyncConfig.CACHE_SYNC_EXECUTOR;
+
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.rank.CachedUserInfo;
@@ -22,7 +24,7 @@ public class SoptampEventListener {
     private final RankCacheService rankCacheService;
     private final SoptampUserRepository soptampUserRepository;
 
-    @Async
+    @Async(CACHE_SYNC_EXECUTOR)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleScoreCacheSyncEvent(final SoptampUserScoreCacheSyncEvent event) {
         soptampUserRepository.findByUserId(event.getUserId()).ifPresent(user ->
@@ -30,7 +32,7 @@ public class SoptampEventListener {
         );
     }
 
-    @Async
+    @Async(CACHE_SYNC_EXECUTOR)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleProfileCacheSyncEvent(final SoptampUserProfileCacheSyncEvent event) {
         soptampUserRepository.findByUserId(event.getUserId()).ifPresent(user ->
@@ -38,7 +40,7 @@ public class SoptampEventListener {
         );
     }
 
-    @Async
+    @Async(CACHE_SYNC_EXECUTOR)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleAllCacheSyncEvent(final SoptampUserAllCacheSyncEvent event) {
         soptampUserRepository.findByUserId(event.getUserId()).ifPresent(user -> {
@@ -47,14 +49,14 @@ public class SoptampEventListener {
         });
     }
 
-    @Async
+    @Async(CACHE_SYNC_EXECUTOR)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void handleRemoveCacheSyncEvent(final SoptampUserRemoveCacheEvent event) {
         rankCacheService.removeRank(event.getUserId());
         rankCacheService.removeCachedUserInfo(event.getUserId());
     }
 
-    @Async
+    @Async(CACHE_SYNC_EXECUTOR)
     @TransactionalEventListener(
         phase = TransactionPhase.AFTER_COMMIT,
         classes = UserWithdrawEvent.class
