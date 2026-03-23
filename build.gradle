@@ -138,9 +138,8 @@ task lambdaJar(type: Zip) {
     }
 
     into('lib') {
-        from(jar) // 💡 람다가 클래스를 찾을 수 있었던 진짜 이유! 무조건 부활시켜야 합니다.
+        from(jar)
         from(configurations.runtimeClasspath) {
-            // 톰캣 제외 설정은 이렇게 이름으로 해야 정상 작동합니다.
             exclude "tomcat-embed-*"
             exclude "META-INF/*.SF"
             exclude "META-INF/*.DSA"
