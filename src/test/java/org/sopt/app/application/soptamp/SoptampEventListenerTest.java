@@ -1,7 +1,6 @@
 package org.sopt.app.application.soptamp;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -17,7 +16,7 @@ import org.sopt.app.application.rank.CachedUserInfo;
 import org.sopt.app.application.rank.RankCacheService;
 import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserAllCacheSyncEvent;
 import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserProfileCacheSyncEvent;
-import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserRemoveCacheSyncEvent;
+import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserRemoveCacheEvent;
 import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserScoreCacheSyncEvent;
 import org.sopt.app.application.user.UserWithdrawEvent;
 import org.sopt.app.common.fixtures.SoptampUserFixture;
@@ -96,7 +95,7 @@ class SoptampEventListenerTest {
     void SUCCESS_handleRemoveCacheSyncEvent_callRemoveMethods() {
         // given
         final Long userId = 1L;
-        final SoptampUserRemoveCacheSyncEvent event = SoptampUserRemoveCacheSyncEvent.of(userId);
+        final SoptampUserRemoveCacheEvent event = SoptampUserRemoveCacheEvent.of(userId);
 
         // when
         soptampEventListener.handleRemoveCacheSyncEvent(event);

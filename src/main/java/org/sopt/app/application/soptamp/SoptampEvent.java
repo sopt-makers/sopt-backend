@@ -29,7 +29,7 @@ public class SoptampEvent {
 
     @Getter
     @RequiredArgsConstructor(staticName = "of")
-    public static class SoptampUserRemoveCacheSyncEvent extends Event {
+    public static class SoptampUserRemoveCacheEvent extends Event {
         private final Long userId;
     }
 

@@ -6,7 +6,7 @@ import org.sopt.app.application.rank.CachedUserInfo;
 import org.sopt.app.application.rank.RankCacheService;
 import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserAllCacheSyncEvent;
 import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserProfileCacheSyncEvent;
-import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserRemoveCacheSyncEvent;
+import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserRemoveCacheEvent;
 import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserScoreCacheSyncEvent;
 import org.sopt.app.application.user.UserWithdrawEvent;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
@@ -53,7 +53,7 @@ public class SoptampEventListener {
 
     @Async
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    public void handleRemoveCacheSyncEvent(final SoptampUserRemoveCacheSyncEvent event) {
+    public void handleRemoveCacheSyncEvent(final SoptampUserRemoveCacheEvent event) {
         rankCacheService.removeRank(event.getUserId());
         rankCacheService.removeCachedUserInfo(event.getUserId());
     }
