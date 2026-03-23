@@ -126,6 +126,7 @@ dependencyManagement {
 
 // Lambda ZIP 빌드 설정
 task lambdaJar(type: Zip) {
+    dependsOn classes // 컴파일 및 리소스 처리 완료 후 실행되도록 의존성 명시
     archiveClassifier = 'lambda'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     zip64 = true  // 대용량 ZIP 파일 지원
