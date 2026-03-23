@@ -126,7 +126,7 @@ dependencyManagement {
 
 // Lambda ZIP 빌드 설정
 task lambdaJar(type: Zip) {
-    dependsOn jar // jar 태스크가 무조건 먼저 만들어지도록 순서 보장!
+    dependsOn jar, bootJar
 
     archiveClassifier = 'lambda'
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
