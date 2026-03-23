@@ -13,6 +13,7 @@ import org.sopt.app.domain.entity.soptamp.Clap;
 import org.sopt.app.domain.entity.soptamp.Stamp;
 import org.sopt.app.interfaces.postgres.ClapRepository;
 import org.sopt.app.interfaces.postgres.StampRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @Slf4j
 public class ClapService {
+
+    @Value("${makers.app.soptamp.appjam-mode:false}")
+    private boolean appjamMode;
 
 	private static final int MAX_RETRY = 3;
     private final EventPublisher eventPublisher;
@@ -62,8 +66,10 @@ public class ClapService {
 		if (applied > 0) {
 			stampRepository.incrementClapCountReturning(stampId, applied);
 			final int newClapTotal = oldClapTotal + applied;
-            // TODO: 앱잼탬프 운영 기간동안 박수 알림 방지를 위해 주석 처리. 별도 박수 API를 구현 및 연결하기에 시간이 부족하여 주석처리함. 추후 복원하기
-//			eventPublisher.raise(ClapEvent.of(stamp.getUserId(), stampId, oldClapTotal, newClapTotal));
+
+            if(!appjamMode){
+                eventPublisher.raise(ClapEvent.of(stamp.getUserId(), stampId, oldClapTotal, newClapTotal));
+            }
 		}
 		return applied;
 	}
