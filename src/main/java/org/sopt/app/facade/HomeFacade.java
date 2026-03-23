@@ -71,6 +71,7 @@ public class HomeFacade {
         // TODO : 추후 유저 생성 api response 변경해 생성 api 쪽에서 soptamp user upsert 하도록 변경
         PlatformUserInfoResponse platformUserInfo = platformService.getPlatformUserInfoResponse(userId);
         UserStatus status = platformService.getStatus(platformUserInfo);
+        soptampUserService.upsertSoptampUser(platformUserInfo, userId);
 
         List<AppServiceEntryStatusResponse> appServiceEntryStatusResponses = appServiceService.getAllAppService().stream()
             .filter(appServiceInfo -> isServiceVisibleToUser(appServiceInfo, status))
@@ -78,7 +79,6 @@ public class HomeFacade {
                 appServiceInfo, userId
             ))
             .toList();
-        soptampUserService.upsertSoptampUser(platformUserInfo, userId);
         return appServiceEntryStatusResponses;
     }
 
