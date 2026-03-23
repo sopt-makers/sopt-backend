@@ -2,7 +2,7 @@ name: ⚙️ MAKERS-DEV-APP-DEPLOY
 
 on:
   push:
-    branches: [ dev ]
+#    branches: [ dev ]
 
 env:
   SPRING_PROFILES_ACTIVE: dev
