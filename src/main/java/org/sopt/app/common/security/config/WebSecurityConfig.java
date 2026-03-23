@@ -47,6 +47,7 @@ public class WebSecurityConfig {
             "/api/v2/home/floating-button",
             "/api/v2/home/review-form",
             "/api/v2/admin/notification/**",
+            "/api/v2/admin/soptamp/**",
             "/.well-known/**",
     };
 
