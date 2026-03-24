@@ -156,7 +156,7 @@ build.dependsOn lambdaJar
 // JAR 설정
 jar {
     enabled = true
-    archiveClassifier = ''
+    archiveClassifier = 'plain'
 }
 
 bootJar {
