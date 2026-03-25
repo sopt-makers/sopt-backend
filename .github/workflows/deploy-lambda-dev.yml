@@ -4,7 +4,7 @@ on:
   workflow_dispatch:              # 수동 실행
   push:
     branches:
-      - develop                    # develop 브랜치 푸시 시 자동 실행
+      - dev                   # dev 브랜치 푸시 시 자동 실행
 
 jobs:
   deploy:
@@ -45,12 +45,17 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build Lambda JAR
-        run: ./gradlew clean lambdaJar -x test
+        run: ./gradlew clean jar lambdaJar -x test
 
       - name: Upload JAR to S3
+        id: upload
         run: |
           # 빌드된 ZIP 파일 찾기
           JAR_FILE=$(ls build/distributions/*-lambda.zip | head -1)
+          if [ -z "$JAR_FILE" ]; then
+            echo "Error: Lambda ZIP file not found"
+            exit 1
+          fi
           
           # 타임스탬프 생성
           TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
@@ -60,6 +65,7 @@ jobs:
           aws s3 cp "$JAR_FILE" "s3://${{ env.S3_BUCKET }}/$S3_KEY"
           
           echo "S3_KEY=$S3_KEY" >> $GITHUB_ENV
+          echo "s3_key=$S3_KEY" >> $GITHUB_OUTPUT
 
       - name: Install SAM CLI
         uses: aws-actions/setup-sam@v2

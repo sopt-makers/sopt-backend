@@ -29,4 +29,9 @@ public interface RankCacheService {
     CachedUserInfo getUserInfo(Long id);
 
     void updateCachedUserInfo(Long id, CachedUserInfo userInfo);
+
+    void removeCachedUserInfo(Long userId);
+
+    void updateScore(Long userId, long currentUserScore);
+
 }
