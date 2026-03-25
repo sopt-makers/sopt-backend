@@ -71,6 +71,17 @@ public class RedisRankService implements RankCacheService{
     }
 
     @Override
+    public void removeCachedUserInfo(Long userId) {
+        redisTemplate.opsForHash().delete(CacheType.SOPTAMP_PROFILE_MESSAGE.getCacheName(), userId);
+    }
+
+    @Override
+    public void updateScore(Long userId, long currentUserScore) {
+        redisTemplate.opsForZSet()
+            .add(CacheType.SOPTAMP_SCORE.getCacheName(), userId, currentUserScore);
+    }
+
+    @Override
     public CachedUserInfo getUserInfo(Long id) {
         try {
             return (CachedUserInfo) redisTemplate.opsForHash()

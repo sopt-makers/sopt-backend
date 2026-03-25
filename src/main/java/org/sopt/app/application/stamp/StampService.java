@@ -37,18 +37,8 @@ public class StampService {
         val entity = stampRepository.findByUserIdAndMissionId(userId, missionId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.STAMP_NOT_FOUND));
         entity.validate();
-        return StampInfo.Stamp.builder()
-                .id(entity.getId())
-                .userId(entity.getUserId())
-                .contents(entity.getContents())
-                .images(entity.getImages())
-                .activityDate(entity.getActivityDate())
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .missionId(entity.getMissionId())
-                .clapCount(entity.getClapCount())
-                .viewCount(entity.getViewCount())
-                .build();
+
+        return StampInfo.Stamp.from(entity);
     }
 
     @Transactional
@@ -60,15 +50,8 @@ public class StampService {
         val imgList = new ArrayList<>(imgPaths);
         val stamp = this.convertStampImgDeprecated(stampRequest, imgList, userId, missionId);
         val newStamp = stampRepository.save(stamp);
-        return StampInfo.Stamp.builder()
-                .id(newStamp.getId())
-                .contents(newStamp.getContents())
-                .images(newStamp.getImages())
-                .activityDate(newStamp.getActivityDate())
-                .createdAt(newStamp.getCreatedAt())
-                .updatedAt(newStamp.getUpdatedAt())
-                .missionId(newStamp.getMissionId())
-                .build();
+
+        return StampInfo.Stamp.from(newStamp);
     }
 
     @Transactional
@@ -84,17 +67,7 @@ public class StampService {
                 .build();
 
         val newStamp = stampRepository.save(stamp);
-        return StampInfo.Stamp.builder()
-                .id(newStamp.getId())
-                .contents(newStamp.getContents())
-                .images(newStamp.getImages())
-                .activityDate(newStamp.getActivityDate())
-                .createdAt(newStamp.getCreatedAt())
-                .updatedAt(newStamp.getUpdatedAt())
-                .missionId(newStamp.getMissionId())
-                .clapCount(newStamp.getClapCount())
-                .viewCount(newStamp.getViewCount())
-                .build();
+        return StampInfo.Stamp.from(newStamp);
     }
 
     @Transactional
@@ -171,11 +144,14 @@ public class StampService {
 
     @Transactional
     public void deleteAllStamps(Long userId) {
-        stampRepository.deleteAllByUserId(userId);
-
         val imageUrls = stampRepository.findAllByUserId(userId).stream().map(Stamp::getImages)
                 .flatMap(Collection::stream).toList();
-        eventPublisher.raise(new StampDeletedEvent(imageUrls));
+
+        stampRepository.deleteAllByUserId(userId);
+
+        if (!imageUrls.isEmpty()) {
+            eventPublisher.raise(new StampDeletedEvent(imageUrls));
+        }
     }
 
     @EventListener(UserWithdrawEvent.class)
@@ -233,7 +209,21 @@ public class StampService {
     }
 
     public void deleteAll() {
-        stampRepository.deleteAll();
+        stampRepository.deleteAllInBatch();
+    }
+
+    @Transactional
+    public void deleteAllStampsWithImages() {
+        val imageUrls = stampRepository.findAll().stream()
+                .map(Stamp::getImages)
+                .flatMap(Collection::stream)
+                .toList();
+
+        stampRepository.deleteAllInBatch();
+
+        if (!imageUrls.isEmpty()) {
+            eventPublisher.raise(new StampDeletedEvent(imageUrls));
+        }
     }
 
     @Transactional(readOnly = true)

@@ -1,8 +1,13 @@
 package org.sopt.app.application.platform;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-
 import org.sopt.app.application.platform.dto.PlatformUserIdsRequest;
 import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
 import org.sopt.app.application.platform.dto.PlatformUserInfoWrapper;
@@ -12,9 +17,6 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.UserStatus;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -39,7 +41,7 @@ public class PlatformService {
         final Map<String, String> headers = createAuthorizationHeader();
         final Map<String, String> params = createQueryParams(Collections.singletonList(userId));
         PlatformUserInfoWrapper platformUserInfoWrapper = platformClient.getPlatformUserInfo(headers, params);
-        List<PlatformUserInfoResponse> data= platformUserInfoWrapper.data();
+        List<PlatformUserInfoResponse> data = platformUserInfoWrapper.data();
         if (data == null || data.isEmpty()) {
             throw new BadRequestException(ErrorCode.PLATFORM_USER_NOT_EXISTS);
         }
@@ -49,7 +51,7 @@ public class PlatformService {
     public List<PlatformUserInfoResponse> getPlatformUserInfosResponse(List<Long> userIds) {
         final Map<String, String> headers = createAuthorizationHeader();
 
-        if(userIds == null || userIds.isEmpty()){
+        if (userIds == null || userIds.isEmpty()) {
             return Collections.emptyList();
         }
 
@@ -59,7 +61,7 @@ public class PlatformService {
 
         PlatformUserInfoWrapper platformUserInfoWrapper = platformClient.getPlatformUserInfo(headers, params);
 
-        List<PlatformUserInfoResponse> data= platformUserInfoWrapper.data();
+        List<PlatformUserInfoResponse> data = platformUserInfoWrapper.data();
         if (data == null || data.isEmpty()) {
             throw new BadRequestException(ErrorCode.PLATFORM_USER_NOT_EXISTS);
         }
@@ -98,11 +100,13 @@ public class PlatformService {
     }
 
     public UserStatus getStatus(Long userId) {
-        return Long.valueOf(getPlatformUserInfoResponse(userId).lastGeneration()).equals(currentGeneration) ? UserStatus.ACTIVE : UserStatus.INACTIVE;
+        return getStatus(getPlatformUserInfoResponse(userId));
     }
 
-    private UserStatus getStatus(List<Long> generationList) {
-        return generationList.contains(currentGeneration) ? UserStatus.ACTIVE : UserStatus.INACTIVE;
+    public UserStatus getStatus(PlatformUserInfoResponse profile) {
+        return Long.valueOf(profile.getLastSoptGeneration()).equals(currentGeneration)
+                ? UserStatus.ACTIVE
+                : UserStatus.INACTIVE;
     }
 
     private Map<String, String> createAuthorizationHeader() {
@@ -126,12 +130,12 @@ public class PlatformService {
 
     public List<Long> getMemberGenerationList(Long userId) {
         return getPlatformUserInfoResponse(userId)
-            .soptActivities().stream()
-            .map(PlatformUserInfoResponse.SoptActivities::generation)
-            .map(Integer::longValue)
-            .distinct()
-            .sorted(Comparator.reverseOrder())
-            .toList();
+                .soptActivities().stream()
+                .map(PlatformUserInfoResponse.SoptActivities::generation)
+                .map(Integer::longValue)
+                .distinct()
+                .sorted(Comparator.reverseOrder())
+                .toList();
     }
 
     public boolean isCurrentGeneration(Long generation) {

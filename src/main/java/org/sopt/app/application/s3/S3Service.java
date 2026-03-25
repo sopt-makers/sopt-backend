@@ -1,23 +1,12 @@
 package org.sopt.app.application.s3;
 
 
-import software.amazon.awssdk.core.exception.SdkException;
-import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.S3Exception;
-import software.amazon.awssdk.services.s3.presigner.S3Presigner;
-import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
-import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.List;
 import java.util.UUID;
-
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 import org.slf4j.LoggerFactory;
 import org.sopt.app.application.stamp.StampDeletedEvent;
 import org.sopt.app.common.exception.BadRequestException;
@@ -25,10 +14,24 @@ import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.core.exception.SdkException;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedPutObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
 
 @Service
 @RequiredArgsConstructor
 public class S3Service {
+
+    private static final int BATCH_SIZE = 1000;
+    private static final String S3_BASE_PATH = "mainpage/makers-app-img/";
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
@@ -40,7 +43,7 @@ public class S3Service {
     private final S3Presigner s3Presigner;
 
     public S3Info.PreSignedUrl getPreSignedUrl(String folderName) {
-        String keyPrefix = "mainpage/makers-app-img/" + folderName + "/";
+        String keyPrefix = S3_BASE_PATH + folderName + "/";
         String randomFileName = UUID.randomUUID().toString();
         String objectKey = keyPrefix + randomFileName;
 
@@ -77,38 +80,42 @@ public class S3Service {
 
     @EventListener(StampDeletedEvent.class)
     public void handleStampDeletedEvent(StampDeletedEvent event) {
-        this.deleteFiles(event.getFileUrls(), "stamp");
+        this.deleteFilesBatch(event.getFileUrls());
     }
 
-    private void deleteFiles(List<String> fileUrls, String folderName) {
-        String keyPrefix = "mainpage/makers-app-img/" + folderName + "/";
-        List<String> fileNameList = getFileNameList(fileUrls);
-        fileNameList.forEach(fileName -> {
-            String objectKey = keyPrefix + fileName;
-            deleteFile(objectKey);
-        });
-    }
+    private void deleteFilesBatch(List<String> fileUrls) {
+        if (fileUrls == null || fileUrls.isEmpty()) return;
 
-    private List<String> getFileNameList(List<String> fileUrls) {
-        return fileUrls.stream().map(url -> {
-            val fileNameSplit = url.split("/");
-            return fileNameSplit[fileNameSplit.length - 1];
-        }).toList();
-    }
+        List<ObjectIdentifier> objectIdentifiers = fileUrls.stream()
+                .map(url -> ObjectIdentifier.builder().key(extractObjectKey(url)).build())
+                .toList();
 
-    private void deleteFile(String objectKey) {
-        try {
-            DeleteObjectRequest deleteObjectRequest = DeleteObjectRequest.builder()
-                    .bucket(bucket)
-                    .key(objectKey) 
-                    .build();
-            s3Client.deleteObject(deleteObjectRequest);
-            LoggerFactory.getLogger(S3Service.class).info("Successfully deleted S3 object: {}", objectKey);
-        } catch (S3Exception e) {
-            // SDK v2 예외 처리
-            LoggerFactory.getLogger(S3Service.class).error("Error deleting S3 object {}: {}", objectKey, e.awsErrorDetails().errorMessage());
-        } catch (SdkException e) {
-            LoggerFactory.getLogger(S3Service.class).error("AWS SDK error deleting S3 object {}: {}", objectKey, e.getMessage());
+        for (int i = 0; i < objectIdentifiers.size(); i += BATCH_SIZE) {
+            int end = Math.min(objectIdentifiers.size(), i + BATCH_SIZE);
+            List<ObjectIdentifier> batch = objectIdentifiers.subList(i, end);
+
+            try {
+                DeleteObjectsRequest deleteObjectsRequest = DeleteObjectsRequest.builder()
+                        .bucket(bucket)
+                        .delete(Delete.builder().objects(batch).build())
+                        .build();
+
+                DeleteObjectsResponse response = s3Client.deleteObjects(deleteObjectsRequest);
+                LoggerFactory.getLogger(S3Service.class).info("Successfully deleted {} S3 objects", response.deleted().size());
+                
+                if (response.hasErrors() && !response.errors().isEmpty()) {
+                    LoggerFactory.getLogger(S3Service.class).error("Failed to delete some S3 objects: {}", response.errors());
+                }
+            } catch (S3Exception e) {
+                LoggerFactory.getLogger(S3Service.class).error("Error bulk deleting S3 objects: {}", e.getMessage());
+            } catch (SdkException e) {
+                LoggerFactory.getLogger(S3Service.class).error("AWS SDK error bulk deleting S3 objects: {}", e.getMessage());
+            }
         }
+    }
+
+    private String extractObjectKey(String fileUrl) {
+        String key = fileUrl.replace(baseURI, "");
+        return key.startsWith(S3_BASE_PATH) ? key : S3_BASE_PATH + key;
     }
 }

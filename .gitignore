@@ -44,6 +44,7 @@ application-local.yml
 application-prod.yml
 application-dev.yml
 application-test.yml
+application-lambda.yml
 docker-compose.yml
 
 ### HTTP 관련
