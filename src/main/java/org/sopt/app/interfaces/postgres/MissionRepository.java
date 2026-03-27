@@ -15,4 +15,6 @@ public interface MissionRepository extends JpaRepository<Mission, Long> {
     List<Mission> findMissionInOrderByLevelAndTitle(@Param("missions") List<Long> missions);
 
     List<Mission> findAllByDisplay(boolean display);
+
+    List<Mission> findAllByDisplayOrderByLevelAscTitleAsc(boolean display);
 }

@@ -1,6 +1,5 @@
 package org.sopt.app.application.mission;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +24,8 @@ public class MissionService {
     @Transactional(readOnly = true)
     public List<MissionInfo.Completeness> findAllMission(Long userId) {
         val completedStampList = stampRepository.findAllByUserId(userId);
-        val missionList = missionRepository.findAllByDisplay(true);
+//        val missionList = missionRepository.findAllByDisplay(true);
+        val missionList = missionRepository.findAllByDisplayOrderByLevelAscTitleAsc(true);
 
         return missionList.stream()
                 .map(mission -> MissionInfo.Completeness.builder()
@@ -35,8 +35,8 @@ public class MissionService {
                         .profileImage(mission.getProfileImage())
                         .isCompleted(isCompletedMission(mission.getId(), completedStampList))
                         .build())
-                .sorted(Comparator.comparing(MissionInfo.Completeness::getLevel)
-                        .thenComparing(MissionInfo.Completeness::getTitle))
+//                .sorted(Comparator.comparing(MissionInfo.Completeness::getLevel)
+//                        .thenComparing(MissionInfo.Completeness::getTitle))
                 .toList();
     }
 
