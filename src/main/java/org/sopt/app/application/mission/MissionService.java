@@ -23,8 +23,7 @@ public class MissionService {
 
     @Transactional(readOnly = true)
     public List<MissionInfo.Completeness> findAllMission(Long userId) {
-        val completedStampList = stampRepository.findAllByUserId(userId);
-//        val missionList = missionRepository.findAllByDisplay(true);
+        val completedStampList = stampRepository.findAllByUserId(userId);;
         val missionList = missionRepository.findAllByDisplayOrderByLevelAscTitleAsc(true);
 
         return missionList.stream()
@@ -35,8 +34,6 @@ public class MissionService {
                         .profileImage(mission.getProfileImage())
                         .isCompleted(isCompletedMission(mission.getId(), completedStampList))
                         .build())
-//                .sorted(Comparator.comparing(MissionInfo.Completeness::getLevel)
-//                        .thenComparing(MissionInfo.Completeness::getTitle))
                 .toList();
     }
 
