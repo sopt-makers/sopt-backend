@@ -32,6 +32,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
 import org.sopt.app.application.platform.dto.PlatformUserInfoResponse.SoptActivities;
+import org.sopt.app.application.rank.RankCacheService;
 import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserAllCacheSyncEvent;
 import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserProfileCacheSyncEvent;
 import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserScoreCacheSyncEvent;
@@ -59,10 +60,19 @@ class SoptampUserServiceTest {
     AppjamUserRepository appjamUserRepository;
 
     @Mock
+    RankCacheService rankCacheService;
+
+    @Mock
     EventPublisher eventPublisher;
 
     @InjectMocks
     SoptampUserService soptampUserService;
+
+    @BeforeEach
+    void setUp() {
+        ReflectionTestUtils.setField(soptampUserService, "appjamMode", false);
+        ReflectionTestUtils.setField(soptampUserService, "currentGeneration", 37L);
+    }
 
     private PlatformUserInfoResponse buildProfile(String name, int lastGeneration, String part) {
         return buildProfile(name, lastGeneration, part, true); // SOPT 정규 활동 기본값
@@ -87,18 +97,13 @@ class SoptampUserServiceTest {
         );
     }
 
-    @BeforeEach
-    void setUp() {
-        // 기본은 NORMAL 모드로 두고, 테스트에서 필요할 때 변경
-        ReflectionTestUtils.setField(soptampUserService, "appjamMode", false);
-    }
-
     /* ==================== NORMAL 모드 테스트 ==================== */
 
     @Test
     @DisplayName("NORMAL 모드 - 프로필이 null이면 아무 동작도 하지 않는다")
     void 일반모드_프로필널이면_동작없음() {
         // given
+        ReflectionTestUtils.setField(soptampUserService, "appjamMode", false);
         final long userId = 1L;
 
         // when
@@ -112,6 +117,7 @@ class SoptampUserServiceTest {
     @DisplayName("NORMAL 모드 - 활동 내역이 없으면 아무 동작도 하지 않는다")
     void 일반모드_활동내역없으면_동작없음() {
         // given
+        ReflectionTestUtils.setField(soptampUserService, "appjamMode", false);
         final long userId = 1L;
 
         PlatformUserInfoResponse profile = new PlatformUserInfoResponse(
@@ -197,6 +203,8 @@ class SoptampUserServiceTest {
     void 일반모드_기수변경되면_닉네임재생성과_포인트리셋() {
         // given
         ReflectionTestUtils.setField(soptampUserService, "appjamMode", false);
+        // 기수 필터링을 위해 현재 기수를 38로 임시 설정
+        ReflectionTestUtils.setField(soptampUserService, "currentGeneration", 38L);
 
         final long userId = 1L;
         PlatformUserInfoResponse profile = buildProfile("김솝트", 38, "서버");
@@ -232,6 +240,7 @@ class SoptampUserServiceTest {
     @DisplayName("NORMAL 모드 - isSopt=false인 Makers 활동만 있으면 SoptampUser를 생성하지 않는다")
     void 일반모드_Makers이면_솝탬프유저_생성안함() {
         // given
+        ReflectionTestUtils.setField(soptampUserService, "appjamMode", false);
         final long userId = 1L;
         // "백엔드" 파트, isSopt=false → getLatestSoptActivity() = null
         PlatformUserInfoResponse profile = buildProfile("김솝트", 37, "백엔드", false);
@@ -247,6 +256,7 @@ class SoptampUserServiceTest {
     @DisplayName("NORMAL 모드 - 메이커스(isSopt=false)이면서 동시에 SOPT 서버 파트(isSopt=true) 활동이 있으면 SOPT 활동 기준으로 생성된다")
     void 일반모드_메이커스이면서_솝트파트있으면_솝트파트기준으로_생성() {
         // given
+        ReflectionTestUtils.setField(soptampUserService, "appjamMode", false);
         final long userId = 1L;
         PlatformUserInfoResponse.SoptActivities presidentActivity =
             new PlatformUserInfoResponse.SoptActivities(1, 37, "BE", null, false);
@@ -312,7 +322,8 @@ class SoptampUserServiceTest {
         assertThat(saved.getTotalPoints()).isZero();
         assertThat(saved.getGeneration()).isEqualTo(37L);
 
-        verify(eventPublisher).raise(any(SoptampUserAllCacheSyncEvent.class));
+        // 앱잼 모드에서는 이벤트를 발행하지 않음 (Helper 로직 기준)
+        verify(eventPublisher, never()).raise(any());
     }
 
     @Test
@@ -341,7 +352,7 @@ class SoptampUserServiceTest {
         assertThat(saved.getNickname()).contains("김솝트");
         assertThat(saved.getTotalPoints()).isZero();
 
-        verify(eventPublisher).raise(any(SoptampUserAllCacheSyncEvent.class));
+        verify(eventPublisher, never()).raise(any());
     }
 
     @Test
@@ -370,7 +381,7 @@ class SoptampUserServiceTest {
         assertThat(saved.getNickname()).contains("김솝트");
         assertThat(saved.getTotalPoints()).isZero();
 
-        verify(eventPublisher).raise(any(SoptampUserAllCacheSyncEvent.class));
+        verify(eventPublisher, never()).raise(any());
     }
 
     @Test
@@ -416,7 +427,7 @@ class SoptampUserServiceTest {
         assertThat(existing.getTotalPoints()).isZero();
         assertThat(existing.getGeneration()).isEqualTo(37L);
 
-        verify(eventPublisher).raise(any(SoptampUserAllCacheSyncEvent.class));
+        verify(eventPublisher, never()).raise(any());
     }
 
     @Test
@@ -494,7 +505,7 @@ class SoptampUserServiceTest {
         assertThat(existing.getNickname()).isEqualTo("비트김솝트A");
         assertThat(existing.getTotalPoints()).isZero();
 
-        verify(eventPublisher).raise(any(SoptampUserAllCacheSyncEvent.class));
+        verify(eventPublisher, never()).raise(any());
     }
 
     @Test
@@ -502,7 +513,6 @@ class SoptampUserServiceTest {
     void 일반모드_닉네임충돌시_접미사A추가() {
         // given
         ReflectionTestUtils.setField(soptampUserService, "appjamMode", false);
-
         final long userId = 1L;
         PlatformUserInfoResponse profile = buildProfile("김솝트", 37, "서버");
 

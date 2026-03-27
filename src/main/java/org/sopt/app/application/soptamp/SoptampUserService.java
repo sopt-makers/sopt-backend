@@ -36,6 +36,9 @@ public class SoptampUserService {
     @Value("${makers.app.soptamp.appjam-mode:false}")
     private boolean appjamMode;
 
+    @Value("${sopt.current.generation}")
+    private Long currentGeneration;
+
     /* ==================== 조회/프로필 ==================== */
 
     @Transactional(readOnly = true)
@@ -50,7 +53,7 @@ public class SoptampUserService {
         SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         soptampUser.updateProfileMessage(profileMessage);
-        eventPublisher.raise(SoptampUserProfileCacheSyncEvent.of(userId));
+        this.raiseProfileCacheSyncEvent(soptampUser);
         return SoptampUserInfo.of(soptampUser);
     }
 
@@ -95,9 +98,8 @@ public class SoptampUserService {
 
     private void updateSoptampUserNormal(SoptampUser registeredUser, PlatformUserInfoResponse profile,
             PlatformUserInfoResponse.SoptActivities latest) {
-        Long userId = registeredUser.getUserId();
         String part = latest.part() == null ? "미상" : latest.part();
-        String newNickname = generatePartBasedUniqueNickname(profile.name(), part, userId);
+        String newNickname = generatePartBasedUniqueNickname(profile.name(), part, registeredUser.getUserId());
 
         registeredUser.initTotalPoints();
         registeredUser.updateChangedGenerationInfo(
@@ -106,7 +108,7 @@ public class SoptampUserService {
             newNickname
         );
 
-        eventPublisher.raise(SoptampUserAllCacheSyncEvent.of(userId));
+        this.raiseAllCacheSyncEvent(registeredUser);
     }
 
     private void createSoptampUserNormal(PlatformUserInfoResponse profile, Long userId,
@@ -117,7 +119,7 @@ public class SoptampUserService {
         SoptampUser newSoptampUser = createNewSoptampUser(userId, uniqueNickname, (long) profile.lastGeneration(),
                 findSoptPartByPartName(part));
         soptampUserRepository.save(newSoptampUser);
-        eventPublisher.raise(SoptampUserAllCacheSyncEvent.of(userId));
+        this.raiseAllCacheSyncEvent(newSoptampUser);
     }
 
     private boolean isGenerationChanged(SoptampUser registeredUser, Long profileGeneration) {
@@ -158,7 +160,7 @@ public class SoptampUserService {
 
         // 앱잼 변환 시점에 한 번 포인트 초기화
         registeredUser.initTotalPoints();
-        eventPublisher.raise(SoptampEvent.SoptampUserAllCacheSyncEvent.of(userId));
+        this.raiseAllCacheSyncEvent(registeredUser);
     }
 
     private void createSoptampUserAppjam(PlatformUserInfoResponse profile,
@@ -183,7 +185,7 @@ public class SoptampUserService {
         newSoptampUser.initTotalPoints(); // 새 시즌이니 0점부터
 
         soptampUserRepository.save(newSoptampUser);
-        eventPublisher.raise(SoptampUserAllCacheSyncEvent.of(userId));
+        this.raiseAllCacheSyncEvent(newSoptampUser);
     }
 
     private boolean needsAppjamNicknameMigration(SoptampUser user) {
@@ -266,9 +268,7 @@ public class SoptampUserService {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         soptampUser.addPointsByLevel(level);
 
-        if (!appjamMode) {
-            eventPublisher.raise(SoptampUserScoreCacheSyncEvent.of(userId));
-        }
+        this.raiseScoreCacheSyncEvent(soptampUser);
     }
 
     @Transactional
@@ -277,9 +277,7 @@ public class SoptampUserService {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         soptampUser.subtractPointsByLevel(level);
 
-        if (!appjamMode) {
-            eventPublisher.raise(SoptampUserScoreCacheSyncEvent.of(userId));
-        }
+        this.raiseScoreCacheSyncEvent(soptampUser);
     }
 
     @Transactional
@@ -288,9 +286,7 @@ public class SoptampUserService {
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         soptampUser.initTotalPoints();
         soptampUserRepository.save(soptampUser);
-        if (!appjamMode) {
-            eventPublisher.raise(SoptampUserScoreCacheSyncEvent.of(userId));
-        }
+        this.raiseScoreCacheSyncEvent(soptampUser);
     }
 
     @Transactional
@@ -300,7 +296,11 @@ public class SoptampUserService {
         soptampUserRepository.saveAll(soptampUserList);
         if (!appjamMode) {
             rankCacheService.deleteAll();
-            rankCacheService.addAll(soptampUserList.stream().map(SoptampUserInfo::of).toList());
+            List<SoptampUserInfo> currentGenerationUserInfos = soptampUserList.stream()
+                .filter(u -> currentGeneration.equals(u.getGeneration()))
+                .map(SoptampUserInfo::of)
+                .toList();
+            rankCacheService.addAll(currentGenerationUserInfos);
         }
     }
 
@@ -310,9 +310,9 @@ public class SoptampUserService {
             throw new BadRequestException(ErrorCode.INVALID_APPJAM_SEASON_REQUEST);
         }
 
-        List<SoptampUser> soptampUserList = soptampUserRepository.findAll();
+        List<SoptampUser> currentGenerationUsers = soptampUserRepository.findAllByGeneration(currentGeneration);
         rankCacheService.deleteAll();
-        rankCacheService.addAll(soptampUserList.stream().map(SoptampUserInfo::of).toList());
+        rankCacheService.addAll(currentGenerationUsers.stream().map(SoptampUserInfo::of).toList());
     }
 
     @Transactional
@@ -324,5 +324,26 @@ public class SoptampUserService {
     @EventListener(UserWithdrawEvent.class)
     public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
         soptampUserRepository.deleteByUserId(event.getUserId());
+    }
+
+    private void raiseScoreCacheSyncEvent(SoptampUser user) {
+        if (appjamMode) return;
+        if (currentGeneration.equals(user.getGeneration())) {
+            eventPublisher.raise(SoptampUserScoreCacheSyncEvent.of(user.getUserId()));
+        }
+    }
+
+    private void raiseProfileCacheSyncEvent(SoptampUser user) {
+        if (appjamMode) return;
+        if (currentGeneration.equals(user.getGeneration())) {
+            eventPublisher.raise(SoptampUserProfileCacheSyncEvent.of(user.getUserId()));
+        }
+    }
+
+    private void raiseAllCacheSyncEvent(SoptampUser user) {
+        if (appjamMode) return;
+        if (currentGeneration.equals(user.getGeneration())) {
+            eventPublisher.raise(SoptampUserAllCacheSyncEvent.of(user.getUserId()));
+        }
     }
 }
