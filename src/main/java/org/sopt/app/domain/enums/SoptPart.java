@@ -15,6 +15,7 @@ public enum SoptPart {
     MEDIA_TEAM_LEADER("미디어 팀장", "미팀장"),
     OPERATIONS_TEAM_LEADER("운영 팀장", "운팀장"),
     MAKERS_TEAM_LEADER("메이커스 팀장", "메팀장"),
+    ART_DIRECTOR("아트 디렉터", "아트디렉터"),
 
     PLAN("기획", "기획"),
     PLAN_PART_LEADER("기획 파트장", "기획파트장"),
