@@ -1,12 +1,10 @@
 package org.sopt.app.common.utils;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import org.sopt.app.domain.enums.SoptPart;
 
 public final class SoptampDeepLinkBuilder {
 	private static final String BASE =
-		"home/soptamp/entire-part-ranking/part-ranking/missions/missionDetail";
+		"soptamp/entire-part-ranking/part-ranking/missions/missionDetail";
 
 	private SoptampDeepLinkBuilder() {}
 
