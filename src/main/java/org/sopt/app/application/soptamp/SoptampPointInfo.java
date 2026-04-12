@@ -1,5 +1,6 @@
 package org.sopt.app.application.soptamp;
 
+import java.math.BigDecimal;
 import lombok.*;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -31,6 +32,6 @@ public class SoptampPointInfo {
     public static class PartRank {
         private String part;
         private Integer rank;
-        private Long points;
+        private BigDecimal points;
     }
 }
