@@ -338,10 +338,7 @@ class RankFacadeTest {
             // when
             PartRank result = rankFacade.findPartRank(Part.SERVER);
 
-            BigDecimal serverPoint = BigDecimal.valueOf(
-                    SERVER_PART_SOPTAMP_USER.stream().mapToLong(SoptampUser::getTotalPoints).sum()
-                )
-                .divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.SERVER)), 2, RoundingMode.HALF_UP);
+            BigDecimal serverPoint = BigDecimal.valueOf(SERVER_PART_SOPTAMP_USER.stream().mapToLong(SoptampUser::getTotalPoints).sum()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.SERVER)), 2, RoundingMode.HALF_UP);
 
             // then
             assertThat(result)
