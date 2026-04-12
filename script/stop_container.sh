@@ -5,4 +5,7 @@ stop_container() {
 
     echo "▶️ Stopping ${CONTAINER_NAME} Container"
     docker-compose stop ${CONTAINER_NAME}
+
+    echo "🗑️ Removing ${CONTAINER_NAME} Container"
+    docker-compose rm -f ${CONTAINER_NAME}
 }
