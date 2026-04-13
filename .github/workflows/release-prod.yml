@@ -1,6 +1,7 @@
 name: 🚀 MAKERS-APP-RELEASE!
 
 on:
+  workflow_dispatch:
   push:
     branches: [ 'main' ]
     tags: [ 'makers-app-prod' ]
