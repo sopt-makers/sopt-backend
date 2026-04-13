@@ -1,4 +1,4 @@
-name: 🚀MAKERS-APP-RELEASE!
+name: 🚀 MAKERS-APP-RELEASE!
 
 on:
   push:
@@ -12,91 +12,113 @@ env:
   ECR_HOST: ${{ secrets.ECR_HOST }}
 
 jobs:
-  build:
+  build-and-deploy:
     name: CD Pipeline
     runs-on: ubuntu-latest
 
     steps:
-      - name: checkout
+      - name: Checkout Source
         uses: actions/checkout@v3
 
-      - name: set up JDK 21
+      - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
           distribution: 'corretto'
           java-version: '21'
 
-      - name: touch yml files
-        run: |
-          touch ./src/main/resources/application-prod.yml
-          touch ./src/test/resources/application-test.yml
-        shell: bash
-
-      - name: copy application.yml files
-        run: |
-          echo "${{ secrets.APPLICATION_PROD_YML }}" > ./src/main/resources/application-prod.yml
-          echo "${{ secrets.APPLICATION_TEST_YML }}" > ./src/test/resources/application-test.yml
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
-          aws-region: ap-northeast-2
-
-      - name: 🐘Gradle Build
+      - name: Gradle Build (No Secrets)
         run: |
           chmod +x ./gradlew
           ./gradlew clean build -x test
 
-      - name: Login to ECR
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to ECR Public
         run: |
           aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_HOST
 
-      - name: 🐳Docker Image Build & Push
+      - name: Docker Image Build & Push
+        env:
+          GITHUB_SHA: ${{ github.sha }}
         run: |
+          IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-8)
+          
           docker build \
           --no-cache \
           -f Dockerfile-prod \
           --build-arg SPRING_PROFILES_ACTIVE=$SPRING_PROFILES_ACTIVE \
           -t $ECR_APP_NAME .
-          docker tag $ECR_APP_NAME:latest $APP_ECR_REPO
-          docker push $APP_ECR_REPO
+          
+          docker tag $ECR_APP_NAME:latest $APP_ECR_REPO:latest
+          docker tag $ECR_APP_NAME:latest $APP_ECR_REPO:$IMAGE_TAG
+          
+          docker push $APP_ECR_REPO:latest
+          docker push $APP_ECR_REPO:$IMAGE_TAG
 
-      - name: Copy docker-compose.yml
-        run: echo "${{ secrets.DOCKER_COMPOSE_PROD_YML }}" > ./docker-compose.yml
+      - name: Prune old ECR Public images (keep 5 latest)
+        run: |
+          echo "Pruning old images, keeping only 5 most recent..."
+          ECR_REPO_NAME="${{ secrets.ECR_APP_NAME }}-prod"
+          
+          IMAGES=$(aws ecr-public describe-images \
+            --region us-east-1 \
+            --repository-name $ECR_REPO_NAME \
+            --query 'sort_by(imageDetails,& imagePushedAt)[*].imageDigest' \
+            --output json)
 
-      - name: Send docker-compose.yml to EC2 Instance
+          COUNT=$(echo $IMAGES | jq length)
+
+          if [ "$COUNT" -gt 5 ]; then
+            TO_DELETE=$(echo $IMAGES | jq -c ".[0:$((COUNT-5))] | map({imageDigest: .})")
+            if [ "$TO_DELETE" != "[]" ]; then
+              aws ecr-public batch-delete-image \
+                --region us-east-1 \
+                --repository-name $ECR_REPO_NAME \
+                --image-ids "$TO_DELETE"
+              echo "✅ success delete old image"
+            fi
+          else
+            echo "Less than or equal to 5 images, skipping prune"
+          fi
+
+      - name: Create Config Files Dynamically
+        run: |
+          mkdir -p ./config
+          
+          echo "${{ secrets.APPLICATION_PROD_YML }}" > ./config/application-prod.yml
+          echo "${{ secrets.DOCKER_COMPOSE_PROD_YML }}" > ./docker-compose.yml  
+          
+          touch .env
+          echo "`SPRING_PROFILES_ACTIVE`=prod" >> .env
+          echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_ID }}" >> .env
+          echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
+          echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+
+      - name: Send Files to EC2
         uses: appleboy/scp-action@master
         with:
           username: ubuntu
           host: ${{ secrets.PROD_SERVER_IP }}
           key: ${{ secrets.PROD_PEM_KEY }}
-          source: "./docker-compose.yml"
+          source: ".env,docker-compose.yml,script/,config/"
           target: "/home/ubuntu/app/"
 
-      - name: Send deploy script to EC2 Instance
-        uses: appleboy/scp-action@master
-        with:
-          username: ubuntu
-          host: ${{ secrets.PROD_SERVER_IP }}
-          key: ${{ secrets.PROD_PEM_KEY }}
-          source: "./script/"
-          target: "/home/ubuntu/app/"
-
-      - name: Docker Container Run
+      - name: Execute Deployment on EC2
         uses: appleboy/ssh-action@master
         with:
           username: ubuntu
           host: ${{ secrets.PROD_SERVER_IP }}
           key: ${{ secrets.PROD_PEM_KEY }}
           script: |
-            cd ~
-            cd ./app
-            echo "Creating .env file..."
-            echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_ID }}" > .env
-            echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
+            cd /home/ubuntu/app
+            chmod 600 .env
+            chmod 600 ./config/application-prod.yml
+            chmod +x ./script/*.sh
             
-            sudo chmod +x ./script/*.sh
             ./script/deploy.sh
             docker image prune -f
