@@ -87,17 +87,22 @@ jobs:
           fi
 
       - name: Create Config Files Dynamically
+        env:
+          GITHUB_SHA: ${{ github.sha }}
         run: |
           mkdir -p ./config
+          
+          IMAGE_TAG=$(echo $GITHUB_SHA | cut -c1-8)
           
           echo "${{ secrets.APPLICATION_PROD_YML }}" > ./config/application-prod.yml
           echo "${{ secrets.DOCKER_COMPOSE_PROD_YML }}" > ./docker-compose.yml  
           
           touch .env
-          echo "`SPRING_PROFILES_ACTIVE`=prod" >> .env
+          echo "SPRING_PROFILES_ACTIVE=prod" >> .env
           echo "AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_ID }}" >> .env
           echo "AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_KEY }}" >> .env
           echo "AWS_REGION=${{ secrets.AWS_REGION }}" >> .env
+          echo "IMAGE_TAG=${IMAGE_TAG}" >> .env
 
       - name: Send Files to EC2
         uses: appleboy/scp-action@master
