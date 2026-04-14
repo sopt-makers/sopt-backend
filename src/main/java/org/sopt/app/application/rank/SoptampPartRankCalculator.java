@@ -19,7 +19,9 @@ import org.sopt.app.domain.enums.SoptPart;
 @RequiredArgsConstructor(access = AccessLevel.PUBLIC)
 public class SoptampPartRankCalculator {
 
-    private static final BigDecimal ZERO_POINT = BigDecimal.ZERO.setScale(2, RoundingMode.HALF_UP);
+    private static final int POINT_SCALE = 2;
+    private static final RoundingMode POINT_ROUNDING_MODE = RoundingMode.HALF_UP;
+    private static final BigDecimal ZERO_POINT = BigDecimal.ZERO.setScale(POINT_SCALE, POINT_ROUNDING_MODE);
 
     private final List<SoptampUserInfo> userInfos;
     private final Map<SoptPart, Long> partMemberCounts;
@@ -57,7 +59,7 @@ public class SoptampPartRankCalculator {
 
             BigDecimal averagePoint = memberCount == 0 ? ZERO_POINT
                 : BigDecimal.valueOf(totalScore)
-                    .divide(BigDecimal.valueOf(memberCount), 2, RoundingMode.HALF_UP);
+                    .divide(BigDecimal.valueOf(memberCount), POINT_SCALE, POINT_ROUNDING_MODE);
 
             averagePoints.put(part, averagePoint);
         }
