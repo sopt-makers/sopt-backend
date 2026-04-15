@@ -4,6 +4,7 @@ import static java.util.function.UnaryOperator.identity;
 
 import java.util.List;
 import java.util.Map;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
@@ -20,6 +21,7 @@ public class SoptampUserFinder {
 
     private final SoptampUserRepository soptampUserRepository;
 
+    @Getter
     @Value("${sopt.current.generation}")
     private Long currentGeneration;
 
