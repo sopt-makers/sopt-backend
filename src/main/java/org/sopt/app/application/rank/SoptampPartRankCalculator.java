@@ -1,6 +1,8 @@
 package org.sopt.app.application.rank;
 
 import static java.util.Map.Entry.comparingByValue;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.summingLong;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -27,9 +29,7 @@ public class SoptampPartRankCalculator {
     private final Map<SoptPart, Long> partMemberCounts;
 
     public List<PartRank> calculatePartRank() {
-        PartScores partScores = new PartScores();
-        userInfos.forEach(userInfo -> addPartScore(userInfo, partScores));
-
+        Map<Part, Long> partScores = calculatePartScores();
         Map<Part, BigDecimal> averagePoints = calculateAveragePoints(partScores);
         Map<Part, Integer> ranks = calculateRanks(averagePoints);
 
@@ -42,20 +42,28 @@ public class SoptampPartRankCalculator {
             .toList();
     }
 
-    private void addPartScore(SoptampUserInfo userInfo, PartScores partScores) {
-        Part part = SoptPart.toPart(userInfo.getPart());
-        if (part == null) {
-            return;
+    private Map<Part, Long> calculatePartScores() {
+        Map<Part, Long> partScores = userInfos.stream()
+            .filter(userInfo -> SoptPart.toPart(userInfo.getPart()) != null)
+            .collect(groupingBy(
+                userInfo -> SoptPart.toPart(userInfo.getPart()),
+                () -> new EnumMap<>(Part.class),
+                summingLong(SoptampUserInfo::getTotalPoints)
+            ));
+
+        for (Part part : Part.getAllParts()) {
+            partScores.putIfAbsent(part, 0L);
         }
-        partScores.addPartScore(part, userInfo.getTotalPoints());
+
+        return partScores;
     }
 
-    private Map<Part, BigDecimal> calculateAveragePoints(PartScores partScores) {
+    private Map<Part, BigDecimal> calculateAveragePoints(Map<Part, Long> partScores) {
         Map<Part, BigDecimal> averagePoints = new EnumMap<>(Part.class);
 
         for (Part part : Part.getPartsByReturnOrder()) {
-            long totalScore = partScores.getPoints(part);
-            long memberCount = partMemberCounts.getOrDefault(SoptPart.valueOf(part.name()), 0L);
+            long totalScore = partScores.getOrDefault(part, 0L);
+            long memberCount = getMemberCount(part);
 
             BigDecimal averagePoint = memberCount == 0 ? ZERO_POINT
                 : BigDecimal.valueOf(totalScore)
@@ -65,6 +73,10 @@ public class SoptampPartRankCalculator {
         }
 
         return averagePoints;
+    }
+
+    private long getMemberCount(Part part) {
+        return partMemberCounts.getOrDefault(SoptPart.valueOf(part.name()), 0L);
     }
 
     private Map<Part, Integer> calculateRanks(Map<Part, BigDecimal> averagePoints) {
