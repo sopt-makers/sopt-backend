@@ -32,6 +32,7 @@ public class SoptampPointInfo {
     public static class PartRank {
         private String part;
         private Integer rank;
-        private BigDecimal points;
+        private Long points;
+        private BigDecimal pointsDecimal;
     }
 }

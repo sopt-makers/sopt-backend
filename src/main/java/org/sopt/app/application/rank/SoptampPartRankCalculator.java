@@ -34,11 +34,17 @@ public class SoptampPartRankCalculator {
         Map<Part, Integer> ranks = calculateRanks(averagePoints);
 
         return Part.getPartsByReturnOrder().stream()
-            .map(part -> PartRank.builder()
-                .part(part.getPartName())
-                .rank(ranks.get(part))
-                .points(averagePoints.get(part))
-                .build())
+            .map(part -> {
+                // TODO: 파트 랭킹 조회시 기존(points) 정수를 유지하고 신규(pointsDecimal)을 추가함으로 앱 하위 호환 대응. 추후 points 제거 필요.
+                BigDecimal pointsDecimal = averagePoints.get(part);
+
+                return PartRank.builder()
+                    .part(part.getPartName())
+                    .rank(ranks.get(part))
+                    .points(pointsDecimal.longValue())
+                    .pointsDecimal(pointsDecimal)
+                    .build();
+            })
             .toList();
     }
 
