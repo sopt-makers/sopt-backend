@@ -10,6 +10,7 @@ import org.sopt.app.domain.entity.poke.PokeHistory;
 import org.sopt.app.interfaces.postgres.PokeHistoryRepository;
 import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,18 +29,10 @@ public class PokeHistoryService {
                 .toList();
     }
 
-    public List<Long> getPokedFriendIds(Long userId) {
-        val friends = pokeHistoryRepository.findAllByPokerIdAndIsReply(userId, false);
-        return friends.stream()
-                .map(PokeHistory::getPokedId)
-                .toList();
-    }
-
-    public List<Long> getPokeFriendIds(Long userId) {
-        val friends = pokeHistoryRepository.findAllByPokedIdAndIsReply(userId, false);
-        return friends.stream()
-                .map(PokeHistory::getPokerId)
-                .toList();
+    public Optional<PokeHistory> getRandomUnRepliedPokeMeHistory(Long userId) {
+        return pokeHistoryRepository.findRandomUnRepliedPokeMeHistory(userId, PageRequest.of(0, 1))
+            .stream()
+            .findFirst();
     }
 
     public List<Long> getPokeMeUserIds(Long userId) {
