@@ -5,6 +5,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.common.security.filter.JwtAuthenticationFilter;
 import org.sopt.app.common.security.filter.JwtExceptionFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -54,6 +55,9 @@ public class WebSecurityConfig {
     private final JwtExceptionFilter jwtExceptionFilter;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
+    @Value("${management.endpoints.web.base-path:/actuator}")
+    private String actuatorPath;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -71,6 +75,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(SwaggerPatterns).permitAll();
                     auth.requestMatchers(other).permitAll();
+                    auth.requestMatchers(actuatorPath + "/**").permitAll();
                     auth.anyRequest().authenticated();
                 });
         // 필터 체인에 필터 추가
