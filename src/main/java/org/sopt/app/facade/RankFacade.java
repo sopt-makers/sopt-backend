@@ -9,6 +9,7 @@ import org.sopt.app.application.soptamp.*;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.Part;
+import org.sopt.app.domain.enums.SoptPart;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
@@ -20,6 +21,7 @@ public class RankFacade {
 
     private final SoptampUserFinder soptampUserFinder;
     private final RankCacheService rankCacheService;
+    private final AuthPartMemberCountReader authPartMemberCountReader;
 
     @Value("${makers.app.soptamp.appjam-mode:false}")
     private boolean appjamMode;
@@ -102,7 +104,8 @@ public class RankFacade {
             throw new BadRequestException(ErrorCode.INVALID_APPJAM_SEASON_REQUEST);
         }
         List<SoptampUserInfo> soptampUserInfos = soptampUserFinder.findAllOfCurrentGeneration();
-        SoptampPartRankCalculator soptampPartRankCalculator = new SoptampPartRankCalculator(soptampUserInfos);
+        Map<SoptPart, Long> partMemberCounts = authPartMemberCountReader.getCurrentGenerationPartMemberCounts(soptampUserFinder.getCurrentGeneration());
+        SoptampPartRankCalculator soptampPartRankCalculator = new SoptampPartRankCalculator(soptampUserInfos, partMemberCounts);
         return soptampPartRankCalculator.calculatePartRank();
     }
 
@@ -112,10 +115,12 @@ public class RankFacade {
             throw new BadRequestException(ErrorCode.INVALID_APPJAM_SEASON_REQUEST);
         }
         List<SoptampUserInfo> soptampUserInfos = soptampUserFinder.findAllOfCurrentGeneration();
-        SoptampPartRankCalculator soptampPartRankCalculator = new SoptampPartRankCalculator(soptampUserInfos);
+        Map<SoptPart, Long> partMemberCounts = authPartMemberCountReader.getCurrentGenerationPartMemberCounts(soptampUserFinder.getCurrentGeneration());
+        SoptampPartRankCalculator soptampPartRankCalculator = new SoptampPartRankCalculator(soptampUserInfos, partMemberCounts);
         return soptampPartRankCalculator.calculatePartRank().stream()
-                .filter(partRank -> partRank.getPart().equals(part.getPartName()))
-                .findFirst().orElseThrow();
+            .filter(partRank -> partRank.getPart().equals(part.getPartName()))
+            .findFirst()
+            .orElseThrow();
     }
 
     @Transactional(readOnly = true)

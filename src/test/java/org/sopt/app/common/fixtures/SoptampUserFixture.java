@@ -154,4 +154,12 @@
          );
      }
 
+     public static final Map<SoptPart, Long> PART_MEMBER_COUNT_MAP = Map.of(
+         SoptPart.PLAN, 10L,
+         SoptPart.DESIGN, 10L,
+         SoptPart.WEB, 10L,
+         SoptPart.IOS, 10L,
+         SoptPart.ANDROID, 10L,
+         SoptPart.SERVER, 30L
+     );
  }
