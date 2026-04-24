@@ -84,16 +84,16 @@ public class PokeController {
         return ResponseEntity.ok(result);
     }
 
-    @Operation(summary = "누가 나를 찔렀어요 조회 - 단일")
+    @Operation(summary = "누가 나를 찔렀어요 조회 - 단일 랜덤")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/to/me")
-    public ResponseEntity<SimplePokeProfile> getPokeMeMostRecent(
-            @AuthenticationPrincipal Long userId
+    public ResponseEntity<SimplePokeProfile> getRandomUnRepliedPokeMe(
+        @AuthenticationPrincipal Long userId
     ) {
-        val response = pokeFacade.getMostRecentPokeMeHistory(userId);
+        val response = pokeFacade.getRandomUnRepliedPokeMeHistory(userId);
         return ResponseEntity.ok(response);
     }
 

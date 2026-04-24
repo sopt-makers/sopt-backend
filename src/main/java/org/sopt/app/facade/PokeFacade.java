@@ -3,7 +3,6 @@ package org.sopt.app.facade;
 import static org.sopt.app.application.poke.PokeInfo.NEW_FRIEND_MANY_MUTUAL;
 import static org.sopt.app.application.poke.PokeInfo.NEW_FRIEND_NO_MUTUAL;
 import static org.sopt.app.application.poke.PokeInfo.NEW_FRIEND_ONE_MUTUAL;
-import static org.sopt.app.domain.entity.QUser.*;
 
 import java.util.*;
 import lombok.RequiredArgsConstructor;
@@ -57,20 +56,13 @@ public class PokeFacade {
     }
 
     @Transactional(readOnly = true)
-    public SimplePokeProfile getMostRecentPokeMeHistory(Long userId) {
-        List<Long> pokeMeUserIds = pokeHistoryService.getPokeMeUserIds(userId);
-        Optional<PokeHistory> mostRecentPokeMeHistory = pokeMeUserIds.stream()
-            .filter(userService::isUserExist)
-            .map(pokeMeUserId ->
-                    pokeHistoryService.getAllLatestPokeHistoryFromTo(pokeMeUserId, userId).stream()
-                        .findFirst().orElse(null)
-            )
-            .filter(Objects::nonNull)
-            .filter(pokeHistory -> !pokeHistory.getIsReply())
-            .max(Comparator.comparing(PokeHistory::getCreatedAt));
-        return mostRecentPokeMeHistory
+    public SimplePokeProfile getRandomUnRepliedPokeMeHistory(Long userId) {
+        return pokeHistoryService.getRandomUnRepliedPokeMeHistory(userId)
             .map(pokeHistory -> getPokeHistoryProfile(
-                userId, pokeHistory.getPokerId(), pokeHistory.getId()))
+                userId,
+                pokeHistory.getPokerId(),
+                pokeHistory.getId()
+            ))
             .orElse(null);
     }
 
