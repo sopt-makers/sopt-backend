@@ -1,8 +1,14 @@
 package org.sopt.app.application.friend;
 
-import lombok.*;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
+import lombok.RequiredArgsConstructor;
+import lombok.val;
 import org.jetbrains.annotations.NotNull;
 import org.sopt.app.application.poke.PokeInfo.Relationship;
 import org.sopt.app.application.user.UserWithdrawEvent;
@@ -23,6 +29,7 @@ public class FriendService {
 
     private final Random random = new Random();
     private final FriendRepository friendRepository;
+    private final AnonymousNameGenerator anonymousNameGenerator;
 
     public List<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
         HashMap<Long, Integer> map = getPokeCountMap(userId);
@@ -89,7 +96,7 @@ public class FriendService {
                 .userId(userId)
                 .friendUserId(friendId)
                 .pokeCount(1)
-                .anonymousName(AnonymousNameGenerator.generateRandomString())
+                .anonymousName(anonymousNameGenerator.generate())
                 .build();
         friendRepository.save(createdRelationUserToFriend);
     }

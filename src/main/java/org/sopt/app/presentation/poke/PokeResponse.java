@@ -2,12 +2,12 @@ package org.sopt.app.presentation.poke;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
+import java.util.Optional;
 import lombok.*;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.poke.PokeInfo.*;
 import org.sopt.app.application.user.UserProfile;
 import org.sopt.app.domain.enums.FriendRecommendType;
-import org.sopt.app.common.utils.AnonymousImageGenerator;
 
 public class PokeResponse {
 
@@ -134,8 +134,6 @@ public class PokeResponse {
         private Boolean isAnonymous;
         @Schema(description = "익명 이름", example = "익명의 그윽한 떡볶이")
         private String anonymousName;
-        @Schema(description = "익명 사진", example = "~.png")
-        private String anonymousImage;
 
         public static SimplePokeProfile from(
                 PokedUserInfo pokedUserInfo,
@@ -146,9 +144,9 @@ public class PokeResponse {
             return new SimplePokeProfile(
                     pokedUserInfo.getUserId(),
                     // pokedUserInfo.getPlaygroundId(),
-                    pokedUserInfo.getProfileImage() == null ? "" : pokedUserInfo.getProfileImage(),
+                    Optional.ofNullable(pokedUserInfo.getProfileImage()).orElse(""),
                     pokedUserInfo.getName(),
-                    pokeDetail.getMessage() == null ? "" : pokeDetail.getMessage(),
+                    Optional.ofNullable(pokeDetail.getMessage()).orElse(""),
                     pokedUserInfo.getGeneration(),
                     pokedUserInfo.getPart(),
                     pokedUserInfo.getRelation().getPokeNum(),
@@ -157,8 +155,7 @@ public class PokeResponse {
                     pokedUserInfo.isFirstMeet(),
                     isAlreadyPoke,
                     isAnonymous,
-                    isAnonymous ? pokedUserInfo.getRelation().getAnonymousName() : "",
-                    AnonymousImageGenerator.getImageUrl(isAnonymous)
+                    Boolean.TRUE.equals(isAnonymous) ? pokedUserInfo.getRelation().getAnonymousName() : ""
             );
         }
 
@@ -181,9 +178,9 @@ public class PokeResponse {
             return new SimplePokeProfile(
                     userId,
                     // playgroundId,
-                    profileImage == null ? "" : profileImage,
+                    Optional.ofNullable(profileImage).orElse(""),
                     name,
-                    message == null ? "" : message,
+                    Optional.ofNullable(message).orElse(""),
                     generation,
                     part,
                     pickNum,
@@ -192,8 +189,7 @@ public class PokeResponse {
                     isFirstMeet,
                     isAlreadyPoke,
                     isAnonymous,
-                    isAnonymous ? anonymousName : "",
-                    AnonymousImageGenerator.getImageUrl(isAnonymous)
+                    Boolean.TRUE.equals(isAnonymous) ? anonymousName : ""
             );
         }
 
@@ -203,7 +199,7 @@ public class PokeResponse {
             return new SimplePokeProfile(
                     userProfile.getUserId(),
                     // userProfile.getPlaygroundId(),
-                    playgroundProfile.getProfileImage() == null ? "" : playgroundProfile.getProfileImage(),
+                    Optional.ofNullable(playgroundProfile.getProfileImage()).orElse(""),
                     userProfile.getName(),
                     "",
                     playgroundProfile.getLatestActivity().getGeneration(),
@@ -214,7 +210,6 @@ public class PokeResponse {
                     true,
                     false,
                     false,
-                    "",
                     ""
             );
         }
