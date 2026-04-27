@@ -4,10 +4,10 @@ HEALTH_CHECK_URL=/api/v2/health
 
 health_check() {
   local PORT=$1
-  local RETRIES="${RETRIES:-5}"
+  local RETRIES="${RETRIES:-10}"
 
-  echo "▶️ Start health check after 20 seconds"
-  sleep 20
+  echo "▶️ Start health check after 30 seconds"
+  sleep 30
 
   for retry_count in $(seq 1 $RETRIES); do
     echo "🔎 Health Check on Port ${PORT} (Attempt: ${retry_count}/${RETRIES})..."
