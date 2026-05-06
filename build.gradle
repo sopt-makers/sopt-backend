@@ -103,6 +103,10 @@ dependencies {
     // slack
     implementation 'com.slack.api:slack-api-client:1.30.0'
 
+    // monitoring
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
     // AWS Lambda Dependencies for JAR deployment
     implementation 'com.amazonaws.serverless:aws-serverless-java-container-springboot3:2.1.5'
     implementation 'com.amazonaws:aws-lambda-java-core:1.4.0'

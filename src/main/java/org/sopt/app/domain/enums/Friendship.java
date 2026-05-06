@@ -9,10 +9,10 @@ import java.util.Arrays;
 @Getter
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum Friendship {
-    NON_FRIEND("nonfriend","새로운 친구", 0,2),
-    NEW_FRIEND("new","친한친구",2, 5),
-    BEST_FRIEND("bestfriend","단짝친구",5,10),
-    SOULMATE("soulmate","천생연분",11,99)
+    NON_FRIEND("nonfriend","새로운 친구", 0, 2),
+    NEW_FRIEND("new","친한친구", 2, 5),
+    BEST_FRIEND("bestfriend","단짝친구", 5, 11),
+    SOULMATE("soulmate","천생연분", 11, Integer.MAX_VALUE)
     ;
 
     private final String typeFlag;
@@ -22,8 +22,8 @@ public enum Friendship {
 
     public static Friendship getFriendshipByValue(String type) {
         return Arrays.stream(values())
-                .filter(friendship -> friendship.getTypeFlag().equals(type))
-                .findFirst()
-                .orElseThrow(() -> new BadRequestException(ErrorCode.FRIENDSHIP_NOT_FOUND));
+            .filter(friendship -> friendship.getTypeFlag().equals(type))
+            .findFirst()
+            .orElseThrow(() -> new BadRequestException(ErrorCode.FRIENDSHIP_NOT_FOUND));
     }
 }
