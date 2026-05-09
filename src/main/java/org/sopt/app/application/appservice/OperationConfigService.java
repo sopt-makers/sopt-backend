@@ -7,6 +7,7 @@ import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.interfaces.postgres.OperationConfigRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -16,6 +17,7 @@ public class OperationConfigService {
 
     private final OperationConfigRepository operationConfigRepository;
 
+    @Transactional(readOnly = true)
     public List<OperationConfig> getOperationConfigByOperationConfigType(OperationConfigCategory operationConfigCategory) {
         return operationConfigRepository.findByOperationConfigCategory(operationConfigCategory).orElseThrow(
                 () -> new NotFoundException(ErrorCode.ENTITY_NOT_FOUND));

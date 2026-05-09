@@ -169,7 +169,6 @@ public class HomeFacade {
         );
     }
 
-    @Transactional(readOnly = true)
     public List<PlaygroundRecentPost> getPlaygroundRecentPosts(Long userId) {
         List<OperationConfig> configList = operationConfigService.getOperationConfigByOperationConfigType(OperationConfigCategory.PLAYGROUND_POST);
         Map<String, String> imageConfigMap = PlaygroundRecentPost.toImageConfigMap(configList);
@@ -191,7 +190,6 @@ public class HomeFacade {
             .toList();
     }
 
-    @Transactional(readOnly = true)
     public List<PlaygroundPopularPost> getPlaygroundPopularPosts(Long userId) {
         return playgroundAuthService.getPlaygroundPopularPosts();
     }
