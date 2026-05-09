@@ -3,7 +3,7 @@ name: ⚙️ MAKERS-DEV-APP-DEPLOY
 # 해당 스크립트를 사용하지 않고 있는 상태에서 스크립트 수정이 진행됨. 추후 스크립트 사용 시 점검 필요
 on:
   workflow_dispatch:
-  push:
+#  push:
 #    branches: [ 'dev' ]
 
 env:
