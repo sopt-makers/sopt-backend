@@ -66,10 +66,20 @@ public class PlaygroundAuthService {
     }
 
     public List<PlaygroundRecentPost> getPlaygroundRecentPosts() {
-        return playgroundClient.getPlaygroundRecentPosts();
+        try {
+            return playgroundClient.getPlaygroundRecentPosts();
+        } catch (Exception e) {
+            log.warn("Playground 최근 게시글 조회 실패, 빈 리스트 반환", e);
+            return List.of();
+        }
     }
 
     public List<PlaygroundPopularPost> getPlaygroundPopularPosts() {
-        return playgroundClient.getPlaygroundPopularPosts();
+        try {
+            return playgroundClient.getPlaygroundPopularPosts();
+        } catch (Exception e) {
+            log.warn("Playground 인기 게시글 조회 실패, 빈 리스트 반환", e);
+            return List.of();
+        }
     }
 }
