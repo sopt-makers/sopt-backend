@@ -1,5 +1,6 @@
 package org.sopt.app.common.external.auth;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
@@ -12,14 +13,19 @@ public class AuthRestClientConfig {
 
     public static final String HEADER_API_KEY = "X-Api-Key";
     public static final String HEADER_SERVICE_NAME = "X-Service-Name";
-    private static final int TIMEOUT_MILLIS = 5000;
+
+    @Value("${external.api.timeout.connect}")
+    private int connectTimeout;
+
+    @Value("${external.api.timeout.read}")
+    private int readTimeout;
 
     @Bean
     public RestClient authWebClient(AuthClientProperty property) {
 
         SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
-        requestFactory.setConnectTimeout(TIMEOUT_MILLIS);
-        requestFactory.setReadTimeout(TIMEOUT_MILLIS);
+        requestFactory.setConnectTimeout(connectTimeout);
+        requestFactory.setReadTimeout(readTimeout);
 
         return RestClient.builder()
             .baseUrl(property.url())
