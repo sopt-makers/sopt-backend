@@ -6,6 +6,7 @@ import feign.jackson.*;
 import feign.okhttp.OkHttpClient;
 import feign.slf4j.Slf4jLogger;
 
+import java.util.concurrent.TimeUnit;
 import org.sopt.app.application.meeting.CrewClient;
 import org.sopt.app.application.platform.PlatformClient;
 import org.springframework.context.annotation.*;
@@ -27,6 +28,12 @@ public class ClientConfig {
 	@Value("${external.auth.url}")
 	private String platformEndPoint;
 
+	@Value("${external.api.timeout.connect}")
+	private int connectTimeout;
+
+	@Value("${external.api.timeout.read}")
+	private int readTimeout;
+
 	@Bean
 	public PlaygroundClient playgroundClient() {
 		return Feign.builder()
@@ -34,6 +41,7 @@ public class ClientConfig {
 			.encoder(encoder())
 			.decoder(decoder())
 			.errorDecoder(errorDecoder())
+			.options(new Request.Options(connectTimeout, TimeUnit.MILLISECONDS, readTimeout, TimeUnit.MILLISECONDS, true))
 			.logger(new Slf4jLogger(PlaygroundClient.class))
 			.logLevel(feignLoggerLevel())
 			.target(PlaygroundClient.class, playgroundEndPoint);
@@ -46,6 +54,7 @@ public class ClientConfig {
 			.encoder(encoder())
 			.decoder(decoder())
 			.errorDecoder(errorDecoder())
+			.options(new Request.Options(connectTimeout, TimeUnit.MILLISECONDS, readTimeout, TimeUnit.MILLISECONDS, true))
 			.logger(new Slf4jLogger(CrewClient.class))
 			.logLevel(feignLoggerLevel())
 			.target(CrewClient.class, crewEndPoint);
@@ -58,6 +67,7 @@ public class ClientConfig {
 			.encoder(encoder())
 			.decoder(decoder())
 			.errorDecoder(errorDecoder())
+			.options(new Request.Options(connectTimeout, TimeUnit.MILLISECONDS, readTimeout, TimeUnit.MILLISECONDS, true))
 			.logger(new Slf4jLogger(PlatformClient.class))
 			.logLevel(feignLoggerLevel())
 			.target(PlatformClient.class, platformEndPoint);
