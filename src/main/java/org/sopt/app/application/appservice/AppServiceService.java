@@ -7,6 +7,7 @@ import org.sopt.app.application.appservice.dto.AppServiceInfo;
 import org.sopt.app.domain.entity.AppService;
 import org.sopt.app.interfaces.postgres.AppServiceRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -14,6 +15,7 @@ public class AppServiceService {
 
     private final AppServiceRepository appServiceRepository;
 
+    @Transactional(readOnly = true)
     public List<AppServiceInfo> getAllAppService() {
         return appServiceRepository.findAll().stream()
             .filter(appService -> {
@@ -29,6 +31,7 @@ public class AppServiceService {
             .toList();
     }
 
+    @Transactional(readOnly = true)
     public AppServiceInfo getAppService(String serviceName) {
         return AppServiceInfo.of(appServiceRepository.findByServiceName(serviceName));
     }
