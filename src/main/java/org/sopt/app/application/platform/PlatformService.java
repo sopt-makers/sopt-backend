@@ -129,8 +129,11 @@ public class PlatformService {
     }
 
     public List<Long> getMemberGenerationList(Long userId) {
-        return getPlatformUserInfoResponse(userId)
-                .soptActivities().stream()
+        return getMemberGenerationList(getPlatformUserInfoResponse(userId));
+    }
+
+    public List<Long> getMemberGenerationList(PlatformUserInfoResponse platformUserInfoResponse) {
+        return platformUserInfoResponse.soptActivities().stream()
                 .map(PlatformUserInfoResponse.SoptActivities::generation)
                 .map(Integer::longValue)
                 .distinct()
