@@ -186,6 +186,7 @@ public class FriendService {
         return friends.isEmpty();
     }
 
+    // 단순 단일 조회 — @Transactional 생략
     public Set<Long> findAllFriendIdsByUserId(Long userId) {
         return friendRepository.findAllOfFriendIdsByUserId(userId);
     }

@@ -24,6 +24,7 @@ public class SoptampUserFinder {
     @Value("${sopt.current.generation}")
     private Long currentGeneration;
 
+    // 단순 단일 조회 — @Transactional 생략
     public List<SoptampUserInfo> findAllOfCurrentGeneration() {
         return soptampUserRepository.findAllByGeneration(currentGeneration)
                 .stream()
@@ -31,6 +32,7 @@ public class SoptampUserFinder {
                 .toList();
     }
 
+    // 단순 단일 조회 — @Transactional 생략
     public List<SoptampUserInfo> findAllByPartAndCurrentGeneration(Part part) {
         return soptampUserRepository.findAllByNicknameStartingWithAndGeneration(part.getPartName(), currentGeneration)
                 .stream()
@@ -38,18 +40,21 @@ public class SoptampUserFinder {
                 .toList();
     }
 
+    // 단순 단일 조회 — @Transactional 생략
     public SoptampUserInfo findByNickname(String nickname) {
         SoptampUser soptampUser = soptampUserRepository.findUserByNickname(nickname)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         return SoptampUserInfo.of(soptampUser);
     }
 
+    // 단순 단일 조회 — @Transactional 생략
     public SoptampUserInfo findById(Long userId) {
         SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         return SoptampUserInfo.of(soptampUser);
     }
 
+    // 단순 단일 조회 — @Transactional 생략
     public Map<Long, SoptampUserInfo> findUserInfosByIdsAsMap(List<Long> userIds) {
 
         return soptampUserRepository.findAllByUserIdIn(userIds).stream()
