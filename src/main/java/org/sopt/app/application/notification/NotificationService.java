@@ -87,11 +87,7 @@ public class NotificationService {
 
     @Transactional(readOnly = true)
     public boolean getNotificationConfirmStatus(Long userId) {
-        val notificationList = notificationRepository.findAllByUserId(userId);
-        val unreadNotificationList = notificationList.stream()
-                .filter(notification -> !notification.getIsRead())
-                .toList();
-        return unreadNotificationList.isEmpty();
+        return !notificationRepository.existsByUserIdAndIsReadFalse(userId);
     }
 
     @EventListener(UserWithdrawEvent.class)
