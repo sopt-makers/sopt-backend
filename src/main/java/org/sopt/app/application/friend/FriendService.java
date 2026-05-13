@@ -186,7 +186,6 @@ public class FriendService {
         return friends.isEmpty();
     }
 
-    @Transactional(readOnly = true)
     public Set<Long> findAllFriendIdsByUserId(Long userId) {
         return friendRepository.findAllOfFriendIdsByUserId(userId);
     }

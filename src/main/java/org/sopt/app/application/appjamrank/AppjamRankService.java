@@ -64,7 +64,6 @@ public class AppjamRankService {
 		);
 	}
 
-	@Transactional(readOnly = true)
 	public List<StampRepositoryCustom.AppjamTodayRankSource> findTodayUserRankSources(
 		LocalDateTime todayStart,
 		LocalDateTime tomorrowStart
@@ -72,12 +71,10 @@ public class AppjamRankService {
 		return stampRepository.findTodayUserRankSources(todayStart, tomorrowStart);
 	}
 
-	@Transactional(readOnly = true)
 	public List<AppjamUser> findAllAppjamUsers() {
 		return appjamUserRepository.findAll();
 	}
 
-	@Transactional(readOnly = true)
 	public Map<Long, Long> findTotalPointsByUserIds(Collection<Long> userIds) {
 		if (userIds == null || userIds.isEmpty()) {
 			return Map.of();
@@ -91,7 +88,6 @@ public class AppjamRankService {
 			));
 	}
 
-	@Transactional(readOnly = true)
 	public Optional<AppjamUser> findAppjamUserByUserId(Long userId) {
 		return appjamUserRepository.findByUserId(userId);
 	}

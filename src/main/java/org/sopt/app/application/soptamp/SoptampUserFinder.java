@@ -13,7 +13,6 @@ import org.sopt.app.domain.enums.Part;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,7 +24,6 @@ public class SoptampUserFinder {
     @Value("${sopt.current.generation}")
     private Long currentGeneration;
 
-    @Transactional(readOnly = true)
     public List<SoptampUserInfo> findAllOfCurrentGeneration() {
         return soptampUserRepository.findAllByGeneration(currentGeneration)
                 .stream()
@@ -33,7 +31,6 @@ public class SoptampUserFinder {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public List<SoptampUserInfo> findAllByPartAndCurrentGeneration(Part part) {
         return soptampUserRepository.findAllByNicknameStartingWithAndGeneration(part.getPartName(), currentGeneration)
                 .stream()
@@ -41,21 +38,18 @@ public class SoptampUserFinder {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public SoptampUserInfo findByNickname(String nickname) {
         SoptampUser soptampUser = soptampUserRepository.findUserByNickname(nickname)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         return SoptampUserInfo.of(soptampUser);
     }
 
-    @Transactional(readOnly = true)
     public SoptampUserInfo findById(Long userId) {
         SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         return SoptampUserInfo.of(soptampUser);
     }
 
-    @Transactional(readOnly = true)
     public Map<Long, SoptampUserInfo> findUserInfosByIdsAsMap(List<Long> userIds) {
 
         return soptampUserRepository.findAllByUserIdIn(userIds).stream()

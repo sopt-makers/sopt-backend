@@ -8,7 +8,6 @@ import org.sopt.app.domain.entity.poke.PokeMessage;
 import org.sopt.app.domain.enums.PokeMessageType;
 import org.sopt.app.interfaces.postgres.PokeMessageRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +28,6 @@ public class PokeMessageService {
         return MESSAGES_HEADER_FOR_POKE;
     }
 
-    @Transactional(readOnly = true)
     public List<PokeMessage> pickRandomMessageByTypeOf(String type) {
         PokeMessageType messageType = PokeMessageType.ofParam(type);
         val messages = messageRepository.findAllByType(messageType);

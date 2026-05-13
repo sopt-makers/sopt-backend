@@ -21,7 +21,6 @@ public class PokeHistoryService {
 
     private final PokeHistoryRepository pokeHistoryRepository;
 
-    @Transactional(readOnly = true)
     public List<PokeHistoryInfo> getAllOfPokeBetween(Long userId, Long friendId) {
         val pokeHistoryList = pokeHistoryRepository.findAllWithFriendOrderByCreatedAtDescIsReplyFalse(userId, friendId);
 
@@ -30,14 +29,12 @@ public class PokeHistoryService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public Optional<PokeHistory> getRandomUnRepliedPokeMeHistory(Long userId) {
         return pokeHistoryRepository.findRandomUnRepliedPokeMeHistory(userId, PageRequest.of(0, 1))
             .stream()
             .findFirst();
     }
 
-    @Transactional(readOnly = true)
     public List<Long> getPokeMeUserIds(Long userId) {
         return pokeHistoryRepository.findAllByPokedId(userId).stream()
                 .map(PokeHistory::getPokerId)
@@ -45,12 +42,10 @@ public class PokeHistoryService {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public List<PokeHistory> getAllLatestPokeHistoryFromTo(Long pokerId, Long pokedId) {
         return pokeHistoryRepository.findAllByPokerIdAndPokedIdOrderByCreatedAtDesc(pokerId, pokedId);
     }
 
-    @Transactional(readOnly = true)
     public Page<PokeHistory> getAllLatestPokeHistoryIn(List<Long> targetHistoryIds, Pageable pageable) {
         if (targetHistoryIds == null || targetHistoryIds.isEmpty()) {
             return Page.empty(pageable);
@@ -58,7 +53,6 @@ public class PokeHistoryService {
         return pokeHistoryRepository.findAllByIdIsInOrderByCreatedAtDesc(targetHistoryIds, pageable);
     }
 
-    @Transactional(readOnly = true)
     public void checkDuplicate(Long pokerUserId, Long pokedUserId) {
         val pokeHistory = pokeHistoryRepository.findAllByPokerIdAndPokedIdAndIsReplyIsFalse(pokerUserId, pokedUserId);
         if (!pokeHistory.isEmpty()) {
@@ -66,7 +60,6 @@ public class PokeHistoryService {
         }
     }
 
-    @Transactional(readOnly = true)
     public Map<Long, Boolean> getAllPokeHistoryMap(Long userId) {
         val pokeHistories = pokeHistoryRepository.findAllByPokerIdAndIsReply(userId, false);
         HashMap<Long, Boolean> pokeHistoryMap = new HashMap<>();
@@ -77,7 +70,6 @@ public class PokeHistoryService {
     }
 
     // isReply 여부에 관계 없이 전부 조회
-    @Transactional(readOnly = true)
     public List<PokeHistoryInfo> getAllPokeHistoryByUsers(Long userId, Long friendUserId) {
         val pokeHistories = pokeHistoryRepository.findAllPokeHistoryByUsers(userId, friendUserId);
         return pokeHistories.stream().map(PokeHistoryInfo::from).toList();
@@ -90,7 +82,6 @@ public class PokeHistoryService {
         pokeHistoryRepository.deleteAllByPokedIdInQuery(event.getUserId());
     }
 
-    @Transactional(readOnly = true)
     public Long getUnRepliedPokeMeSize(Long userId) {
         return pokeHistoryRepository.countByPokedIdAndIsReplyIsFalse(userId);
     }
