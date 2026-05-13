@@ -19,7 +19,7 @@ public class PlaygroundPostCacheService {
 
     private static final String RECENT_POSTS_KEY = "playground:recent_posts";
     private static final String POPULAR_POSTS_KEY = "playground:popular_posts";
-    private static final long CACHE_TTL_SECONDS = 3600L; // 1시간
+    private static final long CACHE_TTL_SECONDS = 3600L * 24; // 24시간
 
     private final StringRedisTemplate stringRedisTemplate;
     private final ObjectMapper objectMapper;
