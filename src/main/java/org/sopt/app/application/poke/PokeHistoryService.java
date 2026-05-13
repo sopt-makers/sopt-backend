@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class PokeHistoryService {
 
     private final PokeHistoryRepository pokeHistoryRepository;
@@ -82,6 +83,7 @@ public class PokeHistoryService {
         pokeHistoryRepository.deleteAllByPokedIdInQuery(event.getUserId());
     }
 
+    @Transactional(readOnly = true)
     public Long getUnRepliedPokeMeSize(Long userId) {
         return pokeHistoryRepository.countByPokedIdAndIsReplyIsFalse(userId);
     }

@@ -81,10 +81,12 @@ public class ClapService {
 			.sum();
 	}
 
+    @Transactional(readOnly = true)
     public Optional<Clap> getClap(Long userId, Long stampId) {
         return clapRepository.findByUserIdAndStampId(userId, stampId);
     }
 
+    @Transactional(readOnly = true)
     public int getUserClapCount(Long userId, Long stampId) {
         Optional<Clap> clap = getClap(userId, stampId);
 

@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class SoptampUserFinder {
 
     private final SoptampUserRepository soptampUserRepository;
@@ -51,7 +52,6 @@ public class SoptampUserFinder {
         return SoptampUserInfo.of(soptampUser);
     }
 
-    @Transactional(readOnly = true)
     public Map<Long, SoptampUserInfo> findUserInfosByIdsAsMap(List<Long> userIds) {
 
         return soptampUserRepository.findAllByUserIdIn(userIds).stream()

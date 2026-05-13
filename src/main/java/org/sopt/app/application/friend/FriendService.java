@@ -22,9 +22,11 @@ import org.springframework.context.event.EventListener;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class FriendService {
 
     private final Random random = new Random();
@@ -91,6 +93,7 @@ public class FriendService {
     }
 
 
+    @Transactional
     public void registerFriendshipOf(Long userId, Long friendId) {
         Friend createdRelationUserToFriend = Friend.builder()
                 .userId(userId)
@@ -101,6 +104,7 @@ public class FriendService {
         friendRepository.save(createdRelationUserToFriend);
     }
 
+    @Transactional
     public void applyPokeCount(Long pokerId, Long pokedId) {
         Friend friendship = friendRepository.findByUserIdAndFriendUserId(pokerId, pokedId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND));
@@ -188,6 +192,7 @@ public class FriendService {
             .sum();
     }
 
+    @Transactional
     @EventListener(UserWithdrawEvent.class)
     public void handleUserWithdrawEvent(final UserWithdrawEvent event) {
         friendRepository.deleteAllByFriendUserIdInQuery(event.getUserId());

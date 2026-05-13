@@ -9,6 +9,7 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.enums.TeamNumber;
 import org.sopt.app.interfaces.postgres.AppjamUserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,24 +17,28 @@ public class AppjamUserService {
 
     private final AppjamUserRepository appjamUserRepository;
 
+    @Transactional(readOnly = true)
     public AppjamUserStatus getAppjamUserStatus(Long userId) {
         return appjamUserRepository.findByUserId(userId)
             .map(AppjamUserStatus::appjamJoined)
             .orElseGet(AppjamUserStatus::appjamNotJoined);
     }
 
+    @Transactional(readOnly = true)
     public TeamSummary getTeamSummaryByTeamNumber(TeamNumber teamNumber) {
         val appjamUser = appjamUserRepository.findTopByTeamNumberOrderById(teamNumber)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
         return TeamSummary.from(appjamUser);
     }
 
+    @Transactional(readOnly = true)
     public TeamSummary getTeamSummaryByUserId(Long userId) {
         return appjamUserRepository.findByUserId(userId)
             .map(TeamSummary::from)
             .orElseGet(TeamSummary::empty);
     }
 
+    @Transactional(readOnly = true)
     public boolean isAppjamParticipant(Long userId) {
         return appjamUserRepository.existsByUserId(userId);
     }
