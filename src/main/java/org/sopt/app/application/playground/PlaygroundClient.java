@@ -8,7 +8,7 @@ import org.sopt.app.application.playground.dto.PlayGroundUserSoptLevelResponse;
 import org.sopt.app.application.playground.dto.PlaygroundPopularPost;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
-import org.sopt.app.application.playground.dto.PlaygroundRecentPost;
+import org.sopt.app.application.playground.dto.PlaygroundRecentPostDto;
 import org.sopt.app.application.playground.dto.PlaygroundUserFindCondition;
 import org.sopt.app.application.playground.dto.RecommendedFriendInfo.PlaygroundUserIds;
 import org.springframework.cloud.openfeign.EnableFeignClients;
@@ -48,7 +48,7 @@ public interface PlaygroundClient {
 
     // headermap 제외
     @RequestLine("GET /internal/api/v1/community/posts/latest")
-    List<PlaygroundRecentPost> getPlaygroundRecentPosts();
+    List<PlaygroundRecentPostDto> getPlaygroundRecentPosts();
 
     // headermap 제외
     @RequestLine("GET /internal/api/v1/community/posts/popular")
