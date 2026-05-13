@@ -3,8 +3,6 @@ package org.sopt.app.application.stamp;
 import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.domain.enums.SoptPart;
 import org.sopt.app.interfaces.postgres.ClapMilestoneGuard;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +44,6 @@ public class ClapEventListener {
     private String baseURI;
 
     @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onClap(ClapEvent event) {
         final int oldClapTotal = event.getOldClapTotal();
@@ -152,14 +149,14 @@ public class ClapEventListener {
 
         public OwnerInfo getOwnerInfo() {
             if(this.ownerInfo == null){
-                return fetchOwnerInfo(getEvent());
+                this.ownerInfo = fetchOwnerInfo(getEvent());
             }
             return this.ownerInfo;
         }
 
         public MissionInfo getMissionInfo() {
             if(this.missionInfo == null){
-                return fetchMissionInfo(getEvent());
+                this.missionInfo = fetchMissionInfo(getEvent());
             }
             return this.missionInfo;
         }
