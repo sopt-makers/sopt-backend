@@ -21,12 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class AppjamRankService {
 	private final StampRepository stampRepository;
 	private final AppjamUserRepository appjamUserRepository;
     private final SoptampUserRepository soptampUserRepository;
 
+	@Transactional(readOnly = true)
 	public AppjamRankInfo.RankAggregate findRecentTeamRanks(Pageable pageable) {
 
 		List<Stamp> latestStamps = stampRepository.findDisplayedLatestStamps(pageable);
@@ -64,6 +64,7 @@ public class AppjamRankService {
 		);
 	}
 
+	@Transactional(readOnly = true)
 	public List<StampRepositoryCustom.AppjamTodayRankSource> findTodayUserRankSources(
 		LocalDateTime todayStart,
 		LocalDateTime tomorrowStart
@@ -71,10 +72,12 @@ public class AppjamRankService {
 		return stampRepository.findTodayUserRankSources(todayStart, tomorrowStart);
 	}
 
+	@Transactional(readOnly = true)
 	public List<AppjamUser> findAllAppjamUsers() {
 		return appjamUserRepository.findAll();
 	}
 
+	@Transactional(readOnly = true)
 	public Map<Long, Long> findTotalPointsByUserIds(Collection<Long> userIds) {
 		if (userIds == null || userIds.isEmpty()) {
 			return Map.of();
@@ -88,6 +91,7 @@ public class AppjamRankService {
 			));
 	}
 
+	@Transactional(readOnly = true)
 	public Optional<AppjamUser> findAppjamUserByUserId(Long userId) {
 		return appjamUserRepository.findByUserId(userId);
 	}

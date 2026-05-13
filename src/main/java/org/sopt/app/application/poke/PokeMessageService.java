@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class PokeMessageService {
 
     private static final int MESSAGES_QUANTITY_AT_ONCE = 4;
@@ -30,6 +29,7 @@ public class PokeMessageService {
         return MESSAGES_HEADER_FOR_POKE;
     }
 
+    @Transactional(readOnly = true)
     public List<PokeMessage> pickRandomMessageByTypeOf(String type) {
         PokeMessageType messageType = PokeMessageType.ofParam(type);
         val messages = messageRepository.findAllByType(messageType);

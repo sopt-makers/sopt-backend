@@ -26,13 +26,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class FriendService {
 
     private final Random random = new Random();
     private final FriendRepository friendRepository;
     private final AnonymousNameGenerator anonymousNameGenerator;
 
+    @Transactional(readOnly = true)
     public List<Friend> findAllFriendsByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
         HashMap<Long, Integer> map = getPokeCountMap(userId);
 
@@ -47,6 +47,7 @@ public class FriendService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public int findAllFriendSizeByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
         HashMap<Long, Integer> map = getPokeCountMap(userId);
 
@@ -79,6 +80,7 @@ public class FriendService {
         return map;
     }
 
+    @Transactional(readOnly = true)
     public Page<Friend> findAllFriendsByFriendship(
             Long userId, Integer lowerLimit, Integer upperLimit, Pageable pageable
     ) {
@@ -111,12 +113,14 @@ public class FriendService {
         friendship.addPokeCount();
     }
 
+    @Transactional(readOnly = true)
     public boolean isFriendEachOther(Long pokerId, Long pokedId) {
         Optional<Friend> pokerToPokedRelation = friendRepository.findByUserIdAndFriendUserId(pokerId, pokedId);
         Optional<Friend> pokedToPokerRelation = friendRepository.findByUserIdAndFriendUserId(pokedId, pokerId);
         return pokerToPokedRelation.isPresent() && pokedToPokerRelation.isPresent();
     }
 
+    @Transactional(readOnly = true)
     public Relationship getRelationInfo(Long pokerId, Long pokedId) {
         Optional<Friend> friendshipFromPokerToPoked = friendRepository.findByUserIdAndFriendUserId(pokerId, pokedId);
         Optional<Friend> friendshipFromPokedToPoker = friendRepository.findByUserIdAndFriendUserId(pokedId, pokerId);
@@ -149,6 +153,7 @@ public class FriendService {
         return Friendship.NON_FRIEND.getFriendshipName();
     }
 
+    @Transactional(readOnly = true)
     public List<Long> getMutualFriendIds(Long pokerId, Long pokedId) {
         Set<Long> pokerFriendIds = friendRepository.findAllOfFriendIdsByUserId(pokerId);
         Set<Long> pokedFriendIds = friendRepository.findAllOfFriendIdsByUserId(pokedId);
@@ -157,6 +162,7 @@ public class FriendService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public Long getPokeFriendIdRandomly(Long userId) {
         val friendIdsPokeMe = friendRepository.findAllByFriendUserId(userId).stream()
                 .map(Friend::getUserId)
@@ -171,6 +177,7 @@ public class FriendService {
         return friends.get(random.nextInt(friends.size())).getFriendUserId();
     }
 
+    @Transactional(readOnly = true)
     public boolean getIsNewUser(Long userId) {
         val friendUserPokeMe = friendRepository.findAllByFriendUserId(userId).stream()
                 .map(Friend::getUserId)
@@ -179,10 +186,12 @@ public class FriendService {
         return friends.isEmpty();
     }
 
+    @Transactional(readOnly = true)
     public Set<Long> findAllFriendIdsByUserId(Long userId) {
         return friendRepository.findAllOfFriendIdsByUserId(userId);
     }
 
+    @Transactional(readOnly = true)
     public int sumPokeCountByFriendship(Long userId, Integer lowerLimit, Integer upperLimit) {
         HashMap<Long, Integer> map = getPokeCountMap(userId);
 

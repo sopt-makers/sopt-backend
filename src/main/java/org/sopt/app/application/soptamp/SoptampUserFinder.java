@@ -17,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class SoptampUserFinder {
 
     private final SoptampUserRepository soptampUserRepository;
@@ -26,6 +25,7 @@ public class SoptampUserFinder {
     @Value("${sopt.current.generation}")
     private Long currentGeneration;
 
+    @Transactional(readOnly = true)
     public List<SoptampUserInfo> findAllOfCurrentGeneration() {
         return soptampUserRepository.findAllByGeneration(currentGeneration)
                 .stream()
@@ -33,6 +33,7 @@ public class SoptampUserFinder {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<SoptampUserInfo> findAllByPartAndCurrentGeneration(Part part) {
         return soptampUserRepository.findAllByNicknameStartingWithAndGeneration(part.getPartName(), currentGeneration)
                 .stream()
@@ -40,18 +41,21 @@ public class SoptampUserFinder {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public SoptampUserInfo findByNickname(String nickname) {
         SoptampUser soptampUser = soptampUserRepository.findUserByNickname(nickname)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         return SoptampUserInfo.of(soptampUser);
     }
 
+    @Transactional(readOnly = true)
     public SoptampUserInfo findById(Long userId) {
         SoptampUser soptampUser = soptampUserRepository.findByUserId(userId)
                 .orElseThrow(() -> new BadRequestException(ErrorCode.USER_NOT_FOUND));
         return SoptampUserInfo.of(soptampUser);
     }
 
+    @Transactional(readOnly = true)
     public Map<Long, SoptampUserInfo> findUserInfosByIdsAsMap(List<Long> userIds) {
 
         return soptampUserRepository.findAllByUserIdIn(userIds).stream()
