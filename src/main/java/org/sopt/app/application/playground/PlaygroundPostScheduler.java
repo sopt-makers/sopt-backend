@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.sopt.app.application.appservice.OperationConfigService;
 import org.sopt.app.application.playground.dto.PlaygroundPopularPost;
 import org.sopt.app.application.playground.dto.PlaygroundRecentPost;
-import org.sopt.app.application.playground.dto.PlaygroundRecentPostDto;
 import org.sopt.app.common.config.AsyncConfig;
 import org.sopt.app.common.config.OperationConfig;
 import org.sopt.app.common.config.OperationConfigCategory;
@@ -23,6 +22,9 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class PlaygroundPostScheduler {
 
+    private static final String LOCKED_STATUS = "LOCKED";
+    private static final int RECENT_LOCK_MINUTE = 5;
+    private static final int POPULAR_LOCK_MINUTE = 5;
     private static final String RECENT_LOCK_KEY = "playground:recent_posts_refresh_lock";
     private static final String POPULAR_LOCK_KEY = "playground:popular_posts_refresh_lock";
     private final PlaygroundAuthService playgroundAuthService;
@@ -51,9 +53,9 @@ public class PlaygroundPostScheduler {
     }
 
     private void refreshRecentPosts() {
-        Boolean acquired = stringRedisTemplate.opsForValue().setIfAbsent(RECENT_LOCK_KEY, "locked", Duration.ofMinutes(5));
+        Boolean acquired = stringRedisTemplate.opsForValue().setIfAbsent(RECENT_LOCK_KEY, LOCKED_STATUS, Duration.ofMinutes(RECENT_LOCK_MINUTE));
         if (!Boolean.TRUE.equals(acquired)) {
-            log.debug("Playground 최신 게시글 캐시 갱신 락 획득 실패");
+            log.error("Playground 최신 게시글 캐시 갱신 락 획득 실패");
             return;
         }
 
@@ -72,9 +74,9 @@ public class PlaygroundPostScheduler {
     }
 
     private void refreshPopularPosts() {
-        Boolean acquired = stringRedisTemplate.opsForValue().setIfAbsent(POPULAR_LOCK_KEY, "locked", Duration.ofMinutes(5));
+        Boolean acquired = stringRedisTemplate.opsForValue().setIfAbsent(POPULAR_LOCK_KEY, LOCKED_STATUS, Duration.ofMinutes(POPULAR_LOCK_MINUTE));
         if (!Boolean.TRUE.equals(acquired)) {
-            log.debug("Playground 인기 게시글 캐시 갱신 락 획득 실패");
+            log.error("Playground 인기 게시글 캐시 갱신 락 획득 실패");
             return;
         }
 
