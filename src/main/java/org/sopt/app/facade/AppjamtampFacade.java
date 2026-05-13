@@ -19,7 +19,6 @@ import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.presentation.appjamtamp.AppjamtampRequest.RegisterStampRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -34,7 +33,6 @@ public class AppjamtampFacade {
     private final SoptampUserService soptampUserService;
     private final MissionService missionService;
 
-    @Transactional(readOnly = true)
     public AppjamtampView getAppjamtamps(Long requestUserId, Long missionId, String nickname) {
         val owner = soptampUserFinder.findByNickname(nickname);
         val ownerUserId = owner.getUserId();
@@ -56,7 +54,6 @@ public class AppjamtampFacade {
         );
     }
 
-    @Transactional
     public StampInfo.StampWithProfile uploadStamp(Long userId, RegisterStampRequest registerStampRequest) {
         val appjamUserStatus = appjamUserService.getAppjamUserStatus(userId);
         if (!appjamUserStatus.isAppjamJoined()) {

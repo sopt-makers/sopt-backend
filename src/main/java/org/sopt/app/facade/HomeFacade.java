@@ -32,7 +32,6 @@ import org.sopt.app.presentation.home.response.FloatingButtonResponse;
 import org.sopt.app.presentation.home.response.HomeDescriptionResponse;
 import org.sopt.app.presentation.home.response.ReviewFormResponse;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -58,16 +57,15 @@ public class HomeFacade {
 //        return descriptionService.getMainDescription(userActiveInfo.status());
 //    }
 
-    @Transactional(readOnly = true)
     public HomeDescriptionResponse getHomeMainDescription(Long userId) {
-        int duration = ActivityDurationCalculator.calculate(platformService.getMemberGenerationList(userId));
+        PlatformUserInfoResponse platformUserInfoResponse = platformService.getPlatformUserInfoResponse(userId);
+        int duration = ActivityDurationCalculator.calculate(platformService.getMemberGenerationList(platformUserInfoResponse));
         return HomeDescriptionResponse.of(
-                wrapWithTag(platformService.getPlatformUserInfoResponse(userId).name(), "b"),
+                wrapWithTag(platformUserInfoResponse.name(), "b"),
                 duration
         );
     }
 
-    @Transactional
     public List<AppServiceEntryStatusResponse> checkAppServiceEntryStatus(Long userId) {
         if(userId == null){
             return this.getOnlyAppServiceInfo();
@@ -125,7 +123,6 @@ public class HomeFacade {
                 .toList();
     }
 
-    @Transactional(readOnly = true)
     public FloatingButtonResponse getFloatingButtonInfo(Long userId) {
         boolean isActive = false;
         if (userId != null) {
@@ -150,7 +147,6 @@ public class HomeFacade {
 
     }
 
-    @Transactional(readOnly = true)
     public ReviewFormResponse getReviewFormInfo(Long userId) {
         boolean isActive = false;
         if (userId != null) {

@@ -94,7 +94,6 @@ public class SoptampFacade {
                 stamp, requestUserClapCount, Objects.equals(requestUserId, soptampUserId), owner.getNickname());
     }
 
-    @Transactional(readOnly = true)
     public ClapResponse.ClapUsersPage getClapUsersPage(Long userId, Long stampId, Pageable pageable) {
         stampService.checkOwnedStamp(stampId, userId);
 

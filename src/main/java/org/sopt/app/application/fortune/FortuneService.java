@@ -66,6 +66,7 @@ public class FortuneService {
         userFortuneRepository.deleteAllByUserIdInQuery(event.getUserId());
     }
 
+    @Transactional(readOnly = true)
     public boolean isExistTodayFortune(final Long userId) {
         return userFortuneRepository.findByUserId(userId)
                 .map(userFortune -> userFortune.getCheckedAt().equals(CurrentDate.now()))
