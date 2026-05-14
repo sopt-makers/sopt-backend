@@ -1,5 +1,8 @@
 package org.sopt.app.application.appservice;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import java.time.Duration;
 import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +18,18 @@ public class AppServiceService {
 
     private final AppServiceRepository appServiceRepository;
 
+    private final Cache<String, List<AppServiceInfo>> appServiceCache = Caffeine.newBuilder()
+        .expireAfterWrite(Duration.ofMinutes(10))
+        .build();
+
+    private static final String ALL_APP_SERVICE_CACHE_KEY = "all";
+
     @Transactional(readOnly = true)
     public List<AppServiceInfo> getAllAppService() {
+        return appServiceCache.get(ALL_APP_SERVICE_CACHE_KEY, k -> loadAllAppService());
+    }
+
+    private List<AppServiceInfo> loadAllAppService() {
         return appServiceRepository.findAll().stream()
             .filter(appService -> {
                 AppServiceName appServiceName =

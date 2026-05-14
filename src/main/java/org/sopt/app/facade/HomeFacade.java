@@ -4,6 +4,7 @@ import static org.sopt.app.common.utils.HtmlTagWrapper.wrapWithTag;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -73,15 +74,20 @@ public class HomeFacade {
         // TODO : 추후 유저 생성 api response 변경해 생성 api 쪽에서 soptamp user upsert 하도록 변경
         PlatformUserInfoResponse platformUserInfo = platformService.getPlatformUserInfoResponse(userId);
         UserStatus status = platformService.getStatus(platformUserInfo);
+
         soptampUserService.upsertSoptampUser(platformUserInfo, userId);
 
-        List<AppServiceEntryStatusResponse> appServiceEntryStatusResponses = appServiceService.getAllAppService().stream()
-            .filter(appServiceInfo -> isServiceVisibleToUser(appServiceInfo, status))
-            .map(appServiceInfo -> appServiceBadgeService.getAppServiceEntryStatusResponse(
-                appServiceInfo, userId
-            ))
+        List<CompletableFuture<AppServiceEntryStatusResponse>> futures =
+            appServiceService.getAllAppService().stream()
+                .filter(appServiceInfo -> isServiceVisibleToUser(appServiceInfo, status))
+                .map(appServiceInfo -> appServiceBadgeService.getAppServiceEntryStatusResponseAsync(
+                    appServiceInfo, userId
+                ))
+                .toList();
+
+        return futures.stream()
+            .map(CompletableFuture::join)
             .toList();
-        return appServiceEntryStatusResponses;
     }
 
     private List<AppServiceEntryStatusResponse> getOnlyAppServiceInfo() {

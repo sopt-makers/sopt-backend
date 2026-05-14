@@ -12,6 +12,7 @@ import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserAllCacheSyncEven
 import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserProfileCacheSyncEvent;
 import org.sopt.app.application.soptamp.SoptampEvent.SoptampUserScoreCacheSyncEvent;
 import org.sopt.app.application.user.UserWithdrawEvent;
+import org.sopt.app.common.config.AsyncConfig;
 import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
@@ -21,6 +22,7 @@ import org.sopt.app.interfaces.postgres.AppjamUserRepository;
 import org.sopt.app.interfaces.postgres.SoptampUserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -60,6 +62,7 @@ public class SoptampUserService {
     /* ==================== upsert 진입점 ==================== */
 
     // 앱잼 시즌 여부에 따라 upsert 로직 분기
+    @Async(AsyncConfig.CACHE_SYNC_EXECUTOR)
     @Transactional
     public void upsertSoptampUser(PlatformUserInfoResponse profile, Long userId) {
         if (profile == null)
