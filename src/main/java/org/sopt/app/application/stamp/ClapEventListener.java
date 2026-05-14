@@ -3,8 +3,6 @@ package org.sopt.app.application.stamp;
 import org.sopt.app.domain.entity.soptamp.Mission;
 import org.sopt.app.domain.enums.SoptPart;
 import org.sopt.app.interfaces.postgres.ClapMilestoneGuard;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +44,6 @@ public class ClapEventListener {
     private String baseURI;
 
     @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onClap(ClapEvent event) {
         final int oldClapTotal = event.getOldClapTotal();
@@ -152,14 +149,14 @@ public class ClapEventListener {
 
         public OwnerInfo getOwnerInfo() {
             if(this.ownerInfo == null){
-                return fetchOwnerInfo(getEvent());
+                this.ownerInfo = loadOwnerInfo(getEvent());
             }
             return this.ownerInfo;
         }
 
         public MissionInfo getMissionInfo() {
             if(this.missionInfo == null){
-                return fetchMissionInfo(getEvent());
+                this.missionInfo = loadMissionInfo(getEvent());
             }
             return this.missionInfo;
         }
@@ -197,7 +194,7 @@ public class ClapEventListener {
         }
 
 
-        private OwnerInfo fetchOwnerInfo(ClapEvent clapEvent) {
+        private OwnerInfo loadOwnerInfo(ClapEvent clapEvent) {
             val ownerProfile = platformService.getPlatformUserInfoResponse(clapEvent.getOwnerUserId());
             String ownerName = ownerProfile.name();
             String ownerPartName = Optional.ofNullable(ownerProfile.getLatestActivity())
@@ -209,7 +206,7 @@ public class ClapEventListener {
             return new OwnerInfo(ownerName, ownerPart, nickname);
         }
 
-        private MissionInfo fetchMissionInfo(ClapEvent clapEvent){
+        private MissionInfo loadMissionInfo(ClapEvent clapEvent){
             Long missionId = stampService.getMissionIdByStampId(clapEvent.getStampId());
             Mission mission = missionService.getMissionById(missionId);
 
