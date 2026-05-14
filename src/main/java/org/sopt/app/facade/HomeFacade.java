@@ -5,6 +5,7 @@ import static org.sopt.app.common.utils.HtmlTagWrapper.wrapWithTag;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -78,13 +79,14 @@ public class HomeFacade {
         UserStatus status = platformService.getStatus(platformUserInfo);
         soptampUserService.upsertSoptampUser(platformUserInfo, userId);
 
-        List<AppServiceEntryStatusResponse> appServiceEntryStatusResponses = appServiceService.getAllAppService().stream()
+        List<CompletableFuture<AppServiceEntryStatusResponse>> futures = appServiceService.getAllAppService().stream()
             .filter(appServiceInfo -> isServiceVisibleToUser(appServiceInfo, status))
-            .map(appServiceInfo -> appServiceBadgeService.getAppServiceEntryStatusResponse(
-                appServiceInfo, userId
-            ))
+            .map(appServiceInfo -> appServiceBadgeService.getAppServiceEntryStatusResponseAsync(appServiceInfo, userId))
             .toList();
-        return appServiceEntryStatusResponses;
+
+        return futures.stream()
+            .map(CompletableFuture::join)
+            .toList();
     }
 
     private List<AppServiceEntryStatusResponse> getOnlyAppServiceInfo() {
