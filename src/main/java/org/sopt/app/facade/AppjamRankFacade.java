@@ -18,7 +18,6 @@ import org.sopt.app.interfaces.postgres.StampRepositoryCustom;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -27,7 +26,6 @@ public class AppjamRankFacade {
 	private final PlaygroundAuthService playgroundAuthService;
 	private final AppjamRankService appjamRankService;
 
-	@Transactional(readOnly = true)
 	public AppjamRankInfo.RankList findRecentTeamRanks(int size) {
 		Pageable pageable = PageRequest.of(0, size);
 
@@ -60,7 +58,6 @@ public class AppjamRankFacade {
 	 * 오늘 팀 랭킹 (캐시 없이 DB 기반)
 	 * - 전체 팀을 항상 보여주기 위해 effectiveSize는 teamCount 이상 보장
 	 */
-	@Transactional(readOnly = true)
 	public AppjamRankInfo.TodayTeamRankList findTodayTeamRanks(int size) {
 		LocalDateTime todayStart = CurrentDate.now().atStartOfDay();
 		LocalDateTime tomorrowStart = todayStart.plusDays(1);
@@ -99,7 +96,6 @@ public class AppjamRankFacade {
 		);
 	}
 
-	@Transactional(readOnly = true)
 	public Integer findMyTeamRank(final Long userId) {
 		AppjamUser myAppjamUser = appjamRankService.findAppjamUserByUserId(userId).orElse(null);
 		if (myAppjamUser == null || myAppjamUser.getTeamNumber() == null) {

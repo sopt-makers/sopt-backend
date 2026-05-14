@@ -17,6 +17,7 @@ import org.sopt.app.interfaces.postgres.StampRepository;
 import org.sopt.app.interfaces.postgres.StampRepositoryCustom;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,7 @@ public class AppjamRankService {
 	private final AppjamUserRepository appjamUserRepository;
     private final SoptampUserRepository soptampUserRepository;
 
+	@Transactional(readOnly = true)
 	public AppjamRankInfo.RankAggregate findRecentTeamRanks(Pageable pageable) {
 
 		List<Stamp> latestStamps = stampRepository.findDisplayedLatestStamps(pageable);
@@ -62,6 +64,7 @@ public class AppjamRankService {
 		);
 	}
 
+	// 단순 단일 조회 — @Transactional 생략
 	public List<StampRepositoryCustom.AppjamTodayRankSource> findTodayUserRankSources(
 		LocalDateTime todayStart,
 		LocalDateTime tomorrowStart
@@ -69,10 +72,12 @@ public class AppjamRankService {
 		return stampRepository.findTodayUserRankSources(todayStart, tomorrowStart);
 	}
 
+	// 단순 단일 조회 — @Transactional 생략
 	public List<AppjamUser> findAllAppjamUsers() {
 		return appjamUserRepository.findAll();
 	}
 
+	// 단순 단일 조회 — @Transactional 생략
 	public Map<Long, Long> findTotalPointsByUserIds(Collection<Long> userIds) {
 		if (userIds == null || userIds.isEmpty()) {
 			return Map.of();
@@ -86,6 +91,7 @@ public class AppjamRankService {
 			));
 	}
 
+	// 단순 단일 조회 — @Transactional 생략
 	public Optional<AppjamUser> findAppjamUserByUserId(Long userId) {
 		return appjamUserRepository.findByUserId(userId);
 	}

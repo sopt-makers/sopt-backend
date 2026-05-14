@@ -17,6 +17,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     List<Notification> findAllByUserIdAndCategory(Long userId, Pageable pageable, NotificationCategory category);
 
+    boolean existsByUserIdAndIsReadFalse(Long userId);
+
     Optional<Notification> findByNotificationIdAndUserId(String notificationId, Long userId);
 
     @Query("DELETE FROM Notification n WHERE n.userId = :userId")

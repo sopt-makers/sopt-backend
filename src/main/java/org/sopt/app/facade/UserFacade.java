@@ -43,7 +43,6 @@ public class UserFacade {
     private final UserService userService;
     private final AppjamUserService appjamUserService;
 
-    @Transactional(readOnly = true)
     public MainView getMainViewInfo(Long userId) {
         if(userId == null) {
             return MainView.unauthenticatedMainView();
@@ -51,16 +50,15 @@ public class UserFacade {
         PlatformUserInfoResponse platformUserInfoResponse = platformService.getPlatformUserInfoResponse(userId);
         PlaygroundProfileInfo.MainViewUser mainViewUser = PlaygroundProfileInfo.MainViewUser.builder()
             .name(platformUserInfoResponse.name())
-            .status(platformService.getStatus(userId))
+            .status(platformService.getStatus(platformUserInfoResponse))
             .profileImage(platformUserInfoResponse.profileImage())
-            .generationList(platformService.getMemberGenerationList(userId).stream().toList())
+            .generationList(platformService.getMemberGenerationList(platformUserInfoResponse))
             .build();
 
         boolean mainViewNotification = notificationService.getNotificationConfirmStatus(userId);
         return userResponseMapper.ofMainView(PlaygroundProfileInfo.MainView.of(mainViewUser), Operation.defaultOperation(), mainViewNotification);
     }
 
-    @Transactional(readOnly = true)
     @Deprecated
     public List<AppService> getAppServiceInfo() {
         return appServiceService.getAllAppService().stream()
@@ -78,7 +76,6 @@ public class UserFacade {
         userService.deleteUser(userId);
     }
 
-    @Transactional(readOnly = true)
     public UserResponse.MySoptLog getMySoptLog(Long userId) {
         UserStatus userStatus = platformService.getStatus(userId);
         boolean isActive = (userStatus == UserStatus.ACTIVE);

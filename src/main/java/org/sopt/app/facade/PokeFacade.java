@@ -40,7 +40,6 @@ public class PokeFacade {
     private final PokeMessageService pokeMessageService;
     private final PlatformService platformService;
 
-    @Transactional(readOnly = true)
     public List<PokeMessage> getPokingMessages(String type) {
         val messages = pokeMessageService.pickRandomMessageByTypeOf(type);
         val fixedMessage = pokeMessageService.getFixedMessage();
@@ -55,7 +54,6 @@ public class PokeFacade {
         return pokeMessageService.getMessagesHeaderComment(type);
     }
 
-    @Transactional(readOnly = true)
     public SimplePokeProfile getRandomUnRepliedPokeMeHistory(Long userId) {
         return pokeHistoryService.getRandomUnRepliedPokeMeHistory(userId)
             .map(pokeHistory -> getPokeHistoryProfile(
@@ -66,7 +64,6 @@ public class PokeFacade {
             .orElse(null);
     }
 
-    @Transactional(readOnly = true)
     public PokeToMeHistoryList getAllPokeMeHistory(Long userId, Pageable pageable) {
         List<Long> pokeMeUserIds = pokeHistoryService.getPokeMeUserIds(userId);
         List<Long> latestHistoryIds = pokeMeUserIds.stream()
@@ -121,7 +118,6 @@ public class PokeFacade {
         }
     }
 
-    @Transactional(readOnly = true)
     public List<SimplePokeProfile> getFriend(Long userId) {
         // 나와 친구인 사용자들 중 랜덤으로 1명 뽑기
         val friendId = friendService.getPokeFriendIdRandomly(userId);
@@ -150,7 +146,7 @@ public class PokeFacade {
                         platformUserInfoResponse.profileImage(),
                         platformUserInfoResponse.name(),
                         "",
-					    Long.valueOf(platformUserInfoResponse.lastGeneration()),
+                        Long.valueOf(platformUserInfoResponse.lastGeneration()),
                         soptActivities.part(),
                         friendRelationInfo.getPokeNum(),
                         friendRelationInfo.getRelationName(),
@@ -195,7 +191,6 @@ public class PokeFacade {
         }
     }
 
-    @Transactional(readOnly = true)
     public List<SimplePokeProfile> getTwoFriendByFriendship(Long userId, Friendship friendship) {
         val friendsOfFriendship = friendService.findAllFriendsByFriendship(
                 userId, friendship.getLowerLimit(), friendship.getUpperLimit());
@@ -214,13 +209,11 @@ public class PokeFacade {
             .toList();
     }
 
-    @Transactional(readOnly = true)
     public int getFriendSizeByFriendship(Long userId, Friendship friendship) {
         return friendService.findAllFriendsByFriendship(
                 userId, friendship.getLowerLimit(), friendship.getUpperLimit()).size();
     }
 
-    @Transactional(readOnly = true)
     public EachRelationFriendList getAllFriendByFriendship(Long userId, Friendship friendship, Pageable pageable) {
         val friends = friendService.findAllFriendsByFriendship(
                 userId, friendship.getLowerLimit(), friendship.getUpperLimit(), pageable);

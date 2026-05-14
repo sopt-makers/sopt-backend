@@ -28,6 +28,7 @@ public class PokeMessageService {
         return MESSAGES_HEADER_FOR_POKE;
     }
 
+    // 단순 단일 조회 — @Transactional 생략
     public List<PokeMessage> pickRandomMessageByTypeOf(String type) {
         PokeMessageType messageType = PokeMessageType.ofParam(type);
         val messages = messageRepository.findAllByType(messageType);

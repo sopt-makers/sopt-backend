@@ -88,6 +88,7 @@ public class MissionService {
                 .getTitle();
     }
 
+    @Transactional(readOnly = true)
     public MissionInfo.Level getMissionLevelById(Long missionId) {
         val mission = missionRepository.findById(missionId).orElseThrow(
             () -> new NotFoundException(ErrorCode.MISSION_NOT_FOUND));
@@ -95,6 +96,7 @@ public class MissionService {
         return MissionInfo.Level.of(mission.getLevel());
     }
 
+    @Transactional(readOnly = true)
     public Mission getMissionById(Long missionId) {
         val mission = missionRepository.findById(missionId).orElseThrow(
             () -> new NotFoundException(ErrorCode.MISSION_NOT_FOUND)
