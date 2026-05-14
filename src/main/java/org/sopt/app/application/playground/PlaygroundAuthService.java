@@ -10,6 +10,7 @@ import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.OwnPlaygroundProfile;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo.PlaygroundProfile;
 import org.sopt.app.application.playground.dto.PlaygroundRecentPost;
+import org.sopt.app.application.playground.dto.PlaygroundRecentPostDto;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,7 +66,7 @@ public class PlaygroundAuthService {
         return playgroundClient.getPlayGroundProfile(userId);
     }
 
-    public List<PlaygroundRecentPost> getPlaygroundRecentPosts() {
+    public List<PlaygroundRecentPostDto> getPlaygroundRecentPosts() {
         return playgroundClient.getPlaygroundRecentPosts();
     }
 

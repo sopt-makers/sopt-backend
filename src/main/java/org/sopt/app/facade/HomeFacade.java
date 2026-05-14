@@ -4,6 +4,7 @@ import static org.sopt.app.common.utils.HtmlTagWrapper.wrapWithTag;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,13 +19,15 @@ import org.sopt.app.application.meeting.MeetingResponse;
 import org.sopt.app.application.meeting.MeetingService;
 import org.sopt.app.application.platform.PlatformService;
 import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
-import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.playground.PlaygroundPostCacheService;
+import org.sopt.app.application.playground.PlaygroundPopularPostRefreshEvent;
+import org.sopt.app.application.playground.PlaygroundRecentPostRefreshEvent;
 import org.sopt.app.application.playground.dto.PlaygroundPopularPost;
 import org.sopt.app.application.playground.dto.PlaygroundRecentPost;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.config.OperationConfig;
 import org.sopt.app.common.config.OperationConfigCategory;
+import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.utils.ActivityDurationCalculator;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.home.MeetingParamRequest;
@@ -39,7 +42,6 @@ import org.springframework.stereotype.Service;
 public class HomeFacade {
 
     private final DescriptionService descriptionService;
-    private final PlaygroundAuthService playgroundAuthService;
     private final PlaygroundPostCacheService playgroundPostCacheService;
     private final AppServiceService appServiceService;
     private final AppServiceBadgeService appServiceBadgeService;
@@ -47,6 +49,7 @@ public class HomeFacade {
     private final OperationConfigService operationConfigService;
     private final PlatformService platformService;
     private final SoptampUserService soptampUserService;
+    private final EventPublisher eventPublisher;
 
     // TODO : deprecated 된것으로 인지
 //    @Transactional(readOnly = true)
@@ -170,41 +173,22 @@ public class HomeFacade {
     }
 
     public List<PlaygroundRecentPost> getPlaygroundRecentPosts(Long userId) {
-        List<OperationConfig> configList = operationConfigService.getOperationConfigByOperationConfigType(OperationConfigCategory.PLAYGROUND_POST);
-        Map<String, String> imageConfigMap = PlaygroundRecentPost.toImageConfigMap(configList);
-
-        try {
-            List<PlaygroundRecentPost> posts = playgroundAuthService.getPlaygroundRecentPosts().stream()
-                .map(post -> PlaygroundRecentPost.from(
-                    post.playgroundPostId(),
-                    post.userId(),
-                    post.profileImage(),
-                    post.name(),
-                    post.generationAndPart(),
-                    post.category(),
-                    post.title(),
-                    post.content(),
-                    post.webLink(),
-                    post.createdAt(),
-                    imageConfigMap
-                ))
-                .toList();
-            playgroundPostCacheService.cacheRecentPosts(posts);
-            return posts;
-        } catch (Exception e) {
-            log.warn("Playground 최근 게시글 조회 실패, 캐시 반환 시도", e);
-            return playgroundPostCacheService.getCachedRecentPosts().orElse(List.of());
+        Optional<List<PlaygroundRecentPost>> cachedPosts = playgroundPostCacheService.getCachedRecentPosts();
+        if (cachedPosts.isPresent()) {
+            return cachedPosts.get();
         }
+
+        eventPublisher.raise(new PlaygroundRecentPostRefreshEvent());
+        return List.of();
     }
 
     public List<PlaygroundPopularPost> getPlaygroundPopularPosts(Long userId) {
-        try {
-            List<PlaygroundPopularPost> posts = playgroundAuthService.getPlaygroundPopularPosts();
-            playgroundPostCacheService.cachePopularPosts(posts);
-            return posts;
-        } catch (Exception e) {
-            log.warn("Playground 인기 게시글 조회 실패, 캐시 반환 시도", e);
-            return playgroundPostCacheService.getCachedPopularPosts().orElse(List.of());
+        Optional<List<PlaygroundPopularPost>> cachedPosts = playgroundPostCacheService.getCachedPopularPosts();
+        if (cachedPosts.isPresent()) {
+            return cachedPosts.get();
         }
+
+        eventPublisher.raise(new PlaygroundPopularPostRefreshEvent());
+        return List.of();
     }
 }
