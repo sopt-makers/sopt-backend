@@ -149,14 +149,14 @@ public class ClapEventListener {
 
         public OwnerInfo getOwnerInfo() {
             if(this.ownerInfo == null){
-                this.ownerInfo = fetchOwnerInfo(getEvent());
+                this.ownerInfo = loadOwnerInfo(getEvent());
             }
             return this.ownerInfo;
         }
 
         public MissionInfo getMissionInfo() {
             if(this.missionInfo == null){
-                this.missionInfo = fetchMissionInfo(getEvent());
+                this.missionInfo = loadMissionInfo(getEvent());
             }
             return this.missionInfo;
         }
@@ -194,7 +194,7 @@ public class ClapEventListener {
         }
 
 
-        private OwnerInfo fetchOwnerInfo(ClapEvent clapEvent) {
+        private OwnerInfo loadOwnerInfo(ClapEvent clapEvent) {
             val ownerProfile = platformService.getPlatformUserInfoResponse(clapEvent.getOwnerUserId());
             String ownerName = ownerProfile.name();
             String ownerPartName = Optional.ofNullable(ownerProfile.getLatestActivity())
@@ -206,7 +206,7 @@ public class ClapEventListener {
             return new OwnerInfo(ownerName, ownerPart, nickname);
         }
 
-        private MissionInfo fetchMissionInfo(ClapEvent clapEvent){
+        private MissionInfo loadMissionInfo(ClapEvent clapEvent){
             Long missionId = stampService.getMissionIdByStampId(clapEvent.getStampId());
             Mission mission = missionService.getMissionById(missionId);
 
