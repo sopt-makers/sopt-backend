@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,9 +36,10 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
     // 시스템 제어를 위한 상수들 (외부 주입 불필요)
     private static final String LOCK_PREFIX = "lock:cache:";
     private static final String REFRESH_MARKER_PREFIX = "refresh_marker:cache:";
-    private static final long LOCK_TTL_SECOND = 8;
-    private static final long RETRY_INTERVAL_MS = 500;
+    private static final long LOCK_TTL_SECOND = 5;
     private static final long MAX_WAIT_MS = 3000;
+    private static final long BASE_SLEEP_MS = 50;
+    private static final long MAX_JITTER_MS = 50;
 
     private static final RedisScript<Long> RELEASE_LOCK_SCRIPT = new DefaultRedisScript<>(
         "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end",
@@ -67,12 +69,12 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
             staleData = cachedData;
 
             if(asyncRefreshEnabled){
-                triggerAsyncRefresh(key, type, physicalTtl, fetcher, wrapperType);
+                dispatchAsyncRefresh(key, type, physicalTtl, fetcher, wrapperType);
                 return cachedData.data();
             }
         }
 
-        return getWithLockAndRefresh(key, type, logicalTtlMs, physicalTtl, fetcher, staleData, wrapperType);
+        return blockingGet(key, type, logicalTtlMs, physicalTtl, fetcher, staleData, wrapperType);
     }
 
     private <T> CacheWrapper<T> readCache(String key, JavaType wrapperType) {
@@ -90,12 +92,13 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
     /**
      * stale 데이터도 없는 경우 or AWS Lambda 환경인 경우.
      */
-    private <T> T getWithLockAndRefresh(String key, Class<T> type, long logicalTtlMs, Duration physicalTtl, Supplier<T> fetcher, CacheWrapper<T> staleData, JavaType wrapperType) {
+    private <T> T blockingGet(String key, Class<T> type, long logicalTtlMs, Duration physicalTtl, Supplier<T> fetcher, CacheWrapper<T> staleData, JavaType wrapperType) {
         String lockKey = LOCK_PREFIX + key;
         String lockValue = UUID.randomUUID().toString();
-        int maxRetryCount = (int) (MAX_WAIT_MS / RETRY_INTERVAL_MS);
+        long startTime = System.currentTimeMillis();
 
-        for (int i = 0; i < maxRetryCount; i++) {
+        // 총 경과 시간이 MAX_WAIT_MS 를 넘지 않는 동안 반복
+        while (System.currentTimeMillis() - startTime < MAX_WAIT_MS) {
 
             CacheWrapper<T> wrapper = readCache(key, wrapperType);
             if (isValid(wrapper)) {
@@ -103,32 +106,34 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
                 if (staleData == null) staleData = wrapper;
             }
 
-            // 락 획득 시도
             if (tryAcquireLock(lockKey, lockValue)) {
                 try {
-                    // 락 획득 직후 더블 체크
                     CacheWrapper<T> doubleChecked = readCache(key, wrapperType);
                     if (isValid(doubleChecked) && isFresh(doubleChecked, logicalTtlMs)) {
                         return doubleChecked.data();
                     }
-
                     return fetchAndCache(key, physicalTtl, fetcher, wrapperType);
                 } finally {
                     releaseLock(lockKey, lockValue);
                 }
             }
 
-            sleepWithoutInterrupt(); // 락 획득 실패 시 대기
+            sleepWithJitter();
         }
 
         if (staleData != null) return staleData.data();
         throw new BaseException("캐시 갱신을 위한 락 획득 시간 초과", ErrorCode.INTERNAL_SERVER_ERROR);
     }
 
-    // sleep을 처리하는 헬퍼 메서드
-    private void sleepWithoutInterrupt() {
+    /**
+     * 스레드 sleep 시간에 jitter를 두어 부하 분산
+     */
+    private void sleepWithJitter() {
         try {
-            Thread.sleep(RETRY_INTERVAL_MS);
+            long jitter = ThreadLocalRandom.current().nextLong(MAX_JITTER_MS);
+            long sleepTime = BASE_SLEEP_MS + jitter;
+
+            Thread.sleep(sleepTime);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new BaseException("락 대기 중 인터럽트가 발생했습니다.", ErrorCode.INTERNAL_SERVER_ERROR);
@@ -142,7 +147,7 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
     /**
      * 비동기적으로 이미 누군가 락을 잡고 작업 중이라면 패스, 그렇지 않다면 락을 잡고 데이터 갱신
      */
-    private <T> void triggerAsyncRefresh(String key, Class<T> type, Duration physicalTtl, Supplier<T> fetcher, JavaType wrapperType) {
+    private <T> void dispatchAsyncRefresh(String key, Class<T> type, Duration physicalTtl, Supplier<T> fetcher, JavaType wrapperType) {
         String markerKey = REFRESH_MARKER_PREFIX + key;
         Boolean markerAcquired = stringRedisTemplate.opsForValue().setIfAbsent(markerKey, "1", Duration.ofSeconds(LOCK_TTL_SECOND));
         if (!Boolean.TRUE.equals(markerAcquired)) return;
