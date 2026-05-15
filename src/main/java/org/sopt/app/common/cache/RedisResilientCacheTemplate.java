@@ -120,7 +120,10 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
             sleepWithJitter();
         }
 
-        if (staleData != null) return staleData.data();
+        if (staleData != null) {
+            log.warn("캐시 갱신 락 획득 대기 시간이 초과되어 Stale 데이터를 반환합니다. (Key: {})", key);
+            return staleData.data();
+        }
         throw new BaseException("캐시 갱신을 위한 락 획득 시간 초과", ErrorCode.INTERNAL_SERVER_ERROR);
     }
 
