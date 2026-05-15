@@ -33,7 +33,6 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
     @Qualifier(CACHE_SYNC_EXECUTOR)
     private final ObjectProvider<Executor> executorProvider;
 
-    // 시스템 제어를 위한 상수들 (외부 주입 불필요)
     private static final String LOCK_PREFIX = "lock:cache:";
     private static final String REFRESH_MARKER_PREFIX = "refresh_marker:cache:";
     private static final long LOCK_TTL_SECOND = 5;
@@ -47,7 +46,7 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
     );
 
     // Redis에 저장할 데이터 형태. data + 저장 시간을 묶어서 처리
-    public record CacheWrapper<T>(T data, Long createdAt) {}
+    public record CacheWrapper<T>(T data, Long requestedAt) {}
 
     /**
      * 데이터가 존재할 경우, 논리 TTL에 따라 반환 only, 혹은 반환 후 비동기 갱신 작업을 수행.
@@ -69,7 +68,7 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
             staleData = cachedData;
 
             if(asyncRefreshEnabled){
-                dispatchAsyncRefresh(key, type, physicalTtl, fetcher, wrapperType);
+                dispatchAsyncRefresh(key, type, logicalTtlMs, physicalTtl, fetcher, wrapperType);
                 return cachedData.data();
             }
         }
@@ -147,46 +146,59 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
     /**
      * 비동기적으로 이미 누군가 락을 잡고 작업 중이라면 패스, 그렇지 않다면 락을 잡고 데이터 갱신
      */
-    private <T> void dispatchAsyncRefresh(String key, Class<T> type, Duration physicalTtl, Supplier<T> fetcher, JavaType wrapperType) {
+    private <T> void dispatchAsyncRefresh(String key, Class<T> type, long logicalTtlMs, Duration physicalTtl, Supplier<T> fetcher, JavaType wrapperType) {
         String markerKey = REFRESH_MARKER_PREFIX + key;
         Boolean markerAcquired = stringRedisTemplate.opsForValue().setIfAbsent(markerKey, "1", Duration.ofSeconds(LOCK_TTL_SECOND));
         if (!Boolean.TRUE.equals(markerAcquired)) return;
 
-        executorProvider.ifAvailable(executor -> {
-            try {
-                executor.execute(() -> {
-                    String lockKey = LOCK_PREFIX + key;
-                    String lockValue = UUID.randomUUID().toString();
+        Executor executor = executorProvider.getIfAvailable();
 
-                    // 충돌 방지를 위한 더블 체크
-                    Boolean lockAcquired = stringRedisTemplate.opsForValue().setIfAbsent(lockKey, lockValue, Duration.ofSeconds(LOCK_TTL_SECOND));
-                    if (!Boolean.TRUE.equals(lockAcquired)) return; // fail fast
+        if (executor == null) {
+            log.error("비동기 캐시 갱신을 위한 Executor가 존재하지 않습니다. (Key: {})", key);
+            stringRedisTemplate.delete(markerKey); // 묶여있던 마커를 풀어줌
+            return;
+        }
 
-                    try {
-                        fetchAndCache(key, physicalTtl, fetcher, wrapperType);
-                    } catch (Exception e) {
-                        log.error("비동기 캐시 갱신 실패. Key: {}", key, e);
-                    } finally {
-                        releaseLock(lockKey, lockValue);
+        try {
+            executor.execute(() -> {
+                String lockKey = LOCK_PREFIX + key;
+                String lockValue = UUID.randomUUID().toString();
+
+                // 충돌 방지를 위한 더블 체크
+                Boolean lockAcquired = stringRedisTemplate.opsForValue().setIfAbsent(lockKey, lockValue, Duration.ofSeconds(LOCK_TTL_SECOND));
+                if (!Boolean.TRUE.equals(lockAcquired)) return; // fail fast
+
+                try {
+                    CacheWrapper<T> doubleChecked = readCache(key, wrapperType);
+                    if (isValid(doubleChecked) && isFresh(doubleChecked, logicalTtlMs)) {
+                        return;
                     }
-                });
-            } catch (Exception e) {
-                log.error("비동기 작업 풀에 갱신 작업을 등록하지 못했습니다.", e);
-            }
-        });
+                    fetchAndCache(key, physicalTtl, fetcher, wrapperType);
+                } catch (Exception e) {
+                    log.error("비동기 캐시 갱신 실패. Key: {}", key, e);
+                } finally {
+                    releaseLock(lockKey, lockValue);
+                }
+            });
+        } catch (Exception e) {
+            log.error("비동기 작업 큐가 꽉 차서 작업을 등록하지 못했습니다.", e);
+            stringRedisTemplate.delete(markerKey);
+        }
+
     }
 
     private <T> T fetchAndCache(String key, Duration physicalTtl, Supplier<T> fetcher, JavaType wrapperType) {
+        long requestAt = System.currentTimeMillis();
+
         T data = fetcher.get(); // 외부에서 데이터를 가져옴
-        long newCreatedAt = System.currentTimeMillis();
-        CacheWrapper<T> wrapper = new CacheWrapper<>(data, newCreatedAt);
+        CacheWrapper<T> wrapper = new CacheWrapper<>(data, requestAt);
 
         try {
             String existingData = stringRedisTemplate.opsForValue().get(key);
             if (existingData != null) {
                 try {
                     CacheWrapper<T> existingWrapper = objectMapper.readValue(existingData, wrapperType);
-                    if (existingWrapper.createdAt() != null && existingWrapper.createdAt() >= newCreatedAt) {
+                    if (existingWrapper.requestedAt() != null && existingWrapper.requestedAt() >= requestAt) {
                         return data;
                     }
                 } catch (Exception e) {
@@ -209,10 +221,10 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
     }
 
     private <T> boolean isValid(CacheWrapper<T> wrapper) {
-        return wrapper != null && wrapper.data() != null && wrapper.createdAt() != null;
+        return wrapper != null && wrapper.data() != null && wrapper.requestedAt() != null;
     }
 
     private <T> boolean isFresh(CacheWrapper<T> wrapper, long logicalTtlMs) {
-        return System.currentTimeMillis() - wrapper.createdAt() < logicalTtlMs;
+        return System.currentTimeMillis() - wrapper.requestedAt() < logicalTtlMs;
     }
 }
