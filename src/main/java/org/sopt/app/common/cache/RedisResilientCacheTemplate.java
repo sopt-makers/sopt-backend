@@ -35,8 +35,7 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
 
     private static final String LOCK_PREFIX = "lock:cache:";
     private static final String REFRESH_MARKER_PREFIX = "refresh_marker:cache:";
-    private static final long LOCK_TTL_SECOND = 5;
-    private static final long MAX_WAIT_MS = 3000;
+
     private static final long BASE_SLEEP_MS = 50;
     private static final long MAX_JITTER_MS = 50;
 
@@ -44,6 +43,7 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
         "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end",
         Long.class
     );
+
 
     // Redis에 저장할 데이터 형태. data + 저장 시간을 묶어서 처리
     public record CacheWrapper<T>(T data, Long requestedAt) {}
@@ -53,7 +53,7 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
      * 논리 TTL이 만료됐더라도, 우선 stale한 데이터를 반환함.
      */
     @Override
-    public <T> T get(String key, Class<T> type, long logicalTtlMs, Duration physicalTtl, boolean asyncRefreshEnabled, Supplier<T> fetcher) {
+    public <T> T get(String key, Class<T> type, CachePolicy policy, Supplier<T> fetcher) {
 
         JavaType wrapperType = objectMapper.getTypeFactory().constructParametricType(CacheWrapper.class, type);
 
@@ -61,19 +61,19 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
         CacheWrapper<T> staleData = null;
 
         if(isValid(cachedData)){
-            if(isFresh(cachedData, logicalTtlMs)){
+            if(isFresh(cachedData, policy.logicalTtlMs())){
                 return cachedData.data();
             }
 
             staleData = cachedData;
 
-            if(asyncRefreshEnabled){
-                dispatchAsyncRefresh(key, type, logicalTtlMs, physicalTtl, fetcher, wrapperType);
+            if(policy.asyncRefreshEnabled()){
+                dispatchAsyncRefresh(key, policy, fetcher, wrapperType);
                 return cachedData.data();
             }
         }
 
-        return blockingGet(key, type, logicalTtlMs, physicalTtl, fetcher, staleData, wrapperType);
+        return blockingGet(key, policy, fetcher, staleData, wrapperType);
     }
 
     private <T> CacheWrapper<T> readCache(String key, JavaType wrapperType) {
@@ -91,27 +91,27 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
     /**
      * stale 데이터도 없는 경우 or AWS Lambda 환경인 경우.
      */
-    private <T> T blockingGet(String key, Class<T> type, long logicalTtlMs, Duration physicalTtl, Supplier<T> fetcher, CacheWrapper<T> staleData, JavaType wrapperType) {
+    private <T> T blockingGet(String key, CachePolicy policy, Supplier<T> fetcher, CacheWrapper<T> staleData, JavaType wrapperType) {
         String lockKey = LOCK_PREFIX + key;
         String lockValue = UUID.randomUUID().toString();
         long startTime = System.currentTimeMillis();
 
         // 총 경과 시간이 MAX_WAIT_MS 를 넘지 않는 동안 반복
-        while (System.currentTimeMillis() - startTime < MAX_WAIT_MS) {
+        while (System.currentTimeMillis() - startTime < policy.maxWaitTime().toMillis()) {
 
             CacheWrapper<T> wrapper = readCache(key, wrapperType);
             if (isValid(wrapper)) {
-                if (isFresh(wrapper, logicalTtlMs)) return wrapper.data();
+                if (isFresh(wrapper, policy.logicalTtlMs())) return wrapper.data();
                 if (staleData == null) staleData = wrapper;
             }
 
-            if (tryAcquireLock(lockKey, lockValue)) {
+            if (tryAcquireLock(lockKey, lockValue, policy.lockTtl())) {
                 try {
                     CacheWrapper<T> doubleChecked = readCache(key, wrapperType);
-                    if (isValid(doubleChecked) && isFresh(doubleChecked, logicalTtlMs)) {
+                    if (isValid(doubleChecked) && isFresh(doubleChecked, policy.logicalTtlMs())) {
                         return doubleChecked.data();
                     }
-                    return fetchAndCache(key, physicalTtl, fetcher, wrapperType);
+                    return fetchAndCache(key, policy.physicalTtl(), fetcher, wrapperType);
                 } finally {
                     releaseLock(lockKey, lockValue);
                 }
@@ -139,16 +139,16 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
         }
     }
 
-    private boolean tryAcquireLock(String lockKey, String lockValue) {
-        return Boolean.TRUE.equals(stringRedisTemplate.opsForValue().setIfAbsent(lockKey, lockValue, Duration.ofSeconds(LOCK_TTL_SECOND)));
+    private boolean tryAcquireLock(String lockKey, String lockValue, Duration lockTtl) {
+        return Boolean.TRUE.equals(stringRedisTemplate.opsForValue().setIfAbsent(lockKey, lockValue, lockTtl));
     }
 
     /**
      * 비동기적으로 이미 누군가 락을 잡고 작업 중이라면 패스, 그렇지 않다면 락을 잡고 데이터 갱신
      */
-    private <T> void dispatchAsyncRefresh(String key, Class<T> type, long logicalTtlMs, Duration physicalTtl, Supplier<T> fetcher, JavaType wrapperType) {
+    private <T> void dispatchAsyncRefresh(String key, CachePolicy policy, Supplier<T> fetcher, JavaType wrapperType) {
         String markerKey = REFRESH_MARKER_PREFIX + key;
-        Boolean markerAcquired = stringRedisTemplate.opsForValue().setIfAbsent(markerKey, "1", Duration.ofSeconds(LOCK_TTL_SECOND));
+        Boolean markerAcquired = stringRedisTemplate.opsForValue().setIfAbsent(markerKey, "1", policy.lockTtl());
         if (!Boolean.TRUE.equals(markerAcquired)) return;
 
         Executor executor = executorProvider.getIfAvailable();
@@ -165,15 +165,15 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
                 String lockValue = UUID.randomUUID().toString();
 
                 // 충돌 방지를 위한 더블 체크
-                Boolean lockAcquired = stringRedisTemplate.opsForValue().setIfAbsent(lockKey, lockValue, Duration.ofSeconds(LOCK_TTL_SECOND));
+                Boolean lockAcquired = stringRedisTemplate.opsForValue().setIfAbsent(lockKey, lockValue, policy.lockTtl());
                 if (!Boolean.TRUE.equals(lockAcquired)) return; // fail fast
 
                 try {
                     CacheWrapper<T> doubleChecked = readCache(key, wrapperType);
-                    if (isValid(doubleChecked) && isFresh(doubleChecked, logicalTtlMs)) {
+                    if (isValid(doubleChecked) && isFresh(doubleChecked, policy.logicalTtlMs())) {
                         return;
                     }
-                    fetchAndCache(key, physicalTtl, fetcher, wrapperType);
+                    fetchAndCache(key, policy.physicalTtl(), fetcher, wrapperType);
                 } catch (Exception e) {
                     log.error("비동기 캐시 갱신 실패. Key: {}", key, e);
                 } finally {
