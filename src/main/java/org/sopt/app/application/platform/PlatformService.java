@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 public class PlatformService {
 
     private final PlatformClient platformClient;
+    private final PlatformUserCacheService platformUserCacheService;
 
     @Value("${external.auth.api-key}")
     private String apiKey;
@@ -38,6 +39,13 @@ public class PlatformService {
     private static final int URL_QUERY_LENGTH_THRESHOLD = 1200;
 
     public PlatformUserInfoResponse getPlatformUserInfoResponse(Long userId) {
+        return platformUserCacheService.getPlatformUserInfo(
+                userId,
+                () -> fetchFromPlatform(userId)
+        );
+    }
+
+    private PlatformUserInfoResponse fetchFromPlatform(Long userId) {
         final Map<String, String> headers = createAuthorizationHeader();
         final Map<String, String> params = createQueryParams(Collections.singletonList(userId));
         PlatformUserInfoWrapper platformUserInfoWrapper = platformClient.getPlatformUserInfo(headers, params);
