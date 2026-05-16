@@ -14,17 +14,31 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 public class AsyncConfig {
 
     public static final String CACHE_SYNC_EXECUTOR = "cacheSyncTaskExecutor";
+    public static final String CACHE_REFRESH_EXECUTOR = "cacheRefreshExecutor";
 
     @Bean(name = CACHE_SYNC_EXECUTOR)
     public Executor cacheSyncTaskExecutor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(5);
         executor.setMaxPoolSize(10);
-        executor.setQueueCapacity(50);
+        executor.setQueueCapacity(100);
         executor.setThreadNamePrefix("CacheSync-");
 
         // 큐가 꽉 차면, 이벤트를 발행한 메인 스레드가 직접 동기적으로 처리함
         executor.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy());
+        executor.initialize();
+        return executor;
+    }
+
+    @Bean(name = CACHE_REFRESH_EXECUTOR)
+    public Executor cacheRefreshExecutor() {
+        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor.setCorePoolSize(5);
+        executor.setMaxPoolSize(10);
+        executor.setQueueCapacity(100);
+        executor.setThreadNamePrefix("CacheRefresh-");
+
+        executor.setRejectedExecutionHandler(new ThreadPoolExecutor.AbortPolicy());
         executor.initialize();
         return executor;
     }
