@@ -1,6 +1,10 @@
 package org.sopt.app.facade;
 
+import java.util.List;
+import java.util.Map;
 import lombok.RequiredArgsConstructor;
+import org.sopt.app.application.platform.PlatformService;
+import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.stamp.ClapService;
 import org.sopt.app.application.stamp.StampService;
@@ -16,6 +20,7 @@ public class AdminSoptampFacade {
     private final SoptampUserService soptampUserService;
     private final ClapService clapService;
     private final ClapMilestoneGuard clapMilestoneGuard;
+    private final PlatformService platformService;
 
     @Transactional
     public void clearSoptampData(boolean stamp, boolean soptampUser) {
@@ -37,5 +42,11 @@ public class AdminSoptampFacade {
     @Transactional
     public void initRankCache() {
         soptampUserService.initSoptampRankCache();
+    }
+
+    public void upsertAllSoptampUsers() {
+        List<Long> targetUserIds = soptampUserService.getUpsertTargetUserIds();
+        Map<Long, PlatformUserInfoResponse> profileMap = platformService.getPlatformUserInfosAsMap(targetUserIds);
+        soptampUserService.upsertAllSoptampUsers(profileMap);
     }
 }
