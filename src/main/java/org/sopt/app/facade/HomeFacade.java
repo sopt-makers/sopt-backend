@@ -25,7 +25,6 @@ import org.sopt.app.application.playground.PlaygroundPopularPostRefreshEvent;
 import org.sopt.app.application.playground.PlaygroundRecentPostRefreshEvent;
 import org.sopt.app.application.playground.dto.PlaygroundPopularPost;
 import org.sopt.app.application.playground.dto.PlaygroundRecentPost;
-import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.config.OperationConfig;
 import org.sopt.app.common.config.OperationConfigCategory;
 import org.sopt.app.common.event.EventPublisher;
@@ -49,7 +48,6 @@ public class HomeFacade {
     private final MeetingService meetingService;
     private final OperationConfigService operationConfigService;
     private final PlatformService platformService;
-    private final SoptampUserService soptampUserService;
     private final EventPublisher eventPublisher;
 
     // TODO : deprecated 된것으로 인지
@@ -74,10 +72,8 @@ public class HomeFacade {
         if(userId == null){
             return this.getOnlyAppServiceInfo();
         }
-        // TODO : 추후 유저 생성 api response 변경해 생성 api 쪽에서 soptamp user upsert 하도록 변경
         PlatformUserInfoResponse platformUserInfo = platformService.getPlatformUserInfoResponse(userId);
         UserStatus status = platformService.getStatus(platformUserInfo);
-        soptampUserService.upsertSoptampUser(platformUserInfo, userId);
 
         List<CompletableFuture<AppServiceEntryStatusResponse>> futures = appServiceService.getAllAppService().stream()
             .filter(appServiceInfo -> isServiceVisibleToUser(appServiceInfo, status))

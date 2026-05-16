@@ -107,6 +107,23 @@ public class PlatformService {
         return data;
     }
 
+    public Map<Long, PlatformUserInfoResponse> getPlatformUserInfosAsMap(List<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return Collections.emptyMap();
+        }
+        List<PlatformUserInfoResponse> profiles = getPlatformUserInfosResponseSmart(userIds);
+        Map<Long, PlatformUserInfoResponse> profileMap = profiles.stream()
+            .collect(Collectors.toMap(p -> (long) p.userId(), p -> p));
+        if (!profileMap.keySet().containsAll(userIds)) {
+            List<Long> missingIds = userIds.stream()
+                .filter(id -> !profileMap.containsKey(id))
+                .toList();
+            log.warn("Platform user not found for ids: {}", missingIds);
+            throw new BadRequestException(ErrorCode.PLATFORM_USER_NOT_EXISTS);
+        }
+        return profileMap;
+    }
+
     public UserStatus getStatus(Long userId) {
         return getStatus(getPlatformUserInfoResponse(userId));
     }
