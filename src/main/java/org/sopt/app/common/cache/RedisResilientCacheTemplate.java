@@ -1,6 +1,6 @@
 package org.sopt.app.common.cache;
 
-import static org.sopt.app.common.config.AsyncConfig.CACHE_SYNC_EXECUTOR;
+import static org.sopt.app.common.config.AsyncConfig.CACHE_REFRESH_EXECUTOR;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,7 +30,7 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
     private final StringRedisTemplate stringRedisTemplate;
     private final ObjectMapper objectMapper;
 
-    @Qualifier(CACHE_SYNC_EXECUTOR)
+    @Qualifier(CACHE_REFRESH_EXECUTOR)
     private final ObjectProvider<Executor> executorProvider;
 
     private static final String LOCK_PREFIX = "lock:cache:";
@@ -121,7 +121,7 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
         }
 
         if (staleData != null) {
-            log.warn("캐시 갱신 락 획득 대기 시간이 초과되어 Stale 데이터를 반환합니다. (Key: {})", key);
+            log.warn("캐시 갱신 락 획득 대기 시간이 초과되어 Stale 데이터를 반환. (Key: {})", key);
             return staleData.data();
         }
         throw new BaseException("캐시 갱신을 위한 락 획득 시간 초과", ErrorCode.INTERNAL_SERVER_ERROR);
@@ -138,7 +138,7 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
             Thread.sleep(sleepTime);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new BaseException("락 대기 중 인터럽트가 발생했습니다.", ErrorCode.INTERNAL_SERVER_ERROR);
+            throw new BaseException("락 대기 중 인터럽트 발생.", ErrorCode.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -157,7 +157,7 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
         Executor executor = executorProvider.getIfAvailable();
 
         if (executor == null) {
-            log.error("비동기 캐시 갱신을 위한 Executor가 존재하지 않습니다. (Key: {})", key);
+            log.error("비동기 캐시 갱신을 위한 Executor가 존재하지 않음. Key: {}", key);
             stringRedisTemplate.delete(markerKey); // 묶여있던 마커를 풀어줌
             return;
         }
@@ -183,8 +183,11 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
                     releaseLock(lockKey, lockValue);
                 }
             });
+        } catch (java.util.concurrent.RejectedExecutionException e) {
+            log.warn("스레드 풀 큐가 꽉 차서 캐시 갱신 작업 스킵. Key: {}", key);
+            stringRedisTemplate.delete(markerKey);
         } catch (Exception e) {
-            log.error("비동기 작업 큐가 꽉 차서 작업을 등록하지 못했습니다.", e);
+            log.error("비동기 작업 큐가 꽉 차서 작업 등록 실패.", e);
             stringRedisTemplate.delete(markerKey);
         }
 
