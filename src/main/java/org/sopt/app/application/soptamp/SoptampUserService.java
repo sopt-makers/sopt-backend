@@ -45,6 +45,8 @@ public class SoptampUserService {
     @Value("${sopt.current.generation}")
     private Long currentGeneration;
 
+    /* ==================== 조회/프로필 ==================== */
+
     @Transactional(readOnly = true)
     public SoptampUserInfo getSoptampUserInfo(Long userId) {
         SoptampUser user = soptampUserRepository.findByUserId(userId)
@@ -61,6 +63,8 @@ public class SoptampUserService {
         return SoptampUserInfo.of(soptampUser);
     }
 
+    /* ==================== upsert 진입점 ==================== */
+
     @Transactional(readOnly = true)
     public List<Long> getUpsertTargetUserIds() {
         return soptampUserRepository.findAllUserIds();
@@ -70,23 +74,28 @@ public class SoptampUserService {
     public void upsertAllSoptampUsers(Map<Long, PlatformUserInfoResponse> profileMap) {
         if (profileMap.isEmpty()) return;
 
+        // chunk 단위로 SoptampUser 일괄 조회 → findByUserId N+1 방지
         Map<Long, SoptampUser> existingUserMap = soptampUserRepository
             .findAllByUserIdIn(profileMap.keySet()).stream()
             .collect(Collectors.toMap(SoptampUser::getUserId, Function.identity()));
 
+        // 앱잼 모드: AppjamUser도 일괄 조회
         Map<Long, AppjamUser> appjamUserMap = appjamMode
             ? appjamUserRepository.findAllByUserIdIn(profileMap.keySet()).stream()
                 .collect(Collectors.toMap(AppjamUser::getUserId, Function.identity(), (a, b) -> a))
             : Map.of();
 
+        // 청크 내 닉네임 중복 방지용 예약 셋 (같은 청크 안에서 할당된 닉네임 추적)
         Set<String> reservedNicknames = new HashSet<>();
 
         profileMap.forEach((userId, profile) ->
             upsertSoptampUserCore(profile, userId, appjamUserMap, existingUserMap, reservedNicknames));
     }
 
+    // 단건 진입점 — 테스트 및 외부 호출용
     @Transactional
     public void upsertSoptampUser(PlatformUserInfoResponse profile, Long userId) {
+        // DB 조회 전 early return (배치와 동일한 guard 조건)
         if (profile == null) return;
         if (!appjamMode && profile.getLatestSoptActivity() == null) return;
 
@@ -96,6 +105,13 @@ public class SoptampUserService {
         upsertSoptampUserCore(profile, userId, null, existingUserMap, new HashSet<>());
     }
 
+    /**
+     * upsert 핵심 로직.
+     *
+     * @param appjamUserMap   배치: 미리 조회한 AppjamUser 맵 / 단건: null (내부 DB 조회)
+     * @param existingUserMap 배치: 미리 조회한 SoptampUser 맵 / 단건: 1건 맵 또는 빈 맵
+     * @param reservedNicknames 청크 내 이미 할당된 닉네임 셋 (중복 방지)
+     */
     private void upsertSoptampUserCore(PlatformUserInfoResponse profile, Long userId,
             Map<Long, AppjamUser> appjamUserMap,
             Map<Long, SoptampUser> existingUserMap,
@@ -112,6 +128,9 @@ public class SoptampUserService {
         }
     }
 
+    /* ==================== NORMAL 시즌용 upsert ==================== */
+
+    // 기본 시즌용 upsert (파트 + 이름 기반 닉네임)
     private void upsertSoptampUserNormal(PlatformUserInfoResponse profile, Long userId,
             PlatformUserInfoResponse.SoptActivities latest,
             Map<Long, SoptampUser> existingUserMap,
@@ -156,6 +175,8 @@ public class SoptampUserService {
         return !registeredUser.getGeneration().equals(profileGeneration);
     }
 
+    // ==================== 앱잼 시즌용 upsert ====================
+
     private void upsertSoptampUserForAppjam(PlatformUserInfoResponse profile,
             Long userId,
             PlatformUserInfoResponse.SoptActivities latest,
@@ -169,10 +190,12 @@ public class SoptampUserService {
             return;
         }
 
+        // 이미 앱잼 규칙이 적용된 닉네임이면 그대로 둠 (비트OOO, 37기OOO 등)
         if (!needsAppjamNicknameMigration(registeredUser)) {
             return;
         }
 
+        // 여기까지 오면: 기존 닉네임이 "서버OOO" 같은 파트 기반 → 앱잼 닉네임으로 변환
         String baseNickname = buildAppjamBaseNickname(profile, userId, appjamUserMap);
         String uniqueNickname = generateUniqueNicknameInternal(baseNickname, userId, reservedNicknames);
 
@@ -183,6 +206,7 @@ public class SoptampUserService {
                 uniqueNickname
             );
 
+        // 앱잼 변환 시점에 한 번 포인트 초기화
         registeredUser.initTotalPoints();
         this.raiseAllCacheSyncEvent(registeredUser);
     }
@@ -203,7 +227,7 @@ public class SoptampUserService {
                 uniqueNickname,
                 (long) profile.lastGeneration(),
                 findSoptPartByPartName(part));
-        newSoptampUser.initTotalPoints();
+        newSoptampUser.initTotalPoints(); // 새 시즌이니 0점부터
 
         soptampUserRepository.save(newSoptampUser);
         this.raiseAllCacheSyncEvent(newSoptampUser);
@@ -212,21 +236,32 @@ public class SoptampUserService {
     private boolean needsAppjamNicknameMigration(SoptampUser user) {
         String nickname = user.getNickname();
         if (nickname == null || nickname.isBlank()) {
+            // 닉네임이 비어 있으면 앱잼 규칙으로 한 번 세팅해 주는 게 자연스러움
             return true;
         }
 
+        // SoptPart 기준으로 "서버", "기획" 같은 축약/프리픽스를 모두 검사 (SOPT 파트만)
         for (SoptPart part : SoptPart.values()) {
             if (!part.isSoptPart())
                 continue;
             String prefix = part.getShortedPartName();
             if (nickname.startsWith(prefix)) {
+                // 서버김솝트, 디자인김솝트 등 → 기존 시즌(파트 기반) 닉네임이므로 앱잼 변환 필요
                 return true;
             }
         }
 
+        // 그 외 (비트김솝트, 37기김솝트 등) → 이미 앱잼 스타일로 적용된 걸로 간주
         return false;
     }
 
+    /**
+     * 앱잼용 base nickname 생성
+     * 1. AppjamUser에 있으면: teamName + 이름 (ex. 비트김솝트)
+     * 2. 없으면: lastGeneration + "기" + 이름 (ex. 37기김솝트)
+     *
+     * @param appjamUserMap 배치 호출 시 미리 로드된 맵 (null이면 DB 단건 조회)
+     */
     private String buildAppjamBaseNickname(PlatformUserInfoResponse profile, Long userId,
             Map<Long, AppjamUser> appjamUserMap) {
         Optional<AppjamUser> appjamUser = (appjamUserMap != null)
@@ -237,8 +272,14 @@ public class SoptampUserService {
             .orElseGet(() -> profile.lastGeneration() + "기" + profile.name());
     }
 
+    // ==================== 닉네임 유니크 로직 공통부 ====================
+
     private static final String SUFFIX_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
+    /**
+     * 파트 기반 닉네임 (NORMAL 시즌용)
+     * ex. "서버" + "김솝트" → "서버김솝트"
+     */
     private String generatePartBasedUniqueNickname(String name, String part, Long currentUserIdOrNull,
             Set<String> reservedNicknames) {
         String prefixPartName = SoptPart.findSoptPartByPartName(part).getShortedPartName();
@@ -246,6 +287,12 @@ public class SoptampUserService {
         return generateUniqueNicknameInternal(baseNickname, currentUserIdOrNull, reservedNicknames);
     }
 
+    /**
+     * baseNickname을 기준으로 전역 유니크 닉네임 생성.
+     * - currentUserIdOrNull == null : 새 유저 생성 (existsByNickname)
+     * - currentUserIdOrNull != null : 내 row 제외하고 중복 체크
+     * - reservedNicknames : 같은 청크 내에서 이미 할당된 닉네임 (DB 조회 없이 충돌 방지)
+     */
     private String generateUniqueNicknameInternal(String baseNickname, Long currentUserIdOrNull,
             Set<String> reservedNicknames) {
         if (!existsNickname(baseNickname, currentUserIdOrNull) && !reservedNicknames.contains(baseNickname)) {
@@ -269,6 +316,8 @@ public class SoptampUserService {
         }
         return soptampUserRepository.existsByNicknameAndUserIdNot(nickname, currentUserIdOrNull);
     }
+
+    // ==================== 포인트/회원 탈퇴 로직 ====================
 
     @Transactional
     public void addPointByLevel(Long userId, Integer level) {

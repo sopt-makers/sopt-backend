@@ -16,7 +16,7 @@ import java.util.List;
 public class OperationConfigService {
 
     private static final String SOPTAMP_UPSERT_CRON_KEY = "UPSERT_CRON";
-    private static final String DEFAULT_UPSERT_CRON = "0 0 3 * * *";
+    private static final String DEFAULT_UPSERT_CRON = "0 0 3 * * *"; // 기본값: 매일 새벽 3시
 
     private final OperationConfigRepository operationConfigRepository;
 

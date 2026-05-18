@@ -25,6 +25,13 @@ public class SoptampBatchService {
     private final PlatformService platformService;
     private final AuthUserProfileReader authUserProfileReader;
 
+    /**
+     * 전체 솝탬프 유저 upsert 배치 실행
+     * - 앱잼 모드: auth DB에서 전체 유저 프로필을 직접 조회 (플랫폼 API 미사용)
+     * - 일반 모드: 기존 soptamp_user 대상으로 플랫폼 API 호출
+     * - 청크별 독립 트랜잭션 + 개별 예외 처리 (한 청크 실패가 나머지 청크에 영향 없음)
+     * - upsert 멱등이므로 실패 청크는 다음 스케줄 실행 시 재처리됨
+     */
     public void upsertAllSoptampUsers() {
         if (appjamMode) {
             upsertFromAuthDb();

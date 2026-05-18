@@ -18,6 +18,12 @@ public class SoptampUpsertScheduler implements SchedulingConfigurer {
     private final SoptampBatchService soptampBatchService;
     private final OperationConfigService operationConfigService;
 
+    /**
+     * DB에 저장된 cron 표현식을 매 실행 직전에 읽어 동적으로 스케줄을 적용한다.
+     * PATCH /api/v2/admin/soptamp/upsert/schedule 으로 cron 변경 시 다음 실행부터 반영.
+     *
+     * DB 미설정 시 기본값: 매일 새벽 3시 (0 0 3 * * *)
+     */
     @Override
     public void configureTasks(ScheduledTaskRegistrar registrar) {
         registrar.addTriggerTask(
