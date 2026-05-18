@@ -38,4 +38,18 @@ public class OperationConfig extends BaseEntity {
 
     @Column(nullable = false)
     private String description;
+
+    public static OperationConfig of(OperationConfigCategory category, String key, String value, String description) {
+        OperationConfig config = new OperationConfig();
+        config.key = key;
+        config.value = value;
+        config.operationConfigType = OperationConfigType.TEXT;
+        config.operationConfigCategory = category;
+        config.description = description;
+        return config;
+    }
+
+    public void updateValue(String newValue) {
+        this.value = newValue;
+    }
 }

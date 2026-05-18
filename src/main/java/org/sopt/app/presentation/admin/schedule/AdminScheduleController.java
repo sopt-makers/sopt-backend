@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.rank.RankScheduler;
+import org.sopt.app.application.soptamp.SoptampBatchService;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.response.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Profile("lambda")
 public class AdminScheduleController {
     private final RankScheduler rankScheduler;
+    private final SoptampBatchService soptampBatchService;
 
     @Value("${makers.app.admin.password}")
     private String adminPassword;
@@ -32,6 +34,16 @@ public class AdminScheduleController {
     ){
         validateAdmin(password);
         rankScheduler.executeSoptampRank();
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "솝탬프 유저 upsert 배치 실행")
+    @PostMapping("/soptamp/upsert")
+    public ResponseEntity<Void> upsertSoptampUsers(
+        @RequestHeader("x-admin-password") String password
+    ){
+        validateAdmin(password);
+        soptampBatchService.upsertAllSoptampUsers();
         return ResponseEntity.ok().build();
     }
 

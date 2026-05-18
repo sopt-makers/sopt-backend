@@ -9,4 +9,5 @@ import java.util.Optional;
 
 public interface OperationConfigRepository extends JpaRepository<OperationConfig, Long> {
     Optional<List<OperationConfig>> findByOperationConfigCategory(OperationConfigCategory operationConfigCategory);
+    Optional<OperationConfig> findByOperationConfigCategoryAndKey(OperationConfigCategory category, String key);
 }
