@@ -112,8 +112,6 @@ public class SoptampUserService {
             Map<Long, AppjamUser> appjamUserMap,
             Map<Long, SoptampUser> existingUserMap,
             Set<String> reservedNicknames) {
-        if (profile == null) return;
-
         if (appjamMode) {
             var latest = profile.getLatestActivity();
             if (latest == null) return;
