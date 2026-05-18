@@ -74,30 +74,26 @@ public class SoptampUserService {
     public void upsertAllSoptampUsers(Map<Long, PlatformUserInfoResponse> profileMap) {
         if (profileMap.isEmpty()) return;
 
-        // chunk 단위로 SoptampUser 일괄 조회 → findByUserId N+1 방지
         Map<Long, SoptampUser> existingUserMap = soptampUserRepository
             .findAllByUserIdIn(profileMap.keySet()).stream()
             .collect(Collectors.toMap(SoptampUser::getUserId, Function.identity()));
 
-        // 앱잼 모드: AppjamUser도 일괄 조회
         Map<Long, AppjamUser> appjamUserMap = appjamMode
             ? appjamUserRepository.findAllByUserIdIn(profileMap.keySet()).stream()
                 .collect(Collectors.toMap(AppjamUser::getUserId, Function.identity(), (a, b) -> a))
             : Map.of();
 
-        // 청크 내 닉네임 중복 방지용 예약 셋 (같은 청크 안에서 할당된 닉네임 추적)
         Set<String> reservedNicknames = new HashSet<>();
 
         profileMap.forEach((userId, profile) ->
             upsertSoptampUserCore(profile, userId, appjamUserMap, existingUserMap, reservedNicknames));
     }
 
-    // 단건 진입점 — 테스트 및 외부 호출용
     @Transactional
     public void upsertSoptampUser(PlatformUserInfoResponse profile, Long userId) {
         if (profile == null) return;
-        if (appjamMode && profile.getLatestActivity() == null) return;   // 앱잼: 활동 이력 없으면 skip
-        if (!appjamMode && profile.getLatestSoptActivity() == null) return; // 일반: SOPT 활동 없으면 skip
+        if (appjamMode && profile.getLatestActivity() == null) return;
+        if (!appjamMode && profile.getLatestSoptActivity() == null) return;
 
         Map<Long, SoptampUser> existingUserMap = soptampUserRepository.findByUserId(userId)
             .map(u -> Map.of(userId, u))
@@ -120,7 +116,7 @@ public class SoptampUserService {
 
         if (appjamMode) {
             var latest = profile.getLatestActivity();
-            if (latest == null) return; // 활동 이력 없는 유저 skip
+            if (latest == null) return;
             upsertSoptampUserForAppjam(profile, userId, latest,
                 appjamUserMap, existingUserMap, reservedNicknames);
         } else {
@@ -139,38 +135,37 @@ public class SoptampUserService {
             Set<String> reservedNicknames) {
         SoptampUser registeredUser = existingUserMap.get(userId);
         if (registeredUser == null) {
-            this.createSoptampUserNormal(profile, userId, latest, reservedNicknames);
+            createSoptampUserNormal(profile, userId, latest, reservedNicknames);
             return;
         }
-        if (this.isGenerationChanged(registeredUser, (long) profile.lastGeneration())) {
+        if (isGenerationChanged(registeredUser, (long) profile.lastGeneration())) {
             updateSoptampUserNormal(registeredUser, profile, latest, reservedNicknames);
         }
     }
 
     private void updateSoptampUserNormal(SoptampUser registeredUser, PlatformUserInfoResponse profile,
             PlatformUserInfoResponse.SoptActivities latest, Set<String> reservedNicknames) {
-        String part = latest.part() == null ? "미상" : latest.part();
+        String part = partOrDefault(latest);
         String newNickname = generatePartBasedUniqueNickname(profile.name(), part, registeredUser.getUserId(), reservedNicknames);
 
         registeredUser.initTotalPoints();
         registeredUser.updateChangedGenerationInfo(
                 (long) profile.lastGeneration(),
                 findSoptPartByPartName(part),
-            newNickname
+                newNickname
         );
 
-        this.raiseAllCacheSyncEvent(registeredUser);
+        raiseAllCacheSyncEvent(registeredUser);
     }
 
     private void createSoptampUserNormal(PlatformUserInfoResponse profile, Long userId,
-        PlatformUserInfoResponse.SoptActivities latestSopt, Set<String> reservedNicknames
-    ) {
-        String part = latestSopt.part() == null ? "미상" : latestSopt.part();
+            PlatformUserInfoResponse.SoptActivities latest, Set<String> reservedNicknames) {
+        String part = partOrDefault(latest);
         String uniqueNickname = generatePartBasedUniqueNickname(profile.name(), part, null, reservedNicknames);
         SoptampUser newSoptampUser = createNewSoptampUser(userId, uniqueNickname, (long) profile.lastGeneration(),
                 findSoptPartByPartName(part));
         soptampUserRepository.save(newSoptampUser);
-        this.raiseAllCacheSyncEvent(newSoptampUser);
+        raiseAllCacheSyncEvent(newSoptampUser);
     }
 
     private boolean isGenerationChanged(SoptampUser registeredUser, Long profileGeneration) {
@@ -201,38 +196,33 @@ public class SoptampUserService {
         String baseNickname = buildAppjamBaseNickname(profile, userId, appjamUserMap);
         String uniqueNickname = generateUniqueNicknameInternal(baseNickname, userId, reservedNicknames);
 
-        String part = (latest == null || latest.part() == null) ? "미상" : latest.part();
+        String part = partOrDefault(latest);
         registeredUser.updateChangedGenerationInfo(
                 (long) profile.lastGeneration(),
                 findSoptPartByPartName(part),
                 uniqueNickname
-            );
+        );
 
         // 앱잼 변환 시점에 한 번 포인트 초기화
         registeredUser.initTotalPoints();
-        this.raiseAllCacheSyncEvent(registeredUser);
+        raiseAllCacheSyncEvent(registeredUser);
     }
 
     private void createSoptampUserAppjam(PlatformUserInfoResponse profile,
             Long userId,
             PlatformUserInfoResponse.SoptActivities latest,
             Map<Long, AppjamUser> appjamUserMap,
-            Set<String> reservedNicknames
-    ) {
+            Set<String> reservedNicknames) {
         String baseNickname = buildAppjamBaseNickname(profile, userId, appjamUserMap);
         String uniqueNickname = generateUniqueNicknameInternal(baseNickname, null, reservedNicknames);
-
-        String part = (latest == null || latest.part() == null) ? "미상" : latest.part();
+        String part = partOrDefault(latest);
 
         SoptampUser newSoptampUser = createNewSoptampUser(
-                userId,
-                uniqueNickname,
-                (long) profile.lastGeneration(),
-                findSoptPartByPartName(part));
-        newSoptampUser.initTotalPoints(); // 새 시즌이니 0점부터
+                userId, uniqueNickname, (long) profile.lastGeneration(), findSoptPartByPartName(part));
+        newSoptampUser.initTotalPoints();
 
         soptampUserRepository.save(newSoptampUser);
-        this.raiseAllCacheSyncEvent(newSoptampUser);
+        raiseAllCacheSyncEvent(newSoptampUser);
     }
 
     /**
@@ -247,7 +237,6 @@ public class SoptampUserService {
             return true;
         }
 
-        // "파트명 + 이름"으로 시작하면 구시즌(파트 기반) 닉네임 → 앱잼 변환 필요 (SOPT 파트만)
         for (SoptPart part : SoptPart.values()) {
             if (!part.isSoptPart()) continue;
             if (nickname.startsWith(part.getShortedPartName() + profileName)) {
@@ -255,7 +244,6 @@ public class SoptampUserService {
             }
         }
 
-        // 그 외 (비트김솝트, 37기김솝트 등) → 이미 앱잼 스타일
         return false;
     }
 
@@ -279,6 +267,10 @@ public class SoptampUserService {
     // ==================== 닉네임 유니크 로직 공통부 ====================
 
     private static final String SUFFIX_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    private static String partOrDefault(PlatformUserInfoResponse.SoptActivities activity) {
+        return activity == null || activity.part() == null ? "미상" : activity.part();
+    }
 
     /**
      * 파트 기반 닉네임 (NORMAL 시즌용)

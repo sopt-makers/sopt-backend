@@ -54,7 +54,7 @@ public class AuthUserProfileReader {
             ));
             activitiesMap.computeIfAbsent(userId, k -> new ArrayList<>())
                 .add(new PlatformUserInfoResponse.SoptActivities(
-                    0, // activityId — 배치 upsert에서 미사용
+                    0,
                     rs.getInt("generation"),
                     AuthSoptPartMapper.toSoptPartName(
                         rs.getString("part"),
@@ -75,8 +75,6 @@ public class AuthUserProfileReader {
 
     private PlatformUserInfoResponse buildProfile(long userId, AuthUserProfile profile,
             List<PlatformUserInfoResponse.SoptActivities> activities) {
-        // isSopt=true 활동 기준 최대 기수 (플랫폼 API 동일 기준)
-        // isSopt=true 활동이 없는 Makers 전용 OB는 전체 활동 최대 기수로 fallback
         int lastGeneration = activities.stream()
             .filter(a -> Boolean.TRUE.equals(a.isSopt()))
             .mapToInt(PlatformUserInfoResponse.SoptActivities::generation)
@@ -86,7 +84,7 @@ public class AuthUserProfileReader {
                 .max()
                 .orElse(0));
         return new PlatformUserInfoResponse(
-            Math.toIntExact(userId), // auth DB id(bigserial)는 실제로 int 범위를 넘지 않음. 오버플로우 시 즉시 예외
+            Math.toIntExact(userId),
             profile.name(),
             profile.profileImage(),
             profile.birthday(),
