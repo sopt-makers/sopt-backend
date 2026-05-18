@@ -38,7 +38,6 @@ public class AuthUserProfileReader {
                        uah.team
                 FROM %s.users u
                 JOIN %s.user_activity_histories uah ON uah.user_id = u.id
-                ORDER BY u.id, uah.generation
                 """.formatted(authSchema, authSchema);
 
         Map<Long, AuthUserProfile> profileMap = new HashMap<>();
