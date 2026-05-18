@@ -76,7 +76,7 @@ public class SoptampBatchService {
             try {
                 Map<Long, PlatformUserInfoResponse> profileMap = platformService.getPlatformUserInfosAsMap(chunk);
                 soptampUserService.upsertAllSoptampUsers(profileMap);
-                successCount += chunk.size();
+                successCount += profileMap.size();
             } catch (Exception e) {
                 log.error("솝탬프 upsert 청크 처리 실패. chunk=[{}/{}], error={}", end, total, e.getMessage(), e);
             }

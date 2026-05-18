@@ -38,7 +38,7 @@ public class AuthUserProfileReader {
                        uah.team
                 FROM %s.users u
                 JOIN %s.user_activity_histories uah ON uah.user_id = u.id
-                ORDER BY u.id, uah.generation, uah.is_sopt DESC
+                ORDER BY u.id, uah.generation
                 """.formatted(authSchema, authSchema);
 
         Map<Long, AuthUserProfile> profileMap = new HashMap<>();
@@ -76,12 +76,18 @@ public class AuthUserProfileReader {
 
     private PlatformUserInfoResponse buildProfile(long userId, AuthUserProfile profile,
             List<PlatformUserInfoResponse.SoptActivities> activities) {
+        // isSopt=true 활동 기준 최대 기수 (플랫폼 API 동일 기준)
+        // isSopt=true 활동이 없는 Makers 전용 OB는 전체 활동 최대 기수로 fallback
         int lastGeneration = activities.stream()
+            .filter(a -> Boolean.TRUE.equals(a.isSopt()))
             .mapToInt(PlatformUserInfoResponse.SoptActivities::generation)
             .max()
-            .orElse(0);
+            .orElseGet(() -> activities.stream()
+                .mapToInt(PlatformUserInfoResponse.SoptActivities::generation)
+                .max()
+                .orElse(0));
         return new PlatformUserInfoResponse(
-            (int) userId,
+            Math.toIntExact(userId), // auth DB id(bigserial)는 실제로 int 범위를 넘지 않음. 오버플로우 시 즉시 예외
             profile.name(),
             profile.profileImage(),
             profile.birthday(),

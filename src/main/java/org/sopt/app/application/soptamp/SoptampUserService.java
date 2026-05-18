@@ -95,9 +95,9 @@ public class SoptampUserService {
     // 단건 진입점 — 테스트 및 외부 호출용
     @Transactional
     public void upsertSoptampUser(PlatformUserInfoResponse profile, Long userId) {
-        // DB 조회 전 early return (배치와 동일한 guard 조건)
         if (profile == null) return;
-        if (!appjamMode && profile.getLatestSoptActivity() == null) return;
+        if (appjamMode && profile.getLatestActivity() == null) return;   // 앱잼: 활동 이력 없으면 skip
+        if (!appjamMode && profile.getLatestSoptActivity() == null) return; // 일반: SOPT 활동 없으면 skip
 
         Map<Long, SoptampUser> existingUserMap = soptampUserRepository.findByUserId(userId)
             .map(u -> Map.of(userId, u))
@@ -119,7 +119,9 @@ public class SoptampUserService {
         if (profile == null) return;
 
         if (appjamMode) {
-            upsertSoptampUserForAppjam(profile, userId, profile.getLatestActivity(),
+            var latest = profile.getLatestActivity();
+            if (latest == null) return; // 활동 이력 없는 유저 skip
+            upsertSoptampUserForAppjam(profile, userId, latest,
                 appjamUserMap, existingUserMap, reservedNicknames);
         } else {
             var latestSopt = profile.getLatestSoptActivity();
@@ -191,7 +193,7 @@ public class SoptampUserService {
         }
 
         // 이미 앱잼 규칙이 적용된 닉네임이면 그대로 둠 (비트OOO, 37기OOO 등)
-        if (!needsAppjamNicknameMigration(registeredUser)) {
+        if (!needsAppjamNicknameMigration(registeredUser, profile.name())) {
             return;
         }
 
@@ -233,25 +235,27 @@ public class SoptampUserService {
         this.raiseAllCacheSyncEvent(newSoptampUser);
     }
 
-    private boolean needsAppjamNicknameMigration(SoptampUser user) {
+    /**
+     * "파트명 + 이름" 형식의 구시즌 닉네임이면 앱잼 닉네임으로 변환 필요.
+     * profileName을 함께 받아 "파트명"만으로 prefix 체크하는 오탐을 방지.
+     * (예: 앱잼 팀명 "서버" + 이름 "김솝트" → "서버김솝트"는 구시즌 형식과 구별 불가 → 변환)
+     * (예: 앱잼 팀명 "비트" + 이름 "김솝트" → "비트김솝트"는 어떤 파트 prefix + 이름과도 불일치 → 유지)
+     */
+    private boolean needsAppjamNicknameMigration(SoptampUser user, String profileName) {
         String nickname = user.getNickname();
         if (nickname == null || nickname.isBlank()) {
-            // 닉네임이 비어 있으면 앱잼 규칙으로 한 번 세팅해 주는 게 자연스러움
             return true;
         }
 
-        // SoptPart 기준으로 "서버", "기획" 같은 축약/프리픽스를 모두 검사 (SOPT 파트만)
+        // "파트명 + 이름"으로 시작하면 구시즌(파트 기반) 닉네임 → 앱잼 변환 필요 (SOPT 파트만)
         for (SoptPart part : SoptPart.values()) {
-            if (!part.isSoptPart())
-                continue;
-            String prefix = part.getShortedPartName();
-            if (nickname.startsWith(prefix)) {
-                // 서버김솝트, 디자인김솝트 등 → 기존 시즌(파트 기반) 닉네임이므로 앱잼 변환 필요
+            if (!part.isSoptPart()) continue;
+            if (nickname.startsWith(part.getShortedPartName() + profileName)) {
                 return true;
             }
         }
 
-        // 그 외 (비트김솝트, 37기김솝트 등) → 이미 앱잼 스타일로 적용된 걸로 간주
+        // 그 외 (비트김솝트, 37기김솝트 등) → 이미 앱잼 스타일
         return false;
     }
 
