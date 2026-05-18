@@ -37,7 +37,7 @@ public class AdminScheduleController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "솝탬프 유저 upsert 배치 실행")
+    @Operation(summary = "솝탬프/앱잼탬프 유저 upsert 배치 실행")
     @PostMapping("/soptamp/upsert")
     public ResponseEntity<Void> upsertSoptampUsers(
         @RequestHeader("x-admin-password") String password

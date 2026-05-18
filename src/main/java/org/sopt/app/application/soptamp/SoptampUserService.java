@@ -194,15 +194,18 @@ public class SoptampUserService {
         String baseNickname = buildAppjamBaseNickname(profile, userId, appjamUserMap);
         String uniqueNickname = generateUniqueNicknameInternal(baseNickname, userId, reservedNicknames);
 
+        // 닉네임이 실제로 바뀌지 않으면 포인트 초기화 없이 종료 (멱등성 보장)
+        if (uniqueNickname.equals(registeredUser.getNickname())) {
+            return;
+        }
+
         String part = partOrDefault(latest);
+        registeredUser.initTotalPoints();
         registeredUser.updateChangedGenerationInfo(
                 (long) profile.lastGeneration(),
                 findSoptPartByPartName(part),
                 uniqueNickname
         );
-
-        // 앱잼 변환 시점에 한 번 포인트 초기화
-        registeredUser.initTotalPoints();
         raiseAllCacheSyncEvent(registeredUser);
     }
 
@@ -254,12 +257,15 @@ public class SoptampUserService {
      */
     private String buildAppjamBaseNickname(PlatformUserInfoResponse profile, Long userId,
             Map<Long, AppjamUser> appjamUserMap) {
-        Optional<AppjamUser> appjamUser = (appjamUserMap != null)
-            ? Optional.ofNullable(appjamUserMap.get(userId))
-            : appjamUserRepository.findByUserId(userId);
-        return appjamUser
+        return findAppjamUser(userId, appjamUserMap)
             .map(u -> u.getTeamName() + profile.name())
             .orElseGet(() -> profile.lastGeneration() + "기" + profile.name());
+    }
+
+    private Optional<AppjamUser> findAppjamUser(Long userId, Map<Long, AppjamUser> appjamUserMap) {
+        return (appjamUserMap != null)
+            ? Optional.ofNullable(appjamUserMap.get(userId))
+            : appjamUserRepository.findByUserId(userId);
     }
 
     // ==================== 닉네임 유니크 로직 공통부 ====================
