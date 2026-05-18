@@ -1,8 +1,7 @@
 package org.sopt.app.application.stamp;
 
-import org.sopt.app.domain.entity.soptamp.Mission;
-import org.sopt.app.domain.enums.SoptPart;
-import org.sopt.app.interfaces.postgres.ClapMilestoneGuard;
+import static org.sopt.app.common.config.AsyncConfig.CACHE_SYNC_EXECUTOR;
+
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +13,9 @@ import org.sopt.app.application.soptamp.SoptampUserFinder;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.common.utils.HttpHeadersUtils;
+import org.sopt.app.domain.entity.soptamp.Mission;
+import org.sopt.app.domain.enums.SoptPart;
+import org.sopt.app.interfaces.postgres.ClapMilestoneGuard;
 import org.sopt.app.presentation.poke.PokeResponse;
 import org.sopt.app.presentation.stamp.ClapRequest;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,7 +45,7 @@ public class ClapEventListener {
     @Value("${makers.push.server}")
     private String baseURI;
 
-    @Async
+    @Async(CACHE_SYNC_EXECUTOR)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void onClap(ClapEvent event) {
         final int oldClapTotal = event.getOldClapTotal();

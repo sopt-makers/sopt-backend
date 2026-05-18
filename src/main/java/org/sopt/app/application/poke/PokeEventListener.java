@@ -1,5 +1,7 @@
 package org.sopt.app.application.poke;
 
+import static org.sopt.app.common.config.AsyncConfig.CACHE_SYNC_EXECUTOR;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -24,7 +26,7 @@ public class PokeEventListener {
     @Value("${makers.push.server}")
     private String baseURI;
 
-    @Async
+    @Async(CACHE_SYNC_EXECUTOR)
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void sendPokeAlarm(PokeEvent pokeEvent) {
