@@ -186,7 +186,7 @@ public class SoptampUserService {
         }
 
         // 이미 앱잼 규칙이 적용된 닉네임이면 그대로 둠 (비트OOO, 37기OOO 등)
-        if (!needsAppjamNicknameMigration(registeredUser, profile.name())) {
+        if (!needsAppjamNicknameMigration(registeredUser)) {
             return;
         }
 
@@ -224,13 +224,7 @@ public class SoptampUserService {
         raiseAllCacheSyncEvent(newSoptampUser);
     }
 
-    /**
-     * "파트명 + 이름" 형식의 구시즌 닉네임이면 앱잼 닉네임으로 변환 필요.
-     * profileName을 함께 받아 "파트명"만으로 prefix 체크하는 오탐을 방지.
-     * (예: 앱잼 팀명 "서버" + 이름 "김솝트" → "서버김솝트"는 구시즌 형식과 구별 불가 → 변환)
-     * (예: 앱잼 팀명 "비트" + 이름 "김솝트" → "비트김솝트"는 어떤 파트 prefix + 이름과도 불일치 → 유지)
-     */
-    private boolean needsAppjamNicknameMigration(SoptampUser user, String profileName) {
+    private boolean needsAppjamNicknameMigration(SoptampUser user) {
         String nickname = user.getNickname();
         if (nickname == null || nickname.isBlank()) {
             return true;
@@ -238,7 +232,7 @@ public class SoptampUserService {
 
         for (SoptPart part : SoptPart.values()) {
             if (!part.isSoptPart()) continue;
-            if (nickname.startsWith(part.getShortedPartName() + profileName)) {
+            if (nickname.startsWith(part.getShortedPartName())) {
                 return true;
             }
         }
