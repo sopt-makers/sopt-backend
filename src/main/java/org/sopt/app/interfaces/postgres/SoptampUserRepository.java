@@ -5,8 +5,12 @@ import java.util.List;
 import java.util.Optional;
 import org.sopt.app.domain.entity.soptamp.SoptampUser;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 public interface SoptampUserRepository extends JpaRepository<SoptampUser, Long> {
+
+    @Query("SELECT u.userId FROM SoptampUser u")
+    List<Long> findAllUserIds();
 
     Optional<SoptampUser> findByUserId(Long userId);
 

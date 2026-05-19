@@ -1,10 +1,8 @@
 package org.sopt.app.facade;
 
-import java.util.List;
-import java.util.Map;
 import lombok.RequiredArgsConstructor;
-import org.sopt.app.application.platform.PlatformService;
-import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.sopt.app.application.appservice.OperationConfigService;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.application.stamp.ClapService;
 import org.sopt.app.application.stamp.StampService;
@@ -12,6 +10,7 @@ import org.sopt.app.interfaces.postgres.ClapMilestoneGuard;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdminSoptampFacade {
@@ -20,7 +19,7 @@ public class AdminSoptampFacade {
     private final SoptampUserService soptampUserService;
     private final ClapService clapService;
     private final ClapMilestoneGuard clapMilestoneGuard;
-    private final PlatformService platformService;
+    private final OperationConfigService operationConfigService;
 
     @Transactional
     public void clearSoptampData(boolean stamp, boolean soptampUser) {
@@ -44,9 +43,9 @@ public class AdminSoptampFacade {
         soptampUserService.initSoptampRankCache();
     }
 
-    public void upsertAllSoptampUsers() {
-        List<Long> targetUserIds = soptampUserService.getUpsertTargetUserIds();
-        Map<Long, PlatformUserInfoResponse> profileMap = platformService.getPlatformUserInfosAsMap(targetUserIds);
-        soptampUserService.upsertAllSoptampUsers(profileMap);
+    @Transactional
+    public void updateUpsertBatchSchedule(String cron) {
+        operationConfigService.updateSoptampBatchConfig(cron);
+        log.info("솝탬프 upsert 배치 스케줄 변경. cron={}", cron);
     }
 }
