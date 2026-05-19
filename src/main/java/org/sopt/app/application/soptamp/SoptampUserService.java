@@ -220,8 +220,6 @@ public class SoptampUserService {
 
         SoptampUser newSoptampUser = createNewSoptampUser(
                 userId, uniqueNickname, (long) profile.lastGeneration(), findSoptPartByPartName(part));
-        newSoptampUser.initTotalPoints();
-
         soptampUserRepository.save(newSoptampUser);
         raiseAllCacheSyncEvent(newSoptampUser);
     }
@@ -282,8 +280,7 @@ public class SoptampUserService {
      */
     private String generatePartBasedUniqueNickname(String name, String part, Long currentUserIdOrNull,
             Set<String> reservedNicknames) {
-        String prefixPartName = SoptPart.findSoptPartByPartName(part).getShortedPartName();
-        String baseNickname = prefixPartName + name;
+        String baseNickname = SoptPart.findSoptPartByPartName(part).getShortedPartName() + name;
         return generateUniqueNicknameInternal(baseNickname, currentUserIdOrNull, reservedNicknames);
     }
 

@@ -1,10 +1,12 @@
 package org.sopt.app.application.soptamp;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,7 +25,7 @@ public class AuthUserProfileReader {
     /**
      * auth DB에서 전체 유저 프로필 조회 (앱잼 시즌용 — OB 포함 전체 대상)
      */
-    public Map<Long, PlatformUserInfoResponse> getAllUserProfiles() {
+    public List<PlatformUserInfoResponse> getAllUserProfiles() {
         String sql = """
                 SELECT u.id AS user_id,
                        u.name,
@@ -41,36 +43,43 @@ public class AuthUserProfileReader {
                 """.formatted(authSchema, authSchema);
 
         Map<Long, AuthUserProfile> profileMap = new HashMap<>();
-        Map<Long, List<PlatformUserInfoResponse.SoptActivities>> activitiesMap = new HashMap<>();
+        Map<Long, List<PlatformUserInfoResponse.SoptActivities>> activitiesMap = new LinkedHashMap<>();
 
         jdbcTemplate.query(sql, rs -> {
             long userId = rs.getLong("user_id");
-            profileMap.putIfAbsent(userId, new AuthUserProfile(
-                rs.getString("name"),
-                rs.getString("profile_image"),
-                rs.getString("birthday"),
-                rs.getString("phone"),
-                rs.getString("email")
-            ));
-            activitiesMap.computeIfAbsent(userId, k -> new ArrayList<>())
-                .add(new PlatformUserInfoResponse.SoptActivities(
-                    0,
-                    rs.getInt("generation"),
-                    AuthSoptPartMapper.toSoptPartName(
-                        rs.getString("part"),
-                        rs.getString("role"),
-                        rs.getString("team")
-                    ),
-                    rs.getString("team"),
-                    rs.getBoolean("is_sopt")
-                ));
+            if (!profileMap.containsKey(userId)) {
+                profileMap.put(userId, extractProfile(rs));
+            }
+            activitiesMap.computeIfAbsent(userId, k -> new ArrayList<>()).add(extractActivity(rs));
         });
 
         return activitiesMap.entrySet().stream()
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                e -> buildProfile(e.getKey(), profileMap.get(e.getKey()), e.getValue())
-            ));
+            .map(e -> buildProfile(e.getKey(), profileMap.get(e.getKey()), e.getValue()))
+            .toList();
+    }
+
+    private AuthUserProfile extractProfile(ResultSet rs) throws SQLException {
+        return new AuthUserProfile(
+            rs.getString("name"),
+            rs.getString("profile_image"),
+            rs.getString("birthday"),
+            rs.getString("phone"),
+            rs.getString("email")
+        );
+    }
+
+    private PlatformUserInfoResponse.SoptActivities extractActivity(ResultSet rs) throws SQLException {
+        return new PlatformUserInfoResponse.SoptActivities(
+            0,
+            rs.getInt("generation"),
+            AuthSoptPartMapper.toSoptPartName(
+                rs.getString("part"),
+                rs.getString("role"),
+                rs.getString("team")
+            ),
+            rs.getString("team"),
+            rs.getBoolean("is_sopt")
+        );
     }
 
     private PlatformUserInfoResponse buildProfile(long userId, AuthUserProfile profile,

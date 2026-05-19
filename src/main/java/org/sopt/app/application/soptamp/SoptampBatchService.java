@@ -1,6 +1,5 @@
 package org.sopt.app.application.soptamp;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -41,19 +40,17 @@ public class SoptampBatchService {
     }
 
     private void upsertFromAuthDb() {
-        Map<Long, PlatformUserInfoResponse> allProfiles = authUserProfileReader.getAllUserProfiles();
-        List<Long> userIds = new ArrayList<>(allProfiles.keySet());
-        int total = userIds.size();
+        List<PlatformUserInfoResponse> allProfiles = authUserProfileReader.getAllUserProfiles();
+        int total = allProfiles.size();
+        int successCount = 0;
         log.info("솝탬프 유저 upsert 시작 (앱잼). 총 {}명, 청크 크기: {}", total, BATCH_SIZE);
 
-        int successCount = 0;
         for (int i = 0; i < total; i += BATCH_SIZE) {
             int end = Math.min(i + BATCH_SIZE, total);
-            List<Long> chunkIds = userIds.subList(i, end);
-            Map<Long, PlatformUserInfoResponse> chunkMap = chunkIds.stream()
-                .collect(Collectors.toMap(id -> id, allProfiles::get));
             log.info("청크 처리 중: [{}/{}]", end, total);
             try {
+                Map<Long, PlatformUserInfoResponse> chunkMap = allProfiles.subList(i, end).stream()
+                    .collect(Collectors.toMap(p -> (long) p.userId(), p -> p));
                 soptampUserService.upsertAllSoptampUsers(chunkMap);
                 successCount += chunkMap.size();
             } catch (Exception e) {
@@ -66,15 +63,15 @@ public class SoptampBatchService {
     private void upsertFromPlatformApi() {
         List<Long> targetUserIds = soptampUserService.getUpsertTargetUserIds();
         int total = targetUserIds.size();
+        int successCount = 0;
         log.info("솝탬프 유저 upsert 시작 (일반). 총 {}명, 청크 크기: {}", total, BATCH_SIZE);
 
-        int successCount = 0;
         for (int i = 0; i < total; i += BATCH_SIZE) {
             int end = Math.min(i + BATCH_SIZE, total);
-            List<Long> chunk = targetUserIds.subList(i, end);
             log.info("청크 처리 중: [{}/{}]", end, total);
             try {
-                Map<Long, PlatformUserInfoResponse> profileMap = platformService.getPlatformUserInfosAsMap(chunk);
+                Map<Long, PlatformUserInfoResponse> profileMap = platformService.getPlatformUserInfosAsMap(
+                    targetUserIds.subList(i, end));
                 soptampUserService.upsertAllSoptampUsers(profileMap);
                 successCount += profileMap.size();
             } catch (Exception e) {
