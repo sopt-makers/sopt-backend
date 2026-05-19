@@ -27,16 +27,11 @@ public class SoptampUpsertScheduler implements SchedulingConfigurer {
     @Override
     public void configureTasks(ScheduledTaskRegistrar registrar) {
         registrar.addTriggerTask(
-            this::runUpsertBatch,
-            context -> {
-                String cron = operationConfigService.getSoptampUpsertCron();
-                return new CronTrigger(cron).nextExecution(context);
-            }
+            () -> {
+                log.info("솝탬프 upsert 배치 자동 실행 시작");
+                soptampBatchService.upsertAllSoptampUsers();
+            },
+            context -> new CronTrigger(operationConfigService.getSoptampUpsertCron()).nextExecution(context)
         );
-    }
-
-    void runUpsertBatch() {
-        log.info("솝탬프 upsert 배치 자동 실행 시작");
-        soptampBatchService.upsertAllSoptampUsers();
     }
 }
