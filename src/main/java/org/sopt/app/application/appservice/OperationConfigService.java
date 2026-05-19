@@ -36,16 +36,12 @@ public class OperationConfigService {
 
     @Transactional
     public void updateSoptampBatchConfig(String cron) {
-        upsertConfig(SOPTAMP_UPSERT_CRON_KEY, cron, "솝탬프 upsert 배치 실행 cron 표현식");
-    }
-
-    private void upsertConfig(String key, String value, String description) {
         operationConfigRepository
-            .findByOperationConfigCategoryAndKey(OperationConfigCategory.SOPTAMP_BATCH, key)
+            .findByOperationConfigCategoryAndKey(OperationConfigCategory.SOPTAMP_BATCH, SOPTAMP_UPSERT_CRON_KEY)
             .ifPresentOrElse(
-                config -> config.updateValue(value),
+                config -> config.updateValue(cron),
                 () -> operationConfigRepository.save(
-                    OperationConfig.of(OperationConfigCategory.SOPTAMP_BATCH, key, value, description))
+                    OperationConfig.of(OperationConfigCategory.SOPTAMP_BATCH, SOPTAMP_UPSERT_CRON_KEY, cron, "솝탬프 upsert 배치 실행 cron 표현식"))
             );
     }
 }
