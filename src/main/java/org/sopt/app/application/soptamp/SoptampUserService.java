@@ -298,6 +298,15 @@ public class SoptampUserService {
                 return candidate;
             }
         }
+
+        for (int n = 1; n <= 9999; n++) {
+            String candidate = baseNickname + n;
+            if (!existsNickname(candidate, currentUserIdOrNull) && !reservedNicknames.contains(candidate)) {
+                reservedNicknames.add(candidate);
+                return candidate;
+            }
+        }
+
         throw new BadRequestException(ErrorCode.NICKNAME_IS_FULL);
     }
 
