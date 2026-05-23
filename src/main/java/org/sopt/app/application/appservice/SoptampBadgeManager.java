@@ -5,7 +5,6 @@ import org.sopt.app.application.appservice.dto.AppServiceBadgeInfo;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.domain.enums.Part;
 import org.sopt.app.domain.enums.SoptPart;
-import org.sopt.app.facade.AppjamRankFacade;
 import org.sopt.app.facade.RankFacade;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,7 +17,6 @@ public class SoptampBadgeManager implements AppServiceBadgeManager {
 
     private final SoptampUserService soptampUserService;
     private final RankFacade rankFacade;
-    private final AppjamRankFacade appjamRankFacade;
 
     @Value("${makers.app.soptamp.appjam-mode:false}")
     private boolean appjamMode;
@@ -26,11 +24,7 @@ public class SoptampBadgeManager implements AppServiceBadgeManager {
     @Override
     public AppServiceBadgeInfo acquireAppServiceBadgeInfo(final Long userId) {
         if (appjamMode) {
-            Integer myTeamRank = appjamRankFacade.findMyTeamRank(userId);
-            if (myTeamRank == null) {
-                return AppServiceBadgeInfo.createWithAllDisabled();
-            }
-            return AppServiceBadgeInfo.createWithEnabledDisPlayAlarmBadge(myTeamRank + "위");
+            return AppServiceBadgeInfo.createWithAllDisabled();
         }
 
         Part part = SoptPart.toPart(soptampUserService.getSoptampUserInfo(userId).getPart());
