@@ -39,4 +39,6 @@ public class SoptLetter extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     private SoptLetterShapeType shapeType;
+
+    private Integer likeCount;
 }
