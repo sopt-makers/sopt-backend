@@ -11,8 +11,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.Length;
 import org.sopt.app.domain.entity.BaseEntity;
+import org.sopt.app.domain.enums.SoptLetterColor;
 import org.sopt.app.domain.enums.SoptLetterShapeType;
 
 @Entity
@@ -34,8 +34,8 @@ public class SoptLetter extends BaseEntity {
 
     private String message;
 
-    @Length(max = 7)
-    private String hexCode;
+    @Enumerated(EnumType.STRING)
+    private SoptLetterColor color;
 
     @Enumerated(EnumType.STRING)
     private SoptLetterShapeType shapeType;
