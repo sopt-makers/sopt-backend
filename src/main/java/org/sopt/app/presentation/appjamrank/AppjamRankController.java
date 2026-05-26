@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import org.sopt.app.application.appjamrank.AppjamRankInfo;
+import org.sopt.app.domain.enums.AppjamTeamSortType;
 import org.sopt.app.facade.AppjamRankFacade;
 import org.sopt.app.presentation.appjamtamp.AppjamtampResponseMapper;
 import org.springframework.http.ResponseEntity;
@@ -45,9 +46,10 @@ public class AppjamRankController {
 	})
 	@GetMapping("/today")
 	public ResponseEntity<AppjamRankResponse.AppjamTodayRankListResponse> getTodayTeamRanks(
-		@RequestParam(defaultValue = "11") @Min(1) int size
+		@RequestParam(defaultValue = "11") @Min(1) int size,
+		@RequestParam(defaultValue = "NAME") AppjamTeamSortType sort
 	) {
-		AppjamRankInfo.TodayTeamRankList appjamTodayTeamRankList = appjamRankFacade.findTodayTeamRanks(size);
+		AppjamRankInfo.TodayTeamRankList appjamTodayTeamRankList = appjamRankFacade.findTodayTeamRanks(size, sort);
 		AppjamRankResponse.AppjamTodayRankListResponse response = appjamtampResponseMapper.of(appjamTodayTeamRankList);
 
 		return ResponseEntity.ok(response);
