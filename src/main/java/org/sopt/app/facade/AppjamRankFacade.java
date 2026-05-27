@@ -1,6 +1,7 @@
 package org.sopt.app.facade;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -13,6 +14,7 @@ import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.common.utils.CurrentDate;
 import org.sopt.app.domain.entity.AppjamUser;
+import org.sopt.app.domain.enums.AppjamTeamSortType;
 import org.sopt.app.domain.enums.TeamNumber;
 import org.sopt.app.interfaces.postgres.StampRepositoryCustom;
 import org.springframework.data.domain.PageRequest;
@@ -58,7 +60,7 @@ public class AppjamRankFacade {
 	 * 오늘 팀 랭킹 (캐시 없이 DB 기반)
 	 * - 전체 팀을 항상 보여주기 위해 effectiveSize는 teamCount 이상 보장
 	 */
-	public AppjamRankInfo.TodayTeamRankList findTodayTeamRanks(int size) {
+	public AppjamRankInfo.TodayTeamRankList findTodayTeamRanks(int size, AppjamTeamSortType sort) {
 		LocalDateTime todayStart = CurrentDate.now().atStartOfDay();
 		LocalDateTime tomorrowStart = todayStart.plusDays(1);
 
@@ -88,12 +90,21 @@ public class AppjamRankFacade {
 			Map.of()
 		);
 
-		return calculator.calculateTodayTeamRanks(
+		AppjamRankInfo.TodayTeamRankList result = calculator.calculateTodayTeamRanks(
 			todayUserRanks,
 			totalPointsByUserId,
 			allAppjamUsers,
 			effectiveSize
 		);
+
+		if (sort == AppjamTeamSortType.NAME) {
+			return AppjamRankInfo.TodayTeamRankList.of(
+				result.getRanks().stream()
+					.sorted(Comparator.comparing(AppjamRankInfo.TodayTeamRank::getTeamName))
+					.toList()
+			);
+		}
+		return result;
 	}
 
 	public Integer findMyTeamRank(final Long userId) {
@@ -103,7 +114,7 @@ public class AppjamRankFacade {
 		}
 
 		TeamNumber myTeamNumber = myAppjamUser.getTeamNumber();
-		AppjamRankInfo.TodayTeamRankList ranks = findTodayTeamRanks(0);
+		AppjamRankInfo.TodayTeamRankList ranks = findTodayTeamRanks(0, AppjamTeamSortType.SCORE);
 
 		return ranks.getRanks().stream()
 			.filter(r -> r.getTeamNumber() == myTeamNumber)
