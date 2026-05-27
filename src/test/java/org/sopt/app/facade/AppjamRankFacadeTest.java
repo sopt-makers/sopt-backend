@@ -1,13 +1,16 @@
 package org.sopt.app.facade;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -19,10 +22,9 @@ import org.sopt.app.application.appjamrank.AppjamRankService;
 import org.sopt.app.application.playground.PlaygroundAuthService;
 import org.sopt.app.common.utils.CurrentDate;
 import org.sopt.app.domain.entity.AppjamUser;
+import org.sopt.app.domain.enums.AppjamTeamSortType;
 import org.sopt.app.domain.enums.TeamNumber;
 import org.sopt.app.interfaces.postgres.StampRepositoryCustom;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class AppjamRankFacadeTest {
@@ -80,7 +82,8 @@ class AppjamRankFacadeTest {
 			));
 
 		// when
-		AppjamRankInfo.TodayTeamRankList result = appjamRankFacade.findTodayTeamRanks(10);
+		AppjamRankInfo.TodayTeamRankList result = appjamRankFacade.findTodayTeamRanks(10,
+            AppjamTeamSortType.SCORE);
 
 		// then: 팀 랭킹은 2팀(FIRST, SECOND)만 존재
 		assertThat(result).isNotNull();
