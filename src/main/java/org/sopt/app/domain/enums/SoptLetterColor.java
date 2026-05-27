@@ -8,10 +8,10 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor(access = AccessLevel.PRIVATE)
 public enum SoptLetterColor {
 
-    BLUE("#C8E1FF"),
-    YELLOW("#FFF4D4"),
-    GREEN("#CCFFEC"),
-    RED("#FFD1D3"),
+    BLUE_50("#C8E1FF"),
+    YELLOW_50("#FFF4D4"),
+    GREEN_50("#CCFFEC"),
+    RED_50("#FFD1D3"),
     ;
 
     private final String hexCode;
