@@ -1,5 +1,6 @@
 package org.sopt.app.domain.entity.soptletter;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -30,8 +31,10 @@ public class SoptLetter extends BaseEntity {
 
     private Long topicId;
 
+    @Column(nullable = false)
     private Double degree;
 
+    @Column(length = 350, nullable = false)
     private String message;
 
     @Enumerated(EnumType.STRING)
