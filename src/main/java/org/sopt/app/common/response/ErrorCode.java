@@ -16,6 +16,7 @@ public enum ErrorCode {
     ENTITY_NOT_FOUND("객체를 찾을수 없습니다.", HttpStatus.NOT_FOUND),
     BAD_REQUEST("잘못된 요청입니다", HttpStatus.BAD_REQUEST),
     FORBIDDEN("접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    CONFLIECT("중복된 요청입니다.", HttpStatus.CONFLICT),
 
     // AUTH
     INVALID_ACCESS_TOKEN("유효하지 않은 앱 어세스 토큰입니다.", HttpStatus.UNAUTHORIZED),
