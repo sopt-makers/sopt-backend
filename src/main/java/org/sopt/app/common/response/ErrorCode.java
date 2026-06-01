@@ -106,7 +106,11 @@ public enum ErrorCode {
     //Fortune
     FORTUNE_NOT_FOUND("운세 ID에 해당하는 FortuneWord가 없습니다.", HttpStatus.NOT_FOUND),
     FORTUNE_NOT_FOUND_FROM_USER("유저에게 할당된 오늘의 운세가 없습니다.", HttpStatus.NOT_FOUND),
-    SLACK_ERROR("슬랙 메시지 알림 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+    SLACK_ERROR("슬랙 메시지 알림 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    //SoptLetter
+    ALREADY_ONBOARDED_SOPT_LETTER("이미 솝레터 온보딩을 완료한 사용자입니다.", HttpStatus.CONFLICT),
+    ;
 
     private final String message;
     private final HttpStatus httpStatus;
