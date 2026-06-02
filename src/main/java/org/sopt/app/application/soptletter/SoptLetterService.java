@@ -56,7 +56,7 @@ public class SoptLetterService {
             }
         }
         log.error("솝레터 유니크 닉네임 생성 실패");
-        throw new ConflictException(ErrorCode.NICKNAME_IS_FULL);
+        throw new ConflictException(ErrorCode.SOPT_LETTER_NICKNAME_IS_FULL);
     }
 
     private Profile createAndSaveProfile(Long userId, String nickname) {
@@ -65,8 +65,8 @@ public class SoptLetterService {
             soptLetterProfileRepository.saveAndFlush(newProfile);
             return Profile.of(nickname, false);
         } catch (DataIntegrityViolationException e) {
-            log.error("솝레터 프로필 생성 중 유니크 제약 오류 발생."+ e.getMessage());
-            throw new ConflictException(ErrorCode.ALREADY_ONBOARDED_SOPT_LETTER);
+            log.error("솝레터 프로필 생성 중 유니크 제약 오류 발생.", e);
+            throw new ConflictException(ErrorCode.CONFLIECT);
         }
     }
 

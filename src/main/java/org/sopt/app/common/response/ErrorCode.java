@@ -110,7 +110,7 @@ public enum ErrorCode {
     SLACK_ERROR("슬랙 메시지 알림 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
     //SoptLetter
-    ALREADY_ONBOARDED_SOPT_LETTER("이미 솝레터 온보딩을 완료한 사용자입니다.", HttpStatus.CONFLICT),
+    SOPT_LETTER_NICKNAME_IS_FULL("사용 가능한 솝레터 닉네임이 없습니다.", HttpStatus.CONFLICT),
     ;
 
     private final String message;

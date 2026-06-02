@@ -147,12 +147,12 @@ class SoptLetterServiceTest {
                 .isInstanceOf(ConflictException.class)
                 .satisfies(e -> {
                     ConflictException exception = (ConflictException) e;
-                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.NICKNAME_IS_FULL);
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_NICKNAME_IS_FULL);
                 });
     }
 
     @Test
-    @DisplayName("FAIL_저장 시점에 DB 유니크 제약조건 충돌이 일어나면 로그를 찍고 ALREADY_ONBOARDED_SOPT_LETTER 예외를 던진다")
+    @DisplayName("FAIL_저장 시점에 DB 유니크 제약조건 충돌이 일어나면 로그를 찍고 CONFLIECT 예외를 던진다")
     void FAIL_getOrCreateProfile_dataIntegrityViolation() {
         // given
         final Long userId = 1L;
@@ -167,7 +167,7 @@ class SoptLetterServiceTest {
                 .isInstanceOf(ConflictException.class)
                 .satisfies(e -> {
                     ConflictException exception = (ConflictException) e;
-                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.ALREADY_ONBOARDED_SOPT_LETTER);
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.CONFLIECT);
                 });
     }
 }
