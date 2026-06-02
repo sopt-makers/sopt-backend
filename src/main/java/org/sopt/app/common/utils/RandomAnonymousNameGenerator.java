@@ -1,6 +1,9 @@
 package org.sopt.app.common.utils;
 
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.stereotype.Component;
 
@@ -31,6 +34,15 @@ public class RandomAnonymousNameGenerator implements AnonymousNameGenerator {
         String firstWord = getRandomElement(ADJECTIVES);
         String secondWord = getRandomElement(NOUNS);
         return "익명의 " + firstWord + " " + secondWord;
+    }
+
+    @Override
+    public List<String> generateMultiple(int count) {
+        Set<String> candidates = new LinkedHashSet<>();
+        while (candidates.size() < count) {
+            candidates.add(generate());
+        }
+        return new ArrayList<>(candidates);
     }
 
     private String getRandomElement(List<String> list) {
