@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
 import org.sopt.app.common.exception.ConflictException;
+import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.common.utils.AnonymousNameGenerator;
 import org.sopt.app.domain.entity.soptletter.SoptLetterProfile;
@@ -70,4 +71,13 @@ public class SoptLetterService {
         }
     }
 
+    @Transactional
+    public Profile completeOnboarding(Long userId) {
+        SoptLetterProfile profile = soptLetterProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND));
+        profile.completeOnboarding();
+        return Profile.of(profile.getNickname(), profile.isOnboarded());
+    }
+
 }
+

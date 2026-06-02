@@ -111,6 +111,7 @@ public enum ErrorCode {
 
     //SoptLetter
     SOPT_LETTER_NICKNAME_IS_FULL("사용 가능한 솝레터 닉네임이 없습니다.", HttpStatus.CONFLICT),
+    SOPT_LETTER_PROFILE_NOT_FOUND("솝레터 프로필이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     ;
 
     private final String message;

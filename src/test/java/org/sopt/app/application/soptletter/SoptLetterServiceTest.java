@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
 import org.sopt.app.common.exception.ConflictException;
+import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.common.utils.AnonymousNameGenerator;
 import org.sopt.app.domain.entity.soptletter.SoptLetterProfile;
@@ -168,6 +169,44 @@ class SoptLetterServiceTest {
                 .satisfies(e -> {
                     ConflictException exception = (ConflictException) e;
                     assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.CONFLIECT);
+                });
+    }
+
+    @Test
+    @DisplayName("SUCCESS_온보딩 완료 처리 시 profile의 isOnboarded 상태를 true로 변경하고 반환한다")
+    void SUCCESS_completeOnboarding() {
+        // given
+        final Long userId = 1L;
+        final String nickname = "익명의 솝트";
+        SoptLetterProfile profile = SoptLetterProfile.builder()
+                .userId(userId)
+                .nickname(nickname)
+                .isOnboarded(false)
+                .build();
+        when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
+
+        // when
+        Profile result = soptLetterService.completeOnboarding(userId);
+
+        // then
+        assertThat(result.getNickname()).isEqualTo(nickname);
+        assertThat(result.isOnboarded()).isTrue();
+        assertThat(profile.isOnboarded()).isTrue();
+    }
+
+    @Test
+    @DisplayName("FAIL_온보딩 완료 처리 시 솝레터 프로필이 존재하지 않으면 NotFoundException이 발생한다")
+    void FAIL_completeOnboarding_profileNotFound() {
+        // given
+        final Long userId = 1L;
+        when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.completeOnboarding(userId))
+                .isInstanceOf(NotFoundException.class)
+                .satisfies(e -> {
+                    NotFoundException exception = (NotFoundException) e;
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND);
                 });
     }
 }

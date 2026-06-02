@@ -40,4 +40,22 @@ class SoptLetterFacadeTest {
         assertThat(result.isOnboarded()).isFalse();
         verify(soptLetterService, times(1)).getOrCreateProfile(userId);
     }
+
+    @Test
+    @DisplayName("SUCCESS_온보딩 완료 처리 파사드가 서비스 메서드를 정상 호출하고 반환한다")
+    void SUCCESS_completeOnboardingProfile() {
+        // given
+        final Long userId = 1L;
+        final String nickname = "익명의 솝트";
+        Profile expected = Profile.of(nickname, true);
+        when(soptLetterService.completeOnboarding(userId)).thenReturn(expected);
+
+        // when
+        Profile result = soptLetterFacade.completeOnboardingProfile(userId);
+
+        // then
+        assertThat(result.getNickname()).isEqualTo(nickname);
+        assertThat(result.isOnboarded()).isTrue();
+        verify(soptLetterService, times(1)).completeOnboarding(userId);
+    }
 }

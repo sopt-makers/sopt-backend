@@ -14,4 +14,8 @@ public class SoptLetterFacade {
     public Profile getOrCreateOnboardingProfile(Long userId) {
         return soptLetterService.getOrCreateProfile(userId);
     }
+
+    public Profile completeOnboardingProfile(Long userId) {
+        return soptLetterService.completeOnboarding(userId);
+    }
 }
