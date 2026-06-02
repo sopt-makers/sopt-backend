@@ -20,6 +20,10 @@ import org.sopt.app.domain.entity.BaseEntity;
         @UniqueConstraint(
             name = "uk_sopt_letter_profile_user",
             columnNames = {"user_id"}
+        ),
+        @UniqueConstraint(
+            name = "uk_sopt_letter_profile_nickname",
+            columnNames = {"nickname"}
         )
     }
 )
@@ -36,5 +40,20 @@ public class SoptLetterProfile extends BaseEntity {
     private Long userId;
 
     private String nickname;
+
+    @Builder.Default
+    private boolean isOnboarded = false;
+
+    public static SoptLetterProfile of(Long userId, String nickname) {
+        return SoptLetterProfile.builder()
+                .userId(userId)
+                .nickname(nickname)
+                .isOnboarded(false)
+                .build();
+    }
+
+    public void completeOnboarding() {
+        this.isOnboarded = true;
+    }
 
 }
