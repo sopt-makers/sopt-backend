@@ -12,6 +12,7 @@ import org.sopt.app.presentation.soptletter.dto.SoptLetterResponse.OnboardingPro
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,6 +36,20 @@ public class SoptLetterController {
         @AuthenticationPrincipal Long userId
     ) {
         val result = soptLetterFacade.getOrCreateOnboardingProfile(userId);
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+    }
+
+    @Operation(summary = "솝레터 온보딩 완료 처리")
+    @PostMapping("/onboarding/complete")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "404", description = "not found", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<OnboardingProfileResponse> completeOnboardingProfile(
+        @AuthenticationPrincipal Long userId
+    ) {
+        val result = soptLetterFacade.completeOnboardingProfile(userId);
         return ResponseEntity.ok(soptLetterResponseMapper.of(result));
     }
 }
