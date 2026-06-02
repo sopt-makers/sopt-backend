@@ -20,8 +20,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class SoptLetterService {
 
-    private static final int MAX_RETRY_COUNT = 3;
-    private static final int CANDIDATE_COUNT = 3;
+    private static final int MAX_NICKNAME_RETRY_COUNT = 3;
+    private static final int NICKNAME_CANDIDATE_SIZE = 3;
 
     private final SoptLetterProfileRepository soptLetterProfileRepository;
     private final AnonymousNameGenerator anonymousNameGenerator;
@@ -43,8 +43,8 @@ public class SoptLetterService {
     }
 
     private String generateUniqueNickname() {
-        for (int attempt = 0; attempt < MAX_RETRY_COUNT; attempt++) {
-            List<String> candidates = anonymousNameGenerator.generateMultiple(CANDIDATE_COUNT);
+        for (int attempt = 0; attempt < MAX_NICKNAME_RETRY_COUNT; attempt++) {
+            List<String> candidates = anonymousNameGenerator.generateMultiple(NICKNAME_CANDIDATE_SIZE);
             Set<String> existingNicknames = soptLetterProfileRepository.findExistingNicknames(candidates);
 
             Optional<String> available = candidates.stream()
