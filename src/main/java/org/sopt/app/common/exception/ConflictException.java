@@ -5,7 +5,7 @@ import org.sopt.app.common.response.ErrorCode;
 public class ConflictException extends BaseException {
 
     public ConflictException() {
-        super(ErrorCode.CONFLIECT);
+        super(ErrorCode.CONFLICT);
     }
 
     public ConflictException(ErrorCode errorCode) {

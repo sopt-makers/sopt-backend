@@ -67,7 +67,7 @@ public class SoptLetterService {
             return Profile.of(nickname, false);
         } catch (DataIntegrityViolationException e) {
             log.error("솝레터 프로필 생성 중 유니크 제약 오류 발생.", e);
-            throw new ConflictException(ErrorCode.CONFLIECT);
+            throw new ConflictException(ErrorCode.CONFLICT);
         }
     }
 

@@ -168,7 +168,7 @@ class SoptLetterServiceTest {
                 .isInstanceOf(ConflictException.class)
                 .satisfies(e -> {
                     ConflictException exception = (ConflictException) e;
-                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.CONFLIECT);
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.CONFLICT);
                 });
     }
 
