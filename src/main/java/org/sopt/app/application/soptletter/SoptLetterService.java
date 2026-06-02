@@ -1,13 +1,27 @@
 package org.sopt.app.application.soptletter;
 
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
+import org.sopt.app.common.exception.ConflictException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.common.utils.AnonymousNameGenerator;
+import org.sopt.app.domain.entity.soptletter.SoptLetterProfile;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class SoptLetterService {
+
+    private static final int MAX_RETRY_COUNT = 3;
+    private static final int CANDIDATE_COUNT = 3;
 
     private final SoptLetterProfileRepository soptLetterProfileRepository;
     private final AnonymousNameGenerator anonymousNameGenerator;
@@ -18,6 +32,46 @@ public class SoptLetterService {
 
     public String generateNickname() {
         return anonymousNameGenerator.generate();
+    }
+
+    @Transactional
+    public Profile getOrCreateProfile(Long userId) {
+        Optional<SoptLetterProfile> profileOpt = soptLetterProfileRepository.findByUserId(userId);
+        if (profileOpt.isPresent()) {
+            SoptLetterProfile profile = profileOpt.get();
+            return Profile.of(profile.getNickname(), profile.isOnboarded());
+        }
+
+        String uniqueNickname = generateUniqueNickname();
+        return createAndSaveProfile(userId, uniqueNickname);
+    }
+
+    private String generateUniqueNickname() {
+        for (int attempt = 0; attempt < MAX_RETRY_COUNT; attempt++) {
+            List<String> candidates = anonymousNameGenerator.generateMultiple(CANDIDATE_COUNT);
+            Set<String> existingNicknames = soptLetterProfileRepository.findExistingNicknames(candidates);
+
+            Optional<String> available = candidates.stream()
+                    .filter(candidate -> !existingNicknames.contains(candidate))
+                    .findFirst();
+
+            if (available.isPresent()) {
+                return available.get();
+            }
+        }
+        log.error("솝레터 유니크 닉네임 생성에 실패했습니다.");
+        throw new ConflictException(ErrorCode.NICKNAME_IS_FULL);
+    }
+
+    private Profile createAndSaveProfile(Long userId, String nickname) {
+        try {
+            SoptLetterProfile newProfile = SoptLetterProfile.of(userId, nickname);
+            soptLetterProfileRepository.saveAndFlush(newProfile);
+            return Profile.of(nickname, false);
+        } catch (DataIntegrityViolationException e) {
+            log.error("솝레터 닉네임 생성 중 중복 오류가 발생했습니다.");
+            throw new ConflictException(ErrorCode.ALREADY_ONBOARDED_SOPT_LETTER);
+        }
     }
 
 }

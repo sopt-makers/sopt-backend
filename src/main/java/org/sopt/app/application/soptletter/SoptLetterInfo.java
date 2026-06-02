@@ -14,13 +14,15 @@ public class SoptLetterInfo {
     @Builder
     @ToString
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
-    public static class Nickname {
+    public static class Profile {
 
         private String nickname;
+        private boolean isOnboarded;
 
-        public static Nickname of(String nickname) {
-            return Nickname.builder()
+        public static Profile of(String nickname, boolean isOnboarded) {
+            return Profile.builder()
                 .nickname(nickname)
+                .isOnboarded(isOnboarded)
                 .build();
         }
     }
