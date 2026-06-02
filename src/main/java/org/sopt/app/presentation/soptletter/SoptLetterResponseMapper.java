@@ -4,8 +4,8 @@ import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
-import org.sopt.app.presentation.soptletter.dto.SoptLetterResponse.GeneratedNicknameResponse;
+import org.sopt.app.application.soptletter.SoptLetterInfo;
+import org.sopt.app.presentation.soptletter.dto.SoptLetterResponse.OnboardingProfileResponse;
 
 @Mapper(
     componentModel = "spring",
@@ -15,5 +15,5 @@ import org.sopt.app.presentation.soptletter.dto.SoptLetterResponse.GeneratedNick
 public interface SoptLetterResponseMapper {
 
     @Mapping(source = "onboarded", target = "isOnboarded")
-    GeneratedNicknameResponse of(Profile info);
+    OnboardingProfileResponse of(SoptLetterInfo.Profile info);
 }

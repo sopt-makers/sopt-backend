@@ -8,7 +8,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.facade.SoptLetterFacade;
-import org.sopt.app.presentation.soptletter.dto.SoptLetterResponse.GeneratedNicknameResponse;
+import org.sopt.app.presentation.soptletter.dto.SoptLetterResponse.OnboardingProfileResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,17 +24,17 @@ public class SoptLetterController {
     private final SoptLetterFacade soptLetterFacade;
     private final SoptLetterResponseMapper soptLetterResponseMapper;
 
-    @Operation(summary = "온보딩 닉네임 생성/조회")
-    @GetMapping("/onboarding/nickname")
+    @Operation(summary = "솝레터 온보딩 프로필 조회 (존재하지 않을 경우 생성)")
+    @GetMapping("/onboarding")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "success"),
         @ApiResponse(responseCode = "409", description = "conflict"),
         @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    public ResponseEntity<GeneratedNicknameResponse> getOnboardingNickname(
+    public ResponseEntity<OnboardingProfileResponse> getOrCreateOnboardingProfile(
         @AuthenticationPrincipal Long userId
     ) {
-        val result = soptLetterFacade.generateProfileNickname(userId);
+        val result = soptLetterFacade.getOrCreateOnboardingProfile(userId);
         return ResponseEntity.ok(soptLetterResponseMapper.of(result));
     }
 }

@@ -88,7 +88,7 @@ class SoptLetterServiceTest {
         // then
         assertThat(result.getNickname()).isEqualTo(nickname);
         assertThat(result.isOnboarded()).isTrue();
-        verify(soptLetterProfileRepository, never()).save(any(SoptLetterProfile.class));
+        verify(soptLetterProfileRepository, never()).saveAndFlush(any(SoptLetterProfile.class));
     }
 
     @Test
@@ -152,7 +152,7 @@ class SoptLetterServiceTest {
     }
 
     @Test
-    @DisplayName("FAIL_저장 시점에 DB 유니크 제약조건 충돌이 일어나면 ALREADY_ONBOARDED_SOPT_LETTER 예외를 던진다")
+    @DisplayName("FAIL_저장 시점에 DB 유니크 제약조건 충돌이 일어나면 로그를 찍고 ALREADY_ONBOARDED_SOPT_LETTER 예외를 던진다")
     void FAIL_getOrCreateProfile_dataIntegrityViolation() {
         // given
         final Long userId = 1L;

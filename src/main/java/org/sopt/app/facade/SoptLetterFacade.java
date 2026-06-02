@@ -11,7 +11,7 @@ public class SoptLetterFacade {
 
     private final SoptLetterService soptLetterService;
 
-    public Profile generateProfileNickname(Long userId) {
+    public Profile getOrCreateOnboardingProfile(Long userId) {
         return soptLetterService.getOrCreateProfile(userId);
     }
 }

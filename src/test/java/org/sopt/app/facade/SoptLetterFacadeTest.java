@@ -24,8 +24,8 @@ class SoptLetterFacadeTest {
     private SoptLetterFacade soptLetterFacade;
 
     @Test
-    @DisplayName("SUCCESS_온보딩 프로필 닉네임을 정상적으로 생성하거나 조회한다")
-    void SUCCESS_generateProfileNickname() {
+    @DisplayName("SUCCESS_온보딩 프로필 정보를 정상적으로 조회하거나 생성한다")
+    void SUCCESS_getOrCreateOnboardingProfile() {
         // given
         final Long userId = 1L;
         final String generatedNickname = "익명의 솝트";
@@ -33,7 +33,7 @@ class SoptLetterFacadeTest {
         when(soptLetterService.getOrCreateProfile(userId)).thenReturn(expected);
 
         // when
-        Profile result = soptLetterFacade.generateProfileNickname(userId);
+        Profile result = soptLetterFacade.getOrCreateOnboardingProfile(userId);
 
         // then
         assertThat(result.getNickname()).isEqualTo(generatedNickname);

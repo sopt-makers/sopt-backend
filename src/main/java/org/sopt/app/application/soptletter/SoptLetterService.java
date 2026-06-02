@@ -30,10 +30,6 @@ public class SoptLetterService {
         return soptLetterProfileRepository.existsByUserId(userId);
     }
 
-    public String generateNickname() {
-        return anonymousNameGenerator.generate();
-    }
-
     @Transactional
     public Profile getOrCreateProfile(Long userId) {
         Optional<SoptLetterProfile> profileOpt = soptLetterProfileRepository.findByUserId(userId);
@@ -59,7 +55,7 @@ public class SoptLetterService {
                 return available.get();
             }
         }
-        log.error("솝레터 유니크 닉네임 생성에 실패했습니다.");
+        log.error("솝레터 유니크 닉네임 생성 실패");
         throw new ConflictException(ErrorCode.NICKNAME_IS_FULL);
     }
 
@@ -69,7 +65,7 @@ public class SoptLetterService {
             soptLetterProfileRepository.saveAndFlush(newProfile);
             return Profile.of(nickname, false);
         } catch (DataIntegrityViolationException e) {
-            log.error("솝레터 닉네임 생성 중 중복 오류가 발생했습니다.");
+            log.error("솝레터 프로필 생성 중 유니크 제약 오류 발생."+ e.getMessage());
             throw new ConflictException(ErrorCode.ALREADY_ONBOARDED_SOPT_LETTER);
         }
     }
