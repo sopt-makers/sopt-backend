@@ -29,7 +29,10 @@ class SoptLetterFacadeTest {
         // given
         final Long userId = 1L;
         final String generatedNickname = "익명의 솝트";
-        Profile expected = Profile.of(generatedNickname, false);
+        Profile expected = Profile.builder()
+                .nickname(generatedNickname)
+                .isOnboarded(false)
+                .build();
         when(soptLetterService.getOrCreateProfile(userId)).thenReturn(expected);
 
         // when
@@ -47,7 +50,10 @@ class SoptLetterFacadeTest {
         // given
         final Long userId = 1L;
         final String nickname = "익명의 솝트";
-        Profile expected = Profile.of(nickname, true);
+        Profile expected = Profile.builder()
+                .nickname(nickname)
+                .isOnboarded(true)
+                .build();
         when(soptLetterService.completeOnboarding(userId)).thenReturn(expected);
 
         // when
