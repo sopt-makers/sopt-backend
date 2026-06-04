@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.sopt.app.domain.entity.soptletter.SoptLetterProfile;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SoptLetterInfo {
@@ -19,10 +20,10 @@ public class SoptLetterInfo {
         private String nickname;
         private boolean isOnboarded;
 
-        public static Profile of(String nickname, boolean isOnboarded) {
+        public static Profile from(SoptLetterProfile profile) {
             return Profile.builder()
-                .nickname(nickname)
-                .isOnboarded(isOnboarded)
+                .nickname(profile.getNickname())
+                .isOnboarded(profile.isOnboarded())
                 .build();
         }
     }

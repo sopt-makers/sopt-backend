@@ -36,7 +36,7 @@ public class SoptLetterService {
         Optional<SoptLetterProfile> profileOpt = soptLetterProfileRepository.findByUserId(userId);
         if (profileOpt.isPresent()) {
             SoptLetterProfile profile = profileOpt.get();
-            return Profile.of(profile.getNickname(), profile.isOnboarded());
+            return Profile.from(profile);
         }
 
         String uniqueNickname = generateUniqueNickname();
@@ -64,7 +64,7 @@ public class SoptLetterService {
         try {
             SoptLetterProfile newProfile = SoptLetterProfile.of(userId, nickname);
             soptLetterProfileRepository.saveAndFlush(newProfile);
-            return Profile.of(nickname, false);
+            return Profile.from(newProfile);
         } catch (DataIntegrityViolationException e) {
             log.error("솝레터 프로필 생성 중 유니크 제약 오류 발생.", e);
             throw new ConflictException(ErrorCode.CONFLICT);
@@ -76,7 +76,7 @@ public class SoptLetterService {
         SoptLetterProfile profile = soptLetterProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND));
         profile.completeOnboarding();
-        return Profile.of(profile.getNickname(), profile.isOnboarded());
+        return Profile.from(profile);
     }
 
 }
