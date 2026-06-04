@@ -16,6 +16,7 @@ public enum ErrorCode {
     ENTITY_NOT_FOUND("객체를 찾을수 없습니다.", HttpStatus.NOT_FOUND),
     BAD_REQUEST("잘못된 요청입니다", HttpStatus.BAD_REQUEST),
     FORBIDDEN("접근 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    CONFLICT("중복된 요청입니다.", HttpStatus.CONFLICT),
 
     // AUTH
     INVALID_ACCESS_TOKEN("유효하지 않은 앱 어세스 토큰입니다.", HttpStatus.UNAUTHORIZED),
@@ -106,7 +107,12 @@ public enum ErrorCode {
     //Fortune
     FORTUNE_NOT_FOUND("운세 ID에 해당하는 FortuneWord가 없습니다.", HttpStatus.NOT_FOUND),
     FORTUNE_NOT_FOUND_FROM_USER("유저에게 할당된 오늘의 운세가 없습니다.", HttpStatus.NOT_FOUND),
-    SLACK_ERROR("슬랙 메시지 알림 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+    SLACK_ERROR("슬랙 메시지 알림 오류입니다.", HttpStatus.INTERNAL_SERVER_ERROR),
+
+    //SoptLetter
+    SOPT_LETTER_NICKNAME_IS_FULL("사용 가능한 솝레터 닉네임이 없습니다.", HttpStatus.CONFLICT),
+    SOPT_LETTER_PROFILE_NOT_FOUND("솝레터 프로필이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    ;
 
     private final String message;
     private final HttpStatus httpStatus;
