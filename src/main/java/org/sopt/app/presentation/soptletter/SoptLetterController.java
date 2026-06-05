@@ -5,14 +5,18 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.sopt.app.facade.SoptLetterFacade;
-import org.sopt.app.presentation.soptletter.dto.SoptLetterResponse.OnboardingProfileResponse;
+import org.sopt.app.presentation.soptletter.dto.SoptLetterRequest;
+import org.sopt.app.presentation.soptletter.dto.SoptLetterResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -32,7 +36,7 @@ public class SoptLetterController {
         @ApiResponse(responseCode = "409", description = "conflict"),
         @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    public ResponseEntity<OnboardingProfileResponse> getOrCreateOnboardingProfile(
+    public ResponseEntity<SoptLetterResponse.OnboardingProfileResponse> getOrCreateOnboardingProfile(
         @AuthenticationPrincipal Long userId
     ) {
         val result = soptLetterFacade.getOrCreateOnboardingProfile(userId);
@@ -46,10 +50,27 @@ public class SoptLetterController {
         @ApiResponse(responseCode = "404", description = "not found", content = @Content),
         @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    public ResponseEntity<OnboardingProfileResponse> completeOnboardingProfile(
+    public ResponseEntity<SoptLetterResponse.OnboardingProfileResponse> completeOnboardingProfile(
         @AuthenticationPrincipal Long userId
     ) {
         val result = soptLetterFacade.completeOnboardingProfile(userId);
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+    }
+
+    @Operation(summary = "개별 주제 솝레터 메시지 작성")
+    @PostMapping("/topics/{topicId}/messages")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "400", description = "bad request", content = @Content),
+        @ApiResponse(responseCode = "404", description = "not found", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<SoptLetterResponse.WriteMessageResponse> writeMessage(
+        @AuthenticationPrincipal Long userId,
+        @PathVariable Long topicId,
+        @Valid @RequestBody SoptLetterRequest.WriteMessageRequest request
+    ) {
+        val result = soptLetterFacade.writeMessage(userId, topicId, request.getContent());
         return ResponseEntity.ok(soptLetterResponseMapper.of(result));
     }
 }
