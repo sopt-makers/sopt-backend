@@ -5,13 +5,23 @@ import java.util.Optional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
+import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ConflictException;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.common.utils.AnonymousNameGenerator;
+import org.sopt.app.domain.entity.soptletter.SoptLetter;
 import org.sopt.app.domain.entity.soptletter.SoptLetterProfile;
+import org.sopt.app.domain.enums.SoptLetterColor;
+import org.sopt.app.domain.enums.SoptLetterShapeType;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
+import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
+import org.sopt.app.interfaces.postgres.soptletter.SoptLetterTopicRepository;
+import java.time.LocalDateTime;
+import java.time.Clock;
+import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,9 +33,14 @@ public class SoptLetterService {
 
     private static final int MAX_NICKNAME_RETRY_COUNT = 3;
     private static final int NICKNAME_CANDIDATE_SIZE = 3;
+    private static final int DAILY_MESSAGE_LIMIT = 10;
 
     private final SoptLetterProfileRepository soptLetterProfileRepository;
     private final AnonymousNameGenerator anonymousNameGenerator;
+    private final SoptLetterRepository soptLetterRepository;
+    private final SoptLetterTopicRepository soptLetterTopicRepository;
+    private final SoptLetterGenerator soptLetterGenerator;
+    private final Clock clock;
 
     public boolean isOnboarded(Long userId) {
         return soptLetterProfileRepository.existsByUserId(userId);
@@ -78,6 +93,35 @@ public class SoptLetterService {
         profile.completeOnboarding();
         return Profile.from(profile);
     }
+
+    @Transactional
+    public SoptLetterInfo.MessageResult writeMessage(Long userId, Long topicId, String content) {
+        val topic = soptLetterTopicRepository.findById(topicId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.ENTITY_NOT_FOUND));
+
+        val profile = soptLetterProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND));
+
+        val now = LocalDateTime.now(clock);
+        validateDailyMessageLimit(profile.getId(), now);
+
+        val latestLetterOpt = soptLetterRepository.findFirstByTopicIdOrderByIdDesc(topicId);
+        val latestColor = latestLetterOpt.map(SoptLetter::getColor).orElse(null);
+
+        val newLetter = soptLetterGenerator.generate(profile.getId(), topicId, content, latestColor);
+
+        val savedLetter = soptLetterRepository.save(newLetter);
+        return SoptLetterInfo.MessageResult.of(savedLetter, profile.getNickname(), false, true);
+    }
+
+    private void validateDailyMessageLimit(Long profileId, LocalDateTime now) {
+        val startOfDay = now.toLocalDate().atStartOfDay();
+        val todayCount = soptLetterRepository.countByAuthorProfileIdAndCreatedAtAfter(profileId, startOfDay);
+        if (todayCount >= DAILY_MESSAGE_LIMIT) {
+            throw new BadRequestException(ErrorCode.SOPT_LETTER_DAILY_LIMIT_EXCEEDED);
+        }
+    }
+
 
 }
 
