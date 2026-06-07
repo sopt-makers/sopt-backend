@@ -103,4 +103,39 @@ class SoptLetterFacadeTest {
         assertThat(result.getAuthorNickname()).isEqualTo("반짝이는 고래");
         verify(soptLetterService, times(1)).writeMessage(eq(userId), eq(topicId), eq(content));
     }
+
+    @Test
+    @DisplayName("SUCCESS_메시지 수정 파사드가 서비스 메서드를 정상 호출하고 반환한다")
+    void SUCCESS_updateMessage() {
+        // given
+        final Long userId = 1L;
+        final Long messageId = 125L;
+        final String content = "수정된 편지 내용";
+
+        SoptLetterInfo.MessageResult expected = SoptLetterInfo.MessageResult.builder()
+                .messageId(messageId)
+                .topicId(3L)
+                .authorNickname("반짝이는 고래")
+                .content(content)
+                .colorCode("#CCFFEC")
+                .rotationDegree(4.0)
+                .shapeType("POINT")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .likeCount(0)
+                .likedByMe(false)
+                .mine(true)
+                .build();
+
+        when(soptLetterService.updateMessage(eq(userId), eq(messageId), eq(content))).thenReturn(expected);
+
+        // when
+        SoptLetterInfo.MessageResult result = soptLetterFacade.updateMessage(userId, messageId, content);
+
+        // then
+        assertThat(result.getMessageId()).isEqualTo(messageId);
+        assertThat(result.getContent()).isEqualTo(content);
+        assertThat(result.getAuthorNickname()).isEqualTo("반짝이는 고래");
+        verify(soptLetterService, times(1)).updateMessage(eq(userId), eq(messageId), eq(content));
+    }
 }

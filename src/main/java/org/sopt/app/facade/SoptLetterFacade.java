@@ -23,4 +23,8 @@ public class SoptLetterFacade {
     public SoptLetterInfo.MessageResult writeMessage(Long userId, Long topicId, String content) {
         return soptLetterService.writeMessage(userId, topicId, content);
     }
+
+    public SoptLetterInfo.MessageResult updateMessage(Long userId, Long messageId, String content) {
+        return soptLetterService.updateMessage(userId, messageId, content);
+    }
 }

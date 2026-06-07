@@ -1,5 +1,7 @@
 package org.sopt.app.application.soptletter;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -14,14 +16,10 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.common.utils.AnonymousNameGenerator;
 import org.sopt.app.domain.entity.soptletter.SoptLetter;
 import org.sopt.app.domain.entity.soptletter.SoptLetterProfile;
-import org.sopt.app.domain.enums.SoptLetterColor;
-import org.sopt.app.domain.enums.SoptLetterShapeType;
+import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterTopicRepository;
-import java.time.LocalDateTime;
-import java.time.Clock;
-import java.util.concurrent.ThreadLocalRandom;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +37,7 @@ public class SoptLetterService {
     private final AnonymousNameGenerator anonymousNameGenerator;
     private final SoptLetterRepository soptLetterRepository;
     private final SoptLetterTopicRepository soptLetterTopicRepository;
+    private final SoptLetterLikeRepository soptLetterLikeRepository;
     private final SoptLetterGenerator soptLetterGenerator;
     private final Clock clock;
 
@@ -98,12 +97,10 @@ public class SoptLetterService {
     public SoptLetterInfo.MessageResult writeMessage(Long userId, Long topicId, String content) {
         val topic = soptLetterTopicRepository.findById(topicId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.ENTITY_NOT_FOUND));
-
         val profile = soptLetterProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND));
 
-        val now = LocalDateTime.now(clock);
-        validateDailyMessageLimit(profile.getId(), now);
+        validateDailyMessageLimit(profile.getId(), LocalDateTime.now(clock));
 
         val latestLetterOpt = soptLetterRepository.findFirstByTopicIdOrderByIdDesc(topicId);
         val latestColor = latestLetterOpt.map(SoptLetter::getColor).orElse(null);
@@ -122,6 +119,17 @@ public class SoptLetterService {
         }
     }
 
+    @Transactional
+    public SoptLetterInfo.MessageResult updateMessage(Long userId, Long messageId, String content) {
+        val letter = soptLetterRepository.findById(messageId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_NOT_FOUND));
+        val profile = soptLetterProfileRepository.findByUserId(userId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND));
 
+        letter.updateMessage(profile.getId(), content);
+
+        val likedByMe = soptLetterLikeRepository.existsByLetterIdAndUserId(messageId, userId);
+        return SoptLetterInfo.MessageResult.of(letter, profile.getNickname(), likedByMe, true);
+    }
 }
 
