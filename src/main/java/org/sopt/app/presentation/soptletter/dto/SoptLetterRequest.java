@@ -17,4 +17,12 @@ public class SoptLetterRequest {
         @Size(min = 1, max = 350, message = "메시지는 공백을 포함하여 1자 이상 350자 이하로 작성해야 합니다.")
         private String content;
     }
+
+    @Getter
+    @ToString
+    public static class UpdateMessageRequest {
+        @NotBlank(message = "메시지 내용은 필수입니다.")
+        @Size(min = 1, max = 350, message = "메시지는 공백을 포함하여 1자 이상 350자 이하로 작성해야 합니다.")
+        private String content;
+    }
 }
