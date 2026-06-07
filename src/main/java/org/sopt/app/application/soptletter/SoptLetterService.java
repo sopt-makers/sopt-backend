@@ -94,7 +94,7 @@ public class SoptLetterService {
     }
 
     @Transactional
-    public SoptLetterInfo.MessageResult writeMessage(Long userId, Long topicId, String content) {
+    public SoptLetterInfo.MessageResult createSoptLetter(Long userId, Long topicId, String content) {
         val topic = soptLetterTopicRepository.findById(topicId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.ENTITY_NOT_FOUND));
         val profile = soptLetterProfileRepository.findByUserId(userId)
@@ -120,7 +120,7 @@ public class SoptLetterService {
     }
 
     @Transactional
-    public SoptLetterInfo.MessageResult updateMessage(Long userId, Long messageId, String content) {
+    public SoptLetterInfo.MessageResult updateSoptLetter(Long userId, Long messageId, String content) {
         val letter = soptLetterRepository.findById(messageId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_NOT_FOUND));
         val profile = soptLetterProfileRepository.findByUserId(userId)

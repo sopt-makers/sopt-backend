@@ -20,11 +20,11 @@ public class SoptLetterFacade {
         return soptLetterService.completeOnboarding(userId);
     }
 
-    public SoptLetterInfo.MessageResult writeMessage(Long userId, Long topicId, String content) {
-        return soptLetterService.writeMessage(userId, topicId, content);
+    public SoptLetterInfo.MessageResult createSoptLetter(Long userId, Long topicId, String content) {
+        return soptLetterService.createSoptLetter(userId, topicId, content);
     }
 
-    public SoptLetterInfo.MessageResult updateMessage(Long userId, Long messageId, String content) {
-        return soptLetterService.updateMessage(userId, messageId, content);
+    public SoptLetterInfo.MessageResult updateSoptLetter(Long userId, Long messageId, String content) {
+        return soptLetterService.updateSoptLetter(userId, messageId, content);
     }
 }

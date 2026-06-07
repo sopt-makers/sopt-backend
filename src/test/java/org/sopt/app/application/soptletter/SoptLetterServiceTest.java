@@ -5,18 +5,18 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.lenient;
 
+import java.time.Clock;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
-import java.time.LocalDateTime;
-import java.time.Clock;
-import java.time.ZoneId;
 import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,8 +28,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ConflictException;
-import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.exception.ForbiddenException;
+import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.common.utils.AnonymousNameGenerator;
 import org.sopt.app.domain.entity.soptletter.SoptLetter;
@@ -37,10 +37,10 @@ import org.sopt.app.domain.entity.soptletter.SoptLetterProfile;
 import org.sopt.app.domain.entity.soptletter.SoptLetterTopic;
 import org.sopt.app.domain.enums.SoptLetterColor;
 import org.sopt.app.domain.enums.SoptLetterShapeType;
+import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterTopicRepository;
-import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 
 @ExtendWith(MockitoExtension.class)
@@ -248,7 +248,7 @@ class SoptLetterServiceTest {
 
     @Test
     @DisplayName("SUCCESS_첫 번째 메시지 작성 시 기본 색상인 BLUE_50으로 편지를 성공적으로 작성한다")
-    void SUCCESS_writeMessage_firstMessage() {
+    void SUCCESS_createSoptLetter() {
         // given
         final Long userId = 1L;
         final Long topicId = 3L;
@@ -296,7 +296,7 @@ class SoptLetterServiceTest {
         });
 
         // when
-        SoptLetterInfo.MessageResult result = soptLetterService.writeMessage(userId, topicId, content);
+        SoptLetterInfo.MessageResult result = soptLetterService.createSoptLetter(userId, topicId, content);
 
         // then
         assertThat(result.getMessageId()).isEqualTo(125L);
@@ -310,7 +310,7 @@ class SoptLetterServiceTest {
 
     @Test
     @DisplayName("SUCCESS_이전 메시지가 BLUE_50인 경우 다음 색상인 GREEN_50으로 순환하여 작성한다")
-    void SUCCESS_writeMessage_cycleColors() {
+    void SUCCESS_createSoptLetter_cycleColors() {
         // given
         final Long userId = 1L;
         final Long topicId = 3L;
@@ -362,7 +362,7 @@ class SoptLetterServiceTest {
         });
 
         // when
-        SoptLetterInfo.MessageResult result = soptLetterService.writeMessage(userId, topicId, content);
+        SoptLetterInfo.MessageResult result = soptLetterService.createSoptLetter(userId, topicId, content);
 
         // then
         assertThat(result.getMessageId()).isEqualTo(126L);
@@ -372,14 +372,14 @@ class SoptLetterServiceTest {
 
     @Test
     @DisplayName("FAIL_존재하지 않는 토픽 ID로 작성 시도 시 NotFoundException이 발생한다")
-    void FAIL_writeMessage_topicNotFound() {
+    void FAIL_createSoptLetter_topicNotFound() {
         // given
         final Long userId = 1L;
         final Long topicId = 999L;
         when(soptLetterTopicRepository.findById(topicId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> soptLetterService.writeMessage(userId, topicId, "테스트"))
+        assertThatThrownBy(() -> soptLetterService.createSoptLetter(userId, topicId, "테스트"))
                 .isInstanceOf(NotFoundException.class)
                 .satisfies(e -> {
                     NotFoundException exception = (NotFoundException) e;
@@ -389,7 +389,7 @@ class SoptLetterServiceTest {
 
     @Test
     @DisplayName("FAIL_온보딩하지 않은 유저가 작성 시도 시 NotFoundException이 발생한다")
-    void FAIL_writeMessage_profileNotFound() {
+    void FAIL_createSoptLetter_profileNotFound() {
         // given
         final Long userId = 1L;
         final Long topicId = 3L;
@@ -399,7 +399,7 @@ class SoptLetterServiceTest {
         when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> soptLetterService.writeMessage(userId, topicId, "테스트"))
+        assertThatThrownBy(() -> soptLetterService.createSoptLetter(userId, topicId, "테스트"))
                 .isInstanceOf(NotFoundException.class)
                 .satisfies(e -> {
                     NotFoundException exception = (NotFoundException) e;
@@ -409,7 +409,7 @@ class SoptLetterServiceTest {
 
     @Test
     @DisplayName("FAIL_일일 솝레터 작성 제한 초과 시 BadRequestException이 발생한다")
-    void FAIL_writeMessage_dailyLimitExceeded() {
+    void FAIL_createSoptLetter_dailyLimitExceeded() {
         // given
         final Long userId = 1L;
         final Long topicId = 3L;
@@ -428,7 +428,7 @@ class SoptLetterServiceTest {
         when(soptLetterRepository.countByAuthorProfileIdAndCreatedAtAfter(anyLong(), any(LocalDateTime.class))).thenReturn(10L);
 
         // when & then
-        assertThatThrownBy(() -> soptLetterService.writeMessage(userId, topicId, "테스트"))
+        assertThatThrownBy(() -> soptLetterService.createSoptLetter(userId, topicId, "테스트"))
                 .isInstanceOf(BadRequestException.class)
                 .satisfies(e -> {
                     BadRequestException exception = (BadRequestException) e;
@@ -438,7 +438,7 @@ class SoptLetterServiceTest {
 
     @Test
     @DisplayName("SUCCESS_메시지를 정상적으로 수정하고 결과를 반환한다")
-    void SUCCESS_updateMessage() {
+    void SUCCESS_updateSoptLetter() {
         // given
         final Long userId = 1L;
         final Long messageId = 125L;
@@ -466,7 +466,7 @@ class SoptLetterServiceTest {
         when(soptLetterLikeRepository.existsByLetterIdAndUserId(messageId, userId)).thenReturn(false);
 
         // when
-        SoptLetterInfo.MessageResult result = soptLetterService.updateMessage(userId, messageId, newContent);
+        SoptLetterInfo.MessageResult result = soptLetterService.updateSoptLetter(userId, messageId, newContent);
 
         // then
         assertThat(result.getMessageId()).isEqualTo(messageId);
@@ -478,14 +478,14 @@ class SoptLetterServiceTest {
 
     @Test
     @DisplayName("FAIL_수정 시 솝레터 메시지가 존재하지 않으면 NotFoundException이 발생한다")
-    void FAIL_updateMessage_letterNotFound() {
+    void FAIL_updateSoptLetter_letterNotFound() {
         // given
         final Long userId = 1L;
         final Long messageId = 999L;
         when(soptLetterRepository.findById(messageId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> soptLetterService.updateMessage(userId, messageId, "수정 내용"))
+        assertThatThrownBy(() -> soptLetterService.updateSoptLetter(userId, messageId, "수정 내용"))
                 .isInstanceOf(NotFoundException.class)
                 .satisfies(e -> {
                     NotFoundException exception = (NotFoundException) e;
@@ -495,7 +495,7 @@ class SoptLetterServiceTest {
 
     @Test
     @DisplayName("FAIL_수정 시 솝레터 프로필이 존재하지 않으면 NotFoundException이 발생한다")
-    void FAIL_updateMessage_profileNotFound() {
+    void FAIL_updateSoptLetter_profileNotFound() {
         // given
         final Long userId = 1L;
         final Long messageId = 125L;
@@ -509,7 +509,7 @@ class SoptLetterServiceTest {
         when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> soptLetterService.updateMessage(userId, messageId, "수정 내용"))
+        assertThatThrownBy(() -> soptLetterService.updateSoptLetter(userId, messageId, "수정 내용"))
                 .isInstanceOf(NotFoundException.class)
                 .satisfies(e -> {
                     NotFoundException exception = (NotFoundException) e;
@@ -519,7 +519,7 @@ class SoptLetterServiceTest {
 
     @Test
     @DisplayName("FAIL_수정 시 본인 글이 아니면 ForbiddenException이 발생한다")
-    void FAIL_updateMessage_forbidden() {
+    void FAIL_updateSoptLetter_forbidden() {
         // given
         final Long userId = 1L;
         final Long messageId = 125L;
@@ -538,7 +538,7 @@ class SoptLetterServiceTest {
         when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
 
         // when & then
-        assertThatThrownBy(() -> soptLetterService.updateMessage(userId, messageId, "수정 내용"))
+        assertThatThrownBy(() -> soptLetterService.updateSoptLetter(userId, messageId, "수정 내용"))
                 .isInstanceOf(ForbiddenException.class)
                 .satisfies(e -> {
                     ForbiddenException exception = (ForbiddenException) e;

@@ -1,18 +1,17 @@
 package org.sopt.app.facade;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import java.time.LocalDateTime;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.soptletter.SoptLetterInfo;
 import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
@@ -71,7 +70,7 @@ class SoptLetterFacadeTest {
 
     @Test
     @DisplayName("SUCCESS_메시지 작성 파사드가 서비스 메서드를 정상 호출하고 반환한다")
-    void SUCCESS_writeMessage() {
+    void SUCCESS_createSoptLetter() {
         // given
         final Long userId = 1L;
         final Long topicId = 3L;
@@ -92,21 +91,21 @@ class SoptLetterFacadeTest {
                 .mine(true)
                 .build();
 
-        when(soptLetterService.writeMessage(eq(userId), eq(topicId), eq(content))).thenReturn(expected);
+        when(soptLetterService.createSoptLetter(eq(userId), eq(topicId), eq(content))).thenReturn(expected);
 
         // when
-        SoptLetterInfo.MessageResult result = soptLetterFacade.writeMessage(userId, topicId, content);
+        SoptLetterInfo.MessageResult result = soptLetterFacade.createSoptLetter(userId, topicId, content);
 
         // then
         assertThat(result.getMessageId()).isEqualTo(125L);
         assertThat(result.getContent()).isEqualTo(content);
         assertThat(result.getAuthorNickname()).isEqualTo("반짝이는 고래");
-        verify(soptLetterService, times(1)).writeMessage(eq(userId), eq(topicId), eq(content));
+        verify(soptLetterService, times(1)).createSoptLetter(eq(userId), eq(topicId), eq(content));
     }
 
     @Test
     @DisplayName("SUCCESS_메시지 수정 파사드가 서비스 메서드를 정상 호출하고 반환한다")
-    void SUCCESS_updateMessage() {
+    void SUCCESS_updateSoptLetter() {
         // given
         final Long userId = 1L;
         final Long messageId = 125L;
@@ -127,15 +126,15 @@ class SoptLetterFacadeTest {
                 .mine(true)
                 .build();
 
-        when(soptLetterService.updateMessage(eq(userId), eq(messageId), eq(content))).thenReturn(expected);
+        when(soptLetterService.updateSoptLetter(eq(userId), eq(messageId), eq(content))).thenReturn(expected);
 
         // when
-        SoptLetterInfo.MessageResult result = soptLetterFacade.updateMessage(userId, messageId, content);
+        SoptLetterInfo.MessageResult result = soptLetterFacade.updateSoptLetter(userId, messageId, content);
 
         // then
         assertThat(result.getMessageId()).isEqualTo(messageId);
         assertThat(result.getContent()).isEqualTo(content);
         assertThat(result.getAuthorNickname()).isEqualTo("반짝이는 고래");
-        verify(soptLetterService, times(1)).updateMessage(eq(userId), eq(messageId), eq(content));
+        verify(soptLetterService, times(1)).updateSoptLetter(eq(userId), eq(messageId), eq(content));
     }
 }
