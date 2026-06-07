@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.sopt.app.common.exception.ForbiddenException;
+import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.BaseEntity;
 import org.sopt.app.domain.enums.SoptLetterColor;
 import org.sopt.app.domain.enums.SoptLetterShapeType;
@@ -44,4 +46,15 @@ public class SoptLetter extends BaseEntity {
     private SoptLetterShapeType shapeType;
 
     private Integer likeCount;
+
+    public void updateMessage(Long requesterProfileId, String message) {
+        validateAuthor(requesterProfileId);
+        this.message = message;
+    }
+
+    public void validateAuthor(Long profileId) {
+        if (!this.authorProfileId.equals(profileId)) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+        }
+    }
 }
