@@ -27,4 +27,8 @@ public class SoptLetterFacade {
     public SoptLetterInfo.MessageResult updateSoptLetter(Long userId, Long messageId, String content) {
         return soptLetterService.updateSoptLetter(userId, messageId, content);
     }
+
+    public void deleteSoptLetter(Long userId, Long messageId) {
+        soptLetterService.deleteSoptLetter(userId, messageId);
+    }
 }

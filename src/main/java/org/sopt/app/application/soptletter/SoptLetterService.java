@@ -131,5 +131,18 @@ public class SoptLetterService {
         val likedByMe = soptLetterLikeRepository.existsByLetterIdAndUserId(messageId, userId);
         return SoptLetterInfo.MessageResult.of(letter, profile.getNickname(), likedByMe, true);
     }
+
+    @Transactional
+    public void deleteSoptLetter(Long userId, Long messageId) {
+        val letter = soptLetterRepository.findById(messageId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_NOT_FOUND));
+        val profile = soptLetterProfileRepository.findByUserId(userId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND));
+
+        letter.validateDeletable(profile.getId());
+
+        soptLetterLikeRepository.deleteAllByLetterIdInQuery(letter.getId());
+        soptLetterRepository.delete(letter);
+    }
 }
 

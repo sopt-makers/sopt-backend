@@ -489,7 +489,7 @@ class SoptLetterServiceTest {
                 .isInstanceOf(NotFoundException.class)
                 .satisfies(e -> {
                     NotFoundException exception = (NotFoundException) e;
-                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.ENTITY_NOT_FOUND);
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_NOT_FOUND);
                 });
     }
 
@@ -539,6 +539,105 @@ class SoptLetterServiceTest {
 
         // when & then
         assertThatThrownBy(() -> soptLetterService.updateSoptLetter(userId, messageId, "수정 내용"))
+                .isInstanceOf(ForbiddenException.class)
+                .satisfies(e -> {
+                    ForbiddenException exception = (ForbiddenException) e;
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.FORBIDDEN);
+                });
+    }
+
+    @Test
+    @DisplayName("SUCCESS_솝레터 메시지를 성공적으로 삭제한다")
+    void SUCCESS_deleteSoptLetter() {
+        // given
+        final Long userId = 1L;
+        final Long messageId = 125L;
+
+        SoptLetter letter = SoptLetter.builder()
+                .id(messageId)
+                .authorProfileId(10L)
+                .build();
+
+        SoptLetterProfile profile = SoptLetterProfile.builder()
+                .id(10L)
+                .userId(userId)
+                .build();
+
+        when(soptLetterRepository.findById(messageId)).thenReturn(Optional.of(letter));
+        when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
+
+        // when
+        soptLetterService.deleteSoptLetter(userId, messageId);
+
+        // then
+        verify(soptLetterLikeRepository, times(1)).deleteAllByLetterIdInQuery(messageId);
+        verify(soptLetterRepository, times(1)).delete(letter);
+    }
+
+    @Test
+    @DisplayName("FAIL_삭제 시 솝레터 메시지가 존재하지 않으면 NotFoundException이 발생한다")
+    void FAIL_deleteSoptLetter_letterNotFound() {
+        // given
+        final Long userId = 1L;
+        final Long messageId = 999L;
+
+        when(soptLetterRepository.findById(messageId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.deleteSoptLetter(userId, messageId))
+                .isInstanceOf(NotFoundException.class)
+                .satisfies(e -> {
+                    NotFoundException exception = (NotFoundException) e;
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_NOT_FOUND);
+                });
+    }
+
+    @Test
+    @DisplayName("FAIL_삭제 시 솝레터 프로필이 존재하지 않으면 NotFoundException이 발생한다")
+    void FAIL_deleteSoptLetter_profileNotFound() {
+        // given
+        final Long userId = 1L;
+        final Long messageId = 125L;
+
+        SoptLetter letter = SoptLetter.builder()
+                .id(messageId)
+                .authorProfileId(10L)
+                .build();
+
+        when(soptLetterRepository.findById(messageId)).thenReturn(Optional.of(letter));
+        when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.deleteSoptLetter(userId, messageId))
+                .isInstanceOf(NotFoundException.class)
+                .satisfies(e -> {
+                    NotFoundException exception = (NotFoundException) e;
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND);
+                });
+    }
+
+    @Test
+    @DisplayName("FAIL_삭제 시 본인 글이 아니면 ForbiddenException이 발생한다")
+    void FAIL_deleteSoptLetter_forbidden() {
+        // given
+        final Long userId = 1L;
+        final Long messageId = 125L;
+
+        SoptLetter letter = SoptLetter.builder()
+                .id(messageId)
+                .authorProfileId(99L)
+                .build();
+
+        SoptLetterProfile profile = SoptLetterProfile.builder()
+                .id(10L)
+                .userId(userId)
+                .build();
+
+        when(soptLetterRepository.findById(messageId)).thenReturn(Optional.of(letter));
+        when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.deleteSoptLetter(userId, messageId))
                 .isInstanceOf(ForbiddenException.class)
                 .satisfies(e -> {
                     ForbiddenException exception = (ForbiddenException) e;

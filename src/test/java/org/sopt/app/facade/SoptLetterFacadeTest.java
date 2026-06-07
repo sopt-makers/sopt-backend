@@ -137,4 +137,18 @@ class SoptLetterFacadeTest {
         assertThat(result.getAuthorNickname()).isEqualTo("반짝이는 고래");
         verify(soptLetterService, times(1)).updateSoptLetter(eq(userId), eq(messageId), eq(content));
     }
+
+    @Test
+    @DisplayName("SUCCESS_메시지 삭제 파사드가 서비스 메서드를 정상 호출한다")
+    void SUCCESS_deleteSoptLetter() {
+        // given
+        final Long userId = 1L;
+        final Long messageId = 125L;
+
+        // when
+        soptLetterFacade.deleteSoptLetter(userId, messageId);
+
+        // then
+        verify(soptLetterService, times(1)).deleteSoptLetter(eq(userId), eq(messageId));
+    }
 }
