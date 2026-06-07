@@ -24,11 +24,11 @@ public class SoptLetterFacade {
         return soptLetterService.createSoptLetter(userId, topicId, content);
     }
 
-    public SoptLetterInfo.MessageResult updateSoptLetter(Long userId, Long messageId, String content) {
-        return soptLetterService.updateSoptLetter(userId, messageId, content);
+    public SoptLetterInfo.MessageResult updateSoptLetter(Long userId, Long soptLetterId, String content) {
+        return soptLetterService.updateSoptLetter(userId, soptLetterId, content);
     }
 
-    public void deleteSoptLetter(Long userId, Long messageId) {
-        soptLetterService.deleteSoptLetter(userId, messageId);
+    public void deleteSoptLetter(Long userId, Long soptLetterId) {
+        soptLetterService.deleteSoptLetter(userId, soptLetterId);
     }
 }
