@@ -52,7 +52,11 @@ public class SoptLetter extends BaseEntity {
         this.message = message;
     }
 
-    public void validateAuthor(Long profileId) {
+    public void validateDeletable(Long requesterProfileId) {
+        validateAuthor(requesterProfileId);
+    }
+
+    private void validateAuthor(Long profileId) {
         if (!this.authorProfileId.equals(profileId)) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN);
         }
