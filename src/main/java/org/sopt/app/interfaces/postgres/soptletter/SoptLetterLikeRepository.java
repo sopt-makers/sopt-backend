@@ -8,9 +8,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface SoptLetterLikeRepository extends JpaRepository<SoptLetterLike, Long> {
     boolean existsByLetterIdAndUserId(Long letterId, Long userId);
-    void deleteByLetterId(Long letterId);
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Modifying
     @Query("DELETE From SoptLetterLike l WHERE l.letterId = :letterId")
     void deleteAllByLetterIdInQuery(@Param("letterId") Long letterId);
 }
