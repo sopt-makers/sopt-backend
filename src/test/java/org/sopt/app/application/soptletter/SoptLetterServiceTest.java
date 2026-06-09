@@ -265,7 +265,7 @@ class SoptLetterServiceTest {
         when(clock.instant()).thenReturn(now.atZone(ZoneId.systemDefault()).toInstant());
         when(soptLetterTopicRepository.findById(topicId)).thenReturn(Optional.of(topic));
         when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
-        when(soptLetterRepository.countByAuthorProfileIdAndCreatedAtAfter(anyLong(), any(LocalDateTime.class))).thenReturn(0L);
+        when(soptLetterRepository.countByAuthorProfileIdAndCreatedAtGreaterThanEqual(anyLong(), any(LocalDateTime.class))).thenReturn(0L);
         when(soptLetterRepository.findFirstByTopicIdOrderByIdDesc(topicId)).thenReturn(Optional.empty());
         when(soptLetterGenerator.generate(anyLong(), anyLong(), any(String.class), any())).thenAnswer(invocation -> {
             Long authorProfileId = invocation.getArgument(0);
@@ -330,7 +330,7 @@ class SoptLetterServiceTest {
         when(clock.instant()).thenReturn(now.atZone(ZoneId.systemDefault()).toInstant());
         when(soptLetterTopicRepository.findById(topicId)).thenReturn(Optional.of(topic));
         when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
-        when(soptLetterRepository.countByAuthorProfileIdAndCreatedAtAfter(anyLong(), any(LocalDateTime.class))).thenReturn(0L);
+        when(soptLetterRepository.countByAuthorProfileIdAndCreatedAtGreaterThanEqual(anyLong(), any(LocalDateTime.class))).thenReturn(0L);
         when(soptLetterRepository.findFirstByTopicIdOrderByIdDesc(topicId)).thenReturn(Optional.of(latestLetter));
         when(soptLetterGenerator.generate(anyLong(), anyLong(), any(String.class), any())).thenAnswer(invocation -> {
             Long authorProfileId = invocation.getArgument(0);
@@ -425,7 +425,7 @@ class SoptLetterServiceTest {
         when(clock.instant()).thenReturn(now.atZone(ZoneId.systemDefault()).toInstant());
         when(soptLetterTopicRepository.findById(topicId)).thenReturn(Optional.of(topic));
         when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
-        when(soptLetterRepository.countByAuthorProfileIdAndCreatedAtAfter(anyLong(), any(LocalDateTime.class))).thenReturn(10L);
+        when(soptLetterRepository.countByAuthorProfileIdAndCreatedAtGreaterThanEqual(anyLong(), any(LocalDateTime.class))).thenReturn(10L);
 
         // when & then
         assertThatThrownBy(() -> soptLetterService.createSoptLetter(userId, topicId, "테스트"))

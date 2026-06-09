@@ -10,5 +10,5 @@ public interface SoptLetterRepository extends JpaRepository<SoptLetter, Long> {
 
     Optional<SoptLetter> findFirstByTopicIdOrderByIdDesc(Long topicId);
 
-    long countByAuthorProfileIdAndCreatedAtAfter(Long authorProfileId, LocalDateTime startOfDay);
+    long countByAuthorProfileIdAndCreatedAtGreaterThanEqual(Long authorProfileId, LocalDateTime startOfDay);
 }

@@ -111,7 +111,7 @@ public class SoptLetterService {
 
     private void validateDailyMessageLimit(Long profileId, LocalDateTime now) {
         val startOfDay = now.toLocalDate().atStartOfDay();
-        val todayCount = soptLetterRepository.countByAuthorProfileIdAndCreatedAtAfter(profileId, startOfDay);
+        val todayCount = soptLetterRepository.countByAuthorProfileIdAndCreatedAtGreaterThanEqual(profileId, startOfDay);
         if (todayCount >= DAILY_MESSAGE_LIMIT) {
             throw new BadRequestException(ErrorCode.SOPT_LETTER_DAILY_LIMIT_EXCEEDED);
         }
