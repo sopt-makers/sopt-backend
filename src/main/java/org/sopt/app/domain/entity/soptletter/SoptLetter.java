@@ -7,6 +7,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -57,7 +58,7 @@ public class SoptLetter extends BaseEntity {
     }
 
     private void validateAuthor(Long profileId) {
-        if (!this.authorProfileId.equals(profileId)) {
+        if (!Objects.equals(this.authorProfileId, profileId)) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN);
         }
     }
