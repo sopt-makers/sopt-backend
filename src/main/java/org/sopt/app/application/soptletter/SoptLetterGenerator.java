@@ -12,6 +12,11 @@ public class SoptLetterGenerator {
 
     private static final List<Double> ROTATION_DEGREES = List.of(-10.0, 0.0, 10.0);
 
+    private static class ShapeHolder {
+        private static final SoptLetterShapeType[] VALUES = SoptLetterShapeType.values();
+    }
+
+
     public SoptLetter generate(Long authorProfileId, Long topicId, String message, SoptLetterColor previousColor) {
         return SoptLetter.builder()
                 .authorProfileId(authorProfileId)
@@ -41,9 +46,9 @@ public class SoptLetterGenerator {
         return ROTATION_DEGREES.get(randomIndex);
     }
 
+
     private SoptLetterShapeType getRandomShapeType() {
-        SoptLetterShapeType[] shapes = SoptLetterShapeType.values();
-        int randomIndex = ThreadLocalRandom.current().nextInt(shapes.length);
-        return shapes[randomIndex];
+        return ShapeHolder.VALUES[ThreadLocalRandom.current().nextInt(ShapeHolder.VALUES.length)];
     }
+
 }
