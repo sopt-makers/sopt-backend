@@ -1,6 +1,7 @@
 package org.sopt.app.application.soptletter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.sopt.app.domain.entity.soptletter.SoptLetter;
 import org.sopt.app.domain.entity.soptletter.SoptLetterProfile;
+import org.sopt.app.domain.entity.soptletter.SoptLetterTopic;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class SoptLetterInfo {
@@ -26,6 +28,67 @@ public class SoptLetterInfo {
             return Profile.builder()
                 .nickname(profile.getNickname())
                 .isOnboarded(profile.isOnboarded())
+                .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class TopicListResult {
+
+        private List<TopicSummary> topics;
+
+        public static TopicListResult from(List<SoptLetterTopic> topics) {
+            return TopicListResult.builder()
+                .topics(topics.stream()
+                    .map(TopicSummary::from)
+                    .toList())
+                .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class TopicSummary {
+
+        private Long topicId;
+        private String title;
+        private LocalDateTime createdAt;
+
+        public static TopicSummary from(SoptLetterTopic topic) {
+            return TopicSummary.builder()
+                .topicId(topic.getId())
+                .title(topic.getTitle())
+                .createdAt(topic.getCreatedAt())
+                .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class TopicDetail {
+
+        private Long topicId;
+        private String title;
+        private Boolean active;
+        private LocalDateTime startedAt;
+        private LocalDateTime endedAt;
+        private LocalDateTime createdAt;
+
+        public static TopicDetail of(SoptLetterTopic topic, LocalDateTime now) {
+            return TopicDetail.builder()
+                .topicId(topic.getId())
+                .title(topic.getTitle())
+                .active(topic.isActiveAt(now))
+                .startedAt(topic.getStartedAt())
+                .endedAt(topic.getEndedAt())
+                .createdAt(topic.getCreatedAt())
                 .build();
         }
     }
