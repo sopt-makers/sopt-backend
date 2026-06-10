@@ -14,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.sopt.app.common.exception.ForbiddenException;
+import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.BaseEntity;
 import org.sopt.app.domain.enums.SoptLetterColor;
@@ -57,8 +58,22 @@ public class SoptLetter extends BaseEntity {
         validateAuthor(requesterProfileId);
     }
 
+    public boolean isAuthor(Long profileId) {
+        return Objects.equals(this.authorProfileId, profileId);
+    }
+
+    public void validateTopic(Long topicId) {
+        if(!isInTopic(topicId)){
+            throw new NotFoundException(ErrorCode.SOPT_LETTER_NOT_FOUND);
+        }
+    }
+
+    public boolean isInTopic(Long topicId) {
+        return Objects.equals(this.topicId, topicId);
+    }
+
     private void validateAuthor(Long profileId) {
-        if (!Objects.equals(this.authorProfileId, profileId)) {
+        if (!isAuthor(profileId)) {
             throw new ForbiddenException(ErrorCode.FORBIDDEN);
         }
     }
