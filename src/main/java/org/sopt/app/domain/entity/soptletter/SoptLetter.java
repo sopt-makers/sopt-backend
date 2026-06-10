@@ -62,7 +62,7 @@ public class SoptLetter extends BaseEntity {
         return Objects.equals(this.authorProfileId, profileId);
     }
 
-    public void validateTopic(Long topicId) {
+    public void validateInTopic(Long topicId) {
         if(!isInTopic(topicId)){
             throw new NotFoundException(ErrorCode.SOPT_LETTER_NOT_FOUND);
         }
