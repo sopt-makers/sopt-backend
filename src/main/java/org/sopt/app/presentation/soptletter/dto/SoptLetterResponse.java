@@ -1,6 +1,7 @@
 package org.sopt.app.presentation.soptletter.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -33,14 +34,43 @@ public class SoptLetterResponse {
         @Schema(description = "모양 타입", example = "POINT")
         String shapeType,
         @Schema(description = "생성 시각")
-        java.time.LocalDateTime createdAt,
+        LocalDateTime createdAt,
         @Schema(description = "수정 시각")
-        java.time.LocalDateTime updatedAt,
+        LocalDateTime updatedAt,
         @Schema(description = "초기 좋아요 수", example = "0")
         Integer likeCount,
         @Schema(description = "내가 좋아요를 눌렀는지 여부", example = "false")
         Boolean likedByMe,
         @Schema(description = "내가 작성한 메시지 여부", example = "true")
+        Boolean mine
+    ) {
+    }
+
+    @Schema(description = "솝레터 개별 메시지 상세 조회 응답")
+    public record MessageDetailResponse(
+        @Schema(description = "메시지 ID", example = "124")
+        Long messageId,
+        @Schema(description = "주제 ID", example = "3")
+        Long topicId,
+        @Schema(description = "작성자 익명 닉네임", example = "반짝이는 고래")
+        String authorNickname,
+        @Schema(description = "메시지 전체 내용", example = "이번 기수 동안 같이해서 너무 즐거웠어. 항상 응원할게!")
+        String content,
+        @Schema(description = "메모 색상 hex code", example = "#FFF4D4")
+        String colorCode,
+        @Schema(description = "메모 회전 각도", example = "0.0")
+        Double rotationDegree,
+        @Schema(description = "메모 모양 타입", example = "CLOUD")
+        String shapeType,
+        @Schema(description = "생성 시각")
+        LocalDateTime createdAt,
+        @Schema(description = "수정 시각")
+        LocalDateTime updatedAt,
+        @Schema(description = "좋아요 수", example = "0")
+        Integer likeCount,
+        @Schema(description = "내가 좋아요 눌렀는지 여부", example = "false")
+        Boolean likedByMe,
+        @Schema(description = "내가 작성한 메시지인지 여부", example = "true")
         Boolean mine
     ) {
     }

@@ -108,12 +108,13 @@ class SoptLetterFacadeTest {
     void SUCCESS_updateSoptLetter() {
         // given
         final Long userId = 1L;
+        final Long topicId = 3L;
         final Long messageId = 125L;
         final String content = "수정된 편지 내용";
 
         SoptLetterInfo.MessageResult expected = SoptLetterInfo.MessageResult.builder()
                 .messageId(messageId)
-                .topicId(3L)
+                .topicId(topicId)
                 .authorNickname("반짝이는 고래")
                 .content(content)
                 .colorCode("#CCFFEC")
@@ -126,16 +127,16 @@ class SoptLetterFacadeTest {
                 .mine(true)
                 .build();
 
-        when(soptLetterService.updateSoptLetter(eq(userId), eq(messageId), eq(content))).thenReturn(expected);
+        when(soptLetterService.updateSoptLetter(eq(userId), eq(topicId), eq(messageId), eq(content))).thenReturn(expected);
 
         // when
-        SoptLetterInfo.MessageResult result = soptLetterFacade.updateSoptLetter(userId, messageId, content);
+        SoptLetterInfo.MessageResult result = soptLetterFacade.updateSoptLetter(userId, topicId, messageId, content);
 
         // then
         assertThat(result.getMessageId()).isEqualTo(messageId);
         assertThat(result.getContent()).isEqualTo(content);
         assertThat(result.getAuthorNickname()).isEqualTo("반짝이는 고래");
-        verify(soptLetterService, times(1)).updateSoptLetter(eq(userId), eq(messageId), eq(content));
+        verify(soptLetterService, times(1)).updateSoptLetter(eq(userId), eq(topicId), eq(messageId), eq(content));
     }
 
     @Test
@@ -143,12 +144,13 @@ class SoptLetterFacadeTest {
     void SUCCESS_deleteSoptLetter() {
         // given
         final Long userId = 1L;
+        final Long topicId = 3L;
         final Long messageId = 125L;
 
         // when
-        soptLetterFacade.deleteSoptLetter(userId, messageId);
+        soptLetterFacade.deleteSoptLetter(userId, topicId, messageId);
 
         // then
-        verify(soptLetterService, times(1)).deleteSoptLetter(eq(userId), eq(messageId));
+        verify(soptLetterService, times(1)).deleteSoptLetter(eq(userId), eq(topicId), eq(messageId));
     }
 }
