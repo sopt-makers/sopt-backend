@@ -644,4 +644,114 @@ class SoptLetterServiceTest {
                     assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.FORBIDDEN);
                 });
     }
+
+    @Test
+    @DisplayName("SUCCESS_좋아요를 누르지 않은 메시지에 좋아요를 추가하면 좋아요 수가 증가한다")
+    void SUCCESS_addLike() {
+        // given
+        final Long userId = 1L;
+        final Long topicId = 3L;
+        final Long messageId = 125L;
+        when(soptLetterRepository.existsByIdAndTopicId(messageId, topicId)).thenReturn(true);
+        when(soptLetterLikeRepository.insertIgnore(userId, messageId)).thenReturn(1);
+
+        // when
+        soptLetterService.addLike(userId, topicId, messageId);
+
+        // then
+        verify(soptLetterLikeRepository, times(1)).insertIgnore(userId, messageId);
+        verify(soptLetterRepository, times(1)).increaseLikeCount(messageId);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_이미 좋아요를 누른 메시지에 좋아요를 추가하면 현재 상태를 그대로 성공 처리한다")
+    void SUCCESS_addLike_alreadyLiked() {
+        // given
+        final Long userId = 1L;
+        final Long topicId = 3L;
+        final Long messageId = 125L;
+        when(soptLetterRepository.existsByIdAndTopicId(messageId, topicId)).thenReturn(true);
+        when(soptLetterLikeRepository.insertIgnore(userId, messageId)).thenReturn(0);
+
+        // when
+        soptLetterService.addLike(userId, topicId, messageId);
+
+        // then
+        verify(soptLetterLikeRepository, times(1)).insertIgnore(userId, messageId);
+        verify(soptLetterRepository, never()).increaseLikeCount(messageId);
+    }
+
+    @Test
+    @DisplayName("FAIL_존재하지 않는 메시지에 좋아요 추가 시 NotFoundException이 발생한다")
+    void FAIL_addLike_letterNotFound() {
+        // given
+        final Long userId = 1L;
+        final Long topicId = 3L;
+        final Long messageId = 999L;
+        when(soptLetterRepository.existsByIdAndTopicId(messageId, topicId)).thenReturn(false);
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.addLike(userId, topicId, messageId))
+                .isInstanceOf(NotFoundException.class)
+                .satisfies(e -> {
+                    NotFoundException exception = (NotFoundException) e;
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_NOT_FOUND);
+        });
+        verify(soptLetterLikeRepository, never()).insertIgnore(userId, messageId);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_좋아요를 누른 메시지의 좋아요를 삭제하면 좋아요 수가 감소한다")
+    void SUCCESS_removeLike() {
+        // given
+        final Long userId = 1L;
+        final Long topicId = 3L;
+        final Long messageId = 125L;
+        when(soptLetterRepository.existsByIdAndTopicId(messageId, topicId)).thenReturn(true);
+        when(soptLetterLikeRepository.deleteByLetterIdAndUserId(messageId, userId)).thenReturn(1);
+
+        // when
+        soptLetterService.removeLike(userId, topicId, messageId);
+
+        // then
+        verify(soptLetterLikeRepository, times(1)).deleteByLetterIdAndUserId(messageId, userId);
+        verify(soptLetterRepository, times(1)).decreaseLikeCount(messageId);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_좋아요가 없는 메시지의 좋아요를 삭제하면 현재 상태를 그대로 성공 처리한다")
+    void SUCCESS_removeLike_notLiked() {
+        // given
+        final Long userId = 1L;
+        final Long topicId = 3L;
+        final Long messageId = 125L;
+        when(soptLetterRepository.existsByIdAndTopicId(messageId, topicId)).thenReturn(true);
+        when(soptLetterLikeRepository.deleteByLetterIdAndUserId(messageId, userId)).thenReturn(0);
+
+        // when
+        soptLetterService.removeLike(userId, topicId, messageId);
+
+        // then
+        verify(soptLetterLikeRepository, times(1)).deleteByLetterIdAndUserId(messageId, userId);
+        verify(soptLetterRepository, never()).decreaseLikeCount(messageId);
+    }
+
+    @Test
+    @DisplayName("FAIL_존재하지 않는 메시지에 좋아요 삭제 시 NotFoundException이 발생한다")
+    void FAIL_removeLike_letterNotFound() {
+        // given
+        final Long userId = 1L;
+        final Long topicId = 3L;
+        final Long messageId = 999L;
+        when(soptLetterRepository.existsByIdAndTopicId(messageId, topicId)).thenReturn(false);
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.removeLike(userId, topicId, messageId))
+                .isInstanceOf(NotFoundException.class)
+                .satisfies(e -> {
+                    NotFoundException exception = (NotFoundException) e;
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_NOT_FOUND);
+        });
+        verify(soptLetterLikeRepository, never()).deleteByLetterIdAndUserId(messageId, userId);
+    }
 }

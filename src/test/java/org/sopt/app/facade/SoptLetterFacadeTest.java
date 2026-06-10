@@ -151,4 +151,34 @@ class SoptLetterFacadeTest {
         // then
         verify(soptLetterService, times(1)).deleteSoptLetter(eq(userId), eq(messageId));
     }
+
+    @Test
+    @DisplayName("SUCCESS_좋아요 추가 파사드가 서비스 메서드를 정상 호출한다")
+    void SUCCESS_addLike() {
+        // given
+        final Long userId = 1L;
+        final Long topicId = 3L;
+        final Long messageId = 125L;
+
+        // when
+        soptLetterFacade.addLike(userId, topicId, messageId);
+
+        // then
+        verify(soptLetterService, times(1)).addLike(eq(userId), eq(topicId), eq(messageId));
+    }
+
+    @Test
+    @DisplayName("SUCCESS_좋아요 삭제 파사드가 서비스 메서드를 정상 호출한다")
+    void SUCCESS_removeLike() {
+        // given
+        final Long userId = 1L;
+        final Long topicId = 3L;
+        final Long messageId = 125L;
+
+        // when
+        soptLetterFacade.removeLike(userId, topicId, messageId);
+
+        // then
+        verify(soptLetterService, times(1)).removeLike(eq(userId), eq(topicId), eq(messageId));
+    }
 }
