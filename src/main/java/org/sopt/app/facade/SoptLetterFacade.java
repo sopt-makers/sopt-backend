@@ -31,4 +31,12 @@ public class SoptLetterFacade {
     public void deleteSoptLetter(Long userId, Long soptLetterId) {
         soptLetterService.deleteSoptLetter(userId, soptLetterId);
     }
+
+    public void addLike(Long userId, Long topicId, Long soptLetterId) {
+        soptLetterService.addLike(userId, topicId, soptLetterId);
+    }
+
+    public void removeLike(Long userId, Long topicId, Long soptLetterId) {
+        soptLetterService.removeLike(userId, topicId, soptLetterId);
+    }
 }

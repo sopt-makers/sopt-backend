@@ -139,9 +139,35 @@ public class SoptLetterService {
         soptLetterRepository.delete(letter);
     }
 
+    @Transactional
+    public void addLike(Long userId, Long topicId, Long soptLetterId) {
+        validateSoptLetterExistsForLike(topicId, soptLetterId);
+
+        val insertedCount = soptLetterLikeRepository.insertIgnore(userId, soptLetterId);
+        if (insertedCount > 0) {
+            soptLetterRepository.increaseLikeCount(soptLetterId);
+        }
+    }
+
+    @Transactional
+    public void removeLike(Long userId, Long topicId, Long soptLetterId) {
+        validateSoptLetterExistsForLike(topicId, soptLetterId);
+
+        val deletedCount = soptLetterLikeRepository.deleteByLetterIdAndUserId(soptLetterId, userId);
+        if (deletedCount > 0) {
+            soptLetterRepository.decreaseLikeCount(soptLetterId);
+        }
+    }
+
     public SoptLetter getSoptLetter(Long soptLetterId) {
         return soptLetterRepository.findById(soptLetterId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_NOT_FOUND));
+    }
+
+    private void validateSoptLetterExistsForLike(Long topicId, Long soptLetterId) {
+        if (!soptLetterRepository.existsByIdAndTopicId(soptLetterId, topicId)) {
+            throw new NotFoundException(ErrorCode.SOPT_LETTER_NOT_FOUND);
+        }
     }
 
     public SoptLetterProfile getProfileByUserId(Long userId) {
@@ -149,4 +175,3 @@ public class SoptLetterService {
             .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND));
     }
 }
-

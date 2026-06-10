@@ -10,6 +10,21 @@ public interface SoptLetterLikeRepository extends JpaRepository<SoptLetterLike, 
     boolean existsByLetterIdAndUserId(Long letterId, Long userId);
 
     @Modifying
+    @Query(
+        value = """
+            INSERT INTO sopt_letter_like (user_id, letter_id, created_at, updated_at)
+            VALUES (:userId, :letterId, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+            ON CONFLICT (letter_id, user_id) DO NOTHING
+            """,
+        nativeQuery = true
+    )
+    int insertIgnore(@Param("userId") Long userId, @Param("letterId") Long letterId);
+
+    @Modifying
+    @Query("DELETE FROM SoptLetterLike l WHERE l.letterId = :letterId AND l.userId = :userId")
+    int deleteByLetterIdAndUserId(@Param("letterId") Long letterId, @Param("userId") Long userId);
+
+    @Modifying
     @Query("DELETE From SoptLetterLike l WHERE l.letterId = :letterId")
     void deleteAllByLetterIdInQuery(@Param("letterId") Long letterId);
 }
