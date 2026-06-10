@@ -31,4 +31,8 @@ public class SoptLetterFacade {
     public void deleteSoptLetter(Long userId, Long soptLetterId) {
         soptLetterService.deleteSoptLetter(userId, soptLetterId);
     }
+
+    public SoptLetterInfo.MessageResult getMessageDetail(Long userId, Long topicId, Long messageId) {
+        return soptLetterService.getMessageDetail(userId, topicId, messageId);
+    }
 }
