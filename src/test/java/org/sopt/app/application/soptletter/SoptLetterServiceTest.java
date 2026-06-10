@@ -25,7 +25,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sopt.app.application.appservice.OperationConfigService;
 import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
+import org.sopt.app.common.config.OperationConfigCategory;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ConflictException;
 import org.sopt.app.common.exception.ForbiddenException;
@@ -63,6 +65,9 @@ class SoptLetterServiceTest {
 
     @Mock
     private SoptLetterGenerator soptLetterGenerator;
+
+    @Mock
+    private OperationConfigService operationConfigService;
 
     @Mock
     private Clock clock;
@@ -244,6 +249,23 @@ class SoptLetterServiceTest {
                     NotFoundException exception = (NotFoundException) e;
                     assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND);
                 });
+    }
+
+    @Test
+    @DisplayName("SUCCESS_솝레터 익명 신고 폼 주소를 조회한다")
+    void SUCCESS_getReportForm() {
+        // given
+        final String reportFormUrl = "https://example.com/sopt-letter-report";
+        when(operationConfigService.getOperationConfigValue(OperationConfigCategory.REVIEW_FORM, "reportFormUrl"))
+                .thenReturn(reportFormUrl);
+
+        // when
+        SoptLetterInfo.ReportFormResult result = soptLetterService.getReportForm();
+
+        // then
+        assertThat(result.getReportFormUrl()).isEqualTo(reportFormUrl);
+        verify(operationConfigService, times(1))
+                .getOperationConfigValue(OperationConfigCategory.REVIEW_FORM, "reportFormUrl");
     }
 
     @Test

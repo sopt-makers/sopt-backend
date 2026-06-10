@@ -69,6 +69,24 @@ class SoptLetterFacadeTest {
     }
 
     @Test
+    @DisplayName("SUCCESS_익명 신고 폼 주소 조회 파사드가 서비스 메서드를 정상 호출하고 반환한다")
+    void SUCCESS_getReportForm() {
+        // given
+        final String reportFormUrl = "https://example.com/sopt-letter-report";
+        SoptLetterInfo.ReportFormResult expected = SoptLetterInfo.ReportFormResult.builder()
+                .reportFormUrl(reportFormUrl)
+                .build();
+        when(soptLetterService.getReportForm()).thenReturn(expected);
+
+        // when
+        SoptLetterInfo.ReportFormResult result = soptLetterFacade.getReportForm();
+
+        // then
+        assertThat(result.getReportFormUrl()).isEqualTo(reportFormUrl);
+        verify(soptLetterService, times(1)).getReportForm();
+    }
+
+    @Test
     @DisplayName("SUCCESS_메시지 작성 파사드가 서비스 메서드를 정상 호출하고 반환한다")
     void SUCCESS_createSoptLetter() {
         // given
