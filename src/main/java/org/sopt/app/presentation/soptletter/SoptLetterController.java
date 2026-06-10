@@ -77,7 +77,7 @@ public class SoptLetterController {
     }
 
     @Operation(summary = "내가 작성한 솝레터 메시지 수정")
-    @PatchMapping("/messages/{messageId}")
+    @PatchMapping("/topics/{topicId}/messages/{messageId}")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "success"),
         @ApiResponse(responseCode = "400", description = "bad request", content = @Content),
@@ -87,15 +87,16 @@ public class SoptLetterController {
     })
     public ResponseEntity<SoptLetterResponse.WriteMessageResponse> updateMessage(
         @AuthenticationPrincipal Long userId,
+        @PathVariable Long topicId,
         @PathVariable Long messageId,
         @Valid @RequestBody SoptLetterRequest.UpdateMessageRequest request
     ) {
-        val result = soptLetterFacade.updateSoptLetter(userId, messageId, request.getContent());
+        val result = soptLetterFacade.updateSoptLetter(userId, topicId, messageId, request.getContent());
         return ResponseEntity.ok(soptLetterResponseMapper.of(result));
     }
 
     @Operation(summary = "내가 작성한 솝레터 메시지 삭제")
-    @DeleteMapping("/messages/{messageId}")
+    @DeleteMapping("/topics/{topicId}/messages/{messageId}")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "success"),
         @ApiResponse(responseCode = "400", description = "bad request", content = @Content),
@@ -105,9 +106,10 @@ public class SoptLetterController {
     })
     public ResponseEntity<Void> deleteMessage(
         @AuthenticationPrincipal Long userId,
+        @PathVariable Long topicId,
         @PathVariable Long messageId
     ) {
-        soptLetterFacade.deleteSoptLetter(userId, messageId);
+        soptLetterFacade.deleteSoptLetter(userId, topicId, messageId);
         return ResponseEntity.ok().build();
     }
 
@@ -115,7 +117,6 @@ public class SoptLetterController {
     @GetMapping("/topics/{topicId}/messages/{messageId}")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "success"),
-        @ApiResponse(responseCode = "401", description = "unauthorized", content = @Content),
         @ApiResponse(responseCode = "404", description = "not found", content = @Content),
         @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })

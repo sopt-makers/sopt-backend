@@ -466,7 +466,7 @@ class SoptLetterServiceTest {
         when(soptLetterLikeRepository.existsByLetterIdAndUserId(messageId, userId)).thenReturn(false);
 
         // when
-        SoptLetterInfo.MessageResult result = soptLetterService.updateSoptLetter(userId, messageId, newContent);
+        SoptLetterInfo.MessageResult result = soptLetterService.updateSoptLetter(userId, 3L, messageId, newContent);
 
         // then
         assertThat(result.getMessageId()).isEqualTo(messageId);
@@ -485,7 +485,7 @@ class SoptLetterServiceTest {
         when(soptLetterRepository.findById(messageId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> soptLetterService.updateSoptLetter(userId, messageId, "수정 내용"))
+        assertThatThrownBy(() -> soptLetterService.updateSoptLetter(userId, 3L, messageId, "수정 내용"))
                 .isInstanceOf(NotFoundException.class)
                 .satisfies(e -> {
                     NotFoundException exception = (NotFoundException) e;
@@ -502,6 +502,7 @@ class SoptLetterServiceTest {
 
         SoptLetter letter = SoptLetter.builder()
                 .id(messageId)
+                .topicId(3L)
                 .authorProfileId(10L)
                 .build();
 
@@ -509,7 +510,7 @@ class SoptLetterServiceTest {
         when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> soptLetterService.updateSoptLetter(userId, messageId, "수정 내용"))
+        assertThatThrownBy(() -> soptLetterService.updateSoptLetter(userId, 3L, messageId, "수정 내용"))
                 .isInstanceOf(NotFoundException.class)
                 .satisfies(e -> {
                     NotFoundException exception = (NotFoundException) e;
@@ -526,6 +527,7 @@ class SoptLetterServiceTest {
 
         SoptLetter letter = SoptLetter.builder()
                 .id(messageId)
+                .topicId(3L)
                 .authorProfileId(99L) // 다른 유저의 프로필 ID
                 .build();
 
@@ -538,11 +540,41 @@ class SoptLetterServiceTest {
         when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
 
         // when & then
-        assertThatThrownBy(() -> soptLetterService.updateSoptLetter(userId, messageId, "수정 내용"))
+        assertThatThrownBy(() -> soptLetterService.updateSoptLetter(userId, 3L, messageId, "수정 내용"))
                 .isInstanceOf(ForbiddenException.class)
                 .satisfies(e -> {
                     ForbiddenException exception = (ForbiddenException) e;
                     assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.FORBIDDEN);
+                });
+    }
+
+    @Test
+    @DisplayName("FAIL_수정 시 요청한 토픽 ID와 메시지의 토픽 ID가 다르면 NotFoundException이 발생한다")
+    void FAIL_updateSoptLetter_topicNotMatched() {
+        // given
+        final Long userId = 1L;
+        final Long messageId = 125L;
+
+        SoptLetter letter = SoptLetter.builder()
+                .id(messageId)
+                .authorProfileId(10L)
+                .topicId(4L) // 다른 토픽 ID
+                .build();
+
+        SoptLetterProfile profile = SoptLetterProfile.builder()
+                .id(10L)
+                .userId(userId)
+                .build();
+
+        when(soptLetterRepository.findById(messageId)).thenReturn(Optional.of(letter));
+        when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.updateSoptLetter(userId, 3L, messageId, "수정 내용"))
+                .isInstanceOf(NotFoundException.class)
+                .satisfies(e -> {
+                    NotFoundException exception = (NotFoundException) e;
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_NOT_FOUND);
                 });
     }
 
@@ -555,6 +587,7 @@ class SoptLetterServiceTest {
 
         SoptLetter letter = SoptLetter.builder()
                 .id(messageId)
+                .topicId(3L)
                 .authorProfileId(10L)
                 .build();
 
@@ -567,7 +600,7 @@ class SoptLetterServiceTest {
         when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
 
         // when
-        soptLetterService.deleteSoptLetter(userId, messageId);
+        soptLetterService.deleteSoptLetter(userId, 3L, messageId);
 
         // then
         verify(soptLetterLikeRepository, times(1)).deleteAllByLetterIdInQuery(messageId);
@@ -584,7 +617,7 @@ class SoptLetterServiceTest {
         when(soptLetterRepository.findById(messageId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> soptLetterService.deleteSoptLetter(userId, messageId))
+        assertThatThrownBy(() -> soptLetterService.deleteSoptLetter(userId, 3L, messageId))
                 .isInstanceOf(NotFoundException.class)
                 .satisfies(e -> {
                     NotFoundException exception = (NotFoundException) e;
@@ -601,6 +634,7 @@ class SoptLetterServiceTest {
 
         SoptLetter letter = SoptLetter.builder()
                 .id(messageId)
+                .topicId(3L)
                 .authorProfileId(10L)
                 .build();
 
@@ -608,7 +642,7 @@ class SoptLetterServiceTest {
         when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> soptLetterService.deleteSoptLetter(userId, messageId))
+        assertThatThrownBy(() -> soptLetterService.deleteSoptLetter(userId, 3L, messageId))
                 .isInstanceOf(NotFoundException.class)
                 .satisfies(e -> {
                     NotFoundException exception = (NotFoundException) e;
@@ -625,6 +659,7 @@ class SoptLetterServiceTest {
 
         SoptLetter letter = SoptLetter.builder()
                 .id(messageId)
+                .topicId(3L)
                 .authorProfileId(99L)
                 .build();
 
@@ -637,11 +672,41 @@ class SoptLetterServiceTest {
         when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
 
         // when & then
-        assertThatThrownBy(() -> soptLetterService.deleteSoptLetter(userId, messageId))
+        assertThatThrownBy(() -> soptLetterService.deleteSoptLetter(userId, 3L, messageId))
                 .isInstanceOf(ForbiddenException.class)
                 .satisfies(e -> {
                     ForbiddenException exception = (ForbiddenException) e;
                     assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.FORBIDDEN);
+                });
+    }
+
+    @Test
+    @DisplayName("FAIL_삭제 시 요청한 토픽 ID와 메시지의 토픽 ID가 다르면 NotFoundException이 발생한다")
+    void FAIL_deleteSoptLetter_topicNotMatched() {
+        // given
+        final Long userId = 1L;
+        final Long messageId = 125L;
+
+        SoptLetter letter = SoptLetter.builder()
+                .id(messageId)
+                .authorProfileId(10L)
+                .topicId(4L) // 다른 토픽 ID
+                .build();
+
+        SoptLetterProfile profile = SoptLetterProfile.builder()
+                .id(10L)
+                .userId(userId)
+                .build();
+
+        when(soptLetterRepository.findById(messageId)).thenReturn(Optional.of(letter));
+        when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.deleteSoptLetter(userId, 3L, messageId))
+                .isInstanceOf(NotFoundException.class)
+                .satisfies(e -> {
+                    NotFoundException exception = (NotFoundException) e;
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_NOT_FOUND);
                 });
     }
 

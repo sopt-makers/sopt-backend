@@ -118,10 +118,11 @@ public class SoptLetterService {
     }
 
     @Transactional
-    public SoptLetterInfo.MessageResult updateSoptLetter(Long userId, Long soptLetterId, String content) {
+    public SoptLetterInfo.MessageResult updateSoptLetter(Long userId, Long topicId, Long soptLetterId, String content) {
         val letter = getSoptLetter(soptLetterId);
         val profile = getProfileByUserId(userId);
 
+        letter.validateInTopic(topicId);
         letter.updateMessage(profile.getId(), content);
 
         val likedByMe = soptLetterLikeRepository.existsByLetterIdAndUserId(soptLetterId, userId);
@@ -129,11 +130,12 @@ public class SoptLetterService {
     }
 
     @Transactional
-    public void deleteSoptLetter(Long userId, Long soptLetterId) {
+    public void deleteSoptLetter(Long userId, Long topicId, Long soptLetterId) {
         val letter = getSoptLetter(soptLetterId);
         val profile = getProfileByUserId(userId);
 
         letter.validateDeletable(profile.getId());
+        letter.validateInTopic(topicId);
 
         soptLetterLikeRepository.deleteAllByLetterIdInQuery(letter.getId());
         soptLetterRepository.delete(letter);
@@ -153,7 +155,7 @@ public class SoptLetterService {
     public SoptLetterInfo.MessageResult getMessageDetail(Long userId, Long topicId, Long messageId) {
         val profile = getProfileByUserId(userId);
         val letter = getSoptLetter(messageId);
-        letter.validateTopic(topicId);
+        letter.validateInTopic(topicId);
 
         val mine = letter.isAuthor(profile.getId());
         String authorNickname = resolveAuthorNickname(letter, profile, mine);
