@@ -5,7 +5,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.sopt.app.application.soptletter.SoptLetterInfo;
-import org.sopt.app.presentation.soptletter.dto.SoptLetterResponse.OnboardingProfileResponse;
+import org.sopt.app.presentation.soptletter.dto.SoptLetterResponse;
 
 @Mapper(
     componentModel = "spring",
@@ -15,5 +15,7 @@ import org.sopt.app.presentation.soptletter.dto.SoptLetterResponse.OnboardingPro
 public interface SoptLetterResponseMapper {
 
     @Mapping(source = "onboarded", target = "isOnboarded")
-    OnboardingProfileResponse of(SoptLetterInfo.Profile info);
+    SoptLetterResponse.OnboardingProfileResponse of(SoptLetterInfo.Profile info);
+
+    SoptLetterResponse.WriteMessageResponse of(SoptLetterInfo.MessageResult result);
 }

@@ -112,6 +112,8 @@ public enum ErrorCode {
     //SoptLetter
     SOPT_LETTER_NICKNAME_IS_FULL("사용 가능한 솝레터 닉네임이 없습니다.", HttpStatus.CONFLICT),
     SOPT_LETTER_PROFILE_NOT_FOUND("솝레터 프로필이 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    SOPT_LETTER_DAILY_LIMIT_EXCEEDED("일일 솝레터 작성 제한을 초과했습니다.", HttpStatus.BAD_REQUEST),
+    SOPT_LETTER_NOT_FOUND("존재하지 않는 솝레터입니다.", HttpStatus.NOT_FOUND),
     ;
 
     private final String message;

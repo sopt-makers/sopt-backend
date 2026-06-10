@@ -1,6 +1,7 @@
 package org.sopt.app.facade;
 
 import lombok.RequiredArgsConstructor;
+import org.sopt.app.application.soptletter.SoptLetterInfo;
 import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
 import org.sopt.app.application.soptletter.SoptLetterService;
 import org.springframework.stereotype.Service;
@@ -17,5 +18,17 @@ public class SoptLetterFacade {
 
     public Profile completeOnboardingProfile(Long userId) {
         return soptLetterService.completeOnboarding(userId);
+    }
+
+    public SoptLetterInfo.MessageResult createSoptLetter(Long userId, Long topicId, String content) {
+        return soptLetterService.createSoptLetter(userId, topicId, content);
+    }
+
+    public SoptLetterInfo.MessageResult updateSoptLetter(Long userId, Long soptLetterId, String content) {
+        return soptLetterService.updateSoptLetter(userId, soptLetterId, content);
+    }
+
+    public void deleteSoptLetter(Long userId, Long soptLetterId) {
+        soptLetterService.deleteSoptLetter(userId, soptLetterId);
     }
 }
