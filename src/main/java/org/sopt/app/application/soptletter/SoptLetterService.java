@@ -169,13 +169,12 @@ public class SoptLetterService {
         SoptLetterProfile requesterProfile,
         boolean mine
     ) {
-        String authorNickname = requesterProfile.getNickname();
-        if(!mine) {
-            authorNickname = soptLetterProfileRepository.findById(soptLetter.getAuthorProfileId())
-                .map(SoptLetterProfile::getNickname)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND));
+        if (mine){
+            return requesterProfile.getNickname();
         }
-        return authorNickname;
+        return soptLetterProfileRepository.findById(soptLetter.getAuthorProfileId())
+            .map(SoptLetterProfile::getNickname)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND));
     }
 
 }
