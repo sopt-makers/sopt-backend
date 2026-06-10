@@ -63,7 +63,7 @@ public class SoptLetter extends BaseEntity {
     }
 
     public void validateInTopic(Long topicId) {
-        if(!isInTopic(topicId)){
+        if (!isInTopic(topicId)) {
             throw new NotFoundException(ErrorCode.SOPT_LETTER_NOT_FOUND);
         }
     }
