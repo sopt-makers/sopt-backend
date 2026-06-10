@@ -32,7 +32,7 @@ class OperationConfigServiceTest {
     @DisplayName("SUCCESS_운영 설정 카테고리와 key로 value를 조회한다")
     void SUCCESS_getOperationConfigValue() {
         // given
-        final String key = "reportFormUrl";
+        final String key = "linkUrl";
         final String value = "https://example.com/sopt-letter-report";
         OperationConfig operationConfig = OperationConfig.of(
                 OperationConfigCategory.REVIEW_FORM,
@@ -56,7 +56,7 @@ class OperationConfigServiceTest {
     @DisplayName("FAIL_운영 설정이 존재하지 않으면 NotFoundException이 발생한다")
     void FAIL_getOperationConfigValue_notFound() {
         // given
-        final String key = "reportFormUrl";
+        final String key = "linkUrl";
         when(operationConfigRepository.findByOperationConfigCategoryAndKey(OperationConfigCategory.REVIEW_FORM, key))
                 .thenReturn(Optional.empty());
 

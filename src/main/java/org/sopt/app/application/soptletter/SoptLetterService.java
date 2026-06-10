@@ -34,7 +34,7 @@ public class SoptLetterService {
     private static final int MAX_NICKNAME_RETRY_COUNT = 3;
     private static final int NICKNAME_CANDIDATE_SIZE = 3;
     private static final int DAILY_MESSAGE_LIMIT = 10;
-    private static final String REPORT_FORM_URL_KEY = "reportFormUrl";
+    private static final String REPORT_FORM_URL_KEY = "linkUrl";
 
     private final SoptLetterProfileRepository soptLetterProfileRepository;
     private final AnonymousNameGenerator anonymousNameGenerator;

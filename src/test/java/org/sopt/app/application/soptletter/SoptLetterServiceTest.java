@@ -256,7 +256,7 @@ class SoptLetterServiceTest {
     void SUCCESS_getReportForm() {
         // given
         final String reportFormUrl = "https://example.com/sopt-letter-report";
-        when(operationConfigService.getOperationConfigValue(OperationConfigCategory.REVIEW_FORM, "reportFormUrl"))
+        when(operationConfigService.getOperationConfigValue(OperationConfigCategory.REVIEW_FORM, "linkUrl"))
                 .thenReturn(reportFormUrl);
 
         // when
@@ -265,7 +265,7 @@ class SoptLetterServiceTest {
         // then
         assertThat(result.getReportFormUrl()).isEqualTo(reportFormUrl);
         verify(operationConfigService, times(1))
-                .getOperationConfigValue(OperationConfigCategory.REVIEW_FORM, "reportFormUrl");
+                .getOperationConfigValue(OperationConfigCategory.REVIEW_FORM, "linkUrl");
     }
 
     @Test
