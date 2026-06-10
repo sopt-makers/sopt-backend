@@ -59,6 +59,19 @@ public class SoptLetterController {
         return ResponseEntity.ok(soptLetterResponseMapper.of(result));
     }
 
+    @Operation(summary = "솝레터 익명 신고 폼 주소 조회")
+    @GetMapping("/report-form")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "403", description = "forbidden", content = @Content),
+        @ApiResponse(responseCode = "404", description = "not found", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<SoptLetterResponse.ReportFormResponse> getReportForm() {
+        val result = soptLetterFacade.getReportForm();
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+    }
+
     @Operation(summary = "개별 주제 솝레터 메시지 작성")
     @PostMapping("/topics/{topicId}/messages")
     @ApiResponses(value = {

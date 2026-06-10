@@ -20,6 +20,10 @@ public class SoptLetterFacade {
         return soptLetterService.completeOnboarding(userId);
     }
 
+    public SoptLetterInfo.ReportFormResult getReportForm() {
+        return soptLetterService.getReportForm();
+    }
+
     public SoptLetterInfo.MessageResult createSoptLetter(Long userId, Long topicId, String content) {
         return soptLetterService.createSoptLetter(userId, topicId, content);
     }
