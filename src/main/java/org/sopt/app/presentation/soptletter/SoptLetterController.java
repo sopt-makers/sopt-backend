@@ -110,4 +110,21 @@ public class SoptLetterController {
         soptLetterFacade.deleteSoptLetter(userId, messageId);
         return ResponseEntity.ok().build();
     }
+
+    @Operation(summary = "솝레터 메시지 상세 조회")
+    @GetMapping("/topics/{topicId}/messages/{messageId}")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "401", description = "unauthorized", content = @Content),
+        @ApiResponse(responseCode = "404", description = "not found", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<SoptLetterResponse.MessageDetailResponse> getMessageDetail(
+        @AuthenticationPrincipal Long userId,
+        @PathVariable Long topicId,
+        @PathVariable Long messageId
+    ) {
+        val result = soptLetterFacade.getMessageDetail(userId, topicId, messageId);
+        return ResponseEntity.ok(soptLetterResponseMapper.ofDetail(result));
+    }
 }

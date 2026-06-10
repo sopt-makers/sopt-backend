@@ -18,4 +18,6 @@ public interface SoptLetterResponseMapper {
     SoptLetterResponse.OnboardingProfileResponse of(SoptLetterInfo.Profile info);
 
     SoptLetterResponse.WriteMessageResponse of(SoptLetterInfo.MessageResult result);
+
+    SoptLetterResponse.MessageDetailResponse ofDetail(SoptLetterInfo.MessageResult result);
 }
