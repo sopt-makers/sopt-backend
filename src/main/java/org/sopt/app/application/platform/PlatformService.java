@@ -166,16 +166,17 @@ public class PlatformService {
                 .toList();
     }
 
-    public String getOldestSoptActivityPart(PlatformUserInfoResponse platformUserInfoResponse) {
+    public String getSoptActivityParts(PlatformUserInfoResponse platformUserInfoResponse) {
         if (platformUserInfoResponse.soptActivities() == null) {
             return "";
         }
         return platformUserInfoResponse.soptActivities().stream()
             .filter(PlatformUserInfoResponse.SoptActivities::isSoptActivity)
             .filter(activity -> activity.part() != null && !activity.part().isBlank())
-            .min(Comparator.comparingInt(PlatformUserInfoResponse.SoptActivities::generation))
+            .sorted(Comparator.comparingInt(PlatformUserInfoResponse.SoptActivities::generation))
             .map(PlatformUserInfoResponse.SoptActivities::part)
-            .orElse("");
+            .distinct()
+            .collect(Collectors.joining("/"));
     }
 
     public boolean isCurrentGeneration(Long generation) {

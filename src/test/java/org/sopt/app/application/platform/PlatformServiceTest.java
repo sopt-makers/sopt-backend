@@ -110,19 +110,20 @@ class PlatformServiceTest {
     }
 
     @Test
-    @DisplayName("유저의 가장 오래된 SOPT 활동 파트를 조회한다")
-    void SUCCESS_getOldestSoptActivityPart() {
+    @DisplayName("유저의 SOPT 활동 파트를 오래된 기수 순으로 조회한다")
+    void SUCCESS_getSoptActivityParts() {
         // given
         PlatformUserInfoResponse profile = new PlatformUserInfoResponse(1, "testUser", null, null, null, null, 34, List.of(
                 new PlatformUserInfoResponse.SoptActivities(1, 34, "서버", "Team", true),
                 new PlatformUserInfoResponse.SoptActivities(2, 33, "기획", "Team", true),
-                new PlatformUserInfoResponse.SoptActivities(3, 32, "PM", "Team", false)
+                new PlatformUserInfoResponse.SoptActivities(3, 35, "서버", "Team", true),
+                new PlatformUserInfoResponse.SoptActivities(4, 32, "PM", "Team", false)
         ));
 
         // when
-        String part = platformService.getOldestSoptActivityPart(profile);
+        String part = platformService.getSoptActivityParts(profile);
 
         // then
-        assertThat(part).isEqualTo("기획");
+        assertThat(part).isEqualTo("기획/서버");
     }
 }
