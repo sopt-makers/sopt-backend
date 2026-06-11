@@ -52,6 +52,7 @@ public class UserFacade {
             .name(platformUserInfoResponse.name())
             .status(platformService.getStatus(platformUserInfoResponse))
             .profileImage(platformUserInfoResponse.profileImage())
+            .part(platformService.getOldestSoptActivityPart(platformUserInfoResponse))
             .generationList(platformService.getMemberGenerationList(platformUserInfoResponse))
             .build();
 
