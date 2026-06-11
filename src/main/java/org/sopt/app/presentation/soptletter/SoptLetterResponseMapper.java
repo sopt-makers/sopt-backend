@@ -24,4 +24,6 @@ public interface SoptLetterResponseMapper {
     SoptLetterResponse.TopicDetailResponse of(SoptLetterInfo.TopicDetail result);
 
     SoptLetterResponse.WriteMessageResponse of(SoptLetterInfo.MessageResult result);
+
+    SoptLetterResponse.MessageDetailResponse ofDetail(SoptLetterInfo.MessageResult result);
 }
