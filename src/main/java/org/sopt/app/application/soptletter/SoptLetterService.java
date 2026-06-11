@@ -92,6 +92,19 @@ public class SoptLetterService {
         return Profile.from(profile);
     }
 
+    @Transactional(readOnly = true)
+    public SoptLetterInfo.TopicListResult getTopics() {
+        val topics = soptLetterTopicRepository.findAllByOrderByCreatedAtDesc();
+        return SoptLetterInfo.TopicListResult.from(topics);
+    }
+
+    @Transactional(readOnly = true)
+    public SoptLetterInfo.TopicDetail getTopic(Long topicId) {
+        val topic = soptLetterTopicRepository.findById(topicId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_TOPIC_NOT_FOUND));
+        return SoptLetterInfo.TopicDetail.of(topic, LocalDateTime.now(clock));
+    }
+
     @Transactional
     public SoptLetterInfo.MessageResult createSoptLetter(Long userId, Long topicId, String content) {
         val topic = soptLetterTopicRepository.findById(topicId)

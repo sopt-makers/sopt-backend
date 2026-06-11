@@ -2,6 +2,7 @@ package org.sopt.app.presentation.soptletter.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,41 @@ public class SoptLetterResponse {
         String nickname,
         @Schema(description = "온보딩 완료 여부", example = "false")
         boolean isOnboarded
+    ) {
+    }
+
+    @Schema(description = "솝레터 주제 목록 조회 응답")
+    public record TopicsResponse(
+        @Schema(description = "주제 목록")
+        List<TopicResponse> topics
+    ) {
+    }
+
+    @Schema(description = "솝레터 주제 응답")
+    public record TopicResponse(
+        @Schema(description = "주제 ID", example = "3")
+        Long topicId,
+        @Schema(description = "주제 제목", example = "36기 회고")
+        String title,
+        @Schema(description = "주제 생성 시각")
+        LocalDateTime createdAt
+    ) {
+    }
+
+    @Schema(description = "솝레터 주제 단일 조회 응답")
+    public record TopicDetailResponse(
+        @Schema(description = "주제 ID", example = "3")
+        Long topicId,
+        @Schema(description = "주제 제목", example = "36기 회고")
+        String title,
+        @Schema(description = "현재 메인 CTA 노출 기간 내 활성 주제인지 여부", example = "true")
+        Boolean active,
+        @Schema(description = "주제 CTA 노출 시작 시각")
+        LocalDateTime startedAt,
+        @Schema(description = "주제 CTA 노출 종료 시각")
+        LocalDateTime endedAt,
+        @Schema(description = "주제 생성 시각")
+        LocalDateTime createdAt
     ) {
     }
 
