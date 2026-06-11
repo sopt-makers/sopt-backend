@@ -2,6 +2,7 @@ package org.sopt.app.presentation.soptletter.dto;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.time.LocalDateTime;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +15,50 @@ public class SoptLetterResponse {
         String nickname,
         @Schema(description = "온보딩 완료 여부", example = "false")
         boolean isOnboarded
+    ) {
+    }
+
+    @Schema(description = "개별 주제 솝레터 메시지 목록 조회 응답")
+    public record TopicMessagesResponse(
+        @Schema(description = "주제 ID", example = "3")
+        Long topicId,
+        @Schema(description = "주제 제목", example = "36기 회고")
+        String title,
+        @Schema(description = "해당 주제 메시지 개수", example = "2")
+        Integer totalCount,
+        @Schema(description = "다음 페이지 조회 커서", example = "91")
+        Long nextCursor,
+        @Schema(description = "다음 페이지 존재 여부", example = "false")
+        Boolean hasNext,
+        @Schema(description = "해당 주제 메시지 목록")
+        List<TopicMessageResponse> messages
+    ) {
+    }
+
+    @Schema(description = "개별 주제 솝레터 메시지 목록 아이템")
+    public record TopicMessageResponse(
+        @Schema(description = "메시지 ID", example = "91")
+        Long messageId,
+        @Schema(description = "작성자 익명 닉네임", example = "반짝이는 고래")
+        String authorNickname,
+        @Schema(description = "공백 포함 50자 미리보기", example = "앱잼 때 같이 밤새면서 고생했던 게 아직도 기억나...")
+        String previewContent,
+        @Schema(description = "메모 색상 hex code", example = "#CCFFEC")
+        String colorCode,
+        @Schema(description = "메모 회전 각도", example = "4.0")
+        Double rotationDegree,
+        @Schema(description = "메모 모양 타입", example = "POINT")
+        String shapeType,
+        @Schema(description = "생성 시각")
+        LocalDateTime createdAt,
+        @Schema(description = "수정 시각")
+        LocalDateTime updatedAt,
+        @Schema(description = "좋아요 수", example = "5")
+        Integer likeCount,
+        @Schema(description = "내가 좋아요 눌렀는지 여부", example = "false")
+        Boolean likedByMe,
+        @Schema(description = "내가 작성한 메시지인지 여부", example = "false")
+        Boolean mine
     ) {
     }
 
