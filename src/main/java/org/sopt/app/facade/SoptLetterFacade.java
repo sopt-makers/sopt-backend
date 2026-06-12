@@ -20,6 +20,10 @@ public class SoptLetterFacade {
         return soptLetterService.completeOnboarding(userId);
     }
 
+    public SoptLetterInfo.TopicMessageListResult getTopicMessages(Long userId, Long topicId, Long cursor, Integer size) {
+        return soptLetterService.getTopicMessages(userId, topicId, cursor, size);
+    }
+
     public SoptLetterInfo.ReportFormResult getReportForm() {
         return soptLetterService.getReportForm();
     }

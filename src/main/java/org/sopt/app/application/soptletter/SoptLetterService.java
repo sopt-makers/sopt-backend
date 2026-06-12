@@ -3,13 +3,17 @@ package org.sopt.app.application.soptletter;
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.sopt.app.application.appservice.OperationConfigService;
 import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
+import org.sopt.app.application.soptletter.SoptLetterInfo.TopicMessageListResult;
+import org.sopt.app.application.soptletter.SoptLetterInfo.TopicMessageSummary;
 import org.sopt.app.common.config.OperationConfigCategory;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ConflictException;
@@ -23,6 +27,7 @@ import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterTopicRepository;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -94,6 +99,27 @@ public class SoptLetterService {
         SoptLetterProfile profile = getProfileByUserId(userId);
         profile.completeOnboarding();
         return Profile.from(profile);
+    }
+
+    @Transactional(readOnly = true)
+    public TopicMessageListResult getTopicMessages(Long userId, Long topicId, Long cursor, Integer size) {
+        validateTopicMessagePageSize(size);
+
+        val topic = soptLetterTopicRepository.findById(topicId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.ENTITY_NOT_FOUND));
+        val requesterProfile = getProfileByUserId(userId);
+
+        val fetchedLetters = getTopicLetters(topicId, cursor, size + 1);
+        val hasNext = fetchedLetters.size() > size;
+        val letters = hasNext ? fetchedLetters.subList(0, size) : fetchedLetters;
+        val nextCursor = resolveNextCursor(letters);
+
+        val likedLetterIds = findLikedLetterIds(userId, letters);
+        val authorNicknamesByProfileId = getAuthorNicknamesByProfileId(letters);
+        val messageSummaries = toTopicMessageSummaries(letters, requesterProfile, likedLetterIds, authorNicknamesByProfileId);
+        val totalCount = Math.toIntExact(soptLetterRepository.countByTopicId(topicId));
+
+        return TopicMessageListResult.of(topic, totalCount, nextCursor, hasNext, messageSummaries);
     }
 
     @Transactional(readOnly = true)
@@ -188,6 +214,70 @@ public class SoptLetterService {
 
         val likedByMe = soptLetterLikeRepository.existsByLetterIdAndUserId(messageId, userId);
         return SoptLetterInfo.MessageResult.of(letter, authorNickname, likedByMe, mine);
+    }
+
+    private void validateTopicMessagePageSize(Integer size) {
+        if (size == null || size <= 0) {
+            throw new BadRequestException(ErrorCode.INVALID_PARAMETER);
+        }
+    }
+
+    private List<SoptLetter> getTopicLetters(Long topicId, Long cursor, Integer size) {
+        val pageable = PageRequest.of(0, size);
+        if (cursor == null) {
+            return soptLetterRepository.findAllByTopicIdOrderByIdDesc(topicId, pageable);
+        }
+        return soptLetterRepository.findAllByTopicIdAndIdLessThanOrderByIdDesc(topicId, cursor, pageable);
+    }
+
+    private Long resolveNextCursor(List<SoptLetter> letters) {
+        if (letters.isEmpty()) {
+            return null;
+        }
+        return letters.get(letters.size() - 1).getId();
+    }
+
+    private Set<Long> findLikedLetterIds(Long userId, List<SoptLetter> letters) {
+        if (letters.isEmpty()) {
+            return Set.of();
+        }
+        val letterIds = letters.stream()
+            .map(SoptLetter::getId)
+            .collect(Collectors.toSet());
+        return soptLetterLikeRepository.findLikedLetterIdsByUserIdAndLetterIdIn(userId, letterIds);
+    }
+
+    private Map<Long, String> getAuthorNicknamesByProfileId(List<SoptLetter> letters) {
+        if (letters.isEmpty()) {
+            return Map.of();
+        }
+
+        val authorProfileIds = letters.stream()
+            .map(SoptLetter::getAuthorProfileId)
+            .collect(Collectors.toSet());
+        val authorNicknamesByProfileId = soptLetterProfileRepository.findAllById(authorProfileIds).stream()
+            .collect(Collectors.toMap(SoptLetterProfile::getId, SoptLetterProfile::getNickname));
+
+        if (authorNicknamesByProfileId.size() != authorProfileIds.size()) {
+            throw new NotFoundException(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND);
+        }
+        return authorNicknamesByProfileId;
+    }
+
+    private List<TopicMessageSummary> toTopicMessageSummaries(
+        List<SoptLetter> letters,
+        SoptLetterProfile requesterProfile,
+        Set<Long> likedLetterIds,
+        Map<Long, String> authorNicknamesByProfileId
+    ) {
+        return letters.stream()
+            .map(letter -> TopicMessageSummary.of(
+                letter,
+                authorNicknamesByProfileId.get(letter.getAuthorProfileId()),
+                likedLetterIds.contains(letter.getId()),
+                letter.isAuthor(requesterProfile.getId())
+            ))
+            .toList();
     }
 
     private String resolveAuthorNickname(
