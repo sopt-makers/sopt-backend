@@ -172,6 +172,40 @@ public class SoptLetterController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "솝레터 메시지 좋아요 추가")
+    @PostMapping("/topics/{topicId}/messages/{messageId}/likes")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "403", description = "forbidden", content = @Content),
+        @ApiResponse(responseCode = "404", description = "not found", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<Void> addLike(
+        @AuthenticationPrincipal Long userId,
+        @PathVariable Long topicId,
+        @PathVariable Long messageId
+    ) {
+        soptLetterFacade.addLike(userId, topicId, messageId);
+        return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "솝레터 메시지 좋아요 삭제")
+    @DeleteMapping("/topics/{topicId}/messages/{messageId}/likes")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "403", description = "forbidden", content = @Content),
+        @ApiResponse(responseCode = "404", description = "not found", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<Void> removeLike(
+        @AuthenticationPrincipal Long userId,
+        @PathVariable Long topicId,
+        @PathVariable Long messageId
+    ) {
+        soptLetterFacade.removeLike(userId, topicId, messageId);
+        return ResponseEntity.ok().build();
+    }
+
     @Operation(summary = "솝레터 메시지 상세 조회")
     @GetMapping("/topics/{topicId}/messages/{messageId}")
     @ApiResponses(value = {

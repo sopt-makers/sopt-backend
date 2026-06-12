@@ -48,6 +48,14 @@ public class SoptLetterFacade {
         soptLetterService.deleteSoptLetter(userId, topicId, soptLetterId);
     }
 
+    public void addLike(Long userId, Long topicId, Long soptLetterId) {
+        soptLetterService.addLike(userId, topicId, soptLetterId);
+    }
+
+    public void removeLike(Long userId, Long topicId, Long soptLetterId) {
+        soptLetterService.removeLike(userId, topicId, soptLetterId);
+    }
+
     public SoptLetterInfo.MessageResult getMessageDetail(Long userId, Long topicId, Long messageId) {
         return soptLetterService.getMessageDetail(userId, topicId, messageId);
     }
