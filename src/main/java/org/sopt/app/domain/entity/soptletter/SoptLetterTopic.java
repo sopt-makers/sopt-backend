@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import java.time.LocalDateTime;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,4 +23,16 @@ public class SoptLetterTopic extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
+    @Column(nullable = false)
+    private LocalDateTime startedAt;
+
+    @Column(nullable = false)
+    private LocalDateTime endedAt;
+
+    public boolean isActiveAt(LocalDateTime now) {
+        if (startedAt == null || endedAt == null) {
+            return false;
+        }
+        return !now.isBefore(startedAt) && !now.isAfter(endedAt);
+    }
 }
