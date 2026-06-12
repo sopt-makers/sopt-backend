@@ -217,7 +217,7 @@ public class SoptLetterService {
         }
         val letterIds = letters.stream()
             .map(SoptLetter::getId)
-            .toList();
+            .collect(Collectors.toSet());
         return soptLetterLikeRepository.findLikedLetterIdsByUserIdAndLetterIdIn(userId, letterIds);
     }
 
