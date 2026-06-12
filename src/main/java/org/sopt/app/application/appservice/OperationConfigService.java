@@ -27,6 +27,14 @@ public class OperationConfigService {
     }
 
     @Transactional(readOnly = true)
+    public String getOperationConfigValue(OperationConfigCategory category, String key) {
+        return operationConfigRepository
+            .findByOperationConfigCategoryAndKey(category, key)
+            .map(OperationConfig::getValue)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.ENTITY_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
     public String getSoptampUpsertCron() {
         return operationConfigRepository
             .findByOperationConfigCategoryAndKey(OperationConfigCategory.SOPTAMP_BATCH, SOPTAMP_UPSERT_CRON_KEY)

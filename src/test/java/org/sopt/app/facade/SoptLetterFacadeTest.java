@@ -113,6 +113,73 @@ class SoptLetterFacadeTest {
     }
 
     @Test
+    @DisplayName("SUCCESS_익명 신고 폼 주소 조회 파사드가 서비스 메서드를 정상 호출하고 반환한다")
+    void SUCCESS_getReportForm() {
+        // given
+        final String reportFormUrl = "https://example.com/sopt-letter-report";
+        SoptLetterInfo.ReportFormResult expected = SoptLetterInfo.ReportFormResult.builder()
+                .reportFormUrl(reportFormUrl)
+                .build();
+        when(soptLetterService.getReportForm()).thenReturn(expected);
+
+        // when
+        SoptLetterInfo.ReportFormResult result = soptLetterFacade.getReportForm();
+
+        // then
+        assertThat(result.getReportFormUrl()).isEqualTo(reportFormUrl);
+        verify(soptLetterService, times(1)).getReportForm();
+    }
+
+    @Test
+    @DisplayName("SUCCESS_솝레터 주제 목록 조회 파사드가 서비스 메서드를 정상 호출하고 반환한다")
+    void SUCCESS_getTopics() {
+        // given
+        SoptLetterInfo.TopicSummary topic = SoptLetterInfo.TopicSummary.builder()
+                .topicId(3L)
+                .title("36기 회고")
+                .createdAt(LocalDateTime.of(2026, 4, 18, 0, 0))
+                .build();
+        SoptLetterInfo.TopicListResult expected = SoptLetterInfo.TopicListResult.builder()
+                .topics(List.of(topic))
+                .build();
+        when(soptLetterService.getTopics()).thenReturn(expected);
+
+        // when
+        SoptLetterInfo.TopicListResult result = soptLetterFacade.getTopics();
+
+        // then
+        assertThat(result.getTopics()).hasSize(1);
+        assertThat(result.getTopics().get(0).getTopicId()).isEqualTo(3L);
+        assertThat(result.getTopics().get(0).getTitle()).isEqualTo("36기 회고");
+        verify(soptLetterService, times(1)).getTopics();
+    }
+
+    @Test
+    @DisplayName("SUCCESS_솝레터 주제 단일 조회 파사드가 서비스 메서드를 정상 호출하고 반환한다")
+    void SUCCESS_getTopic() {
+        // given
+        final Long topicId = 3L;
+        SoptLetterInfo.TopicDetail expected = SoptLetterInfo.TopicDetail.builder()
+                .topicId(topicId)
+                .title("36기 회고")
+                .active(true)
+                .startedAt(LocalDateTime.of(2026, 4, 18, 0, 0))
+                .endedAt(LocalDateTime.of(2026, 4, 28, 23, 59, 59))
+                .createdAt(LocalDateTime.of(2026, 4, 18, 0, 0))
+                .build();
+        when(soptLetterService.getTopic(eq(topicId))).thenReturn(expected);
+
+        // when
+        SoptLetterInfo.TopicDetail result = soptLetterFacade.getTopic(topicId);
+
+        // then
+        assertThat(result.getTopicId()).isEqualTo(topicId);
+        assertThat(result.getTitle()).isEqualTo("36기 회고");
+        assertThat(result.getActive()).isTrue();
+        verify(soptLetterService, times(1)).getTopic(eq(topicId));
+    }
+
+    @Test
     @DisplayName("SUCCESS_메시지 작성 파사드가 서비스 메서드를 정상 호출하고 반환한다")
     void SUCCESS_createSoptLetter() {
         // given

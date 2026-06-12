@@ -24,6 +24,18 @@ public class SoptLetterFacade {
         return soptLetterService.getTopicMessages(userId, topicId, cursor, size);
     }
 
+    public SoptLetterInfo.ReportFormResult getReportForm() {
+        return soptLetterService.getReportForm();
+    }
+
+    public SoptLetterInfo.TopicListResult getTopics() {
+        return soptLetterService.getTopics();
+    }
+
+    public SoptLetterInfo.TopicDetail getTopic(Long topicId) {
+        return soptLetterService.getTopic(topicId);
+    }
+
     public SoptLetterInfo.MessageResult createSoptLetter(Long userId, Long topicId, String content) {
         return soptLetterService.createSoptLetter(userId, topicId, content);
     }

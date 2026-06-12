@@ -60,6 +60,46 @@ public class SoptLetterController {
         return ResponseEntity.ok(soptLetterResponseMapper.of(result));
     }
 
+    @Operation(summary = "솝레터 익명 신고 폼 주소 조회")
+    @GetMapping("/report-form")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "403", description = "forbidden", content = @Content),
+        @ApiResponse(responseCode = "404", description = "not found", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<SoptLetterResponse.ReportFormResponse> getReportForm() {
+        val result = soptLetterFacade.getReportForm();
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+    }
+
+    @Operation(summary = "솝레터 주제 목록 조회")
+    @GetMapping("/topics")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "403", description = "forbidden", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<SoptLetterResponse.TopicsResponse> getTopics() {
+        val result = soptLetterFacade.getTopics();
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+    }
+
+    @Operation(summary = "솝레터 주제 단일 조회")
+    @GetMapping("/topics/{topicId}")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "403", description = "forbidden", content = @Content),
+        @ApiResponse(responseCode = "404", description = "not found", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<SoptLetterResponse.TopicDetailResponse> getTopic(
+        @PathVariable Long topicId
+    ) {
+        val result = soptLetterFacade.getTopic(topicId);
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+    }
+
     @Operation(summary = "개별 주제 솝레터 메시지 목록 조회")
     @GetMapping("/topics/{topicId}/messages")
     @ApiResponses(value = {

@@ -38,6 +38,21 @@ public class SoptLetterInfo {
     @Builder
     @ToString
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class ReportFormResult {
+
+        private String reportFormUrl;
+
+        public static ReportFormResult from(String reportFormUrl) {
+            return ReportFormResult.builder()
+                .reportFormUrl(reportFormUrl)
+                .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class TopicMessageListResult {
         private Long topicId;
         private String title;
@@ -60,6 +75,67 @@ public class SoptLetterInfo {
                 .nextCursor(nextCursor)
                 .hasNext(hasNext)
                 .messages(messages)
+                .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class TopicListResult {
+
+        private List<TopicSummary> topics;
+
+        public static TopicListResult from(List<SoptLetterTopic> topics) {
+            return TopicListResult.builder()
+                .topics(topics.stream()
+                    .map(TopicSummary::from)
+                    .toList())
+                .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class TopicSummary {
+
+        private Long topicId;
+        private String title;
+        private LocalDateTime createdAt;
+
+        public static TopicSummary from(SoptLetterTopic topic) {
+            return TopicSummary.builder()
+                .topicId(topic.getId())
+                .title(topic.getTitle())
+                .createdAt(topic.getCreatedAt())
+                .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class TopicDetail {
+
+        private Long topicId;
+        private String title;
+        private Boolean active;
+        private LocalDateTime startedAt;
+        private LocalDateTime endedAt;
+        private LocalDateTime createdAt;
+
+        public static TopicDetail of(SoptLetterTopic topic, LocalDateTime now) {
+            return TopicDetail.builder()
+                .topicId(topic.getId())
+                .title(topic.getTitle())
+                .active(topic.isActiveAt(now))
+                .startedAt(topic.getStartedAt())
+                .endedAt(topic.getEndedAt())
+                .createdAt(topic.getCreatedAt())
                 .build();
         }
     }

@@ -25,7 +25,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.sopt.app.application.appservice.OperationConfigService;
 import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
+import org.sopt.app.common.config.OperationConfigCategory;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ConflictException;
 import org.sopt.app.common.exception.ForbiddenException;
@@ -63,6 +65,9 @@ class SoptLetterServiceTest {
 
     @Mock
     private SoptLetterGenerator soptLetterGenerator;
+
+    @Mock
+    private OperationConfigService operationConfigService;
 
     @Mock
     private Clock clock;
@@ -243,6 +248,99 @@ class SoptLetterServiceTest {
                 .satisfies(e -> {
                     NotFoundException exception = (NotFoundException) e;
                     assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND);
+                });
+    }
+
+    @Test
+    @DisplayName("SUCCESS_솝레터 익명 신고 폼 주소를 조회한다")
+    void SUCCESS_getReportForm() {
+        // given
+        final String reportFormUrl = "https://example.com/sopt-letter-report";
+        when(operationConfigService.getOperationConfigValue(OperationConfigCategory.SOPT_LETTER, "linkUrl"))
+                .thenReturn(reportFormUrl);
+
+        // when
+        SoptLetterInfo.ReportFormResult result = soptLetterService.getReportForm();
+
+        // then
+        assertThat(result.getReportFormUrl()).isEqualTo(reportFormUrl);
+        verify(operationConfigService, times(1))
+                .getOperationConfigValue(OperationConfigCategory.SOPT_LETTER, "linkUrl");
+    }
+
+    @Test
+    @DisplayName("SUCCESS_솝레터 주제 목록을 최신순으로 조회한다")
+    void SUCCESS_getTopics() {
+        // given
+        LocalDateTime firstCreatedAt = LocalDateTime.of(2026, 4, 20, 0, 0);
+        LocalDateTime secondCreatedAt = LocalDateTime.of(2026, 4, 18, 0, 0);
+        SoptLetterTopic firstTopic = mock(SoptLetterTopic.class);
+        SoptLetterTopic secondTopic = mock(SoptLetterTopic.class);
+        when(firstTopic.getId()).thenReturn(2L);
+        when(firstTopic.getTitle()).thenReturn("36기 앱잼 회고");
+        when(firstTopic.getCreatedAt()).thenReturn(firstCreatedAt);
+        when(secondTopic.getId()).thenReturn(1L);
+        when(secondTopic.getTitle()).thenReturn("36기 회고");
+        when(secondTopic.getCreatedAt()).thenReturn(secondCreatedAt);
+        when(soptLetterTopicRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(firstTopic, secondTopic));
+
+        // when
+        SoptLetterInfo.TopicListResult result = soptLetterService.getTopics();
+
+        // then
+        assertThat(result.getTopics()).hasSize(2);
+        assertThat(result.getTopics().get(0).getTopicId()).isEqualTo(2L);
+        assertThat(result.getTopics().get(0).getTitle()).isEqualTo("36기 앱잼 회고");
+        assertThat(result.getTopics().get(0).getCreatedAt()).isEqualTo(firstCreatedAt);
+        assertThat(result.getTopics().get(1).getTopicId()).isEqualTo(1L);
+        verify(soptLetterTopicRepository, times(1)).findAllByOrderByCreatedAtDesc();
+    }
+
+    @Test
+    @DisplayName("SUCCESS_솝레터 주제를 단일 조회한다")
+    void SUCCESS_getTopic() {
+        // given
+        final Long topicId = 3L;
+        LocalDateTime now = LocalDateTime.of(2026, 4, 20, 12, 0);
+        LocalDateTime startedAt = LocalDateTime.of(2026, 4, 18, 0, 0);
+        LocalDateTime endedAt = LocalDateTime.of(2026, 4, 28, 23, 59, 59);
+        LocalDateTime createdAt = LocalDateTime.of(2026, 4, 18, 0, 0);
+        SoptLetterTopic topic = mock(SoptLetterTopic.class);
+        when(topic.getId()).thenReturn(topicId);
+        when(topic.getTitle()).thenReturn("36기 회고");
+        when(topic.getStartedAt()).thenReturn(startedAt);
+        when(topic.getEndedAt()).thenReturn(endedAt);
+        when(topic.getCreatedAt()).thenReturn(createdAt);
+        when(topic.isActiveAt(now)).thenReturn(true);
+        when(clock.instant()).thenReturn(now.atZone(ZoneId.systemDefault()).toInstant());
+        when(soptLetterTopicRepository.findById(topicId)).thenReturn(Optional.of(topic));
+
+        // when
+        SoptLetterInfo.TopicDetail result = soptLetterService.getTopic(topicId);
+
+        // then
+        assertThat(result.getTopicId()).isEqualTo(topicId);
+        assertThat(result.getTitle()).isEqualTo("36기 회고");
+        assertThat(result.getActive()).isTrue();
+        assertThat(result.getStartedAt()).isEqualTo(startedAt);
+        assertThat(result.getEndedAt()).isEqualTo(endedAt);
+        assertThat(result.getCreatedAt()).isEqualTo(createdAt);
+        verify(soptLetterTopicRepository, times(1)).findById(topicId);
+    }
+
+    @Test
+    @DisplayName("FAIL_솝레터 주제 단일 조회 시 주제가 존재하지 않으면 NotFoundException이 발생한다")
+    void FAIL_getTopic_notFound() {
+        // given
+        final Long topicId = 999L;
+        when(soptLetterTopicRepository.findById(topicId)).thenReturn(Optional.empty());
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.getTopic(topicId))
+                .isInstanceOf(NotFoundException.class)
+                .satisfies(e -> {
+                    NotFoundException exception = (NotFoundException) e;
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_TOPIC_NOT_FOUND);
                 });
     }
 
