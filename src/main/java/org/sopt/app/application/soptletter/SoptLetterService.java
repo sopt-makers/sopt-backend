@@ -151,7 +151,7 @@ public class SoptLetterService {
     @Transactional(readOnly = true)
     public SoptLetterInfo.ReportFormResult getReportForm() {
         val reportFormUrl = operationConfigService.getOperationConfigValue(
-            OperationConfigCategory.REVIEW_FORM,
+            OperationConfigCategory.SOPT_LETTER,
             REPORT_FORM_URL_KEY
         );
         return SoptLetterInfo.ReportFormResult.from(reportFormUrl);
