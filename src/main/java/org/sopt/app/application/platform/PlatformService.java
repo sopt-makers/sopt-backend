@@ -166,6 +166,19 @@ public class PlatformService {
                 .toList();
     }
 
+    public String getSoptActivityParts(PlatformUserInfoResponse platformUserInfoResponse) {
+        if (platformUserInfoResponse.soptActivities() == null) {
+            return "";
+        }
+        return platformUserInfoResponse.soptActivities().stream()
+            .filter(PlatformUserInfoResponse.SoptActivities::isSoptActivity)
+            .filter(activity -> activity.part() != null && !activity.part().isBlank())
+            .sorted(Comparator.comparingInt(PlatformUserInfoResponse.SoptActivities::generation))
+            .map(PlatformUserInfoResponse.SoptActivities::part)
+            .distinct()
+            .collect(Collectors.joining("/"));
+    }
+
     public boolean isCurrentGeneration(Long generation) {
         return generation.equals(currentGeneration);
     }
