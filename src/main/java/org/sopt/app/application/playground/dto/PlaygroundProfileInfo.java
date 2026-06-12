@@ -81,6 +81,7 @@ public class PlaygroundProfileInfo {
         private UserStatus status;
         private String name;
         private String profileImage;
+        private String part;
         private List<Long> generationList;
     }
 

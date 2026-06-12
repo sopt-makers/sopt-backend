@@ -96,6 +96,19 @@ public class SoptLetterService {
         return Profile.from(profile);
     }
 
+    @Transactional(readOnly = true)
+    public SoptLetterInfo.TopicListResult getTopics() {
+        val topics = soptLetterTopicRepository.findAllByOrderByCreatedAtDesc();
+        return SoptLetterInfo.TopicListResult.from(topics);
+    }
+
+    @Transactional(readOnly = true)
+    public SoptLetterInfo.TopicDetail getTopic(Long topicId) {
+        val topic = soptLetterTopicRepository.findById(topicId)
+                .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_TOPIC_NOT_FOUND));
+        return SoptLetterInfo.TopicDetail.of(topic, LocalDateTime.now(clock));
+    }
+
     @Transactional
     public SoptLetterInfo.MessageResult createSoptLetter(Long userId, Long topicId, String content) {
         val topic = soptLetterTopicRepository.findById(topicId)
@@ -122,10 +135,11 @@ public class SoptLetterService {
     }
 
     @Transactional
-    public SoptLetterInfo.MessageResult updateSoptLetter(Long userId, Long soptLetterId, String content) {
+    public SoptLetterInfo.MessageResult updateSoptLetter(Long userId, Long topicId, Long soptLetterId, String content) {
         val letter = getSoptLetter(soptLetterId);
         val profile = getProfileByUserId(userId);
 
+        letter.validateInTopic(topicId);
         letter.updateMessage(profile.getId(), content);
 
         val likedByMe = soptLetterLikeRepository.existsByLetterIdAndUserId(soptLetterId, userId);
@@ -133,11 +147,12 @@ public class SoptLetterService {
     }
 
     @Transactional
-    public void deleteSoptLetter(Long userId, Long soptLetterId) {
+    public void deleteSoptLetter(Long userId, Long topicId, Long soptLetterId) {
         val letter = getSoptLetter(soptLetterId);
         val profile = getProfileByUserId(userId);
 
         letter.validateDeletable(profile.getId());
+        letter.validateInTopic(topicId);
 
         soptLetterLikeRepository.deleteAllByLetterIdInQuery(letter.getId());
         soptLetterRepository.delete(letter);
@@ -161,4 +176,31 @@ public class SoptLetterService {
         return soptLetterProfileRepository.findByUserId(userId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND));
     }
+
+    @Transactional(readOnly = true)
+    public SoptLetterInfo.MessageResult getMessageDetail(Long userId, Long topicId, Long messageId) {
+        val profile = getProfileByUserId(userId);
+        val letter = getSoptLetter(messageId);
+        letter.validateInTopic(topicId);
+
+        val mine = letter.isAuthor(profile.getId());
+        String authorNickname = resolveAuthorNickname(letter, profile, mine);
+
+        val likedByMe = soptLetterLikeRepository.existsByLetterIdAndUserId(messageId, userId);
+        return SoptLetterInfo.MessageResult.of(letter, authorNickname, likedByMe, mine);
+    }
+
+    private String resolveAuthorNickname(
+        SoptLetter soptLetter,
+        SoptLetterProfile requesterProfile,
+        boolean mine
+    ) {
+        if (mine){
+            return requesterProfile.getNickname();
+        }
+        return soptLetterProfileRepository.findById(soptLetter.getAuthorProfileId())
+            .map(SoptLetterProfile::getNickname)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND));
+    }
+
 }

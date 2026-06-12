@@ -72,6 +72,33 @@ public class SoptLetterController {
         return ResponseEntity.ok(soptLetterResponseMapper.of(result));
     }
 
+    @Operation(summary = "솝레터 주제 목록 조회")
+    @GetMapping("/topics")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "403", description = "forbidden", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<SoptLetterResponse.TopicsResponse> getTopics() {
+        val result = soptLetterFacade.getTopics();
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+    }
+
+    @Operation(summary = "솝레터 주제 단일 조회")
+    @GetMapping("/topics/{topicId}")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "403", description = "forbidden", content = @Content),
+        @ApiResponse(responseCode = "404", description = "not found", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<SoptLetterResponse.TopicDetailResponse> getTopic(
+        @PathVariable Long topicId
+    ) {
+        val result = soptLetterFacade.getTopic(topicId);
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+    }
+
     @Operation(summary = "개별 주제 솝레터 메시지 작성")
     @PostMapping("/topics/{topicId}/messages")
     @ApiResponses(value = {
@@ -90,7 +117,7 @@ public class SoptLetterController {
     }
 
     @Operation(summary = "내가 작성한 솝레터 메시지 수정")
-    @PatchMapping("/messages/{messageId}")
+    @PatchMapping("/topics/{topicId}/messages/{messageId}")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "success"),
         @ApiResponse(responseCode = "400", description = "bad request", content = @Content),
@@ -100,15 +127,16 @@ public class SoptLetterController {
     })
     public ResponseEntity<SoptLetterResponse.WriteMessageResponse> updateMessage(
         @AuthenticationPrincipal Long userId,
+        @PathVariable Long topicId,
         @PathVariable Long messageId,
         @Valid @RequestBody SoptLetterRequest.UpdateMessageRequest request
     ) {
-        val result = soptLetterFacade.updateSoptLetter(userId, messageId, request.getContent());
+        val result = soptLetterFacade.updateSoptLetter(userId, topicId, messageId, request.getContent());
         return ResponseEntity.ok(soptLetterResponseMapper.of(result));
     }
 
     @Operation(summary = "내가 작성한 솝레터 메시지 삭제")
-    @DeleteMapping("/messages/{messageId}")
+    @DeleteMapping("/topics/{topicId}/messages/{messageId}")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "success"),
         @ApiResponse(responseCode = "400", description = "bad request", content = @Content),
@@ -118,9 +146,26 @@ public class SoptLetterController {
     })
     public ResponseEntity<Void> deleteMessage(
         @AuthenticationPrincipal Long userId,
+        @PathVariable Long topicId,
         @PathVariable Long messageId
     ) {
-        soptLetterFacade.deleteSoptLetter(userId, messageId);
+        soptLetterFacade.deleteSoptLetter(userId, topicId, messageId);
         return ResponseEntity.ok().build();
+    }
+
+    @Operation(summary = "솝레터 메시지 상세 조회")
+    @GetMapping("/topics/{topicId}/messages/{messageId}")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "404", description = "not found", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<SoptLetterResponse.MessageDetailResponse> getMessageDetail(
+        @AuthenticationPrincipal Long userId,
+        @PathVariable Long topicId,
+        @PathVariable Long messageId
+    ) {
+        val result = soptLetterFacade.getMessageDetail(userId, topicId, messageId);
+        return ResponseEntity.ok(soptLetterResponseMapper.ofDetail(result));
     }
 }

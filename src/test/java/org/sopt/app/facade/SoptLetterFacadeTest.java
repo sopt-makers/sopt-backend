@@ -7,6 +7,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -87,6 +88,55 @@ class SoptLetterFacadeTest {
     }
 
     @Test
+    @DisplayName("SUCCESS_솝레터 주제 목록 조회 파사드가 서비스 메서드를 정상 호출하고 반환한다")
+    void SUCCESS_getTopics() {
+        // given
+        SoptLetterInfo.TopicSummary topic = SoptLetterInfo.TopicSummary.builder()
+                .topicId(3L)
+                .title("36기 회고")
+                .createdAt(LocalDateTime.of(2026, 4, 18, 0, 0))
+                .build();
+        SoptLetterInfo.TopicListResult expected = SoptLetterInfo.TopicListResult.builder()
+                .topics(List.of(topic))
+                .build();
+        when(soptLetterService.getTopics()).thenReturn(expected);
+
+        // when
+        SoptLetterInfo.TopicListResult result = soptLetterFacade.getTopics();
+
+        // then
+        assertThat(result.getTopics()).hasSize(1);
+        assertThat(result.getTopics().get(0).getTopicId()).isEqualTo(3L);
+        assertThat(result.getTopics().get(0).getTitle()).isEqualTo("36기 회고");
+        verify(soptLetterService, times(1)).getTopics();
+    }
+
+    @Test
+    @DisplayName("SUCCESS_솝레터 주제 단일 조회 파사드가 서비스 메서드를 정상 호출하고 반환한다")
+    void SUCCESS_getTopic() {
+        // given
+        final Long topicId = 3L;
+        SoptLetterInfo.TopicDetail expected = SoptLetterInfo.TopicDetail.builder()
+                .topicId(topicId)
+                .title("36기 회고")
+                .active(true)
+                .startedAt(LocalDateTime.of(2026, 4, 18, 0, 0))
+                .endedAt(LocalDateTime.of(2026, 4, 28, 23, 59, 59))
+                .createdAt(LocalDateTime.of(2026, 4, 18, 0, 0))
+                .build();
+        when(soptLetterService.getTopic(eq(topicId))).thenReturn(expected);
+
+        // when
+        SoptLetterInfo.TopicDetail result = soptLetterFacade.getTopic(topicId);
+
+        // then
+        assertThat(result.getTopicId()).isEqualTo(topicId);
+        assertThat(result.getTitle()).isEqualTo("36기 회고");
+        assertThat(result.getActive()).isTrue();
+        verify(soptLetterService, times(1)).getTopic(eq(topicId));
+    }
+
+    @Test
     @DisplayName("SUCCESS_메시지 작성 파사드가 서비스 메서드를 정상 호출하고 반환한다")
     void SUCCESS_createSoptLetter() {
         // given
@@ -126,12 +176,13 @@ class SoptLetterFacadeTest {
     void SUCCESS_updateSoptLetter() {
         // given
         final Long userId = 1L;
+        final Long topicId = 3L;
         final Long messageId = 125L;
         final String content = "수정된 편지 내용";
 
         SoptLetterInfo.MessageResult expected = SoptLetterInfo.MessageResult.builder()
                 .messageId(messageId)
-                .topicId(3L)
+                .topicId(topicId)
                 .authorNickname("반짝이는 고래")
                 .content(content)
                 .colorCode("#CCFFEC")
@@ -144,16 +195,16 @@ class SoptLetterFacadeTest {
                 .mine(true)
                 .build();
 
-        when(soptLetterService.updateSoptLetter(eq(userId), eq(messageId), eq(content))).thenReturn(expected);
+        when(soptLetterService.updateSoptLetter(eq(userId), eq(topicId), eq(messageId), eq(content))).thenReturn(expected);
 
         // when
-        SoptLetterInfo.MessageResult result = soptLetterFacade.updateSoptLetter(userId, messageId, content);
+        SoptLetterInfo.MessageResult result = soptLetterFacade.updateSoptLetter(userId, topicId, messageId, content);
 
         // then
         assertThat(result.getMessageId()).isEqualTo(messageId);
         assertThat(result.getContent()).isEqualTo(content);
         assertThat(result.getAuthorNickname()).isEqualTo("반짝이는 고래");
-        verify(soptLetterService, times(1)).updateSoptLetter(eq(userId), eq(messageId), eq(content));
+        verify(soptLetterService, times(1)).updateSoptLetter(eq(userId), eq(topicId), eq(messageId), eq(content));
     }
 
     @Test
@@ -161,12 +212,13 @@ class SoptLetterFacadeTest {
     void SUCCESS_deleteSoptLetter() {
         // given
         final Long userId = 1L;
+        final Long topicId = 3L;
         final Long messageId = 125L;
 
         // when
-        soptLetterFacade.deleteSoptLetter(userId, messageId);
+        soptLetterFacade.deleteSoptLetter(userId, topicId, messageId);
 
         // then
-        verify(soptLetterService, times(1)).deleteSoptLetter(eq(userId), eq(messageId));
+        verify(soptLetterService, times(1)).deleteSoptLetter(eq(userId), eq(topicId), eq(messageId));
     }
 }
