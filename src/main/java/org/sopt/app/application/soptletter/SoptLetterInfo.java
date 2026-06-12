@@ -36,6 +36,21 @@ public class SoptLetterInfo {
     @Builder
     @ToString
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class ReportFormResult {
+
+        private String reportFormUrl;
+
+        public static ReportFormResult from(String reportFormUrl) {
+            return ReportFormResult.builder()
+                .reportFormUrl(reportFormUrl)
+                .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class TopicListResult {
 
         private List<TopicSummary> topics;

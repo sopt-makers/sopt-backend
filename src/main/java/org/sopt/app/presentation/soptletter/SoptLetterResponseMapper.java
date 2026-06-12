@@ -17,6 +17,8 @@ public interface SoptLetterResponseMapper {
     @Mapping(source = "onboarded", target = "isOnboarded")
     SoptLetterResponse.OnboardingProfileResponse of(SoptLetterInfo.Profile info);
 
+    SoptLetterResponse.ReportFormResponse of(SoptLetterInfo.ReportFormResult info);
+
     SoptLetterResponse.TopicsResponse of(SoptLetterInfo.TopicListResult result);
 
     SoptLetterResponse.TopicResponse of(SoptLetterInfo.TopicSummary result);

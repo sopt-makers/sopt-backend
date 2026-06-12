@@ -8,7 +8,9 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
+import org.sopt.app.application.appservice.OperationConfigService;
 import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
+import org.sopt.app.common.config.OperationConfigCategory;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ConflictException;
 import org.sopt.app.common.exception.NotFoundException;
@@ -32,6 +34,7 @@ public class SoptLetterService {
     private static final int MAX_NICKNAME_RETRY_COUNT = 3;
     private static final int NICKNAME_CANDIDATE_SIZE = 3;
     private static final int DAILY_MESSAGE_LIMIT = 10;
+    private static final String REPORT_FORM_URL_KEY = "linkUrl";
 
     private final SoptLetterProfileRepository soptLetterProfileRepository;
     private final AnonymousNameGenerator anonymousNameGenerator;
@@ -39,6 +42,7 @@ public class SoptLetterService {
     private final SoptLetterTopicRepository soptLetterTopicRepository;
     private final SoptLetterLikeRepository soptLetterLikeRepository;
     private final SoptLetterGenerator soptLetterGenerator;
+    private final OperationConfigService operationConfigService;
     private final Clock clock;
 
     public boolean isOnboarded(Long userId) {
@@ -157,6 +161,15 @@ public class SoptLetterService {
     public SoptLetter getSoptLetter(Long soptLetterId) {
         return soptLetterRepository.findById(soptLetterId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    public SoptLetterInfo.ReportFormResult getReportForm() {
+        val reportFormUrl = operationConfigService.getOperationConfigValue(
+            OperationConfigCategory.SOPT_LETTER,
+            REPORT_FORM_URL_KEY
+        );
+        return SoptLetterInfo.ReportFormResult.from(reportFormUrl);
     }
 
     public SoptLetterProfile getProfileByUserId(Long userId) {

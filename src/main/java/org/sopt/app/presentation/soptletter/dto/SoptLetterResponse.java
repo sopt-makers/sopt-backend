@@ -18,6 +18,13 @@ public class SoptLetterResponse {
     ) {
     }
 
+    @Schema(description = "솝레터 익명 신고 폼 주소 조회 응답")
+    public record ReportFormResponse(
+        @Schema(description = "익명 신고 폼 URL", example = "https://example.com/sopt-letter-report")
+        String reportFormUrl
+    ) {
+    }
+
     @Schema(description = "솝레터 주제 목록 조회 응답")
     public record TopicsResponse(
         @Schema(description = "주제 목록")

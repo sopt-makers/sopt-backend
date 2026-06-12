@@ -20,6 +20,10 @@ public class SoptLetterFacade {
         return soptLetterService.completeOnboarding(userId);
     }
 
+    public SoptLetterInfo.ReportFormResult getReportForm() {
+        return soptLetterService.getReportForm();
+    }
+
     public SoptLetterInfo.TopicListResult getTopics() {
         return soptLetterService.getTopics();
     }
