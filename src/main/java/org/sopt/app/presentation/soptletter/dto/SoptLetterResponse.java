@@ -38,6 +38,8 @@ public class SoptLetterResponse {
         Long topicId,
         @Schema(description = "주제 제목", example = "36기 회고")
         String title,
+        @Schema(description = "기본 주제 여부", example = "false")
+        boolean isDefault,
         @Schema(description = "주제 생성 시각")
         LocalDateTime createdAt
     ) {

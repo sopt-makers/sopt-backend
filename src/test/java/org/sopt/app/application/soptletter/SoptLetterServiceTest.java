@@ -278,9 +278,11 @@ class SoptLetterServiceTest {
         SoptLetterTopic secondTopic = mock(SoptLetterTopic.class);
         when(firstTopic.getId()).thenReturn(2L);
         when(firstTopic.getTitle()).thenReturn("36기 앱잼 회고");
+        when(firstTopic.isDefault()).thenReturn(false);
         when(firstTopic.getCreatedAt()).thenReturn(firstCreatedAt);
         when(secondTopic.getId()).thenReturn(1L);
         when(secondTopic.getTitle()).thenReturn("36기 회고");
+        when(secondTopic.isDefault()).thenReturn(true);
         when(secondTopic.getCreatedAt()).thenReturn(secondCreatedAt);
         when(soptLetterTopicRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(firstTopic, secondTopic));
 
@@ -291,8 +293,10 @@ class SoptLetterServiceTest {
         assertThat(result.getTopics()).hasSize(2);
         assertThat(result.getTopics().get(0).getTopicId()).isEqualTo(2L);
         assertThat(result.getTopics().get(0).getTitle()).isEqualTo("36기 앱잼 회고");
+        assertThat(result.getTopics().get(0).isDefault()).isFalse();
         assertThat(result.getTopics().get(0).getCreatedAt()).isEqualTo(firstCreatedAt);
         assertThat(result.getTopics().get(1).getTopicId()).isEqualTo(1L);
+        assertThat(result.getTopics().get(1).isDefault()).isTrue();
         verify(soptLetterTopicRepository, times(1)).findAllByOrderByCreatedAtDesc();
     }
 

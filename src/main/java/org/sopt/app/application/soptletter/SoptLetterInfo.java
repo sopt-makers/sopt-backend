@@ -104,12 +104,14 @@ public class SoptLetterInfo {
 
         private Long topicId;
         private String title;
+        private boolean isDefault;
         private LocalDateTime createdAt;
 
         public static TopicSummary from(SoptLetterTopic topic) {
             return TopicSummary.builder()
                 .topicId(topic.getId())
                 .title(topic.getTitle())
+                .isDefault(topic.isDefault())
                 .createdAt(topic.getCreatedAt())
                 .build();
         }
