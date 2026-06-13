@@ -41,7 +41,7 @@ public interface PokeHistoryRepository extends JpaRepository<PokeHistory, Long> 
 
     Long countByPokedIdAndIsReplyIsFalse(Long pokedId);
 
-    Long countByPokerIdOrPokedId(@NotNull Long pokerId, @NotNull Long pokedId);
+    Long countByPokerId(@NotNull Long pokerId);
 
     @Query("SELECT ph FROM PokeHistory ph WHERE ph.id IN (SELECT MAX(ph2.id) FROM PokeHistory ph2 WHERE ph2.pokedId = :userId AND ph2.isReply = false AND EXISTS (SELECT 1 FROM User u WHERE u.id = ph2.pokerId) GROUP BY ph2.pokerId) ORDER BY function('RANDOM')")
     List<PokeHistory> findRandomUnRepliedPokeMeHistory(@Param("userId") Long userId, Pageable pageable);
