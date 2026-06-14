@@ -65,6 +65,6 @@ public class PokeService {
 
     @Transactional(readOnly = true)
     public Long getUserPokeCount(Long userId) {
-        return historyRepository.countByPokerIdOrPokedId(userId, userId);
+        return historyRepository.countByPokerId(userId);
     }
 }

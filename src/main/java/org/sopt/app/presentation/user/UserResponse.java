@@ -151,7 +151,7 @@ public class UserResponse {
         private String profileImage;
         @Schema(description = "파트")
         private String part;
-        @Schema(description = "콕찌르기 횟수")
+        @Schema(description = "내가 찌른 콕 횟수")
         private String pokeCount;
         @Schema(description = "", example = "14등")
         private String soptampRank;
@@ -228,7 +228,7 @@ public class UserResponse {
         @Schema(description = "총 쳐준 박수 개수")
         Integer clapCount,
 
-        @Schema(description = "총 콕찌르기 개수 (활동 기수만 반환)")
+        @Schema(description = "내가 찌른 콕 횟수 총합")
         int totalPokeCount,
 
         @Schema(description = "친한 친구 콕 찌르기 횟수의 총합 (2~4회 찌른 사람 대상, 활동 기수만)")
