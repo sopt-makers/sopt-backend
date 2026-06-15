@@ -28,8 +28,8 @@ public class SoptLetterFacade {
         return soptLetterService.getReportForm();
     }
 
-    public SoptLetterInfo.TopicListResult getTopics() {
-        return soptLetterService.getTopics();
+    public SoptLetterInfo.TopicListResult getTopics(String type) {
+        return soptLetterService.getTopics(type);
     }
 
     public SoptLetterInfo.TopicDetail getTopic(Long topicId) {

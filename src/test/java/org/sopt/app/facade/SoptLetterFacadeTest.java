@@ -137,21 +137,23 @@ class SoptLetterFacadeTest {
         SoptLetterInfo.TopicSummary topic = SoptLetterInfo.TopicSummary.builder()
                 .topicId(3L)
                 .title("36기 회고")
+                .isDefault(true)
                 .createdAt(LocalDateTime.of(2026, 4, 18, 0, 0))
                 .build();
         SoptLetterInfo.TopicListResult expected = SoptLetterInfo.TopicListResult.builder()
                 .topics(List.of(topic))
                 .build();
-        when(soptLetterService.getTopics()).thenReturn(expected);
+        when(soptLetterService.getTopics(null)).thenReturn(expected);
 
         // when
-        SoptLetterInfo.TopicListResult result = soptLetterFacade.getTopics();
+        SoptLetterInfo.TopicListResult result = soptLetterFacade.getTopics(null);
 
         // then
         assertThat(result.getTopics()).hasSize(1);
         assertThat(result.getTopics().get(0).getTopicId()).isEqualTo(3L);
         assertThat(result.getTopics().get(0).getTitle()).isEqualTo("36기 회고");
-        verify(soptLetterService, times(1)).getTopics();
+        assertThat(result.getTopics().get(0).isDefault()).isTrue();
+        verify(soptLetterService, times(1)).getTopics(null);
     }
 
     @Test

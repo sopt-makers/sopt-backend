@@ -278,22 +278,66 @@ class SoptLetterServiceTest {
         SoptLetterTopic secondTopic = mock(SoptLetterTopic.class);
         when(firstTopic.getId()).thenReturn(2L);
         when(firstTopic.getTitle()).thenReturn("36기 앱잼 회고");
+        when(firstTopic.isDefault()).thenReturn(false);
         when(firstTopic.getCreatedAt()).thenReturn(firstCreatedAt);
         when(secondTopic.getId()).thenReturn(1L);
         when(secondTopic.getTitle()).thenReturn("36기 회고");
+        when(secondTopic.isDefault()).thenReturn(true);
         when(secondTopic.getCreatedAt()).thenReturn(secondCreatedAt);
         when(soptLetterTopicRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(firstTopic, secondTopic));
 
         // when
-        SoptLetterInfo.TopicListResult result = soptLetterService.getTopics();
+        SoptLetterInfo.TopicListResult result = soptLetterService.getTopics(null);
 
         // then
         assertThat(result.getTopics()).hasSize(2);
         assertThat(result.getTopics().get(0).getTopicId()).isEqualTo(2L);
         assertThat(result.getTopics().get(0).getTitle()).isEqualTo("36기 앱잼 회고");
+        assertThat(result.getTopics().get(0).isDefault()).isFalse();
         assertThat(result.getTopics().get(0).getCreatedAt()).isEqualTo(firstCreatedAt);
         assertThat(result.getTopics().get(1).getTopicId()).isEqualTo(1L);
+        assertThat(result.getTopics().get(1).isDefault()).isTrue();
         verify(soptLetterTopicRepository, times(1)).findAllByOrderByCreatedAtDesc();
+        verify(soptLetterTopicRepository, never()).findAllDefaultTopicsOrderByCreatedAtDesc();
+    }
+
+    @Test
+    @DisplayName("SUCCESS_type이 default면 기본 솝레터 주제만 조회한다")
+    void SUCCESS_getTopics_defaultType() {
+        // given
+        LocalDateTime createdAt = LocalDateTime.of(2026, 4, 18, 0, 0);
+        SoptLetterTopic defaultTopic = mock(SoptLetterTopic.class);
+        when(defaultTopic.getId()).thenReturn(1L);
+        when(defaultTopic.getTitle()).thenReturn("36기 솝레터");
+        when(defaultTopic.isDefault()).thenReturn(true);
+        when(defaultTopic.getCreatedAt()).thenReturn(createdAt);
+        when(soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc()).thenReturn(List.of(defaultTopic));
+
+        // when
+        SoptLetterInfo.TopicListResult result = soptLetterService.getTopics("default");
+
+        // then
+        assertThat(result.getTopics()).hasSize(1);
+        assertThat(result.getTopics().get(0).getTopicId()).isEqualTo(1L);
+        assertThat(result.getTopics().get(0).getTitle()).isEqualTo("36기 솝레터");
+        assertThat(result.getTopics().get(0).isDefault()).isTrue();
+        assertThat(result.getTopics().get(0).getCreatedAt()).isEqualTo(createdAt);
+        verify(soptLetterTopicRepository, times(1)).findAllDefaultTopicsOrderByCreatedAtDesc();
+        verify(soptLetterTopicRepository, never()).findAllByOrderByCreatedAtDesc();
+    }
+
+    @Test
+    @DisplayName("FAIL_지원하지 않는 주제 목록 조회 type이면 BadRequestException이 발생한다")
+    void FAIL_getTopics_invalidType() {
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.getTopics("invalid"))
+                .isInstanceOf(BadRequestException.class)
+                .satisfies(e -> {
+                    BadRequestException exception = (BadRequestException) e;
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.INVALID_PARAMETER);
+                });
+        verify(soptLetterTopicRepository, never()).findAllByOrderByCreatedAtDesc();
+        verify(soptLetterTopicRepository, never()).findAllDefaultTopicsOrderByCreatedAtDesc();
     }
 
     @Test

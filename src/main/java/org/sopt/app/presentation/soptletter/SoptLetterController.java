@@ -77,11 +77,14 @@ public class SoptLetterController {
     @GetMapping("/topics")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "400", description = "bad request", content = @Content),
         @ApiResponse(responseCode = "403", description = "forbidden", content = @Content),
         @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    public ResponseEntity<SoptLetterResponse.TopicsResponse> getTopics() {
-        val result = soptLetterFacade.getTopics();
+    public ResponseEntity<SoptLetterResponse.TopicsResponse> getTopics(
+        @RequestParam(required = false) String type
+    ) {
+        val result = soptLetterFacade.getTopics(type);
         return ResponseEntity.ok(soptLetterResponseMapper.of(result));
     }
 

@@ -25,6 +25,7 @@ public interface SoptLetterResponseMapper {
 
     SoptLetterResponse.TopicsResponse of(SoptLetterInfo.TopicListResult result);
 
+    @Mapping(source = "default", target = "isDefault")
     SoptLetterResponse.TopicResponse of(SoptLetterInfo.TopicSummary result);
 
     SoptLetterResponse.TopicDetailResponse of(SoptLetterInfo.TopicDetail result);

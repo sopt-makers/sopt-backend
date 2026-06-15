@@ -22,6 +22,7 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.common.utils.AnonymousNameGenerator;
 import org.sopt.app.domain.entity.soptletter.SoptLetter;
 import org.sopt.app.domain.entity.soptletter.SoptLetterProfile;
+import org.sopt.app.domain.entity.soptletter.SoptLetterTopic;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
@@ -123,9 +124,19 @@ public class SoptLetterService {
     }
 
     @Transactional(readOnly = true)
-    public SoptLetterInfo.TopicListResult getTopics() {
-        val topics = soptLetterTopicRepository.findAllByOrderByCreatedAtDesc();
+    public SoptLetterInfo.TopicListResult getTopics(String type) {
+        val topics = getTopicsByType(type);
         return SoptLetterInfo.TopicListResult.from(topics);
+    }
+
+    private List<SoptLetterTopic> getTopicsByType(String type) {
+        if (type == null) {
+            return soptLetterTopicRepository.findAllByOrderByCreatedAtDesc();
+        }
+        if ("default".equalsIgnoreCase(type)) {
+            return soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc();
+        }
+        throw new BadRequestException(ErrorCode.INVALID_PARAMETER);
     }
 
     @Transactional(readOnly = true)

@@ -24,6 +24,9 @@ public class SoptLetterTopic extends BaseEntity {
     private String title;
 
     @Column(nullable = false)
+    private boolean isDefault;
+
+    @Column(nullable = false)
     private LocalDateTime startedAt;
 
     @Column(nullable = false)
