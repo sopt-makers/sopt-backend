@@ -16,7 +16,7 @@ public interface SoptLetterLikeRepository extends JpaRepository<SoptLetterLike, 
     @Modifying
     @Query(
         value = """
-            INSERT INTO sopt_letter_like (user_id, letter_id, created_at, updated_at)
+            INSERT INTO ${spring.jpa.properties.hibernate.default_schema}.sopt_letter_like (user_id, letter_id, created_at, updated_at)
             VALUES (:userId, :letterId, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
             ON CONFLICT (letter_id, user_id) DO NOTHING
             """,
