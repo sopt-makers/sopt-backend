@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RequestMapping("/api/v2/admin/schedule")
 @SecurityRequirement(name = "Authorization")
-@Profile("lambda")
+@Profile({"lambda", "prod"})
 public class AdminScheduleController {
     private final RankScheduler rankScheduler;
     private final SoptampBatchService soptampBatchService;
