@@ -739,6 +739,41 @@ class SoptampUserServiceTest {
     }
 
     @Test
+    @DisplayName("SUCCESS_동일한 파트, 이름의 닉네임 알파벳 후보가 모두 존재하면 숫자 suffix로 생성함")
+    void SUCCESS_upsertSoptampUser_whenAlphabetSuffixExhausted() {
+        //given
+        final Long userId = 1L;
+        final Long generation = 37L;
+        final int platformUserId = userId.intValue();
+
+        final SoptActivities activities = SoptampUserFixture.getSoptActivities(generation.intValue(), PLATFORM_PART_NAME_SERVER);
+
+        final PlatformUserInfoResponse platformUserInfoResponse = SoptampUserFixture.getPlatformUserInfoResponse(platformUserId, List.of(activities));
+
+        final String baseNickname = PLATFORM_PART_NAME_SERVER + platformUserInfoResponse.name();
+
+        when(soptampUserRepository.findByUserId(anyLong())).thenReturn(Optional.empty());
+        when(soptampUserRepository.existsByNickname(baseNickname)).thenReturn(true);
+        for (char suffix : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray()) {
+            when(soptampUserRepository.existsByNickname(baseNickname + suffix)).thenReturn(true);
+        }
+        when(soptampUserRepository.existsByNickname(baseNickname + "1")).thenReturn(false);
+
+        // when
+        soptampUserService.upsertSoptampUser(platformUserInfoResponse, userId);
+
+        // then
+        ArgumentCaptor<SoptampUser> soptampUserArgumentCaptor = ArgumentCaptor.forClass(SoptampUser.class);
+        verify(soptampUserRepository).save(soptampUserArgumentCaptor.capture());
+        SoptampUser capturedSoptampUser = soptampUserArgumentCaptor.getValue();
+
+        assertThat(capturedSoptampUser)
+            .extracting(SoptampUser::getUserId, SoptampUser::getNickname, SoptampUser::getGeneration)
+            .contains(userId, baseNickname + "1", generation);
+        verify(eventPublisher).raise(any(SoptampUserAllCacheSyncEvent.class));
+    }
+
+    @Test
     @DisplayName("SUCCESS_soptampUser 가 이미 존재하는 경우 totalPoint를 초기화하고 기수와 파트를 최신으로 업데이트하고 이벤트를 발행함")
     void SUCCESS_upsertSoptampUser_whenAlreadyExist() {
         //given

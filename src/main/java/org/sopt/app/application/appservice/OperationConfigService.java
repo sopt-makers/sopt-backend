@@ -15,11 +15,41 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OperationConfigService {
 
+    private static final String SOPTAMP_UPSERT_CRON_KEY = "UPSERT_CRON";
+    private static final String DEFAULT_UPSERT_CRON = "0 0 3 * * *"; // 기본값: 매일 새벽 3시
+
     private final OperationConfigRepository operationConfigRepository;
 
     @Transactional(readOnly = true)
     public List<OperationConfig> getOperationConfigByOperationConfigType(OperationConfigCategory operationConfigCategory) {
         return operationConfigRepository.findByOperationConfigCategory(operationConfigCategory).orElseThrow(
                 () -> new NotFoundException(ErrorCode.ENTITY_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    public String getOperationConfigValue(OperationConfigCategory category, String key) {
+        return operationConfigRepository
+            .findByOperationConfigCategoryAndKey(category, key)
+            .map(OperationConfig::getValue)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.ENTITY_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    public String getSoptampUpsertCron() {
+        return operationConfigRepository
+            .findByOperationConfigCategoryAndKey(OperationConfigCategory.SOPTAMP_BATCH, SOPTAMP_UPSERT_CRON_KEY)
+            .map(OperationConfig::getValue)
+            .orElse(DEFAULT_UPSERT_CRON);
+    }
+
+    @Transactional
+    public void updateSoptampBatchConfig(String cron) {
+        operationConfigRepository
+            .findByOperationConfigCategoryAndKey(OperationConfigCategory.SOPTAMP_BATCH, SOPTAMP_UPSERT_CRON_KEY)
+            .ifPresentOrElse(
+                config -> config.updateValue(cron),
+                () -> operationConfigRepository.save(
+                    OperationConfig.of(OperationConfigCategory.SOPTAMP_BATCH, SOPTAMP_UPSERT_CRON_KEY, cron, "솝탬프 upsert 배치 실행 cron 표현식"))
+            );
     }
 }

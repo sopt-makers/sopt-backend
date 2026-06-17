@@ -93,8 +93,7 @@ public class AppjamRankCalculator {
 			.sorted(Comparator
 				.comparingLong(TeamAggregate::todayPoints).reversed()
 				.thenComparing(TeamAggregate::firstCertifiedAtToday, Comparator.nullsLast(Comparator.naturalOrder()))
-				.thenComparing(TeamAggregate::teamNumber)
-			)
+				.thenComparing(TeamAggregate::teamNumber))
 			.limit(size)
 			.toList();
 

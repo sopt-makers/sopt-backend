@@ -11,8 +11,9 @@ import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.facade.AdminSoptampFacade;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -75,24 +76,34 @@ public class AdminSoptampController {
         return ResponseEntity.ok().build();
     }
 
-    @Operation(summary = "솝탬프 유저 일괄 upsert")
+    @Operation(summary = "솝탬프 upsert 배치 스케줄 설정")
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "success"),
         @ApiResponse(responseCode = "401", description = "token error", content = @Content),
         @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
-    @PostMapping("/upsert")
-    public ResponseEntity<Void> upsertAllSoptampUsers(
-        @RequestParam(name = "password") String password
+    @PatchMapping("/upsert/schedule")
+    public ResponseEntity<Void> updateUpsertBatchSchedule(
+        @RequestParam(name = "password") String password,
+        @RequestParam(name = "cron") String cron
     ) {
         validateAdmin(password);
-        adminSoptampFacade.upsertAllSoptampUsers();
+        validateCron(cron);
+        adminSoptampFacade.updateUpsertBatchSchedule(cron);
         return ResponseEntity.ok().build();
     }
 
     private void validateAdmin(String password) {
         if (!password.equals(adminPassword)) {
             throw new BadRequestException(ErrorCode.INVALID_APP_ADMIN_PASSWORD);
+        }
+    }
+
+    private void validateCron(String cron) {
+        try {
+            new CronTrigger(cron);
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException(ErrorCode.INVALID_PARAMETER);
         }
     }
 }

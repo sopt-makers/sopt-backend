@@ -10,7 +10,6 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Supplier;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.app.common.exception.BaseException;
 import org.sopt.app.common.response.ErrorCode;
@@ -24,14 +23,21 @@ import org.springframework.stereotype.Component;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
 
     private final StringRedisTemplate stringRedisTemplate;
     private final ObjectMapper objectMapper;
-
-    @Qualifier(CACHE_REFRESH_EXECUTOR)
     private final ObjectProvider<Executor> executorProvider;
+
+    public RedisResilientCacheTemplate(
+        StringRedisTemplate stringRedisTemplate,
+        ObjectMapper objectMapper,
+        @Qualifier(CACHE_REFRESH_EXECUTOR) ObjectProvider<Executor> executorProvider
+    ) {
+        this.stringRedisTemplate = stringRedisTemplate;
+        this.objectMapper = objectMapper;
+        this.executorProvider = executorProvider;
+    }
 
     private static final String LOCK_PREFIX = "lock:cache:";
     private static final String REFRESH_MARKER_PREFIX = "refresh_marker:cache:";

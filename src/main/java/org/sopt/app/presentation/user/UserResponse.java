@@ -53,6 +53,8 @@ public class UserResponse {
         private String name;
         @Schema(description = "유저 프로필 메세지", example = "1등이 되고 말거야!")
         private String profileImage;
+        @Schema(description = "유저 활동 파트 (여러 SOPT 활동 파트가 있는 경우 오래된 활동 파트부터 /로 구분)", example = "기획/서버")
+        private String part;
         @Schema(description = "유저 활동 기수 정보", example = "[32,30,29]")
         private List<Long> generationList;
 
@@ -61,6 +63,7 @@ public class UserResponse {
                 .status("UNAUTHENTICATED")
                 .name("")
                 .profileImage("")
+                .part("")
                 .generationList(List.of())
                 .build();
         }
@@ -148,7 +151,7 @@ public class UserResponse {
         private String profileImage;
         @Schema(description = "파트")
         private String part;
-        @Schema(description = "콕찌르기 횟수")
+        @Schema(description = "내가 찌른 콕 횟수")
         private String pokeCount;
         @Schema(description = "", example = "14등")
         private String soptampRank;
@@ -225,7 +228,7 @@ public class UserResponse {
         @Schema(description = "총 쳐준 박수 개수")
         Integer clapCount,
 
-        @Schema(description = "총 콕찌르기 개수 (활동 기수만 반환)")
+        @Schema(description = "내가 찌른 콕 횟수 총합")
         int totalPokeCount,
 
         @Schema(description = "친한 친구 콕 찌르기 횟수의 총합 (2~4회 찌른 사람 대상, 활동 기수만)")
