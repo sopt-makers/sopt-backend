@@ -48,7 +48,7 @@ public class AppjamMissionService {
     }
 
     private List<AppjamMissionInfo> getDisplayedMissions() {
-        val displayedMissions = missionRepository.findAllByDisplay(true);
+        val displayedMissions = missionRepository.findAllByDisplayOrderByLevelAscTitleAsc(true);
         return displayedMissions.stream()
             .map(AppjamMissionInfo::createWhenUncompleted)
             .toList();
@@ -58,7 +58,7 @@ public class AppjamMissionService {
         val userIds = getTeamUserIds(teamNumber);
         val stampsByMissionId = getStampMapByUserIds(userIds);
         val soptampUserByUserId = getSoptampUserMapByUserIds(userIds);
-        val displayedMissions = missionRepository.findAllByDisplay(true);
+        val displayedMissions = missionRepository.findAllByDisplayOrderByLevelAscTitleAsc(true);
 
         return displayedMissions.stream()
             .map(mission -> toTeamMissionInfo(mission, stampsByMissionId, soptampUserByUserId))
