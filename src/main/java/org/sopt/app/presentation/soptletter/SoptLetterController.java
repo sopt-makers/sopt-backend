@@ -103,6 +103,23 @@ public class SoptLetterController {
         return ResponseEntity.ok(soptLetterResponseMapper.of(result));
     }
 
+    @Operation(summary = "기본 주제 솝레터 메시지 목록 조회")
+    @GetMapping("/topics/default/messages")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "400", description = "bad request", content = @Content),
+        @ApiResponse(responseCode = "404", description = "not found", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<SoptLetterResponse.TopicMessagesResponse> getDefaultTopicMessages(
+        @AuthenticationPrincipal Long userId,
+        @RequestParam(required = false) Long cursor,
+        @RequestParam(defaultValue = "20") Integer size
+    ) {
+        val result = soptLetterFacade.getDefaultTopicMessages(userId, cursor, size);
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+    }
+
     @Operation(summary = "개별 주제 솝레터 메시지 목록 조회")
     @GetMapping("/topics/{topicId}/messages")
     @ApiResponses(value = {
