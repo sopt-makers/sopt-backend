@@ -152,6 +152,9 @@ public class SoptLetterService {
         if ("default".equalsIgnoreCase(type)) {
             return soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc();
         }
+        if ("normal".equalsIgnoreCase(type)) {
+            return soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc();
+        }
         throw new BadRequestException(ErrorCode.INVALID_PARAMETER);
     }
 

@@ -299,6 +299,7 @@ class SoptLetterServiceTest {
         assertThat(result.getTopics().get(1).isDefault()).isTrue();
         verify(soptLetterTopicRepository, times(1)).findAllByOrderByCreatedAtDesc();
         verify(soptLetterTopicRepository, never()).findAllDefaultTopicsOrderByCreatedAtDesc();
+        verify(soptLetterTopicRepository, never()).findAllNormalTopicsOrderByCreatedAtDesc();
     }
 
     @Test
@@ -324,6 +325,33 @@ class SoptLetterServiceTest {
         assertThat(result.getTopics().get(0).getCreatedAt()).isEqualTo(createdAt);
         verify(soptLetterTopicRepository, times(1)).findAllDefaultTopicsOrderByCreatedAtDesc();
         verify(soptLetterTopicRepository, never()).findAllByOrderByCreatedAtDesc();
+        verify(soptLetterTopicRepository, never()).findAllNormalTopicsOrderByCreatedAtDesc();
+    }
+
+    @Test
+    @DisplayName("SUCCESS_type이 normal이면 기본 주제를 제외한 솝레터 주제를 조회한다")
+    void SUCCESS_getTopics_normalType() {
+        // given
+        LocalDateTime createdAt = LocalDateTime.of(2026, 7, 19, 0, 0);
+        SoptLetterTopic normalTopic = mock(SoptLetterTopic.class);
+        when(normalTopic.getId()).thenReturn(2L);
+        when(normalTopic.getTitle()).thenReturn("38기 앱잼 회고");
+        when(normalTopic.isDefault()).thenReturn(false);
+        when(normalTopic.getCreatedAt()).thenReturn(createdAt);
+        when(soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc()).thenReturn(List.of(normalTopic));
+
+        // when
+        SoptLetterInfo.TopicListResult result = soptLetterService.getTopics("normal");
+
+        // then
+        assertThat(result.getTopics()).hasSize(1);
+        assertThat(result.getTopics().get(0).getTopicId()).isEqualTo(2L);
+        assertThat(result.getTopics().get(0).getTitle()).isEqualTo("38기 앱잼 회고");
+        assertThat(result.getTopics().get(0).isDefault()).isFalse();
+        assertThat(result.getTopics().get(0).getCreatedAt()).isEqualTo(createdAt);
+        verify(soptLetterTopicRepository, times(1)).findAllNormalTopicsOrderByCreatedAtDesc();
+        verify(soptLetterTopicRepository, never()).findAllDefaultTopicsOrderByCreatedAtDesc();
+        verify(soptLetterTopicRepository, never()).findAllByOrderByCreatedAtDesc();
     }
 
     @Test
@@ -338,6 +366,7 @@ class SoptLetterServiceTest {
                 });
         verify(soptLetterTopicRepository, never()).findAllByOrderByCreatedAtDesc();
         verify(soptLetterTopicRepository, never()).findAllDefaultTopicsOrderByCreatedAtDesc();
+        verify(soptLetterTopicRepository, never()).findAllNormalTopicsOrderByCreatedAtDesc();
     }
 
     @Test
