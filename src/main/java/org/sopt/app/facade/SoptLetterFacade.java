@@ -24,6 +24,10 @@ public class SoptLetterFacade {
         return soptLetterService.getTopicMessages(userId, topicId, cursor, size);
     }
 
+    public SoptLetterInfo.TopicMessageListResult getDefaultTopicMessages(Long userId, Long cursor, Integer size) {
+        return soptLetterService.getDefaultTopicMessages(userId, cursor, size);
+    }
+
     public SoptLetterInfo.ReportFormResult getReportForm() {
         return soptLetterService.getReportForm();
     }

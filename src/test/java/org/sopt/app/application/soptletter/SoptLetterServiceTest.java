@@ -1387,4 +1387,154 @@ class SoptLetterServiceTest {
                     assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND);
                 });
     }
+
+    @Test
+    @DisplayName("SUCCESS_기본 주제의 솝레터 메시지 목록을 최신순으로 조회한다")
+    void SUCCESS_getDefaultTopicMessages() {
+        // given
+        final Long userId = 1L;
+        final Long topicId = 3L;
+        final int size = 2;
+
+        SoptLetterTopic defaultTopic = mock(SoptLetterTopic.class);
+        when(defaultTopic.getId()).thenReturn(topicId);
+        when(defaultTopic.getTitle()).thenReturn("36기 회고");
+
+        SoptLetterProfile requesterProfile = SoptLetterProfile.builder()
+                .id(10L)
+                .userId(userId)
+                .nickname("내 닉네임")
+                .build();
+        SoptLetterProfile otherProfile = SoptLetterProfile.builder()
+                .id(20L)
+                .userId(2L)
+                .nickname("반짝이는 고래")
+                .build();
+
+        SoptLetter firstLetter = SoptLetter.builder()
+                .id(125L)
+                .topicId(topicId)
+                .authorProfileId(20L)
+                .message("첫 번째 메시지")
+                .color(SoptLetterColor.GREEN_50)
+                .shapeType(SoptLetterShapeType.POINT)
+                .degree(4.0)
+                .likeCount(5)
+                .build();
+        SoptLetter secondLetter = SoptLetter.builder()
+                .id(124L)
+                .topicId(topicId)
+                .authorProfileId(10L)
+                .message("내가 쓴 메시지")
+                .color(SoptLetterColor.YELLOW_50)
+                .shapeType(SoptLetterShapeType.CLOUD)
+                .degree(0.0)
+                .likeCount(1)
+                .build();
+        SoptLetter extraLetter = SoptLetter.builder()
+                .id(123L)
+                .topicId(topicId)
+                .authorProfileId(20L)
+                .message("다음 페이지 메시지")
+                .color(SoptLetterColor.RED_50)
+                .shapeType(SoptLetterShapeType.POINT)
+                .degree(-4.0)
+                .likeCount(0)
+                .build();
+
+        when(soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc())
+                .thenReturn(List.of(defaultTopic));
+        when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.of(requesterProfile));
+        when(soptLetterRepository.findAllByTopicIdOrderByIdDesc(anyLong(), any()))
+                .thenReturn(List.of(firstLetter, secondLetter, extraLetter));
+        when(soptLetterLikeRepository.findLikedLetterIdsByUserIdAndLetterIdIn(anyLong(), any()))
+                .thenReturn(Set.of(125L));
+        when(soptLetterProfileRepository.findAllById(any())).thenReturn(List.of(requesterProfile, otherProfile));
+        when(soptLetterRepository.countByTopicId(topicId)).thenReturn(3L);
+
+        // when
+        SoptLetterInfo.TopicMessageListResult result = soptLetterService.getDefaultTopicMessages(userId, null, size);
+
+        // then
+        assertThat(result.getTopicId()).isEqualTo(topicId);
+        assertThat(result.getTitle()).isEqualTo("36기 회고");
+        assertThat(result.getTotalCount()).isEqualTo(3);
+        assertThat(result.getHasNext()).isTrue();
+        assertThat(result.getNextCursor()).isEqualTo(124L);
+        assertThat(result.getMessages()).hasSize(2);
+        assertThat(result.getMessages().get(0).getMessageId()).isEqualTo(125L);
+        assertThat(result.getMessages().get(0).getAuthorNickname()).isEqualTo("반짝이는 고래");
+        assertThat(result.getMessages().get(0).getLikedByMe()).isTrue();
+        assertThat(result.getMessages().get(0).getMine()).isFalse();
+        assertThat(result.getMessages().get(1).getMessageId()).isEqualTo(124L);
+        assertThat(result.getMessages().get(1).getMine()).isTrue();
+        verify(soptLetterTopicRepository, times(1)).findAllDefaultTopicsOrderByCreatedAtDesc();
+        verify(soptLetterTopicRepository, never()).findById(anyLong());
+    }
+
+    @Test
+    @DisplayName("SUCCESS_기본 주제가 여러 개면 가장 최근 생성된 기본 주제의 메시지를 조회한다")
+    void SUCCESS_getDefaultTopicMessages_picksMostRecent() {
+        // given
+        final Long userId = 1L;
+        final Long recentTopicId = 5L;
+
+        SoptLetterTopic recentTopic = mock(SoptLetterTopic.class);
+        when(recentTopic.getId()).thenReturn(recentTopicId);
+        when(recentTopic.getTitle()).thenReturn("최신 기본 주제");
+        SoptLetterTopic oldTopic = mock(SoptLetterTopic.class);
+
+        SoptLetterProfile profile = SoptLetterProfile.builder()
+                .id(10L)
+                .userId(userId)
+                .nickname("반짝이는 고래")
+                .build();
+
+        // 레포지토리는 createdAt DESC 정렬 보장 → 목록 첫 번째가 최신
+        when(soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc())
+                .thenReturn(List.of(recentTopic, oldTopic));
+        when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
+        when(soptLetterRepository.findAllByTopicIdOrderByIdDesc(anyLong(), any())).thenReturn(List.of());
+        when(soptLetterRepository.countByTopicId(recentTopicId)).thenReturn(0L);
+
+        // when
+        SoptLetterInfo.TopicMessageListResult result = soptLetterService.getDefaultTopicMessages(userId, null, 20);
+
+        // then
+        assertThat(result.getTopicId()).isEqualTo(recentTopicId);
+        assertThat(result.getTitle()).isEqualTo("최신 기본 주제");
+        verify(soptLetterRepository, times(1)).countByTopicId(recentTopicId);
+    }
+
+    @Test
+    @DisplayName("FAIL_기본 주제가 존재하지 않으면 NotFoundException이 발생한다")
+    void FAIL_getDefaultTopicMessages_noDefaultTopic() {
+        // given
+        final Long userId = 1L;
+        when(soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc()).thenReturn(List.of());
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.getDefaultTopicMessages(userId, null, 20))
+                .isInstanceOf(NotFoundException.class)
+                .satisfies(e -> {
+                    NotFoundException exception = (NotFoundException) e;
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_TOPIC_NOT_FOUND);
+                });
+    }
+
+    @Test
+    @DisplayName("FAIL_기본 주제 메시지 목록 조회 시 size가 0 이하이면 BadRequestException이 발생한다")
+    void FAIL_getDefaultTopicMessages_zeroSize() {
+        // given
+        final Long userId = 1L;
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.getDefaultTopicMessages(userId, null, 0))
+                .isInstanceOf(BadRequestException.class)
+                .satisfies(e -> {
+                    BadRequestException exception = (BadRequestException) e;
+                    assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.INVALID_PARAMETER);
+                });
+        verify(soptLetterTopicRepository, never()).findAllDefaultTopicsOrderByCreatedAtDesc();
+    }
 }
