@@ -11,4 +11,7 @@ public interface SoptLetterTopicRepository extends JpaRepository<SoptLetterTopic
 
     @Query("SELECT t FROM SoptLetterTopic t WHERE t.isDefault = true ORDER BY t.createdAt DESC")
     List<SoptLetterTopic> findAllDefaultTopicsOrderByCreatedAtDesc();
+
+    @Query("SELECT t FROM SoptLetterTopic t WHERE t.isDefault = false ORDER BY t.createdAt DESC")
+    List<SoptLetterTopic> findAllNormalTopicsOrderByCreatedAtDesc();
 }
