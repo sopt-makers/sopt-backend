@@ -201,6 +201,13 @@ public class UserResponse {
         private Long userId;
     }
 
+    @Schema(description = "탈퇴 폼 주소 조회 응답")
+    public record WithdrawFormResponse(
+        @Schema(description = "탈퇴 폼 URL", example = "https://example.com/withdraw-form")
+        String withdrawFormUrl
+    ) {
+    }
+
     @JsonInclude(Include.NON_NULL)
     public record MySoptLog(
 
