@@ -200,3 +200,4 @@ create table app_dev.poke_message
     created_at timestamp default now(),
     updated_at timestamp default now()
 );
+

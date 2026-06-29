@@ -3,6 +3,7 @@ package org.sopt.app.presentation.user;
 import org.mapstruct.*;
 import org.sopt.app.application.playground.dto.PlaygroundProfileInfo;
 import org.sopt.app.application.user.UserInfo;
+import org.sopt.app.application.user.UserWithdrawInfo;
 import org.sopt.app.presentation.user.UserResponse.*;
 
 @Mapper(
@@ -20,4 +21,6 @@ public interface UserResponseMapper {
     UserResponse.Generation ofGeneration(PlaygroundProfileInfo.UserActiveInfo userActiveInfo);
 
     Create ofCreate(UserInfo userInfo);
+
+    UserResponse.WithdrawFormResponse of(UserWithdrawInfo.WithdrawFormResult info);
 }

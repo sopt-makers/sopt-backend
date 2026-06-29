@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,10 +29,15 @@ public class OperationConfigService {
 
     @Transactional(readOnly = true)
     public String getOperationConfigValue(OperationConfigCategory category, String key) {
+        return findOperationConfigValue(category, key)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.ENTITY_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    public Optional<String> findOperationConfigValue(OperationConfigCategory category, String key) {
         return operationConfigRepository
             .findByOperationConfigCategoryAndKey(category, key)
-            .map(OperationConfig::getValue)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.ENTITY_NOT_FOUND));
+            .map(OperationConfig::getValue);
     }
 
     @Transactional(readOnly = true)
