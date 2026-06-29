@@ -1,11 +1,11 @@
 package org.sopt.app.facade;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,9 +14,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.appservice.OperationConfigService;
 import org.sopt.app.application.user.UserWithdrawInfo;
+import org.sopt.app.application.user.UserWithdrawHistoryService;
 import org.sopt.app.common.config.OperationConfigCategory;
-import org.sopt.app.common.exception.NotFoundException;
-import org.sopt.app.common.response.ErrorCode;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("UserWithdrawFacade 단위 테스트")
@@ -25,39 +24,42 @@ class UserWithdrawFacadeTest {
     @Mock
     private OperationConfigService operationConfigService;
 
+    @Mock
+    private UserWithdrawHistoryService userWithdrawHistoryService;
+
     @InjectMocks
     private UserWithdrawFacade userWithdrawFacade;
 
     @Test
-    @DisplayName("SUCCESS_운영 설정에서 탈퇴 폼 URL을 조회한다")
-    void SUCCESS_getWithdrawForm() {
+    @DisplayName("SUCCESS_탈퇴 요청 시 요청을 기록하고 폼 URL을 반환한다")
+    void SUCCESS_requestWithdraw_recordsAndReturnsFormUrl() {
         // given
+        final Long userId = 1L;
         final String withdrawFormUrl = "https://example.com/withdraw-form";
-        when(operationConfigService.getOperationConfigValue(OperationConfigCategory.WITHDRAW_FORM, "linkUrl"))
-            .thenReturn(withdrawFormUrl);
+        when(operationConfigService.findOperationConfigValue(OperationConfigCategory.WITHDRAW_FORM, "linkUrl"))
+            .thenReturn(Optional.of(withdrawFormUrl));
 
         // when
-        UserWithdrawInfo.WithdrawFormResult result = userWithdrawFacade.getWithdrawForm();
+        UserWithdrawInfo.WithdrawFormResult result = userWithdrawFacade.requestWithdraw(userId);
 
         // then
+        verify(userWithdrawHistoryService, times(1)).recordWithdrawRequest(userId);
         assertThat(result.getWithdrawFormUrl()).isEqualTo(withdrawFormUrl);
-        verify(operationConfigService, times(1))
-            .getOperationConfigValue(OperationConfigCategory.WITHDRAW_FORM, "linkUrl");
     }
 
     @Test
-    @DisplayName("FAIL_탈퇴 폼 운영 설정이 존재하지 않으면 NotFoundException이 전파된다")
-    void FAIL_getWithdrawForm_whenConfigNotFound() {
+    @DisplayName("SUCCESS_폼 설정이 없어도 요청은 기록되고 폼 URL은 비어(null) 반환된다")
+    void SUCCESS_requestWithdraw_recordsEvenWhenFormConfigMissing() {
         // given
-        when(operationConfigService.getOperationConfigValue(OperationConfigCategory.WITHDRAW_FORM, "linkUrl"))
-            .thenThrow(new NotFoundException(ErrorCode.ENTITY_NOT_FOUND));
+        final Long userId = 1L;
+        when(operationConfigService.findOperationConfigValue(OperationConfigCategory.WITHDRAW_FORM, "linkUrl"))
+            .thenReturn(Optional.empty());
 
-        // when & then
-        assertThatThrownBy(() -> userWithdrawFacade.getWithdrawForm())
-            .isInstanceOf(NotFoundException.class)
-            .satisfies(e -> {
-                NotFoundException exception = (NotFoundException) e;
-                assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.ENTITY_NOT_FOUND);
-            });
+        // when
+        UserWithdrawInfo.WithdrawFormResult result = userWithdrawFacade.requestWithdraw(userId);
+
+        // then
+        verify(userWithdrawHistoryService, times(1)).recordWithdrawRequest(userId);
+        assertThat(result.getWithdrawFormUrl()).isNull();
     }
 }
