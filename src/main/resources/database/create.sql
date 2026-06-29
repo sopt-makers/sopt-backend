@@ -201,12 +201,3 @@ create table app_dev.poke_message
     updated_at timestamp default now()
 );
 
----
-create table app_dev.user_withdraw_history
-(
-    id         serial
-        primary key,
-    user_id    bigint                  not null,
-    created_at timestamp default now() not null,
-    updated_at timestamp default now() not null
-);
