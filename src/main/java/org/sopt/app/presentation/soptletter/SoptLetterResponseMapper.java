@@ -14,8 +14,8 @@ import org.sopt.app.presentation.soptletter.dto.SoptLetterResponse;
 )
 public interface SoptLetterResponseMapper {
 
-    @Mapping(source = "onboarded", target = "isOnboarded")
-    SoptLetterResponse.OnboardingProfileResponse of(SoptLetterInfo.Profile info);
+    @Mapping(source = "info.onboarded", target = "isOnboarded")
+    SoptLetterResponse.OnboardingProfileResponse of(SoptLetterInfo.Profile info, Long currentGeneration);
 
     SoptLetterResponse.TopicMessagesResponse of(SoptLetterInfo.TopicMessageListResult result);
 

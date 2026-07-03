@@ -11,6 +11,7 @@ import lombok.val;
 import org.sopt.app.facade.SoptLetterFacade;
 import org.sopt.app.presentation.soptletter.dto.SoptLetterRequest;
 import org.sopt.app.presentation.soptletter.dto.SoptLetterResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,6 +33,9 @@ public class SoptLetterController {
     private final SoptLetterFacade soptLetterFacade;
     private final SoptLetterResponseMapper soptLetterResponseMapper;
 
+    @Value("${sopt.current.generation}")
+    private Long currentGeneration;
+
     @Operation(summary = "솝레터 온보딩 프로필 조회 (존재하지 않을 경우 생성)")
     @GetMapping("/onboarding")
     @ApiResponses(value = {
@@ -43,7 +47,7 @@ public class SoptLetterController {
         @AuthenticationPrincipal Long userId
     ) {
         val result = soptLetterFacade.getOrCreateOnboardingProfile(userId);
-        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result, currentGeneration));
     }
 
     @Operation(summary = "솝레터 온보딩 완료 처리")
@@ -57,7 +61,7 @@ public class SoptLetterController {
         @AuthenticationPrincipal Long userId
     ) {
         val result = soptLetterFacade.completeOnboardingProfile(userId);
-        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result, currentGeneration));
     }
 
     @Operation(summary = "솝레터 익명 신고 폼 주소 조회")
