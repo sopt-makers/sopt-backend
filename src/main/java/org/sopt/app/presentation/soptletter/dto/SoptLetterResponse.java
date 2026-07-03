@@ -14,7 +14,9 @@ public class SoptLetterResponse {
         @Schema(description = "닉네임", example = "익명의 달달한 간장게장")
         String nickname,
         @Schema(description = "온보딩 완료 여부", example = "false")
-        boolean isOnboarded
+        boolean isOnboarded,
+        @Schema(description = "현재 솝트 기수", example = "37")
+        Long currentGeneration
     ) {
     }
 
