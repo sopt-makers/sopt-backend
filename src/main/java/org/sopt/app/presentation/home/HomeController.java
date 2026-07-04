@@ -46,11 +46,11 @@ public class HomeController {
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/app-service")
-    public ResponseEntity<List<AppServiceEntryStatusResponse>> getHomeAppService(
+    public ResponseEntity<HomeAppServiceResponse> getHomeAppService(
             @AuthenticationPrincipal Long userId
     ) {
         return ResponseEntity.ok(
-                homeFacade.checkHomeAppServiceEntryStatus(userId)
+                homeFacade.getHomeAppServices(userId)
         );
     }
 

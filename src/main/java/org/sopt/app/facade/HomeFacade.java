@@ -32,14 +32,19 @@ import org.sopt.app.common.utils.ActivityDurationCalculator;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.home.MeetingParamRequest;
 import org.sopt.app.presentation.home.response.FloatingButtonResponse;
+import org.sopt.app.presentation.home.response.HomeAppServiceResponse;
 import org.sopt.app.presentation.home.response.HomeDescriptionResponse;
 import org.sopt.app.presentation.home.response.ReviewFormResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class HomeFacade {
+
+    @Value("${makers.app.soptamp.appjam-mode:false}")
+    private boolean appjamMode;
 
     private final DescriptionService descriptionService;
     private final PlaygroundPostCacheService playgroundPostCacheService;
@@ -68,8 +73,12 @@ public class HomeFacade {
         );
     }
 
-    public List<AppServiceEntryStatusResponse> checkHomeAppServiceEntryStatus(Long userId) {
-        return checkAppServiceEntryStatus(appServiceService.getHomeAppServices(), userId);
+    public HomeAppServiceResponse getHomeAppServices(Long userId) {
+        List<AppServiceEntryStatusResponse> appServices = checkAppServiceEntryStatus(
+            appServiceService.getHomeAppServices(),
+            userId
+        );
+        return HomeAppServiceResponse.of(appjamMode, appServices);
     }
 
     public List<AppServiceEntryStatusResponse> checkTabAppServiceEntryStatus(Long userId) {
