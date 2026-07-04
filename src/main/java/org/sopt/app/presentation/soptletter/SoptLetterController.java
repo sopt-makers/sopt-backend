@@ -77,6 +77,18 @@ public class SoptLetterController {
         return ResponseEntity.ok(soptLetterResponseMapper.of(result));
     }
 
+    @Operation(summary = "솝레터 메인 CTA 조회")
+    @GetMapping("/cta")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "403", description = "forbidden", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<SoptLetterResponse.CtaResponse> getCta() {
+        val result = soptLetterFacade.getCta();
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+    }
+
     @Operation(summary = "솝레터 주제 목록 조회")
     @GetMapping("/topics")
     @ApiResponses(value = {

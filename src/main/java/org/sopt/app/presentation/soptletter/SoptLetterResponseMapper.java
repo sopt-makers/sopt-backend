@@ -23,6 +23,8 @@ public interface SoptLetterResponseMapper {
 
     SoptLetterResponse.ReportFormResponse of(SoptLetterInfo.ReportFormResult info);
 
+    SoptLetterResponse.CtaResponse of(SoptLetterInfo.CtaResult result);
+
     SoptLetterResponse.TopicsResponse of(SoptLetterInfo.TopicListResult result);
 
     @Mapping(source = "default", target = "isDefault")

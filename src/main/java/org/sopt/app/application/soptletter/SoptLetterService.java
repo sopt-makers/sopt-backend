@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.sopt.app.application.appservice.OperationConfigService;
+import org.sopt.app.application.soptletter.SoptLetterInfo.CtaResult;
 import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
 import org.sopt.app.application.soptletter.SoptLetterInfo.TopicMessageListResult;
 import org.sopt.app.application.soptletter.SoptLetterInfo.TopicMessageSummary;
@@ -143,6 +144,16 @@ public class SoptLetterService {
     public SoptLetterInfo.TopicListResult getTopics(String type) {
         val topics = getTopicsByType(type);
         return SoptLetterInfo.TopicListResult.from(topics);
+    }
+
+    @Transactional(readOnly = true)
+    public CtaResult getCta() {
+        val now = LocalDateTime.now(clock);
+        val activeCtas = soptLetterTopicRepository.findActiveCtas(now);
+        if (activeCtas.isEmpty()) {
+            return CtaResult.hidden();
+        }
+        return CtaResult.from(activeCtas.get(0));
     }
 
     private List<SoptLetterTopic> getTopicsByType(String type) {
