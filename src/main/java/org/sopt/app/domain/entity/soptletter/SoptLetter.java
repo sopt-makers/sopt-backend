@@ -38,7 +38,7 @@ public class SoptLetter extends BaseEntity {
     @Column(nullable = false)
     private Double degree;
 
-    @Column(length = 350, nullable = false)
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String message;
 
     @Enumerated(EnumType.STRING)
