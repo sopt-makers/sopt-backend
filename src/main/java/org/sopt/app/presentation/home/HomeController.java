@@ -39,18 +39,33 @@ public class HomeController {
         );
     }
 
-    @Operation(summary = "앱 서비스 진입 여부 조회")
+    @Operation(summary = "홈 앱 서비스 목록 조회")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "success"),
             @ApiResponse(responseCode = "401", description = "token error", content = @Content),
             @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     @GetMapping("/app-service")
-    public ResponseEntity<List<AppServiceEntryStatusResponse>> getAppService(
+    public ResponseEntity<List<AppServiceEntryStatusResponse>> getHomeAppService(
             @AuthenticationPrincipal Long userId
     ) {
         return ResponseEntity.ok(
-                homeFacade.checkAppServiceEntryStatus(userId)
+                homeFacade.checkHomeAppServiceEntryStatus(userId)
+        );
+    }
+
+    @Operation(summary = "탭바 앱 서비스 목록 조회")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "success"),
+            @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+            @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @GetMapping("/tab-app-service")
+    public ResponseEntity<List<AppServiceEntryStatusResponse>> getTabAppService(
+            @AuthenticationPrincipal Long userId
+    ) {
+        return ResponseEntity.ok(
+                homeFacade.checkTabAppServiceEntryStatus(userId)
         );
     }
     

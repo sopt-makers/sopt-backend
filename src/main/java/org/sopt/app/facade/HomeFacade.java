@@ -68,14 +68,25 @@ public class HomeFacade {
         );
     }
 
-    public List<AppServiceEntryStatusResponse> checkAppServiceEntryStatus(Long userId) {
+    public List<AppServiceEntryStatusResponse> checkHomeAppServiceEntryStatus(Long userId) {
+        return checkAppServiceEntryStatus(appServiceService.getHomeAppServices(), userId);
+    }
+
+    public List<AppServiceEntryStatusResponse> checkTabAppServiceEntryStatus(Long userId) {
+        return checkAppServiceEntryStatus(appServiceService.getTabAppServices(), userId);
+    }
+
+    private List<AppServiceEntryStatusResponse> checkAppServiceEntryStatus(
+        List<AppServiceInfo> appServices,
+        Long userId
+    ) {
         if(userId == null){
-            return this.getOnlyAppServiceInfo();
+            return this.getOnlyAppServiceInfo(appServices);
         }
         PlatformUserInfoResponse platformUserInfo = platformService.getPlatformUserInfoResponse(userId);
         UserStatus status = platformService.getStatus(platformUserInfo);
 
-        List<CompletableFuture<AppServiceEntryStatusResponse>> futures = appServiceService.getAllAppService().stream()
+        List<CompletableFuture<AppServiceEntryStatusResponse>> futures = appServices.stream()
             .filter(appServiceInfo -> isServiceVisibleToUser(appServiceInfo, status))
             .map(appServiceInfo -> appServiceBadgeService.getAppServiceEntryStatusResponseAsync(appServiceInfo, userId))
             .toList();
@@ -85,8 +96,8 @@ public class HomeFacade {
             .toList();
     }
 
-    private List<AppServiceEntryStatusResponse> getOnlyAppServiceInfo() {
-        return appServiceService.getAllAppService().stream()
+    private List<AppServiceEntryStatusResponse> getOnlyAppServiceInfo(List<AppServiceInfo> appServices) {
+        return appServices.stream()
                 .map(AppServiceEntryStatusResponse::createOnlyAppServiceInfo)
                 .toList();
     }
