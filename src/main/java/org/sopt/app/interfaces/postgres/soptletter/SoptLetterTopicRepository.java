@@ -19,8 +19,7 @@ public interface SoptLetterTopicRepository extends JpaRepository<SoptLetterTopic
 
     @Query("""
         SELECT t FROM SoptLetterTopic t
-        WHERE t.isDefault = false
-            AND t.ctaText IS NOT NULL
+        WHERE t.ctaText IS NOT NULL
             AND t.startedAt <= :now
             AND t.endedAt >= :now
         ORDER BY t.startedAt DESC, t.id DESC
