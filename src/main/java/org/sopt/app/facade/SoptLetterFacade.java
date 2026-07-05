@@ -36,6 +36,10 @@ public class SoptLetterFacade {
         return soptLetterService.getTopics(type);
     }
 
+    public SoptLetterInfo.CtaResult getCta() {
+        return soptLetterService.getCta();
+    }
+
     public SoptLetterInfo.TopicDetail getTopic(Long topicId) {
         return soptLetterService.getTopic(topicId);
     }

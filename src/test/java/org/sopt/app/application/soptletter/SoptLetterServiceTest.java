@@ -269,6 +269,44 @@ class SoptLetterServiceTest {
     }
 
     @Test
+    @DisplayName("SUCCESS_현재 노출 기간인 최신 솝레터 CTA를 조회한다")
+    void SUCCESS_getCta() {
+        // given
+        LocalDateTime now = LocalDateTime.of(2026, 7, 25, 12, 0);
+        SoptLetterTopic topic = mock(SoptLetterTopic.class);
+        when(topic.getId()).thenReturn(3L);
+        when(topic.getCtaText()).thenReturn("38기 SOPT 활동 어떠셨나요? 👀");
+        when(clock.instant()).thenReturn(now.atZone(ZoneId.systemDefault()).toInstant());
+        when(soptLetterTopicRepository.findActiveCtas(now)).thenReturn(List.of(topic));
+
+        // when
+        SoptLetterInfo.CtaResult result = soptLetterService.getCta();
+
+        // then
+        assertThat(result.isShowCta()).isTrue();
+        assertThat(result.getTopicId()).isEqualTo(3L);
+        assertThat(result.getCtaText()).isEqualTo("38기 SOPT 활동 어떠셨나요? 👀");
+        verify(soptLetterTopicRepository, times(1)).findActiveCtas(now);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_현재 노출할 솝레터 CTA가 없으면 미노출 응답을 반환한다")
+    void SUCCESS_getCta_hidden() {
+        // given
+        LocalDateTime now = LocalDateTime.of(2026, 8, 8, 0, 0);
+        when(clock.instant()).thenReturn(now.atZone(ZoneId.systemDefault()).toInstant());
+        when(soptLetterTopicRepository.findActiveCtas(now)).thenReturn(List.of());
+
+        // when
+        SoptLetterInfo.CtaResult result = soptLetterService.getCta();
+
+        // then
+        assertThat(result.isShowCta()).isFalse();
+        assertThat(result.getTopicId()).isNull();
+        assertThat(result.getCtaText()).isNull();
+    }
+
+    @Test
     @DisplayName("SUCCESS_솝레터 주제 목록을 최신순으로 조회한다")
     void SUCCESS_getTopics() {
         // given

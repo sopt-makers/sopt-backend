@@ -53,6 +53,31 @@ public class SoptLetterInfo {
     @Builder
     @ToString
     @AllArgsConstructor(access = AccessLevel.PRIVATE)
+    public static class CtaResult {
+
+        private boolean showCta;
+        private Long topicId;
+        private String ctaText;
+
+        public static CtaResult from(SoptLetterTopic topic) {
+            return CtaResult.builder()
+                .showCta(true)
+                .topicId(topic.getId())
+                .ctaText(topic.getCtaText())
+                .build();
+        }
+
+        public static CtaResult hidden() {
+            return CtaResult.builder()
+                .showCta(false)
+                .build();
+        }
+    }
+
+    @Getter
+    @Builder
+    @ToString
+    @AllArgsConstructor(access = AccessLevel.PRIVATE)
     public static class TopicMessageListResult {
         private Long topicId;
         private String title;

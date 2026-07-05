@@ -27,6 +27,17 @@ public class SoptLetterResponse {
     ) {
     }
 
+    @Schema(description = "솝레터 메인 CTA 조회 응답")
+    public record CtaResponse(
+        @Schema(description = "CTA 노출 여부", example = "true")
+        boolean showCta,
+        @Schema(description = "연결될 주제 ID", example = "3", nullable = true)
+        Long topicId,
+        @Schema(description = "CTA 문구", example = "이번 앱잼 회고하러 가볼까요?", nullable = true)
+        String ctaText
+    ) {
+    }
+
     @Schema(description = "솝레터 주제 목록 조회 응답")
     public record TopicsResponse(
         @Schema(description = "주제 목록")
