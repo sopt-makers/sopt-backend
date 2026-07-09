@@ -17,6 +17,9 @@ public interface SoptLetterTopicRepository extends JpaRepository<SoptLetterTopic
     @Query("SELECT t FROM SoptLetterTopic t WHERE t.isDefault = false ORDER BY t.createdAt DESC")
     List<SoptLetterTopic> findAllNormalTopicsOrderByCreatedAtDesc();
 
+    @Query("SELECT CASE WHEN COUNT(t) > 0 THEN true ELSE false END FROM SoptLetterTopic t WHERE t.isDefault = false")
+    boolean existsNormalTopic();
+
     @Query("""
         SELECT t FROM SoptLetterTopic t
         WHERE t.ctaText IS NOT NULL

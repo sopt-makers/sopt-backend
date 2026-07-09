@@ -110,7 +110,7 @@ public class SoptLetterService {
         val topic = soptLetterTopicRepository.findById(topicId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.ENTITY_NOT_FOUND));
 
-        return getTopicMessageList(userId, topic, cursor, size);
+        return getTopicMessageList(userId, topic, cursor, size, null);
     }
 
     @Transactional(readOnly = true)
@@ -121,10 +121,17 @@ public class SoptLetterService {
             .findFirst()
             .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_TOPIC_NOT_FOUND));
 
-        return getTopicMessageList(userId, topic, cursor, size);
+        val hasNormalTopic = soptLetterTopicRepository.existsNormalTopic();
+        return getTopicMessageList(userId, topic, cursor, size, hasNormalTopic);
     }
 
-    private TopicMessageListResult getTopicMessageList(Long userId, SoptLetterTopic topic, Long cursor, Integer size) {
+    private TopicMessageListResult getTopicMessageList(
+        Long userId,
+        SoptLetterTopic topic,
+        Long cursor,
+        Integer size,
+        Boolean hasNormalTopic
+    ) {
         val requesterProfile = getProfileByUserId(userId);
 
         val fetchedLetters = getTopicLetters(topic.getId(), cursor, size + 1);
@@ -137,7 +144,7 @@ public class SoptLetterService {
         val messageSummaries = toTopicMessageSummaries(letters, requesterProfile, likedLetterIds, authorNicknamesByProfileId);
         val totalCount = Math.toIntExact(soptLetterRepository.countByTopicId(topic.getId()));
 
-        return TopicMessageListResult.of(topic, totalCount, nextCursor, hasNext, messageSummaries);
+        return TopicMessageListResult.of(topic, totalCount, nextCursor, hasNext, hasNormalTopic, messageSummaries);
     }
 
     @Transactional(readOnly = true)

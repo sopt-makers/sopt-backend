@@ -1265,6 +1265,7 @@ class SoptLetterServiceTest {
         assertThat(result.getTitle()).isEqualTo("36기 회고");
         assertThat(result.getTotalCount()).isEqualTo(3);
         assertThat(result.getHasNext()).isTrue();
+        assertThat(result.getHasNormalTopic()).isNull();
         assertThat(result.getNextCursor()).isEqualTo(124L);
         assertThat(result.getMessages()).hasSize(2);
         assertThat(result.getMessages().get(0).getMessageId()).isEqualTo(125L);
@@ -1518,6 +1519,7 @@ class SoptLetterServiceTest {
                 .thenReturn(Set.of(125L));
         when(soptLetterProfileRepository.findAllById(any())).thenReturn(List.of(requesterProfile, otherProfile));
         when(soptLetterRepository.countByTopicId(topicId)).thenReturn(3L);
+        when(soptLetterTopicRepository.existsNormalTopic()).thenReturn(true);
 
         // when
         SoptLetterInfo.TopicMessageListResult result = soptLetterService.getDefaultTopicMessages(userId, null, size);
@@ -1527,6 +1529,7 @@ class SoptLetterServiceTest {
         assertThat(result.getTitle()).isEqualTo("36기 회고");
         assertThat(result.getTotalCount()).isEqualTo(3);
         assertThat(result.getHasNext()).isTrue();
+        assertThat(result.getHasNormalTopic()).isTrue();
         assertThat(result.getNextCursor()).isEqualTo(124L);
         assertThat(result.getMessages()).hasSize(2);
         assertThat(result.getMessages().get(0).getMessageId()).isEqualTo(125L);
@@ -1536,6 +1539,7 @@ class SoptLetterServiceTest {
         assertThat(result.getMessages().get(1).getMessageId()).isEqualTo(124L);
         assertThat(result.getMessages().get(1).getMine()).isTrue();
         verify(soptLetterTopicRepository, times(1)).findAllDefaultTopicsOrderByCreatedAtDesc();
+        verify(soptLetterTopicRepository, times(1)).existsNormalTopic();
         verify(soptLetterTopicRepository, never()).findById(anyLong());
     }
 
