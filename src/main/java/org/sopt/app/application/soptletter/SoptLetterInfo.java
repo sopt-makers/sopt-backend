@@ -84,6 +84,7 @@ public class SoptLetterInfo {
         private Integer totalCount;
         private Long nextCursor;
         private Boolean hasNext;
+        private Boolean hasNormalTopic;
         private List<TopicMessageSummary> messages;
 
         public static TopicMessageListResult of(
@@ -91,6 +92,7 @@ public class SoptLetterInfo {
             Integer totalCount,
             Long nextCursor,
             Boolean hasNext,
+            Boolean hasNormalTopic,
             List<TopicMessageSummary> messages
         ) {
             return TopicMessageListResult.builder()
@@ -99,6 +101,7 @@ public class SoptLetterInfo {
                 .totalCount(totalCount)
                 .nextCursor(nextCursor)
                 .hasNext(hasNext)
+                .hasNormalTopic(hasNormalTopic)
                 .messages(messages)
                 .build();
         }

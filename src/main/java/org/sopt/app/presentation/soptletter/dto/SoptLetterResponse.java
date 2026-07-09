@@ -87,6 +87,8 @@ public class SoptLetterResponse {
         Long nextCursor,
         @Schema(description = "다음 페이지 존재 여부", example = "false")
         Boolean hasNext,
+        @Schema(description = "디폴트 주제를 제외한 개별 주제 존재 여부", example = "true", nullable = true)
+        Boolean hasNormalTopic,
         @Schema(description = "해당 주제 메시지 목록")
         List<TopicMessageResponse> messages
     ) {
