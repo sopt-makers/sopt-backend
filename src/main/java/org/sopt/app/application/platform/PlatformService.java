@@ -179,10 +179,6 @@ public class PlatformService {
             .collect(Collectors.joining("/"));
     }
 
-    public boolean isCurrentGeneration(Long generation) {
-        return generation.equals(currentGeneration);
-    }
-
     public PlaygroundProfileInfo.UserActiveInfo getUserActiveInfo(Long userId) {
         return new PlaygroundProfileInfo.UserActiveInfo(currentGeneration, getStatus(userId));
     }
