@@ -201,8 +201,18 @@ public class UserResponse {
         private Long userId;
     }
 
+    @Schema(description = "탈퇴 폼 주소 조회 응답")
+    public record WithdrawFormResponse(
+        @Schema(description = "탈퇴 폼 URL", example = "https://example.com/withdraw-form")
+        String withdrawFormUrl
+    ) {
+    }
+
     @JsonInclude(Include.NON_NULL)
     public record MySoptLog(
+
+        @Schema(description = "앱잼 모드(시즌) 여부 - 전역 플래그")
+        boolean isAppjamMode,
 
         @Schema(description = "활동 기수 여부")
         boolean isActive,
@@ -242,6 +252,7 @@ public class UserResponse {
     ) {
 
         public static MySoptLog ofInactiveNonAppjam(
+            boolean isAppjamMode,
             boolean isFortuneChecked,
             String todayFortuneText,
             int totalPokeCount,
@@ -250,6 +261,7 @@ public class UserResponse {
             int soulmatesPokeCount
         ) {
             return new MySoptLog(
+                isAppjamMode,
                 false,
                 false,
                 isFortuneChecked,
@@ -266,6 +278,7 @@ public class UserResponse {
         }
 
         public static MySoptLog ofInactiveAppjamParticipant(
+            boolean isAppjamMode,
             boolean isFortuneChecked,
             String todayFortuneText,
             int soptampCount,
@@ -278,6 +291,7 @@ public class UserResponse {
             int soulmatesPokeCount
         ) {
             return new MySoptLog(
+                isAppjamMode,
                 false,
                 true,
                 isFortuneChecked,
@@ -294,6 +308,7 @@ public class UserResponse {
         }
 
         public static MySoptLog ofActive(
+            boolean isAppjamMode,
             boolean isAppjamParticipant,
             boolean isFortuneChecked,
             String todayFortuneText,
@@ -307,6 +322,7 @@ public class UserResponse {
             int soulmatesPokeCount
         ) {
             return new MySoptLog(
+                isAppjamMode,
                 true,
                 isAppjamParticipant,
                 isFortuneChecked,

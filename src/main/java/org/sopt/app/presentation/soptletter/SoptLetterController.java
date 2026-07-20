@@ -11,6 +11,7 @@ import lombok.val;
 import org.sopt.app.facade.SoptLetterFacade;
 import org.sopt.app.presentation.soptletter.dto.SoptLetterRequest;
 import org.sopt.app.presentation.soptletter.dto.SoptLetterResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -32,6 +33,9 @@ public class SoptLetterController {
     private final SoptLetterFacade soptLetterFacade;
     private final SoptLetterResponseMapper soptLetterResponseMapper;
 
+    @Value("${sopt.current.generation}")
+    private Long currentGeneration;
+
     @Operation(summary = "솝레터 온보딩 프로필 조회 (존재하지 않을 경우 생성)")
     @GetMapping("/onboarding")
     @ApiResponses(value = {
@@ -43,7 +47,7 @@ public class SoptLetterController {
         @AuthenticationPrincipal Long userId
     ) {
         val result = soptLetterFacade.getOrCreateOnboardingProfile(userId);
-        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result, currentGeneration));
     }
 
     @Operation(summary = "솝레터 온보딩 완료 처리")
@@ -57,7 +61,7 @@ public class SoptLetterController {
         @AuthenticationPrincipal Long userId
     ) {
         val result = soptLetterFacade.completeOnboardingProfile(userId);
-        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result, currentGeneration));
     }
 
     @Operation(summary = "솝레터 익명 신고 폼 주소 조회")
@@ -70,6 +74,18 @@ public class SoptLetterController {
     })
     public ResponseEntity<SoptLetterResponse.ReportFormResponse> getReportForm() {
         val result = soptLetterFacade.getReportForm();
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+    }
+
+    @Operation(summary = "솝레터 메인 CTA 조회")
+    @GetMapping("/cta")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "403", description = "forbidden", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<SoptLetterResponse.CtaResponse> getCta() {
+        val result = soptLetterFacade.getCta();
         return ResponseEntity.ok(soptLetterResponseMapper.of(result));
     }
 
@@ -100,6 +116,23 @@ public class SoptLetterController {
         @PathVariable Long topicId
     ) {
         val result = soptLetterFacade.getTopic(topicId);
+        return ResponseEntity.ok(soptLetterResponseMapper.of(result));
+    }
+
+    @Operation(summary = "기본 주제 솝레터 메시지 목록 조회")
+    @GetMapping("/topics/default/messages")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "400", description = "bad request", content = @Content),
+        @ApiResponse(responseCode = "404", description = "not found", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    public ResponseEntity<SoptLetterResponse.TopicMessagesResponse> getDefaultTopicMessages(
+        @AuthenticationPrincipal Long userId,
+        @RequestParam(required = false) Long cursor,
+        @RequestParam(defaultValue = "20") Integer size
+    ) {
+        val result = soptLetterFacade.getDefaultTopicMessages(userId, cursor, size);
         return ResponseEntity.ok(soptLetterResponseMapper.of(result));
     }
 

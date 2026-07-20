@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.sopt.app.application.appservice.OperationConfigService;
+import org.sopt.app.application.soptletter.SoptLetterInfo.CtaResult;
 import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
 import org.sopt.app.application.soptletter.SoptLetterInfo.TopicMessageListResult;
 import org.sopt.app.application.soptletter.SoptLetterInfo.TopicMessageSummary;
@@ -108,9 +109,32 @@ public class SoptLetterService {
 
         val topic = soptLetterTopicRepository.findById(topicId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.ENTITY_NOT_FOUND));
+
+        return getTopicMessageList(userId, topic, cursor, size, null);
+    }
+
+    @Transactional(readOnly = true)
+    public TopicMessageListResult getDefaultTopicMessages(Long userId, Long cursor, Integer size) {
+        validateTopicMessagePageSize(size);
+
+        val topic = soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc().stream()
+            .findFirst()
+            .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_TOPIC_NOT_FOUND));
+
+        val hasNormalTopic = soptLetterTopicRepository.existsNormalTopic();
+        return getTopicMessageList(userId, topic, cursor, size, hasNormalTopic);
+    }
+
+    private TopicMessageListResult getTopicMessageList(
+        Long userId,
+        SoptLetterTopic topic,
+        Long cursor,
+        Integer size,
+        Boolean hasNormalTopic
+    ) {
         val requesterProfile = getProfileByUserId(userId);
 
-        val fetchedLetters = getTopicLetters(topicId, cursor, size + 1);
+        val fetchedLetters = getTopicLetters(topic.getId(), cursor, size + 1);
         val hasNext = fetchedLetters.size() > size;
         val letters = hasNext ? fetchedLetters.subList(0, size) : fetchedLetters;
         val nextCursor = resolveNextCursor(letters);
@@ -118,9 +142,9 @@ public class SoptLetterService {
         val likedLetterIds = findLikedLetterIds(userId, letters);
         val authorNicknamesByProfileId = getAuthorNicknamesByProfileId(letters);
         val messageSummaries = toTopicMessageSummaries(letters, requesterProfile, likedLetterIds, authorNicknamesByProfileId);
-        val totalCount = Math.toIntExact(soptLetterRepository.countByTopicId(topicId));
+        val totalCount = Math.toIntExact(soptLetterRepository.countByTopicId(topic.getId()));
 
-        return TopicMessageListResult.of(topic, totalCount, nextCursor, hasNext, messageSummaries);
+        return TopicMessageListResult.of(topic, totalCount, nextCursor, hasNext, hasNormalTopic, messageSummaries);
     }
 
     @Transactional(readOnly = true)
@@ -129,12 +153,25 @@ public class SoptLetterService {
         return SoptLetterInfo.TopicListResult.from(topics);
     }
 
+    @Transactional(readOnly = true)
+    public CtaResult getCta() {
+        val now = LocalDateTime.now(clock);
+        val activeCtas = soptLetterTopicRepository.findActiveCtas(now);
+        if (activeCtas.isEmpty()) {
+            return CtaResult.hidden();
+        }
+        return CtaResult.from(activeCtas.get(0));
+    }
+
     private List<SoptLetterTopic> getTopicsByType(String type) {
         if (type == null) {
             return soptLetterTopicRepository.findAllByOrderByCreatedAtDesc();
         }
         if ("default".equalsIgnoreCase(type)) {
             return soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc();
+        }
+        if ("normal".equalsIgnoreCase(type)) {
+            return soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc();
         }
         throw new BadRequestException(ErrorCode.INVALID_PARAMETER);
     }

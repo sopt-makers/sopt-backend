@@ -14,7 +14,9 @@ public class SoptLetterResponse {
         @Schema(description = "닉네임", example = "익명의 달달한 간장게장")
         String nickname,
         @Schema(description = "온보딩 완료 여부", example = "false")
-        boolean isOnboarded
+        boolean isOnboarded,
+        @Schema(description = "현재 솝트 기수", example = "37")
+        Long currentGeneration
     ) {
     }
 
@@ -22,6 +24,17 @@ public class SoptLetterResponse {
     public record ReportFormResponse(
         @Schema(description = "익명 신고 폼 URL", example = "https://example.com/sopt-letter-report")
         String reportFormUrl
+    ) {
+    }
+
+    @Schema(description = "솝레터 메인 CTA 조회 응답")
+    public record CtaResponse(
+        @Schema(description = "CTA 노출 여부", example = "true")
+        boolean showCta,
+        @Schema(description = "연결될 주제 ID", example = "3", nullable = true)
+        Long topicId,
+        @Schema(description = "CTA 문구", example = "이번 앱잼 회고하러 가볼까요?", nullable = true)
+        String ctaText
     ) {
     }
 
@@ -74,6 +87,8 @@ public class SoptLetterResponse {
         Long nextCursor,
         @Schema(description = "다음 페이지 존재 여부", example = "false")
         Boolean hasNext,
+        @Schema(description = "디폴트 주제를 제외한 개별 주제 존재 여부", example = "true", nullable = true)
+        Boolean hasNormalTopic,
         @Schema(description = "해당 주제 메시지 목록")
         List<TopicMessageResponse> messages
     ) {

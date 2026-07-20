@@ -23,6 +23,9 @@ public class SoptLetterTopic extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
+    @Column(length = 50)
+    private String ctaText;
+
     @Column(nullable = false)
     private boolean isDefault;
 

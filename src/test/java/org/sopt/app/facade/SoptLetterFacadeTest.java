@@ -157,6 +157,27 @@ class SoptLetterFacadeTest {
     }
 
     @Test
+    @DisplayName("SUCCESS_솝레터 CTA 조회 파사드가 서비스 메서드를 정상 호출하고 반환한다")
+    void SUCCESS_getCta() {
+        // given
+        SoptLetterInfo.CtaResult expected = SoptLetterInfo.CtaResult.builder()
+            .showCta(true)
+            .topicId(3L)
+            .ctaText("이번 앱잼 회고하러 가볼까요?")
+            .build();
+        when(soptLetterService.getCta()).thenReturn(expected);
+
+        // when
+        SoptLetterInfo.CtaResult result = soptLetterFacade.getCta();
+
+        // then
+        assertThat(result.isShowCta()).isTrue();
+        assertThat(result.getTopicId()).isEqualTo(3L);
+        assertThat(result.getCtaText()).isEqualTo("이번 앱잼 회고하러 가볼까요?");
+        verify(soptLetterService, times(1)).getCta();
+    }
+
+    @Test
     @DisplayName("SUCCESS_솝레터 주제 단일 조회 파사드가 서비스 메서드를 정상 호출하고 반환한다")
     void SUCCESS_getTopic() {
         // given

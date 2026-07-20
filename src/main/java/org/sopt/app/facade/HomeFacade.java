@@ -32,14 +32,19 @@ import org.sopt.app.common.utils.ActivityDurationCalculator;
 import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.home.MeetingParamRequest;
 import org.sopt.app.presentation.home.response.FloatingButtonResponse;
+import org.sopt.app.presentation.home.response.HomeAppServiceResponse;
 import org.sopt.app.presentation.home.response.HomeDescriptionResponse;
 import org.sopt.app.presentation.home.response.ReviewFormResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class HomeFacade {
+
+    @Value("${makers.app.soptamp.appjam-mode:false}")
+    private boolean appjamMode;
 
     private final DescriptionService descriptionService;
     private final PlaygroundPostCacheService playgroundPostCacheService;
@@ -68,14 +73,29 @@ public class HomeFacade {
         );
     }
 
-    public List<AppServiceEntryStatusResponse> checkAppServiceEntryStatus(Long userId) {
+    public HomeAppServiceResponse getHomeAppServices(Long userId) {
+        List<AppServiceEntryStatusResponse> appServices = checkAppServiceEntryStatus(
+            appServiceService.getHomeAppServices(),
+            userId
+        );
+        return HomeAppServiceResponse.of(appjamMode, appServices);
+    }
+
+    public List<AppServiceEntryStatusResponse> checkTabAppServiceEntryStatus(Long userId) {
+        return checkAppServiceEntryStatus(appServiceService.getTabAppServices(), userId);
+    }
+
+    private List<AppServiceEntryStatusResponse> checkAppServiceEntryStatus(
+        List<AppServiceInfo> appServices,
+        Long userId
+    ) {
         if(userId == null){
-            return this.getOnlyAppServiceInfo();
+            return this.getOnlyAppServiceInfo(appServices);
         }
         PlatformUserInfoResponse platformUserInfo = platformService.getPlatformUserInfoResponse(userId);
         UserStatus status = platformService.getStatus(platformUserInfo);
 
-        List<CompletableFuture<AppServiceEntryStatusResponse>> futures = appServiceService.getAllAppService().stream()
+        List<CompletableFuture<AppServiceEntryStatusResponse>> futures = appServices.stream()
             .filter(appServiceInfo -> isServiceVisibleToUser(appServiceInfo, status))
             .map(appServiceInfo -> appServiceBadgeService.getAppServiceEntryStatusResponseAsync(appServiceInfo, userId))
             .toList();
@@ -85,8 +105,8 @@ public class HomeFacade {
             .toList();
     }
 
-    private List<AppServiceEntryStatusResponse> getOnlyAppServiceInfo() {
-        return appServiceService.getAllAppService().stream()
+    private List<AppServiceEntryStatusResponse> getOnlyAppServiceInfo(List<AppServiceInfo> appServices) {
+        return appServices.stream()
                 .map(AppServiceEntryStatusResponse::createOnlyAppServiceInfo)
                 .toList();
     }

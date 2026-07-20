@@ -23,12 +23,16 @@ import org.sopt.app.domain.enums.UserStatus;
 import org.sopt.app.presentation.user.UserResponse;
 import org.sopt.app.presentation.user.UserResponse.*;
 import org.sopt.app.presentation.user.UserResponseMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 public class UserFacade {
+
+    @Value("${makers.app.soptamp.appjam-mode:false}")
+    private boolean appjamMode;
 
     private final PlaygroundAuthService playgroundAuthService;
     private final NotificationService notificationService;
@@ -106,6 +110,7 @@ public class UserFacade {
 
             if (isActive) {
                 return UserResponse.MySoptLog.ofActive(
+                    appjamMode,
                     isAppjamParticipant,
                     isFortuneChecked,
                     todayFortuneText,
@@ -121,6 +126,7 @@ public class UserFacade {
             }
 
             return UserResponse.MySoptLog.ofInactiveAppjamParticipant(
+                appjamMode,
                 isFortuneChecked,
                 todayFortuneText,
                 soptampCount,
@@ -135,6 +141,7 @@ public class UserFacade {
         }
 
         return UserResponse.MySoptLog.ofInactiveNonAppjam(
+            appjamMode,
             isFortuneChecked,
             todayFortuneText,
             totalPokeCount,

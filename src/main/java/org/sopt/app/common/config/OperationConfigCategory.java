@@ -5,5 +5,6 @@ public enum OperationConfigCategory {
     REVIEW_FORM,
     PLAYGROUND_POST,
     SOPT_LETTER,
-    SOPTAMP_BATCH
+    SOPTAMP_BATCH,
+    WITHDRAW_FORM
 }
