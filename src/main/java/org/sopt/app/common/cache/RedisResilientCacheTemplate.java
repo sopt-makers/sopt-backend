@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.app.common.exception.BaseException;
@@ -59,7 +60,13 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
      * 논리 TTL이 만료됐더라도, 우선 stale한 데이터를 반환함.
      */
     @Override
-    public <T> T get(String key, Class<T> type, CachePolicy policy, Supplier<T> fetcher) {
+    public <T> T get(
+            String key,
+            Class<T> type,
+            CachePolicy policy,
+            Supplier<T> fetcher,
+            Function<T, Duration> physicalTtlResolver
+    ) {
 
         JavaType wrapperType = objectMapper.getTypeFactory().constructParametricType(CacheWrapper.class, type);
 
@@ -74,12 +81,12 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
             staleData = cachedData;
 
             if(policy.asyncRefreshEnabled()){
-                dispatchAsyncRefresh(key, policy, fetcher, wrapperType);
+                dispatchAsyncRefresh(key, policy, fetcher, wrapperType, physicalTtlResolver);
                 return cachedData.data();
             }
         }
 
-        return blockingGet(key, policy, fetcher, staleData, wrapperType);
+        return blockingGet(key, policy, fetcher, staleData, wrapperType, physicalTtlResolver);
     }
 
     private <T> CacheWrapper<T> readCache(String key, JavaType wrapperType) {
@@ -97,7 +104,14 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
     /**
      * stale 데이터도 없는 경우 or AWS Lambda 환경인 경우.
      */
-    private <T> T blockingGet(String key, CachePolicy policy, Supplier<T> fetcher, CacheWrapper<T> staleData, JavaType wrapperType) {
+    private <T> T blockingGet(
+            String key,
+            CachePolicy policy,
+            Supplier<T> fetcher,
+            CacheWrapper<T> staleData,
+            JavaType wrapperType,
+            Function<T, Duration> physicalTtlResolver
+    ) {
         String lockKey = LOCK_PREFIX + key;
         String lockValue = UUID.randomUUID().toString();
         long startTime = System.currentTimeMillis();
@@ -117,7 +131,7 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
                     if (isValid(doubleChecked) && isFresh(doubleChecked, policy.logicalTtlMs())) {
                         return doubleChecked.data();
                     }
-                    return fetchAndCache(key, policy.physicalTtl(), fetcher, wrapperType);
+                    return fetchAndCache(key, policy, fetcher, wrapperType, physicalTtlResolver);
                 } finally {
                     releaseLock(lockKey, lockValue);
                 }
@@ -155,7 +169,8 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
     /**
      * 비동기적으로 이미 누군가 락을 잡고 작업 중이라면 패스, 그렇지 않다면 락을 잡고 데이터 갱신
      */
-    private <T> void dispatchAsyncRefresh(String key, CachePolicy policy, Supplier<T> fetcher, JavaType wrapperType) {
+    private <T> void dispatchAsyncRefresh(String key, CachePolicy policy, Supplier<T> fetcher, JavaType wrapperType,
+        Function<T, Duration> physicalTtlResolver) {
         String markerKey = REFRESH_MARKER_PREFIX + key;
         Boolean markerAcquired = stringRedisTemplate.opsForValue().setIfAbsent(markerKey, "1", policy.lockTtl());
         if (!Boolean.TRUE.equals(markerAcquired)) return;
@@ -182,7 +197,7 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
                     if (isValid(doubleChecked) && isFresh(doubleChecked, policy.logicalTtlMs())) {
                         return;
                     }
-                    fetchAndCache(key, policy.physicalTtl(), fetcher, wrapperType);
+                    fetchAndCache(key, policy, fetcher, wrapperType, physicalTtlResolver);
                 } catch (Exception e) {
                     log.error("비동기 캐시 갱신 실패. Key: {}", key, e);
                 } finally {
@@ -199,10 +214,17 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
 
     }
 
-    private <T> T fetchAndCache(String key, Duration physicalTtl, Supplier<T> fetcher, JavaType wrapperType) {
+    private <T> T fetchAndCache(
+            String key,
+            CachePolicy policy,
+            Supplier<T> fetcher,
+            JavaType wrapperType,
+            Function<T, Duration> physicalTtlResolver
+    ) {
         long requestAt = System.currentTimeMillis();
 
         T data = fetcher.get(); // 외부에서 데이터를 가져옴
+        Duration physicalTtl = resolvePhysicalTtl(key, policy, data, physicalTtlResolver);
         CacheWrapper<T> wrapper = new CacheWrapper<>(data, requestAt);
 
         try {
@@ -222,6 +244,28 @@ public class RedisResilientCacheTemplate implements ResilientCacheTemplate {
             log.error("데이터 직렬화 및 레디스 저장 실패. key: {}", key, e);
         }
         return data;
+    }
+
+    /**
+     * fetch된 데이터로 물리 TTL을 계산. resolver가 null을 반환하거나 예외를 던지면 정책 고정값으로 폴백.
+     */
+    private <T> Duration resolvePhysicalTtl(
+            String key,
+            CachePolicy policy,
+            T data,
+            Function<T, Duration> physicalTtlResolver
+    ) {
+        if (physicalTtlResolver == null) {
+            return policy.physicalTtl();
+        }
+
+        try {
+            Duration resolved = physicalTtlResolver.apply(data);
+            return resolved != null ? resolved : policy.physicalTtl();
+        } catch (Exception e) {
+            log.warn("물리 TTL resolver 실행 실패. 정책 기본값으로 폴백. Key: {}", key, e);
+            return policy.physicalTtl();
+        }
     }
 
     private void releaseLock(String lockKey, String lockValue) {
