@@ -128,3 +128,5 @@ jobs:
             
             ./script/deploy.sh
             docker image prune -f
+            # SHA 태그 이미지는 dangling이 되지 않아 prune 대상이 아니다. 현재+직전(롤백용) 2개만 남긴다.
+            docker images ${{ env.APP_ECR_REPO }} -q | uniq | tail -n +3 | xargs -r docker rmi 2>/dev/null || true

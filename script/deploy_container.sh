@@ -7,7 +7,8 @@ deploy_container() {
     echo "▶️ Switching to ${CONTAINER_NAME} at Port ${PORT} (Actuator: ${ACTUATOR_PORT}) ..."
     echo "docker-compose pull & up ..."
 
-    docker-compose pull redis
+    # redis는 pull X. 태그 고정과 함께 배포 시 캐시 전체 삭제를 막기 위함.
+    # docker-compose pull redis
     docker-compose up -d redis
     docker-compose pull ${CONTAINER_NAME}
     docker-compose up -d ${CONTAINER_NAME}
