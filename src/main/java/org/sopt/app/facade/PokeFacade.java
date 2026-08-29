@@ -4,6 +4,8 @@ import static org.sopt.app.application.poke.PokeInfo.NEW_FRIEND_MANY_MUTUAL;
 import static org.sopt.app.application.poke.PokeInfo.NEW_FRIEND_NO_MUTUAL;
 import static org.sopt.app.application.poke.PokeInfo.NEW_FRIEND_ONE_MUTUAL;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import java.util.*;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
@@ -39,6 +41,9 @@ public class PokeFacade {
     private final PokeHistoryService pokeHistoryService;
     private final PokeMessageService pokeMessageService;
     private final PlatformService platformService;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public List<PokeMessage> getPokingMessages(String type) {
         val messages = pokeMessageService.pickRandomMessageByTypeOf(type);
@@ -99,11 +104,22 @@ public class PokeFacade {
         // 앱 DB 존재 확인 (플랫폼에만 있는 유저 케이스 방지)
         if (!userService.isUserExist(pokedUserId)) throw new NotFoundException(ErrorCode.USER_NOT_FOUND);
 
+        // 동일 방향(pokerUserId -> pokedUserId) 콕찌르기가 동시에 여러 번 들어와도
+        // 중복 체크와 히스토리 생성이 직렬화되도록 트랜잭션 종료 시 자동 해제되는 락을 건다.
+        acquirePokeLock(pokerUserId, pokedUserId);
+
         pokeHistoryService.checkDuplicate(pokerUserId, pokedUserId);
         PokeHistory newPoke = pokeService.poke(pokerUserId, pokedUserId, pokeMessage, isAnonymous);
 
         applyFriendship(pokerUserId, pokedUserId);
         return newPoke.getId();
+    }
+
+    private void acquirePokeLock(Long pokerUserId, Long pokedUserId) {
+        long lockKey = (pokerUserId << 32) | (pokedUserId & 0xFFFFFFFFL);
+        entityManager.createNativeQuery("SELECT pg_advisory_xact_lock(:key)")
+                .setParameter("key", lockKey)
+                .getSingleResult();
     }
 
     private void applyFriendship(Long pokerUserId, Long pokedUserId) {
