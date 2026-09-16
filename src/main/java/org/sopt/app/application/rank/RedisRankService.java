@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.common.config.CacheType;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations.TypedTuple;
 import org.springframework.stereotype.Service;
@@ -18,11 +19,19 @@ import org.springframework.stereotype.Service;
 public class RedisRankService implements RankCacheService{
     private final RedisTemplate<String, Long> redisTemplate;
 
+    @Value("${sopt.current.generation}")
+    private Long currentGeneration;
+
+    //키에 기수 정보를 포함
+    private String scoreKey() {
+        return CacheType.SOPTAMP_SCORE.getCacheName() + ":" + currentGeneration;
+    }
+
     @Override
     public Set<TypedTuple<Long>> getRanking() {
         try {
             return redisTemplate.opsForZSet()
-                    .reverseRangeWithScores(CacheType.SOPTAMP_SCORE.getCacheName(), 0, -1);
+                    .reverseRangeWithScores(scoreKey(), 0, -1);
         }catch (Exception e){
             log.warn("Redis에서 Soptamp 랭킹 조회 중 오류 발생", e);
             return Collections.emptySet();
@@ -32,36 +41,36 @@ public class RedisRankService implements RankCacheService{
     // 랭크 신규 생성용
     @Override
     public void createNewRank(Long userId) {
-        redisTemplate.opsForZSet().add(CacheType.SOPTAMP_SCORE.getCacheName(), userId, 0);
+        redisTemplate.opsForZSet().add(scoreKey(), userId, 0);
     }
 
     @Override
     public void removeRank(Long userId) {
-        redisTemplate.opsForZSet().remove(CacheType.SOPTAMP_SCORE.getCacheName(), userId);
+        redisTemplate.opsForZSet().remove(scoreKey(), userId);
     }
 
     @Override
     public void incrementScore(Long userId, int score) {
         redisTemplate.opsForZSet()
-                .incrementScore(CacheType.SOPTAMP_SCORE.getCacheName(), userId, score);
+                .incrementScore(scoreKey(), userId, score);
     }
 
     @Override
     public void decreaseScore(Long userId, int score) {
         redisTemplate.opsForZSet()
-                .incrementScore(CacheType.SOPTAMP_SCORE.getCacheName(), userId, -1 * score);
+                .incrementScore(scoreKey(), userId, -1 * score);
     }
 
     // 점수 0으로 초기화
     @Override
     public void initScore(Long userId) {
         redisTemplate.opsForZSet()
-                .add(CacheType.SOPTAMP_SCORE.getCacheName(), userId, 0);
+                .add(scoreKey(), userId, 0);
     }
 
     @Override
     public void deleteAll() {
-        redisTemplate.delete(CacheType.SOPTAMP_SCORE.getCacheName());
+        redisTemplate.delete(scoreKey());
     }
 
     @Override
@@ -78,7 +87,7 @@ public class RedisRankService implements RankCacheService{
     @Override
     public void updateScore(Long userId, long currentUserScore) {
         redisTemplate.opsForZSet()
-            .add(CacheType.SOPTAMP_SCORE.getCacheName(), userId, currentUserScore);
+            .add(scoreKey(), userId, currentUserScore);
     }
 
     @Override
@@ -96,7 +105,7 @@ public class RedisRankService implements RankCacheService{
     public void addAll(List<SoptampUserInfo> userInfos) {
         try {
             Set<TypedTuple<Long>> scores = this.convertRankingSet(userInfos);
-            redisTemplate.opsForZSet().add(CacheType.SOPTAMP_SCORE.getCacheName(), scores);
+            redisTemplate.opsForZSet().add(scoreKey(), scores);
         } catch (Exception e) {
             log.warn("Redis에 랭킹 데이터를 추가하는 중 오류 발생", e);
         }
