@@ -65,11 +65,6 @@ public class SoptampUserService {
 
     /* ==================== upsert 진입점 ==================== */
 
-    @Transactional(readOnly = true)
-    public List<Long> getUpsertTargetUserIds() {
-        return soptampUserRepository.findAllUserIds();
-    }
-
     @Transactional
     public void upsertAllSoptampUsers(Map<Long, PlatformUserInfoResponse> profileMap) {
         if (profileMap.isEmpty()) return;
