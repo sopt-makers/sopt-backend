@@ -28,6 +28,8 @@ import org.sopt.app.application.playground.dto.PlaygroundPopularPost;
 import org.sopt.app.application.playground.dto.PlaygroundRecentPost;
 import org.sopt.app.application.soptamp.SoptampUserService;
 import org.sopt.app.common.event.EventPublisher;
+import org.sopt.app.presentation.home.response.HomeAppServiceResponse;
+import org.springframework.test.util.ReflectionTestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class HomeFacadeTest {
@@ -118,5 +120,20 @@ class HomeFacadeTest {
         // then
         assertTrue(result.isEmpty());
         verify(eventPublisher, times(1)).raise(any(PlaygroundPopularPostRefreshEvent.class));
+    }
+
+    @Test
+    @DisplayName("탭 앱 서비스 정보 조회 응답은 앱잼 모드 플래그를 함께 준다")
+    void getTabAppServiceInfo_carriesAppjamMode() {
+        // given
+        ReflectionTestUtils.setField(homeFacade, "appjamMode", true);
+        when(appServiceService.getTabAppServices()).thenReturn(List.of());
+
+        // when
+        HomeAppServiceResponse result = homeFacade.getTabAppServiceInfo(null);
+
+        // then
+        assertTrue(result.isAppjamMode());
+        assertTrue(result.appServices().isEmpty());
     }
 }
