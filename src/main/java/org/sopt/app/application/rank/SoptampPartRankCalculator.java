@@ -26,6 +26,7 @@ public class SoptampPartRankCalculator {
     private static final RoundingMode POINT_ROUNDING_MODE = RoundingMode.HALF_UP;
     private static final BigDecimal ZERO_POINT = BigDecimal.ZERO.setScale(POINT_SCALE, POINT_ROUNDING_MODE);
     private static final MathContext SQRT_MATH_CONTEXT = MathContext.DECIMAL128;
+    private static final BigDecimal DISPLAY_POINT_MULTIPLIER = BigDecimal.valueOf(100);
 
     private final List<SoptampUserInfo> userInfos;
     private final Map<SoptPart, Long> partMemberCounts;
@@ -38,7 +39,7 @@ public class SoptampPartRankCalculator {
         return Part.getPartsByReturnOrder().stream()
             .map(part -> {
                 // TODO: 파트 랭킹 조회시 기존(points) 정수를 유지하고 신규(pointsDecimal)을 추가함으로 앱 하위 호환 대응. 추후 points 제거 필요.
-                BigDecimal pointsDecimal = adjustedPoints.get(part);
+                BigDecimal pointsDecimal = adjustedPoints.get(part).multiply(DISPLAY_POINT_MULTIPLIER);
 
                 return PartRank.builder()
                     .part(part.getPartName())

@@ -19,13 +19,13 @@ class SoptampPartRankCalculatorTest {
 
     @ParameterizedTest
     @CsvSource({
-        "1000, 25, 200.00",
-        "900, 9, 300.00",
-        "100, 2, 70.71",
+        "1000, 25, 20000.00",
+        "900, 9, 30000.00",
+        "100, 2, 7071.00",
         "0, 10, 0.00",
         "500, 0, 0.00"
     })
-    @DisplayName("SUCCESS_파트 점수는 총점을 인원의 제곱근으로 나눈 값이며 인원이 0명이면 0점임")
+    @DisplayName("SUCCESS_파트 점수는 총점을 인원의 제곱근으로 나눈 값에 100을 곱한 값이며 인원이 0명이면 0점임")
     void SUCCESS_calculatePartRank_adjustedPoints(long totalPoints, long memberCount, BigDecimal expected) {
         // given
         SoptampPartRankCalculator calculator = new SoptampPartRankCalculator(
@@ -67,12 +67,12 @@ class SoptampPartRankCalculatorTest {
         assertThat(result)
             .extracting(PartRank::getPart, PartRank::getRank, PartRank::getPointsDecimal)
             .containsExactly(
-                Tuple.tuple(Part.PLAN.getPartName(), 3, new BigDecimal("331.66")),
-                Tuple.tuple(Part.DESIGN.getPartName(), 2, new BigDecimal("375.00")),
+                Tuple.tuple(Part.PLAN.getPartName(), 3, new BigDecimal("33166.00")),
+                Tuple.tuple(Part.DESIGN.getPartName(), 2, new BigDecimal("37500.00")),
                 Tuple.tuple(Part.WEB.getPartName(), 4, new BigDecimal("0.00")),
                 Tuple.tuple(Part.IOS.getPartName(), 4, new BigDecimal("0.00")),
                 Tuple.tuple(Part.ANDROID.getPartName(), 4, new BigDecimal("0.00")),
-                Tuple.tuple(Part.SERVER.getPartName(), 1, new BigDecimal("509.12"))
+                Tuple.tuple(Part.SERVER.getPartName(), 1, new BigDecimal("50912.00"))
             );
     }
 
@@ -100,12 +100,12 @@ class SoptampPartRankCalculatorTest {
         assertThat(result)
             .extracting(PartRank::getPart, PartRank::getRank, PartRank::getPointsDecimal)
             .containsExactly(
-                Tuple.tuple(Part.PLAN.getPartName(), 1, new BigDecimal("100.00")),
-                Tuple.tuple(Part.DESIGN.getPartName(), 1, new BigDecimal("100.00")),
+                Tuple.tuple(Part.PLAN.getPartName(), 1, new BigDecimal("10000.00")),
+                Tuple.tuple(Part.DESIGN.getPartName(), 1, new BigDecimal("10000.00")),
                 Tuple.tuple(Part.WEB.getPartName(), 4, new BigDecimal("0.00")),
                 Tuple.tuple(Part.IOS.getPartName(), 4, new BigDecimal("0.00")),
                 Tuple.tuple(Part.ANDROID.getPartName(), 4, new BigDecimal("0.00")),
-                Tuple.tuple(Part.SERVER.getPartName(), 3, new BigDecimal("80.00"))
+                Tuple.tuple(Part.SERVER.getPartName(), 3, new BigDecimal("8000.00"))
             );
     }
 
