@@ -21,6 +21,7 @@ import static org.sopt.app.domain.enums.Part.DESIGN;
 import static org.sopt.app.domain.enums.Part.IOS;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Collections;
 import java.util.List;
@@ -269,28 +270,28 @@ class RankFacadeTest {
         @DisplayName("SUCCESS 파트별 솝탬프 포인트 랭킹 조회 시 기-디-웹-아-안-서 순서대로 조회함")
         void SUCCESS_findAllPartRanks_sortedByPart() {
             BigDecimal planPointDecimal = BigDecimal.ZERO.setScale(2);
-            BigDecimal designPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_4.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.DESIGN)), 2, RoundingMode.HALF_UP);
+            BigDecimal designPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_4.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.DESIGN)).sqrt(MathContext.DECIMAL128), 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
             BigDecimal webPointDecimal = BigDecimal.ZERO.setScale(2);
-            BigDecimal iosPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_3.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.IOS)), 2, RoundingMode.HALF_UP);
-            BigDecimal androidPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_2.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.ANDROID)), 2, RoundingMode.HALF_UP);
-            BigDecimal serverPointDecimal = BigDecimal.valueOf(SERVER_PART_SOPTAMP_USER.stream().mapToLong(SoptampUser::getTotalPoints).sum()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.SERVER)), 2, RoundingMode.HALF_UP);
+            BigDecimal iosPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_3.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.IOS)).sqrt(MathContext.DECIMAL128), 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
+            BigDecimal androidPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_2.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.ANDROID)).sqrt(MathContext.DECIMAL128), 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
+            BigDecimal serverPointDecimal = BigDecimal.valueOf(SERVER_PART_SOPTAMP_USER.stream().mapToLong(SoptampUser::getTotalPoints).sum()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.SERVER)).sqrt(MathContext.DECIMAL128), 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
 
             //then
             assertThat(result).extracting(PartRank::getPart, PartRank::getRank, PartRank::getPoints, PartRank::getPointsDecimal)
                 .containsExactly(
                     Tuple.tuple(Part.PLAN.getPartName(), 5, 0L, planPointDecimal),
-                    Tuple.tuple(Part.DESIGN.getPartName(), 2, 30L, designPointDecimal),
+                    Tuple.tuple(Part.DESIGN.getPartName(), 2, 9487L, designPointDecimal),
                     Tuple.tuple(Part.WEB.getPartName(), 5, 0L, webPointDecimal),
-                    Tuple.tuple(Part.IOS.getPartName(), 2, 30L, iosPointDecimal),
-                    Tuple.tuple(Part.ANDROID.getPartName(), 4, 20L, androidPointDecimal),
-                    Tuple.tuple(Part.SERVER.getPartName(), 1, 40L, serverPointDecimal)
+                    Tuple.tuple(Part.IOS.getPartName(), 2, 9487L, iosPointDecimal),
+                    Tuple.tuple(Part.ANDROID.getPartName(), 4, 6325L, androidPointDecimal),
+                    Tuple.tuple(Part.SERVER.getPartName(), 1, 21909L, serverPointDecimal)
                 );
         }
 
         @Test
         @DisplayName("SUCCESS 파트별 솝탬프 포인트가 동점일 경우 랭킹도 동점으로 조회됨")
         void SUCCESS_findAllPartRanks_whenTiedPart() {
-            BigDecimal tiedPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_3.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.IOS)), 2, RoundingMode.HALF_UP);
+            BigDecimal tiedPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_3.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.IOS)).sqrt(MathContext.DECIMAL128), 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
 
             // then
             List<PartRank> tiedPart = result.stream()
@@ -301,20 +302,20 @@ class RankFacadeTest {
                 .hasSize(2)
                 .extracting(PartRank::getPart, PartRank::getRank, PartRank::getPoints, PartRank::getPointsDecimal)
                 .contains(
-                    Tuple.tuple(Part.IOS.getPartName(), 2, 30L, tiedPointDecimal),
-                    Tuple.tuple(Part.DESIGN.getPartName(), 2, 30L, tiedPointDecimal)
+                    Tuple.tuple(Part.IOS.getPartName(), 2, 9487L, tiedPointDecimal),
+                    Tuple.tuple(Part.DESIGN.getPartName(), 2, 9487L, tiedPointDecimal)
                 );
         }
 
         @Test
         @DisplayName("SUCCESS 이전에 솝탬프 포인트가 동점인 파트가 존재했을 경우 다음 순위는 동점 파트 수를 건너뛰고 계산됨")
         void SUCCESS_findAllPartRanks_whenAfterTiedPart(){
-            BigDecimal androidPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_2.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.ANDROID)), 2, RoundingMode.HALF_UP);
+            BigDecimal androidPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_2.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.ANDROID)).sqrt(MathContext.DECIMAL128), 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
 
             // then
             assertThat(result)
                 .extracting(PartRank::getPart, PartRank::getRank, PartRank::getPoints, PartRank::getPointsDecimal)
-                .contains(Tuple.tuple(Part.ANDROID.getPartName(), 4, 20L, androidPointDecimal));
+                .contains(Tuple.tuple(Part.ANDROID.getPartName(), 4, 6325L, androidPointDecimal));
         }
 
     }
@@ -338,12 +339,12 @@ class RankFacadeTest {
             PartRank result = rankFacade.findPartRank(Part.SERVER);
 
             BigDecimal serverPointDecimal = BigDecimal.valueOf(SERVER_PART_SOPTAMP_USER.stream().mapToLong(SoptampUser::getTotalPoints).sum())
-                .divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.SERVER)), 2, RoundingMode.HALF_UP);
+                .divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.SERVER)).sqrt(MathContext.DECIMAL128), 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
 
             // then
             assertThat(result)
                 .extracting(PartRank::getPart, PartRank::getRank, PartRank::getPoints, PartRank::getPointsDecimal)
-                .contains(Part.SERVER.getPartName(), 1, 40L, serverPointDecimal);
+                .contains(Part.SERVER.getPartName(), 1, 21909L, serverPointDecimal);
         }
 
         @Test
@@ -353,17 +354,17 @@ class RankFacadeTest {
             PartRank designResult = rankFacade.findPartRank(DESIGN);
             PartRank iosResult = rankFacade.findPartRank(IOS);
 
-            BigDecimal designPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_4.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.DESIGN)), 2, RoundingMode.HALF_UP);
-            BigDecimal iosPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_3.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.IOS)), 2, RoundingMode.HALF_UP);
+            BigDecimal designPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_4.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.DESIGN)).sqrt(MathContext.DECIMAL128), 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
+            BigDecimal iosPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_3.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.IOS)).sqrt(MathContext.DECIMAL128), 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
 
             // then
             assertThat(designResult)
                 .extracting(PartRank::getPart, PartRank::getRank, PartRank::getPoints, PartRank::getPointsDecimal)
-                .contains(Part.DESIGN.getPartName(), 2, 30L, designPointDecimal);
+                .contains(Part.DESIGN.getPartName(), 2, 9487L, designPointDecimal);
 
             assertThat(iosResult)
                 .extracting(PartRank::getPart, PartRank::getRank, PartRank::getPoints, PartRank::getPointsDecimal)
-                .contains(Part.IOS.getPartName(), 2, 30L, iosPointDecimal);
+                .contains(Part.IOS.getPartName(), 2, 9487L, iosPointDecimal);
         }
 
         @Test
@@ -372,12 +373,12 @@ class RankFacadeTest {
             // when
             PartRank result = rankFacade.findPartRank(ANDROID);
 
-            BigDecimal androidPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_2.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.ANDROID)), 2, RoundingMode.HALF_UP);
+            BigDecimal androidPointDecimal = BigDecimal.valueOf(SOPTAMP_USER_2.getTotalPoints()).divide(BigDecimal.valueOf(PART_MEMBER_COUNT_MAP.get(SoptPart.ANDROID)).sqrt(MathContext.DECIMAL128), 2, RoundingMode.HALF_UP).multiply(BigDecimal.valueOf(100));
 
             // then
             assertThat(result)
                 .extracting(PartRank::getPart, PartRank::getRank, PartRank::getPoints, PartRank::getPointsDecimal)
-                .contains(ANDROID.getPartName(), 4, 20L, androidPointDecimal);
+                .contains(ANDROID.getPartName(), 4, 6325L, androidPointDecimal);
         }
     }
 
