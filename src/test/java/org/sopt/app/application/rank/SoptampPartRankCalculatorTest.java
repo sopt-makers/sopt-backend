@@ -2,6 +2,7 @@ package org.sopt.app.application.rank;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
@@ -107,6 +108,28 @@ class SoptampPartRankCalculatorTest {
                 Tuple.tuple(Part.ANDROID.getPartName(), 4, new BigDecimal("0.00")),
                 Tuple.tuple(Part.SERVER.getPartName(), 3, new BigDecimal("8000.00"))
             );
+    }
+
+    @Test
+    @DisplayName("SUCCESS_파트 점수는 JSON에 points와 pointsDecimal 모두 100을 곱한 숫자로 나감")
+    void SUCCESS_calculatePartRank_serialization() throws Exception {
+        // given
+        SoptampPartRankCalculator calculator = new SoptampPartRankCalculator(
+            List.of(userInfo(SoptPart.SERVER, 100L)),
+            Map.of(SoptPart.SERVER, 2L)
+        );
+        PartRank serverRank = calculator.calculatePartRank().stream()
+            .filter(partRank -> partRank.getPart().equals(Part.SERVER.getPartName()))
+            .findFirst()
+            .orElseThrow();
+
+        // when
+        String json = new ObjectMapper().writeValueAsString(serverRank);
+
+        // then
+        assertThat(json)
+            .containsPattern("\"points\":7071[,}]")
+            .containsPattern("\"pointsDecimal\":7071\\.00[,}]");
     }
 
     private SoptampUserInfo userInfo(SoptPart part, long totalPoints) {
