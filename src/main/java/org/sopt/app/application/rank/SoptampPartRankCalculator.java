@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.summingLong;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.math.RoundingMode;
 import java.util.Comparator;
 import java.util.EnumMap;
@@ -24,19 +25,21 @@ public class SoptampPartRankCalculator {
     private static final int POINT_SCALE = 2;
     private static final RoundingMode POINT_ROUNDING_MODE = RoundingMode.HALF_UP;
     private static final BigDecimal ZERO_POINT = BigDecimal.ZERO.setScale(POINT_SCALE, POINT_ROUNDING_MODE);
+    private static final MathContext SQRT_MATH_CONTEXT = MathContext.DECIMAL128;
+    private static final BigDecimal DISPLAY_POINT_MULTIPLIER = BigDecimal.valueOf(100);
 
     private final List<SoptampUserInfo> userInfos;
     private final Map<SoptPart, Long> partMemberCounts;
 
     public List<PartRank> calculatePartRank() {
         Map<Part, Long> partScores = calculatePartScores();
-        Map<Part, BigDecimal> averagePoints = calculateAveragePoints(partScores);
-        Map<Part, Integer> ranks = calculateRanks(averagePoints);
+        Map<Part, BigDecimal> adjustedPoints = calculateAdjustedPoints(partScores);
+        Map<Part, Integer> ranks = calculateRanks(adjustedPoints);
 
         return Part.getPartsByReturnOrder().stream()
             .map(part -> {
                 // TODO: 파트 랭킹 조회시 기존(points) 정수를 유지하고 신규(pointsDecimal)을 추가함으로 앱 하위 호환 대응. 추후 points 제거 필요.
-                BigDecimal pointsDecimal = averagePoints.get(part);
+                BigDecimal pointsDecimal = adjustedPoints.get(part).multiply(DISPLAY_POINT_MULTIPLIER);
 
                 return PartRank.builder()
                     .part(part.getPartName())
@@ -64,29 +67,29 @@ public class SoptampPartRankCalculator {
         return partScores;
     }
 
-    private Map<Part, BigDecimal> calculateAveragePoints(Map<Part, Long> partScores) {
-        Map<Part, BigDecimal> averagePoints = new EnumMap<>(Part.class);
+    private Map<Part, BigDecimal> calculateAdjustedPoints(Map<Part, Long> partScores) {
+        Map<Part, BigDecimal> adjustedPoints = new EnumMap<>(Part.class);
 
         for (Part part : Part.getPartsByReturnOrder()) {
             long totalScore = partScores.getOrDefault(part, 0L);
             long memberCount = getMemberCount(part);
 
-            BigDecimal averagePoint = memberCount == 0 ? ZERO_POINT
+            BigDecimal adjustedPoint = memberCount == 0 ? ZERO_POINT
                 : BigDecimal.valueOf(totalScore)
-                    .divide(BigDecimal.valueOf(memberCount), POINT_SCALE, POINT_ROUNDING_MODE);
+                    .divide(BigDecimal.valueOf(memberCount).sqrt(SQRT_MATH_CONTEXT), POINT_SCALE, POINT_ROUNDING_MODE);
 
-            averagePoints.put(part, averagePoint);
+            adjustedPoints.put(part, adjustedPoint);
         }
 
-        return averagePoints;
+        return adjustedPoints;
     }
 
     private long getMemberCount(Part part) {
         return partMemberCounts.getOrDefault(SoptPart.valueOf(part.name()), 0L);
     }
 
-    private Map<Part, Integer> calculateRanks(Map<Part, BigDecimal> averagePoints) {
-        List<Entry<Part, BigDecimal>> sortedParts = averagePoints.entrySet().stream()
+    private Map<Part, Integer> calculateRanks(Map<Part, BigDecimal> adjustedPoints) {
+        List<Entry<Part, BigDecimal>> sortedParts = adjustedPoints.entrySet().stream()
             .sorted(comparingByValue(Comparator.reverseOrder()))
             .toList();
 

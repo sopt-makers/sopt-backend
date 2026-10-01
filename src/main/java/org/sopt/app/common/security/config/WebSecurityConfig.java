@@ -46,6 +46,7 @@ public class WebSecurityConfig {
             "/internal/api/v1/members/{memberId}",
             "/api/v2/home/app-service",
             "/api/v2/home/tab-app-service",
+            "/api/v2/home/tab-app-service-info",
             "/api/v2/home/floating-button",
             "/api/v2/home/review-form",
             "/api/v2/admin/notification/**",

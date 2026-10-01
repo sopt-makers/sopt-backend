@@ -23,9 +23,28 @@ public class AuthUserProfileReader {
     private String authSchema;
 
     /**
-     * auth DB에서 전체 유저 프로필 조회 (앱잼 시즌용 — OB 포함 전체 대상)
+     * auth DB에서 전체 유저 프로필 조회
      */
     public List<PlatformUserInfoResponse> getAllUserProfiles() {
+        return queryProfiles("");
+    }
+
+    /**
+     * auth DB에서 현재 기수에 SOPT 활동(is_sopt = true) 이력이 있는 유저 프로필 조회
+     */
+    public List<PlatformUserInfoResponse> getSoptUserProfilesByGeneration(Long generation) {
+        String where = """
+                WHERE u.id IN (
+                    SELECT user_id
+                    FROM %s.user_activity_histories
+                    WHERE generation = ?
+                      AND is_sopt = true
+                )
+                """.formatted(authSchema);
+        return queryProfiles(where, generation);
+    }
+
+    private List<PlatformUserInfoResponse> queryProfiles(String where, Object... args) {
         String sql = """
                 SELECT u.id AS user_id,
                        u.name,
@@ -40,8 +59,9 @@ public class AuthUserProfileReader {
                        uah.team
                 FROM %s.users u
                 JOIN %s.user_activity_histories uah ON uah.user_id = u.id
+                %s
                 ORDER BY u.id, uah.generation, uah.is_sopt DESC
-                """.formatted(authSchema, authSchema);
+                """.formatted(authSchema, authSchema, where);
 
         Map<Long, AuthUserProfile> profileMap = new HashMap<>();
         Map<Long, List<PlatformUserInfoResponse.SoptActivities>> activitiesMap = new LinkedHashMap<>();
@@ -52,7 +72,7 @@ public class AuthUserProfileReader {
                 profileMap.put(userId, extractProfile(rs));
             }
             activitiesMap.computeIfAbsent(userId, k -> new ArrayList<>()).add(extractActivity(rs));
-        });
+        }, args);
 
         return activitiesMap.entrySet().stream()
             .map(e -> buildProfile(e.getKey(), profileMap.get(e.getKey()), e.getValue()))

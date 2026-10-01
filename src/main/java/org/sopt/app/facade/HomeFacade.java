@@ -85,6 +85,11 @@ public class HomeFacade {
         return checkAppServiceEntryStatus(appServiceService.getTabAppServices(), userId);
     }
 
+    public HomeAppServiceResponse getTabAppServiceInfo(Long userId) {
+        List<AppServiceEntryStatusResponse> appServices = checkAppServiceEntryStatus(appServiceService.getTabAppServices(), userId);
+        return HomeAppServiceResponse.of(appjamMode, appServices);
+    }
+
     private List<AppServiceEntryStatusResponse> checkAppServiceEntryStatus(
         List<AppServiceInfo> appServices,
         Long userId

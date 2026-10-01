@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import java.time.Duration;
 import java.util.concurrent.Executor;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -297,6 +298,109 @@ class RedisResilientCacheTemplateTest {
 
         // then
         verify(fetcher, never()).get();
+    }
+
+    @Test
+    @DisplayName("SUCCESS_콜드 조회 시 resolver가 계산한 물리 TTL로 Redis에 저장")
+    void SUCCESS_get_ColdBlockingGet_UsesResolverTtl() throws Exception {
+        // given
+        Duration resolvedTtl = Duration.ofDays(30);
+        when(valueOperations.get(key)).thenReturn(null);
+        when(valueOperations.setIfAbsent(eq(lockKey), anyString(), any(Duration.class))).thenReturn(true);
+        when(objectMapper.writeValueAsString(any())).thenReturn("new-json");
+
+        Function<String, Duration> resolver = data -> resolvedTtl;
+
+        // when
+        String result = cacheTemplate.get(key, String.class, policy, () -> "fetched", resolver);
+
+        // then
+        assertThat(result).isEqualTo("fetched");
+        verify(valueOperations).set(eq(key), eq("new-json"), eq(resolvedTtl));
+    }
+
+    @Test
+    @DisplayName("SUCCESS_비동기 갱신 경로에서도 resolver가 계산한 물리 TTL로 저장")
+    void SUCCESS_get_AsyncRefresh_UsesResolverTtl() throws Exception {
+        // given
+        Duration resolvedTtl = Duration.ofDays(30);
+        long staleTime = System.currentTimeMillis() - 2000L;
+        RedisResilientCacheTemplate.CacheWrapper<String> staleWrapper = new RedisResilientCacheTemplate.CacheWrapper<>("stale", staleTime);
+        when(valueOperations.get(key)).thenReturn("stale-json");
+        when(objectMapper.readValue(eq("stale-json"), eq(javaType))).thenReturn(staleWrapper);
+
+        when(valueOperations.setIfAbsent(eq(markerKey), anyString(), any(Duration.class))).thenReturn(true);
+        when(executorProvider.getIfAvailable()).thenReturn(executor);
+
+        ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+        cacheTemplate.get(key, String.class, policy, () -> "fetched", data -> resolvedTtl);
+
+        verify(executor).execute(runnableCaptor.capture());
+        Runnable asyncTask = runnableCaptor.getValue();
+
+        // 비동기 작업 락 획득 성공, 더블 체크 시 여전히 stale
+        when(valueOperations.setIfAbsent(eq(lockKey), anyString(), any(Duration.class))).thenReturn(true);
+        when(objectMapper.writeValueAsString(any())).thenReturn("new-json");
+
+        // when
+        asyncTask.run();
+
+        // then
+        verify(valueOperations).set(eq(key), eq("new-json"), eq(resolvedTtl));
+    }
+
+    @Test
+    @DisplayName("SUCCESS_4-arg 호출은 정책의 물리 TTL을 그대로 사용")
+    void SUCCESS_get_LegacyFourArg_UsesPolicyTtl() throws Exception {
+        // given
+        when(valueOperations.get(key)).thenReturn(null);
+        when(valueOperations.setIfAbsent(eq(lockKey), anyString(), any(Duration.class))).thenReturn(true);
+        when(objectMapper.writeValueAsString(any())).thenReturn("new-json");
+
+        // when
+        String result = cacheTemplate.get(key, String.class, policy, () -> "fetched");
+
+        // then
+        assertThat(result).isEqualTo("fetched");
+        verify(valueOperations).set(eq(key), eq("new-json"), eq(policy.physicalTtl()));
+    }
+
+    @Test
+    @DisplayName("SUCCESS_resolver가 null 반환 시 정책 물리 TTL로 폴백")
+    void SUCCESS_get_ResolverReturnsNull_FallbackToPolicyTtl() throws Exception {
+        // given
+        when(valueOperations.get(key)).thenReturn(null);
+        when(valueOperations.setIfAbsent(eq(lockKey), anyString(), any(Duration.class))).thenReturn(true);
+        when(objectMapper.writeValueAsString(any())).thenReturn("new-json");
+
+        Function<String, Duration> resolver = data -> null;
+
+        // when
+        String result = cacheTemplate.get(key, String.class, policy, () -> "fetched", resolver);
+
+        // then
+        assertThat(result).isEqualTo("fetched");
+        verify(valueOperations).set(eq(key), eq("new-json"), eq(policy.physicalTtl()));
+    }
+
+    @Test
+    @DisplayName("SUCCESS_resolver가 예외를 던지면 정책 물리 TTL로 폴백")
+    void SUCCESS_get_ResolverThrows_FallbackToPolicyTtl() throws Exception {
+        // given
+        when(valueOperations.get(key)).thenReturn(null);
+        when(valueOperations.setIfAbsent(eq(lockKey), anyString(), any(Duration.class))).thenReturn(true);
+        when(objectMapper.writeValueAsString(any())).thenReturn("new-json");
+
+        Function<String, Duration> resolver = data -> {
+            throw new RuntimeException("resolver error");
+        };
+
+        // when
+        String result = cacheTemplate.get(key, String.class, policy, () -> "fetched", resolver);
+
+        // then
+        assertThat(result).isEqualTo("fetched");
+        verify(valueOperations).set(eq(key), eq("new-json"), eq(policy.physicalTtl()));
     }
 
     @Test
