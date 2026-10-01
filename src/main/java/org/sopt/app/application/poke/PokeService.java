@@ -2,13 +2,16 @@ package org.sopt.app.application.poke;
 
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.exception.ConstraintViolationException;
 import org.sopt.app.common.event.EventPublisher;
+import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.domain.entity.poke.PokeHistory;
 import org.sopt.app.domain.entity.User;
 import org.sopt.app.interfaces.postgres.PokeHistoryRepository;
 import org.sopt.app.interfaces.postgres.UserRepository;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +47,8 @@ public class PokeService {
         return pokeByApplyingReply;
     }
 
+    private static final String UNREPLIED_POKE_CONSTRAINT_NAME = "uk_poke_history_poker_poked_unreplied";
+
     private PokeHistory createPokeByApplyingReply(
             Long pokerUserId, Long pokedUserId, String pokeMessage, Boolean isAnonymous
     ) {
@@ -54,13 +59,25 @@ public class PokeService {
         if (!latestPokeFromPokedIsReplyFalse.isEmpty()) {
             latestPokeFromPokedIsReplyFalse.getFirst().activateReply();
         }
-        return historyRepository.save(PokeHistory.builder()
-                .pokerId(pokerUserId)
-                .pokedId(pokedUserId)
-                .message(pokeMessage)
-                .isReply(false)
-                .isAnonymous(isAnonymous)
-                .build());
+        try {
+            return historyRepository.saveAndFlush(PokeHistory.builder()
+                    .pokerId(pokerUserId)
+                    .pokedId(pokedUserId)
+                    .message(pokeMessage)
+                    .isReply(false)
+                    .isAnonymous(isAnonymous)
+                    .build());
+        } catch (DataIntegrityViolationException e) {
+            if (isUnrepliedPokeConstraintViolation(e)) {
+                throw new BadRequestException(ErrorCode.DUPLICATE_POKE);
+            }
+            throw e;
+        }
+    }
+
+    private boolean isUnrepliedPokeConstraintViolation(DataIntegrityViolationException e) {
+        return e.getCause() instanceof ConstraintViolationException cve
+                && UNREPLIED_POKE_CONSTRAINT_NAME.equals(cve.getConstraintName());
     }
 
     @Transactional(readOnly = true)
