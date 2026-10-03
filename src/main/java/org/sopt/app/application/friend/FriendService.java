@@ -97,6 +97,9 @@ public class FriendService {
 
     @Transactional
     public void registerFriendshipOf(Long userId, Long friendId) {
+        if (friendRepository.existsByUserIdAndFriendUserId(userId, friendId)) {
+            return;
+        }
         Friend createdRelationUserToFriend = Friend.builder()
                 .userId(userId)
                 .friendUserId(friendId)
