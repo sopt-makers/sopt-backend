@@ -15,4 +15,7 @@ public interface SoptLetterProfileRepository extends JpaRepository<SoptLetterPro
 
     @Query("SELECT p.nickname FROM SoptLetterProfile p WHERE p.nickname IN :nicknames")
     Set<String> findExistingNicknames(@Param("nicknames") List<String> nicknames);
+
+    @Query("SELECT p.userId FROM SoptLetterProfile p WHERE p.userId IN :userIds AND p.hasWritten = true")
+    Set<Long> findWrittenUserIdsByUserIdIn(@Param("userIds") Set<Long> userIds);
 }
