@@ -31,7 +31,7 @@ public class SoptLetterNotificationService {
         this.currentGeneration = currentGeneration;
     }
 
-    public void sendUnwrittenReminder(String title, String content, String deepLink, String webLink) {
+    public void sendUnwrittenReminder(String title, String content, String deepLink) {
         Set<String> targetUserIds = getUnwrittenCurrentGenerationUserIds().stream()
             .map(String::valueOf)
             .collect(Collectors.toSet());
@@ -43,7 +43,6 @@ public class SoptLetterNotificationService {
         InstantAlarmRequest request = InstantAlarmRequest
             .builderWithRequired(targetUserIds, title, content, NotificationCategory.NOTICE)
             .deepLink(deepLink)
-            .webLink(webLink)
             .build();
 
         instantAlarmSender.send(request);

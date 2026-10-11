@@ -30,8 +30,6 @@ public class AdminNotificationRequest {
         private String notificationContent;
 
         private String deepLink;
-
-        private String webLink;
     }
 
 }

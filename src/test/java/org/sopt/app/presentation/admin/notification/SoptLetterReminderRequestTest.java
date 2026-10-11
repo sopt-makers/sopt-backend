@@ -34,7 +34,7 @@ class SoptLetterReminderRequestTest {
         var response = controller.sendSoptLetterUnwrittenReminder(request, "test-key", "test-key");
         assertThat(response.getStatusCode().value()).isEqualTo(200);
         assertThat(response.getBody()).isNull();
-        verify(facade).sendSoptLetterUnwrittenReminder("제목", "내용", "sopt://sopt-letter", null);
+        verify(facade).sendSoptLetterUnwrittenReminder("제목", "내용", "sopt://sopt-letter");
     }
 
     @Test

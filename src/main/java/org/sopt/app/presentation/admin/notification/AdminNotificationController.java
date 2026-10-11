@@ -64,8 +64,7 @@ public class AdminNotificationController {
         adminNotificationFacade.sendSoptLetterUnwrittenReminder(
             request.getNotificationTitle(),
             request.getNotificationContent(),
-            request.getDeepLink(),
-            request.getWebLink()
+            request.getDeepLink()
         );
 
         return ResponseEntity.ok().build();

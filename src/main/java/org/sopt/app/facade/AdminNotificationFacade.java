@@ -66,10 +66,9 @@ public class AdminNotificationFacade {
     public void sendSoptLetterUnwrittenReminder(
         String notificationTitle,
         String notificationContent,
-        String deepLink,
-        String webLink
+        String deepLink
     ) {
-        soptLetterNotificationService.sendUnwrittenReminder(notificationTitle, notificationContent, deepLink, webLink);
+        soptLetterNotificationService.sendUnwrittenReminder(notificationTitle, notificationContent, deepLink);
     }
 
     private SoptPart getOwnerSoptPart(Long ownerId) {

@@ -58,7 +58,7 @@ class SoptLetterNotificationServiceTest {
             .thenReturn(Set.of(2L));
 
         // when
-        service.sendUnwrittenReminder("솝레터를 작성해보세요", "아직 작성하지 않은 솝레터가 있어요", "sopt://sopt-letter", null);
+        service.sendUnwrittenReminder("솝레터를 작성해보세요", "아직 작성하지 않은 솝레터가 있어요", "sopt://sopt-letter");
 
         // then
         ArgumentCaptor<InstantAlarmRequest> requestCaptor = ArgumentCaptor.forClass(InstantAlarmRequest.class);
@@ -85,7 +85,7 @@ class SoptLetterNotificationServiceTest {
         when(authUserProfileReader.getSoptUserProfilesByGeneration(CURRENT_GENERATION)).thenReturn(List.of());
 
         // when
-        service.sendUnwrittenReminder("솝레터를 작성해보세요", "아직 작성하지 않은 솝레터가 있어요", null, null);
+        service.sendUnwrittenReminder("솝레터를 작성해보세요", "아직 작성하지 않은 솝레터가 있어요", null);
 
         // then
         verify(instantAlarmSender, never()).send(any());
@@ -109,7 +109,7 @@ class SoptLetterNotificationServiceTest {
     void allUsersHaveWritten() {
         when(authUserProfileReader.getSoptUserProfilesByGeneration(CURRENT_GENERATION)).thenReturn(List.of(createActiveUser(1)));
         when(soptLetterProfileRepository.findWrittenUserIdsByUserIdIn(Set.of(1L))).thenReturn(Set.of(1L));
-        service().sendUnwrittenReminder("제목", "내용", null, null);
+        service().sendUnwrittenReminder("제목", "내용", null);
         verifyNoInteractions(instantAlarmSender);
     }
 
@@ -117,14 +117,14 @@ class SoptLetterNotificationServiceTest {
     void profileLookupFailureDoesNotSend() {
         when(authUserProfileReader.getSoptUserProfilesByGeneration(CURRENT_GENERATION)).thenReturn(List.of(createActiveUser(1)));
         when(soptLetterProfileRepository.findWrittenUserIdsByUserIdIn(Set.of(1L))).thenThrow(new IllegalStateException("조회 실패"));
-        assertThatThrownBy(() -> service().sendUnwrittenReminder("제목", "내용", null, null)).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> service().sendUnwrittenReminder("제목", "내용", null)).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(instantAlarmSender);
     }
 
     @Test
     void activeUserLookupFailureDoesNotSend() {
         when(authUserProfileReader.getSoptUserProfilesByGeneration(CURRENT_GENERATION)).thenThrow(new IllegalStateException("조회 실패"));
-        assertThatThrownBy(() -> service().sendUnwrittenReminder("제목", "내용", null, null)).isInstanceOf(IllegalStateException.class);
+        assertThatThrownBy(() -> service().sendUnwrittenReminder("제목", "내용", null)).isInstanceOf(IllegalStateException.class);
         verifyNoInteractions(instantAlarmSender, soptLetterProfileRepository);
     }
 
