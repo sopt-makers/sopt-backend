@@ -10,6 +10,7 @@ import lombok.val;
 import org.sopt.app.application.mission.MissionService;
 import org.sopt.app.application.platform.PlatformService;
 import org.sopt.app.application.platform.dto.PlatformUserInfoResponse;
+import org.sopt.app.application.soptletter.SoptLetterNotificationService;
 import org.sopt.app.application.soptamp.SoptampUserFinder;
 import org.sopt.app.application.soptamp.SoptampUserInfo;
 import org.sopt.app.application.stamp.StampInfo;
@@ -32,6 +33,7 @@ public class AdminNotificationFacade {
     private final StampService stampService;
     private final PlatformService platformService;
     private final MissionService missionService;
+    private final SoptLetterNotificationService soptLetterNotificationService;
 
     /**
      * 현재는 앱의 변경 사항을 적용하기 애매한 부분이 있어서 알림을 두 방향으로 보냄. 1.작성자  2.그 외
@@ -59,6 +61,14 @@ public class AdminNotificationFacade {
 
         sendShowcaseWithoutOwner(stamp, nickname, ownerPart, mission, allWithoutOwner, notificationTitle, notificationContent);
         sendShowcaseToOwner(stamp, nickname, ownerPart, mission, Set.of(String.valueOf(ownerId)), notificationTitle, notificationContent);
+    }
+
+    public void sendSoptLetterUnwrittenReminder(
+        String notificationTitle,
+        String notificationContent,
+        String deepLink
+    ) {
+        soptLetterNotificationService.sendUnwrittenReminder(notificationTitle, notificationContent, deepLink);
     }
 
     private SoptPart getOwnerSoptPart(Long ownerId) {

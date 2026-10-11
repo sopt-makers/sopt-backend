@@ -197,6 +197,9 @@ public class SoptLetterService {
         val newLetter = soptLetterGenerator.generate(profile.getId(), topicId, content, latestColor);
 
         val savedLetter = soptLetterRepository.save(newLetter);
+
+        profile.markWritten();
+
         return SoptLetterInfo.MessageResult.of(savedLetter, profile.getNickname(), false, true);
     }
 
