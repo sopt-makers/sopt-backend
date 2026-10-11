@@ -32,4 +32,16 @@ public class AdminNotificationRequest {
         private String deepLink;
     }
 
+    @Getter
+    @NoArgsConstructor(access = AccessLevel.PROTECTED)
+    @AllArgsConstructor(access = AccessLevel.PROTECTED)
+    public static final class SoptLetterNewTopic {
+        @NotBlank(message = "알림 제목은 필수입니다.")
+        private String notificationTitle;
+
+        @NotBlank(message = "알림 내용은 필수입니다.")
+        private String notificationContent;
+
+        private String deepLink;
+    }
 }

@@ -70,6 +70,26 @@ public class AdminNotificationController {
         return ResponseEntity.ok().build();
     }
 
+    @Operation(summary = "솝레터 새로운 주제 등록 알림 전송")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "success"),
+        @ApiResponse(responseCode = "400", description = "bad request", content = @Content),
+        @ApiResponse(responseCode = "401", description = "token error", content = @Content),
+        @ApiResponse(responseCode = "500", description = "server error", content = @Content)
+    })
+    @PostMapping("/sopt-letter/new-topic")
+    public ResponseEntity<Void> sendSoptLetterNewTopic(
+        @Valid @RequestBody AdminNotificationRequest.SoptLetterNewTopic request,
+        @RequestHeader("apiKey") String apiKey,
+        @Value("${internal.notification.api-key}") String internalApiKey
+    ) {
+        validateExternalApiKey(apiKey, internalApiKey);
+
+        adminNotificationFacade.sendSoptLetterNewTopic(request.getNotificationTitle(), request.getNotificationContent(), request.getDeepLink());
+
+        return ResponseEntity.ok().build();
+    }
+
     private void validateExternalApiKey(String requestApiKey, String configuredApiKey) {
         if (!configuredApiKey.equals(requestApiKey)) {
             throw new UnauthorizedException(ErrorCode.INVALID_INTERNAL_API_KEY);
