@@ -40,6 +40,8 @@ import org.sopt.app.domain.entity.soptletter.SoptLetterTopic;
 import org.sopt.app.domain.enums.SoptLetterColor;
 import org.sopt.app.domain.enums.SoptLetterShapeType;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeRepository;
+import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeNotificationRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterTopicRepository;
@@ -71,6 +73,12 @@ class SoptLetterServiceTest {
 
     @Mock
     private Clock clock;
+
+    @Mock
+    private SoptLetterLikeNotificationRepository soptLetterLikeNotificationRepository;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private SoptLetterService soptLetterService;
@@ -958,8 +966,9 @@ class SoptLetterServiceTest {
         final Long userId = 1L;
         final Long topicId = 3L;
         final Long messageId = 125L;
-        when(soptLetterRepository.existsByIdAndTopicId(messageId, topicId)).thenReturn(true);
+        stubLikeLetter(messageId, topicId, 2L);
         when(soptLetterLikeRepository.insertIgnore(userId, messageId)).thenReturn(1);
+        when(soptLetterLikeNotificationRepository.insertIgnore(userId, messageId)).thenReturn(1);
 
         // when
         soptLetterService.addLike(userId, topicId, messageId);
@@ -967,6 +976,7 @@ class SoptLetterServiceTest {
         // then
         verify(soptLetterLikeRepository, times(1)).insertIgnore(userId, messageId);
         verify(soptLetterRepository, times(1)).increaseLikeCount(messageId);
+        verify(eventPublisher).publishEvent(new SoptLetterLikeEvent(2L, topicId, messageId));
     }
 
     @Test
@@ -976,7 +986,7 @@ class SoptLetterServiceTest {
         final Long userId = 1L;
         final Long topicId = 3L;
         final Long messageId = 125L;
-        when(soptLetterRepository.existsByIdAndTopicId(messageId, topicId)).thenReturn(true);
+        stubLikeLetter(messageId, topicId, 2L);
         when(soptLetterLikeRepository.insertIgnore(userId, messageId)).thenReturn(0);
 
         // when
@@ -985,6 +995,8 @@ class SoptLetterServiceTest {
         // then
         verify(soptLetterLikeRepository, times(1)).insertIgnore(userId, messageId);
         verify(soptLetterRepository, never()).increaseLikeCount(messageId);
+        verify(soptLetterLikeNotificationRepository, never()).insertIgnore(userId, messageId);
+        verify(eventPublisher, never()).publishEvent(any(SoptLetterLikeEvent.class));
     }
 
     @Test
@@ -994,7 +1006,7 @@ class SoptLetterServiceTest {
         final Long userId = 1L;
         final Long topicId = 3L;
         final Long messageId = 999L;
-        when(soptLetterRepository.existsByIdAndTopicId(messageId, topicId)).thenReturn(false);
+        when(soptLetterRepository.findById(messageId)).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> soptLetterService.addLike(userId, topicId, messageId))
@@ -1004,6 +1016,52 @@ class SoptLetterServiceTest {
                     assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_NOT_FOUND);
                 });
         verify(soptLetterLikeRepository, never()).insertIgnore(userId, messageId);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_좋아요 취소 후 다시 누르면 좋아요는 추가하지만 알림은 재발송하지 않는다")
+    void SUCCESS_addLike_previouslyNotified() {
+        // given
+        stubLikeLetter(125L, 3L, 2L);
+        when(soptLetterLikeRepository.insertIgnore(1L, 125L)).thenReturn(1);
+        when(soptLetterLikeNotificationRepository.insertIgnore(1L, 125L)).thenReturn(0);
+
+        // when
+        soptLetterService.addLike(1L, 3L, 125L);
+
+        // then
+        verify(soptLetterRepository).increaseLikeCount(125L);
+        verify(eventPublisher, never()).publishEvent(any(SoptLetterLikeEvent.class));
+    }
+
+    @Test
+    @DisplayName("FAIL_본인이 작성한 메시지에는 좋아요를 추가할 수 없다")
+    void FAIL_addLike_mine() {
+        // given
+        stubLikeLetter(125L, 3L, 1L);
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.addLike(1L, 3L, 125L)).isInstanceOf(ForbiddenException.class);
+        verify(soptLetterLikeRepository, never()).insertIgnore(anyLong(), anyLong());
+        verify(eventPublisher, never()).publishEvent(any(SoptLetterLikeEvent.class));
+    }
+
+    @Test
+    @DisplayName("FAIL_요청한 주제와 메시지 주제가 다르면 좋아요를 추가하지 않는다")
+    void FAIL_addLike_topicNotMatched() {
+        // given
+        when(soptLetterRepository.findById(125L)).thenReturn(Optional.of(SoptLetter.builder().id(125L).topicId(4L).build()));
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.addLike(1L, 3L, 125L)).isInstanceOf(NotFoundException.class);
+        verify(soptLetterLikeRepository, never()).insertIgnore(anyLong(), anyLong());
+    }
+
+    private void stubLikeLetter(Long messageId, Long topicId, Long authorUserId) {
+        SoptLetter letter = SoptLetter.builder().id(messageId).topicId(topicId).authorProfileId(10L).build();
+        SoptLetterProfile author = SoptLetterProfile.builder().id(10L).userId(authorUserId).build();
+        when(soptLetterRepository.findById(messageId)).thenReturn(Optional.of(letter));
+        when(soptLetterProfileRepository.findById(10L)).thenReturn(Optional.of(author));
     }
 
     @Test
