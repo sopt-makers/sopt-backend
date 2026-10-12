@@ -6,6 +6,8 @@ import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.sopt.app.application.platform.PlatformService;
+import org.sopt.app.application.appservice.OperationConfigService;
+import org.sopt.app.common.config.OperationConfigCategory;
 import org.sopt.app.common.client.notification.AlarmSender;
 import org.sopt.app.common.client.notification.dto.request.InstantAlarmRequest;
 import org.sopt.app.domain.enums.NotificationCategory;
@@ -20,8 +22,12 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @RequiredArgsConstructor
 public class SoptLetterLikeEventListener {
 
+    private static final String LIKE_NOTIFICATION_TITLE_KEY = "likeNotificationTitle";
+    private static final String LIKE_NOTIFICATION_CONTENT_KEY = "likeNotificationContent";
+
     private final PlatformService platformService;
     private final AlarmSender<InstantAlarmRequest> instantAlarmSender;
+    private final OperationConfigService operationConfigService;
 
     @Async(CACHE_SYNC_EXECUTOR)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -31,8 +37,14 @@ public class SoptLetterLikeEventListener {
                 return;
             }
 
+            String title = operationConfigService.getOperationConfigValue(OperationConfigCategory.SOPT_LETTER, LIKE_NOTIFICATION_TITLE_KEY);
+            String content = operationConfigService.getOperationConfigValue(OperationConfigCategory.SOPT_LETTER, LIKE_NOTIFICATION_CONTENT_KEY);
+            if (title.isBlank() || content.isBlank()) {
+                throw new IllegalArgumentException("좋아요 알림 제목과 내용은 비어 있을 수 없습니다.");
+            }
+
             InstantAlarmRequest request = InstantAlarmRequest
-                .builderWithRequired(Set.of(String.valueOf(event.authorUserId())), "솝레터에 좋아요가 달렸어요", "내가 작성한 솝레터를 확인해보세요!", NotificationCategory.NOTICE)
+                .builderWithRequired(Set.of(String.valueOf(event.authorUserId())), title, content, NotificationCategory.NOTICE)
                 .deepLink("soptletter?topicId=%d&messageId=%d&pushType=soptletter_liked".formatted(event.topicId(), event.messageId()))
                 .build();
 
