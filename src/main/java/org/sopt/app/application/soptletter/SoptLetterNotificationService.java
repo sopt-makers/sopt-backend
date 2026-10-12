@@ -63,4 +63,22 @@ public class SoptLetterNotificationService {
         currentGenerationUserIds.removeAll(writtenUserIds);
         return currentGenerationUserIds;
     }
+
+    public void sendNewTopic(String title, String content, String deepLink) {
+        Set<String> targetUserIds = authUserProfileReader.getSoptUserProfilesByGeneration(currentGeneration).stream()
+            .map(PlatformUserInfoResponse::userId)
+            .map(String::valueOf)
+            .collect(Collectors.toSet());
+
+        if (targetUserIds.isEmpty()) {
+            return;
+        }
+
+        InstantAlarmRequest request = InstantAlarmRequest
+            .builderWithRequired(targetUserIds, title, content, NotificationCategory.NOTICE)
+            .deepLink(deepLink)
+            .build();
+
+        instantAlarmSender.send(request);
+    }
 }

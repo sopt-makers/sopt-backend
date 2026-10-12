@@ -71,6 +71,10 @@ public class AdminNotificationFacade {
         soptLetterNotificationService.sendUnwrittenReminder(notificationTitle, notificationContent, deepLink);
     }
 
+    public void sendSoptLetterNewTopic(String notificationTitle, String notificationContent, String deepLink) {
+        soptLetterNotificationService.sendNewTopic(notificationTitle, notificationContent, deepLink);
+    }
+
     private SoptPart getOwnerSoptPart(Long ownerId) {
         val ownerProfile = platformService.getPlatformUserInfoResponse(ownerId);
         val ownerPartName = Optional.ofNullable(ownerProfile.getLatestActivity())
