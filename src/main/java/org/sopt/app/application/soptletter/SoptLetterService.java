@@ -18,6 +18,7 @@ import org.sopt.app.application.soptletter.SoptLetterInfo.TopicMessageSummary;
 import org.sopt.app.common.config.OperationConfigCategory;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ConflictException;
+import org.sopt.app.common.exception.ForbiddenException;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.common.utils.AnonymousNameGenerator;
@@ -28,6 +29,7 @@ import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterTopicRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -51,6 +53,7 @@ public class SoptLetterService {
     private final SoptLetterGenerator soptLetterGenerator;
     private final OperationConfigService operationConfigService;
     private final Clock clock;
+    private final ApplicationEventPublisher eventPublisher;
 
     public boolean isOnboarded(Long userId) {
         return soptLetterProfileRepository.existsByUserId(userId);
@@ -237,11 +240,19 @@ public class SoptLetterService {
 
     @Transactional
     public void addLike(Long userId, Long topicId, Long soptLetterId) {
-        validateSoptLetterExistsForLike(topicId, soptLetterId);
+        val letter = getSoptLetter(soptLetterId);
+        letter.validateInTopic(topicId);
+        val authorProfile = soptLetterProfileRepository.findById(letter.getAuthorProfileId())
+            .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND));
+
+        if (userId.equals(authorProfile.getUserId())) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+        }
 
         val insertedCount = soptLetterLikeRepository.insertIgnore(userId, soptLetterId);
         if (insertedCount > 0) {
             soptLetterRepository.increaseLikeCount(soptLetterId);
+            eventPublisher.publishEvent(new SoptLetterLikeEvent(userId, authorProfile.getUserId(), topicId, soptLetterId));
         }
     }
 
