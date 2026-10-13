@@ -40,7 +40,6 @@ import org.sopt.app.domain.entity.soptletter.SoptLetterTopic;
 import org.sopt.app.domain.enums.SoptLetterColor;
 import org.sopt.app.domain.enums.SoptLetterShapeType;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeRepository;
-import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeNotificationRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
@@ -73,9 +72,6 @@ class SoptLetterServiceTest {
 
     @Mock
     private Clock clock;
-
-    @Mock
-    private SoptLetterLikeNotificationRepository soptLetterLikeNotificationRepository;
 
     @Mock
     private ApplicationEventPublisher eventPublisher;
@@ -968,7 +964,6 @@ class SoptLetterServiceTest {
         final Long messageId = 125L;
         stubLikeLetter(messageId, topicId, 2L);
         when(soptLetterLikeRepository.insertIgnore(userId, messageId)).thenReturn(1);
-        when(soptLetterLikeNotificationRepository.insertIgnore(userId, messageId)).thenReturn(1);
 
         // when
         soptLetterService.addLike(userId, topicId, messageId);
@@ -976,7 +971,7 @@ class SoptLetterServiceTest {
         // then
         verify(soptLetterLikeRepository, times(1)).insertIgnore(userId, messageId);
         verify(soptLetterRepository, times(1)).increaseLikeCount(messageId);
-        verify(eventPublisher).publishEvent(new SoptLetterLikeEvent(2L, topicId, messageId));
+        verify(eventPublisher).publishEvent(new SoptLetterLikeEvent(userId, 2L, topicId, messageId));
     }
 
     @Test
@@ -995,7 +990,6 @@ class SoptLetterServiceTest {
         // then
         verify(soptLetterLikeRepository, times(1)).insertIgnore(userId, messageId);
         verify(soptLetterRepository, never()).increaseLikeCount(messageId);
-        verify(soptLetterLikeNotificationRepository, never()).insertIgnore(userId, messageId);
         verify(eventPublisher, never()).publishEvent(any(SoptLetterLikeEvent.class));
     }
 
@@ -1019,19 +1013,18 @@ class SoptLetterServiceTest {
     }
 
     @Test
-    @DisplayName("SUCCESS_좋아요 취소 후 다시 누르면 좋아요는 추가하지만 알림은 재발송하지 않는다")
+    @DisplayName("SUCCESS_좋아요 취소 후 다시 누르면 이벤트를 발행하고 알림 중복 판단은 리스너에 맡긴다")
     void SUCCESS_addLike_previouslyNotified() {
         // given
         stubLikeLetter(125L, 3L, 2L);
         when(soptLetterLikeRepository.insertIgnore(1L, 125L)).thenReturn(1);
-        when(soptLetterLikeNotificationRepository.insertIgnore(1L, 125L)).thenReturn(0);
 
         // when
         soptLetterService.addLike(1L, 3L, 125L);
 
         // then
         verify(soptLetterRepository).increaseLikeCount(125L);
-        verify(eventPublisher, never()).publishEvent(any(SoptLetterLikeEvent.class));
+        verify(eventPublisher).publishEvent(new SoptLetterLikeEvent(1L, 2L, 3L, 125L));
     }
 
     @Test

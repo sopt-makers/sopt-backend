@@ -25,7 +25,6 @@ import org.sopt.app.common.utils.AnonymousNameGenerator;
 import org.sopt.app.domain.entity.soptletter.SoptLetter;
 import org.sopt.app.domain.entity.soptletter.SoptLetterProfile;
 import org.sopt.app.domain.entity.soptletter.SoptLetterTopic;
-import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeNotificationRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
@@ -54,7 +53,6 @@ public class SoptLetterService {
     private final SoptLetterGenerator soptLetterGenerator;
     private final OperationConfigService operationConfigService;
     private final Clock clock;
-    private final SoptLetterLikeNotificationRepository soptLetterLikeNotificationRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     public boolean isOnboarded(Long userId) {
@@ -254,9 +252,7 @@ public class SoptLetterService {
         val insertedCount = soptLetterLikeRepository.insertIgnore(userId, soptLetterId);
         if (insertedCount > 0) {
             soptLetterRepository.increaseLikeCount(soptLetterId);
-            if (soptLetterLikeNotificationRepository.insertIgnore(userId, soptLetterId) > 0) {
-                eventPublisher.publishEvent(new SoptLetterLikeEvent(authorProfile.getUserId(), topicId, soptLetterId));
-            }
+            eventPublisher.publishEvent(new SoptLetterLikeEvent(userId, authorProfile.getUserId(), topicId, soptLetterId));
         }
     }
 

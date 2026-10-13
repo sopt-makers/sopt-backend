@@ -12,6 +12,7 @@ import org.sopt.app.common.client.notification.AlarmSender;
 import org.sopt.app.common.client.notification.dto.request.InstantAlarmRequest;
 import org.sopt.app.domain.enums.NotificationCategory;
 import org.sopt.app.domain.enums.UserStatus;
+import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeNotificationRepository;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
@@ -28,6 +29,7 @@ public class SoptLetterLikeEventListener {
     private final PlatformService platformService;
     private final AlarmSender<InstantAlarmRequest> instantAlarmSender;
     private final OperationConfigService operationConfigService;
+    private final SoptLetterLikeNotificationRepository soptLetterLikeNotificationRepository;
 
     @Async(CACHE_SYNC_EXECUTOR)
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
@@ -47,6 +49,10 @@ public class SoptLetterLikeEventListener {
                 .builderWithRequired(Set.of(String.valueOf(event.authorUserId())), title, content, NotificationCategory.NOTICE)
                 .deepLink("soptletter?topicId=%d&messageId=%d&pushType=soptletter_liked".formatted(event.topicId(), event.messageId()))
                 .build();
+
+            if (soptLetterLikeNotificationRepository.insertIgnore(event.likerUserId(), event.messageId()) == 0) {
+                return;
+            }
 
             instantAlarmSender.send(request);
         } catch (Exception e) {

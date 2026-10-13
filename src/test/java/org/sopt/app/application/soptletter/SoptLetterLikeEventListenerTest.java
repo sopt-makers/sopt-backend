@@ -16,6 +16,7 @@ import org.sopt.app.common.config.OperationConfigCategory;
 import org.sopt.app.common.client.notification.AlarmSender;
 import org.sopt.app.common.client.notification.dto.request.InstantAlarmRequest;
 import org.sopt.app.domain.enums.UserStatus;
+import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeNotificationRepository;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.transaction.TransactionDefinition;
 import org.springframework.transaction.event.TransactionalEventListenerFactory;
@@ -35,6 +36,9 @@ class SoptLetterLikeEventListenerTest {
     @Mock
     private OperationConfigService operationConfigService;
 
+    @Mock
+    private SoptLetterLikeNotificationRepository soptLetterLikeNotificationRepository;
+
     @InjectMocks
     private SoptLetterLikeEventListener listener;
 
@@ -44,9 +48,10 @@ class SoptLetterLikeEventListenerTest {
         // given
         when(platformService.getStatus(2L)).thenReturn(UserStatus.ACTIVE);
         stubNotificationContent();
+        when(soptLetterLikeNotificationRepository.insertIgnore(1L, 125L)).thenReturn(1);
 
         // when
-        listener.sendLikeAlarm(new SoptLetterLikeEvent(2L, 3L, 125L));
+        listener.sendLikeAlarm(new SoptLetterLikeEvent(1L, 2L, 3L, 125L));
 
         // then
         ArgumentCaptor<InstantAlarmRequest> captor = ArgumentCaptor.forClass(InstantAlarmRequest.class);
@@ -62,7 +67,7 @@ class SoptLetterLikeEventListenerTest {
     @DisplayName("SUCCESS_현재 활동기수가 아닌 작성자에게는 알림을 보내지 않는다")
     void SUCCESS_sendLikeAlarm_inactiveAuthor() {
         when(platformService.getStatus(2L)).thenReturn(UserStatus.INACTIVE);
-        listener.sendLikeAlarm(new SoptLetterLikeEvent(2L, 3L, 125L));
+        listener.sendLikeAlarm(new SoptLetterLikeEvent(1L, 2L, 3L, 125L));
         verifyNoInteractions(instantAlarmSender);
     }
 
@@ -71,8 +76,9 @@ class SoptLetterLikeEventListenerTest {
     void FAIL_sendLikeAlarm_senderFailure() {
         when(platformService.getStatus(2L)).thenReturn(UserStatus.ACTIVE);
         stubNotificationContent();
+        when(soptLetterLikeNotificationRepository.insertIgnore(1L, 125L)).thenReturn(1);
         doThrow(new IllegalStateException("알림 장애")).when(instantAlarmSender).send(any());
-        listener.sendLikeAlarm(new SoptLetterLikeEvent(2L, 3L, 125L));
+        listener.sendLikeAlarm(new SoptLetterLikeEvent(1L, 2L, 3L, 125L));
         verify(instantAlarmSender).send(any());
     }
 
@@ -83,7 +89,7 @@ class SoptLetterLikeEventListenerTest {
         when(platformService.getStatus(2L)).thenThrow(new IllegalStateException("인증 서버 장애"));
 
         // when
-        listener.sendLikeAlarm(new SoptLetterLikeEvent(2L, 3L, 125L));
+        listener.sendLikeAlarm(new SoptLetterLikeEvent(1L, 2L, 3L, 125L));
 
         // then
         verifyNoInteractions(instantAlarmSender);
@@ -95,7 +101,7 @@ class SoptLetterLikeEventListenerTest {
         when(platformService.getStatus(2L)).thenReturn(UserStatus.ACTIVE);
         when(operationConfigService.getOperationConfigValue(OperationConfigCategory.SOPT_LETTER, "likeNotificationTitle"))
             .thenThrow(new IllegalStateException("설정 없음"));
-        listener.sendLikeAlarm(new SoptLetterLikeEvent(2L, 3L, 125L));
+        listener.sendLikeAlarm(new SoptLetterLikeEvent(1L, 2L, 3L, 125L));
         verifyNoInteractions(instantAlarmSender);
     }
 
@@ -105,13 +111,44 @@ class SoptLetterLikeEventListenerTest {
         when(platformService.getStatus(2L)).thenReturn(UserStatus.ACTIVE);
         when(operationConfigService.getOperationConfigValue(OperationConfigCategory.SOPT_LETTER, "likeNotificationTitle")).thenReturn(" ");
         when(operationConfigService.getOperationConfigValue(OperationConfigCategory.SOPT_LETTER, "likeNotificationContent")).thenReturn("내용");
-        listener.sendLikeAlarm(new SoptLetterLikeEvent(2L, 3L, 125L));
+        listener.sendLikeAlarm(new SoptLetterLikeEvent(1L, 2L, 3L, 125L));
         verifyNoInteractions(instantAlarmSender);
     }
 
     private void stubNotificationContent() {
         when(operationConfigService.getOperationConfigValue(OperationConfigCategory.SOPT_LETTER, "likeNotificationTitle")).thenReturn("DB 알림 제목");
         when(operationConfigService.getOperationConfigValue(OperationConfigCategory.SOPT_LETTER, "likeNotificationContent")).thenReturn("DB 알림 내용");
+    }
+
+    @Test
+    @DisplayName("SUCCESS_최초 알림 이력이 있으면 재좋아요 알림을 보내지 않는다")
+    void SUCCESS_sendLikeAlarm_alreadyNotified() {
+        // given
+        when(platformService.getStatus(2L)).thenReturn(UserStatus.ACTIVE);
+        stubNotificationContent();
+        when(soptLetterLikeNotificationRepository.insertIgnore(1L, 125L)).thenReturn(0);
+
+        // when
+        listener.sendLikeAlarm(new SoptLetterLikeEvent(1L, 2L, 3L, 125L));
+
+        // then
+        verify(soptLetterLikeNotificationRepository).insertIgnore(1L, 125L);
+        verifyNoInteractions(instantAlarmSender);
+    }
+
+    @Test
+    @DisplayName("FAIL_알림 이력 저장 실패는 좋아요 처리로 전파하지 않는다")
+    void FAIL_sendLikeAlarm_historyFailure() {
+        // given
+        when(platformService.getStatus(2L)).thenReturn(UserStatus.ACTIVE);
+        stubNotificationContent();
+        when(soptLetterLikeNotificationRepository.insertIgnore(1L, 125L)).thenThrow(new IllegalStateException("이력 DB 장애"));
+
+        // when
+        listener.sendLikeAlarm(new SoptLetterLikeEvent(1L, 2L, 3L, 125L));
+
+        // then
+        verifyNoInteractions(instantAlarmSender);
     }
 
     @Test
@@ -130,24 +167,25 @@ class SoptLetterLikeEventListenerTest {
         if (!rollback) {
             when(platformService.getStatus(2L)).thenReturn(UserStatus.ACTIVE);
             stubNotificationContent();
+            when(soptLetterLikeNotificationRepository.insertIgnore(1L, 125L)).thenReturn(1);
         }
 
         try (var context = new AnnotationConfigApplicationContext()) {
             context.registerBean(TransactionalEventListenerFactory.class);
-            context.registerBean(SoptLetterLikeEventListener.class, () -> new SoptLetterLikeEventListener(platformService, instantAlarmSender, operationConfigService));
+            context.registerBean(SoptLetterLikeEventListener.class, () -> new SoptLetterLikeEventListener(platformService, instantAlarmSender, operationConfigService, soptLetterLikeNotificationRepository));
             context.refresh();
 
             TransactionTemplate transaction = new TransactionTemplate(new TestTransactionManager());
             transaction.executeWithoutResult(status -> {
-                context.publishEvent(new SoptLetterLikeEvent(2L, 3L, 125L));
-                verifyNoInteractions(instantAlarmSender);
+                context.publishEvent(new SoptLetterLikeEvent(1L, 2L, 3L, 125L));
+                verifyNoInteractions(instantAlarmSender, soptLetterLikeNotificationRepository);
                 if (rollback) {
                     status.setRollbackOnly();
                 }
             });
 
             if (rollback) {
-                verifyNoInteractions(instantAlarmSender, platformService, operationConfigService);
+                verifyNoInteractions(instantAlarmSender, platformService, operationConfigService, soptLetterLikeNotificationRepository);
             } else {
                 verify(instantAlarmSender).send(any());
             }
