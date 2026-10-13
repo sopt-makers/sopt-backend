@@ -723,12 +723,42 @@ class SoptLetterServiceTest {
 
         // then
         assertThat(result.getMessageId()).isEqualTo(125L);
+        assertThat(profile.isHasWritten()).isTrue();
         assertThat(result.getColorCode()).isEqualTo(SoptLetterColor.BLUE_50.getHexCode());
         assertThat(result.getContent()).isEqualTo(content);
         assertThat(result.getAuthorNickname()).isEqualTo("반짝이는 고래");
         assertThat(result.getLikedByMe()).isFalse();
         assertThat(result.getMine()).isTrue();
         verify(soptLetterRepository, times(1)).save(any(SoptLetter.class));
+    }
+
+    @Test
+    @DisplayName("FAIL_메시지 저장에 실패하면 프로필의 작성 이력을 변경하지 않는다")
+    void FAIL_createSoptLetter_saveFailure() {
+        // given
+        final Long userId = 1L;
+        final Long topicId = 3L;
+        final String content = "테스트 편지 내용";
+
+        SoptLetterTopic topic = mock(SoptLetterTopic.class);
+        SoptLetterProfile profile = SoptLetterProfile.builder()
+                .id(10L)
+                .userId(userId)
+                .nickname("반짝이는 고래")
+                .build();
+        SoptLetter letter = mock(SoptLetter.class);
+
+        when(soptLetterTopicRepository.findById(topicId)).thenReturn(Optional.of(topic));
+        when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.of(profile));
+        when(soptLetterGenerator.generate(profile.getId(), topicId, content, null)).thenReturn(letter);
+        when(soptLetterRepository.save(any(SoptLetter.class))).thenThrow(new IllegalStateException("저장 실패"));
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.createSoptLetter(userId, topicId, content))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessage("저장 실패");
+        assertThat(profile.isHasWritten()).isFalse();
+        verify(soptLetterRepository, times(1)).save(letter);
     }
 
     @Test
@@ -1017,6 +1047,7 @@ class SoptLetterServiceTest {
         SoptLetterProfile profile = SoptLetterProfile.builder()
                 .id(10L)
                 .userId(userId)
+                .hasWritten(true)
                 .build();
 
         when(soptLetterRepository.findById(messageId)).thenReturn(Optional.of(letter));
@@ -1028,6 +1059,7 @@ class SoptLetterServiceTest {
         // then
         verify(soptLetterLikeRepository, times(1)).deleteAllByLetterIdInQuery(messageId);
         verify(soptLetterRepository, times(1)).delete(letter);
+        assertThat(profile.isHasWritten()).isTrue();
     }
 
     @Test
