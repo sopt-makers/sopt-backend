@@ -32,8 +32,8 @@ public class SoptLetterFacade {
         return soptLetterService.getReportForm();
     }
 
-    public SoptLetterInfo.TopicListResult getTopics(String type) {
-        return soptLetterService.getTopics(type);
+    public SoptLetterInfo.TopicListResult getTopics(Long userId, String type) {
+        return soptLetterService.getTopics(userId, type);
     }
 
     public SoptLetterInfo.CtaResult getCta() {

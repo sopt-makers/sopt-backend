@@ -48,4 +48,17 @@ public interface SoptLetterRepository extends JpaRepository<SoptLetter, Long> {
         ORDER BY COUNT(l) DESC, t.createdAt DESC NULLS LAST, l.topicId DESC
         """)
     List<Long> findTopTopicIdsByLetterCountSince(@Param("since") LocalDateTime since, Pageable pageable);
+
+    @Query("""
+        SELECT new org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository$TopicUnreadCount(l.topicId, COUNT(l))
+        FROM SoptLetter l
+        JOIN SoptLetterTopic t ON t.id = l.topicId
+        LEFT JOIN SoptLetterTopicRead r ON r.topicId = l.topicId AND r.userId = :userId
+        WHERE (r.id IS NULL OR l.id > r.lastReadLetterId)
+          AND (:profileId IS NULL OR l.authorProfileId IS NULL OR l.authorProfileId <> :profileId)
+        GROUP BY l.topicId
+        """)
+    List<TopicUnreadCount> countUnreadLettersByTopic(@Param("userId") Long userId, @Param("profileId") Long profileId);
+
+    record TopicUnreadCount(Long topicId, Long unreadCount) {}
 }

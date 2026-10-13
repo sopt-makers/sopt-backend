@@ -98,9 +98,10 @@ public class SoptLetterController {
         @ApiResponse(responseCode = "500", description = "server error", content = @Content)
     })
     public ResponseEntity<SoptLetterResponse.TopicsResponse> getTopics(
+        @AuthenticationPrincipal Long userId,
         @RequestParam(required = false) String type
     ) {
-        val result = soptLetterFacade.getTopics(type);
+        val result = soptLetterFacade.getTopics(userId, type);
         return ResponseEntity.ok(soptLetterResponseMapper.of(result));
     }
 
