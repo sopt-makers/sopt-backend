@@ -30,6 +30,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.appservice.OperationConfigService;
 import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
 import org.sopt.app.common.config.OperationConfigCategory;
+import org.sopt.app.common.event.Event;
+import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ConflictException;
 import org.sopt.app.common.exception.ForbiddenException;
@@ -51,6 +53,8 @@ import org.springframework.data.domain.Pageable;
 
 @ExtendWith(MockitoExtension.class)
 class SoptLetterServiceTest {
+
+    private static final Long USER_ID = 1L;
 
     @Mock
     private SoptLetterProfileRepository soptLetterProfileRepository;
@@ -75,6 +79,9 @@ class SoptLetterServiceTest {
 
     @Mock
     private Clock clock;
+
+    @Mock
+    private EventPublisher eventPublisher;
 
     @InjectMocks
     private SoptLetterService soptLetterService;
@@ -1853,6 +1860,172 @@ class SoptLetterServiceTest {
                     assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.INVALID_PARAMETER);
                 });
         verify(soptLetterTopicRepository, never()).findAllDefaultTopicsOrderByCreatedAtDesc();
+    }
+
+    @Nested
+    @DisplayName("읽음 기록")
+    class GetTopicMessages {
+
+        @Nested
+        @DisplayName("첫 페이지를 조회하면 그 주제를 최신 메시지까지 읽음으로 기록한다")
+        class ReadOnFirstPage {
+
+            @Test
+            @DisplayName("SUCCESS_첫 페이지를 조회하면 가장 큰 메시지 ID로 읽음 이벤트를 한 번 낸다")
+            void raisesReadEventWithLatestLetterId() {
+                // given 메시지 12, 11, 10이 있는 주제를 cursor 없이 조회한다. 유저, 주제, 메시지 ID를 모두 다른 값으로 둬서 자리를 바꿔 담는 구현을 잡는다
+                SoptLetterTopic topic = mock(SoptLetterTopic.class);
+                when(topic.getId()).thenReturn(3L);
+                when(soptLetterTopicRepository.findById(3L)).thenReturn(Optional.of(topic));
+                stubRequesterAndAuthors();
+                when(soptLetterRepository.findAllByTopicIdOrderByIdDesc(anyLong(), any()))
+                        .thenReturn(List.of(letter(12L, 3L), letter(11L, 3L), letter(10L, 3L)));
+
+                // when
+                soptLetterService.getTopicMessages(USER_ID, 3L, null, 20);
+
+                // then 12번까지 읽었다는 이벤트를 한 번 낸다
+                ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+                verify(eventPublisher, times(1)).raise(eventCaptor.capture());
+                assertThat(eventCaptor.getValue())
+                        .isInstanceOf(SoptLetterTopicReadEvent.class)
+                        .extracting("userId", "topicId", "lastReadLetterId")
+                        .containsExactly(USER_ID, 3L, 12L);
+            }
+
+            @Test
+            @DisplayName("SUCCESS_cursor로 다음 페이지를 조회하면 읽음 이벤트를 내지 않는다")
+            void noReadEventWithCursor() {
+                // given cursor 10으로 그 아래 메시지 9, 8을 조회한다. 스크롤을 내린 것이라 새로 읽은 범위가 아니다
+                SoptLetterTopic topic = mock(SoptLetterTopic.class);
+                when(topic.getId()).thenReturn(3L);
+                when(soptLetterTopicRepository.findById(3L)).thenReturn(Optional.of(topic));
+                stubRequesterAndAuthors();
+                when(soptLetterRepository.findAllByTopicIdAndIdLessThanOrderByIdDesc(3L, 10L, PageRequest.of(0, 21)))
+                        .thenReturn(List.of(letter(9L, 3L), letter(8L, 3L)));
+
+                // when
+                soptLetterService.getTopicMessages(USER_ID, 3L, 10L, 20);
+
+                // then 이벤트를 내지 않는다
+                verify(eventPublisher, never()).raise(any());
+            }
+
+            @Test
+            @DisplayName("SUCCESS_메시지가 없는 주제를 조회하면 읽음 이벤트를 내지 않는다")
+            void noReadEventWhenNoLetters() {
+                // given 아직 글이 하나도 없는 주제다
+                SoptLetterTopic topic = mock(SoptLetterTopic.class);
+                when(topic.getId()).thenReturn(3L);
+                when(soptLetterTopicRepository.findById(3L)).thenReturn(Optional.of(topic));
+                when(soptLetterProfileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(requesterProfile()));
+                when(soptLetterRepository.findAllByTopicIdOrderByIdDesc(anyLong(), any())).thenReturn(List.of());
+
+                // when
+                soptLetterService.getTopicMessages(USER_ID, 3L, null, 20);
+
+                // then 기록할 ID가 없어서 이벤트를 내지 않는다
+                verify(eventPublisher, never()).raise(any());
+            }
+
+            @Test
+            @DisplayName("FAIL_솝레터 프로필이 없으면 예외가 나고 읽음 이벤트를 내지 않는다")
+            void noReadEventWhenProfileMissing() {
+                // given 온보딩을 하지 않아 프로필이 없는 유저다
+                SoptLetterTopic topic = mock(SoptLetterTopic.class);
+                when(soptLetterTopicRepository.findById(3L)).thenReturn(Optional.of(topic));
+                when(soptLetterProfileRepository.findByUserId(USER_ID)).thenReturn(Optional.empty());
+
+                // when & then SOPT_LETTER_PROFILE_NOT_FOUND 예외가 나고 이벤트는 없다
+                assertThatThrownBy(() -> soptLetterService.getTopicMessages(USER_ID, 3L, null, 20))
+                        .isInstanceOf(NotFoundException.class)
+                        .satisfies(e -> {
+                            NotFoundException exception = (NotFoundException) e;
+                            assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND);
+                        });
+                verify(eventPublisher, never()).raise(any());
+            }
+        }
+
+        @Nested
+        @DisplayName("구버전 앱의 기본 주제 조회도 같은 규칙으로 읽음을 기록한다")
+        class ReadOnDefaultTopicFirstPage {
+
+            @Test
+            @DisplayName("SUCCESS_구버전 기본 주제 첫 페이지를 조회해도 가장 큰 메시지 ID로 읽음 이벤트를 낸다")
+            void raisesReadEventForDefaultTopic() {
+                // given 기본 주제에 메시지 21, 20이 있고 cursor 없이 조회한다
+                SoptLetterTopic defaultTopic = mock(SoptLetterTopic.class);
+                when(defaultTopic.getId()).thenReturn(5L);
+                when(soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc()).thenReturn(List.of(defaultTopic));
+                when(soptLetterTopicRepository.existsNormalTopic()).thenReturn(true);
+                stubRequesterAndAuthors();
+                when(soptLetterRepository.findAllByTopicIdOrderByIdDesc(anyLong(), any()))
+                        .thenReturn(List.of(letter(21L, 5L), letter(20L, 5L)));
+
+                // when
+                soptLetterService.getDefaultTopicMessages(USER_ID, null, 20);
+
+                // then 기본 주제를 21번까지 읽었다는 이벤트를 낸다
+                ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
+                verify(eventPublisher, times(1)).raise(eventCaptor.capture());
+                assertThat(eventCaptor.getValue())
+                        .isInstanceOf(SoptLetterTopicReadEvent.class)
+                        .extracting("userId", "topicId", "lastReadLetterId")
+                        .containsExactly(USER_ID, 5L, 21L);
+            }
+
+            @Test
+            @DisplayName("SUCCESS_구버전 기본 주제를 cursor로 조회하면 읽음 이벤트를 내지 않는다")
+            void noReadEventForDefaultTopicWithCursor() {
+                // given cursor 20으로 메시지 19를 조회한다
+                SoptLetterTopic defaultTopic = mock(SoptLetterTopic.class);
+                when(defaultTopic.getId()).thenReturn(5L);
+                when(soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc()).thenReturn(List.of(defaultTopic));
+                when(soptLetterTopicRepository.existsNormalTopic()).thenReturn(true);
+                stubRequesterAndAuthors();
+                when(soptLetterRepository.findAllByTopicIdAndIdLessThanOrderByIdDesc(5L, 20L, PageRequest.of(0, 21)))
+                        .thenReturn(List.of(letter(19L, 5L)));
+
+                // when
+                soptLetterService.getDefaultTopicMessages(USER_ID, 20L, 20);
+
+                // then 이벤트를 내지 않는다
+                verify(eventPublisher, never()).raise(any());
+            }
+        }
+    }
+
+    private SoptLetterProfile requesterProfile() {
+        return SoptLetterProfile.builder()
+                .id(10L)
+                .userId(USER_ID)
+                .nickname("내 닉네임")
+                .build();
+    }
+
+    private void stubRequesterAndAuthors() {
+        SoptLetterProfile author = SoptLetterProfile.builder()
+                .id(20L)
+                .userId(2L)
+                .nickname("반짝이는 고래")
+                .build();
+        when(soptLetterProfileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(requesterProfile()));
+        when(soptLetterLikeRepository.findLikedLetterIdsByUserIdAndLetterIdIn(anyLong(), any())).thenReturn(Set.of());
+        when(soptLetterProfileRepository.findAllById(any())).thenReturn(List.of(author));
+    }
+
+    private SoptLetter letter(Long id, Long topicId) {
+        return SoptLetter.builder()
+                .id(id)
+                .topicId(topicId)
+                .authorProfileId(20L)
+                .message("메시지 " + id)
+                .color(SoptLetterColor.GREEN_50)
+                .shapeType(SoptLetterShapeType.POINT)
+                .degree(0.0)
+                .likeCount(0)
+                .build();
     }
 
     private SoptLetterTopic mockTopic(Long id, boolean isDefault, LocalDateTime createdAt) {

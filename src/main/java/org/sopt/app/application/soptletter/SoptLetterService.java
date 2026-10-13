@@ -16,6 +16,7 @@ import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
 import org.sopt.app.application.soptletter.SoptLetterInfo.TopicMessageListResult;
 import org.sopt.app.application.soptletter.SoptLetterInfo.TopicMessageSummary;
 import org.sopt.app.common.config.OperationConfigCategory;
+import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ConflictException;
 import org.sopt.app.common.exception.NotFoundException;
@@ -53,6 +54,7 @@ public class SoptLetterService {
     private final SoptLetterGenerator soptLetterGenerator;
     private final OperationConfigService operationConfigService;
     private final Clock clock;
+    private final EventPublisher eventPublisher;
 
     public boolean isOnboarded(Long userId) {
         return soptLetterProfileRepository.existsByUserId(userId);
@@ -145,6 +147,10 @@ public class SoptLetterService {
         val authorNicknamesByProfileId = getAuthorNicknamesByProfileId(letters);
         val messageSummaries = toTopicMessageSummaries(letters, requesterProfile, likedLetterIds, authorNicknamesByProfileId);
         val totalCount = Math.toIntExact(soptLetterRepository.countByTopicId(topic.getId()));
+
+        if (cursor == null && !letters.isEmpty()) {
+            eventPublisher.raise(SoptLetterTopicReadEvent.of(userId, topic.getId(), letters.get(0).getId()));
+        }
 
         return TopicMessageListResult.of(topic, totalCount, nextCursor, hasNext, hasNormalTopic, messageSummaries);
     }
