@@ -42,6 +42,8 @@ public class SoptLetterService {
     private static final int NICKNAME_CANDIDATE_SIZE = 3;
     private static final int DAILY_MESSAGE_LIMIT = 10;
     private static final String REPORT_FORM_URL_KEY = "linkUrl";
+    private static final int HOT_TOPIC_COUNT = 2;
+    private static final int HOT_TOPIC_PERIOD_DAYS = 7;
 
     private final SoptLetterProfileRepository soptLetterProfileRepository;
     private final AnonymousNameGenerator anonymousNameGenerator;
@@ -150,7 +152,10 @@ public class SoptLetterService {
     @Transactional(readOnly = true)
     public SoptLetterInfo.TopicListResult getTopics(String type) {
         val topics = getTopicsByType(type);
-        return SoptLetterInfo.TopicListResult.from(topics);
+        val now = LocalDateTime.now(clock);
+        val hotTopicIds = soptLetterRepository.findTopTopicIdsByLetterCountSince(
+            now.minusDays(HOT_TOPIC_PERIOD_DAYS), PageRequest.of(0, HOT_TOPIC_COUNT));
+        return SoptLetterInfo.TopicListResult.of(topics, now, hotTopicIds);
     }
 
     @Transactional(readOnly = true)
@@ -165,7 +170,7 @@ public class SoptLetterService {
 
     private List<SoptLetterTopic> getTopicsByType(String type) {
         if (type == null) {
-            return soptLetterTopicRepository.findAllByOrderByCreatedAtDesc();
+            return soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc();
         }
         if ("default".equalsIgnoreCase(type)) {
             return soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc();

@@ -9,7 +9,8 @@ import org.springframework.data.repository.query.Param;
 
 public interface SoptLetterTopicRepository extends JpaRepository<SoptLetterTopic, Long> {
 
-    List<SoptLetterTopic> findAllByOrderByCreatedAtDesc();
+    @Query("SELECT t FROM SoptLetterTopic t ORDER BY t.isDefault DESC, t.createdAt DESC NULLS LAST")
+    List<SoptLetterTopic> findAllDefaultFirstOrderByCreatedAtDesc();
 
     @Query("SELECT t FROM SoptLetterTopic t WHERE t.isDefault = true ORDER BY t.createdAt DESC")
     List<SoptLetterTopic> findAllDefaultTopicsOrderByCreatedAtDesc();
