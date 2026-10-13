@@ -170,6 +170,13 @@ public class SoptLetterService {
         return SoptLetterInfo.TopicListResult.of(topics, now, hotTopicIds, unreadCountsByTopicId);
     }
 
+    @Transactional(readOnly = true)
+    public long getTotalUnreadCount(Long userId) {
+        return countUnreadLettersByTopic(userId).stream()
+            .mapToLong(TopicUnreadCount::unreadCount)
+            .sum();
+    }
+
     private List<TopicUnreadCount> countUnreadLettersByTopic(Long userId) {
         val profileId = soptLetterProfileRepository.findByUserId(userId)
             .map(SoptLetterProfile::getId)

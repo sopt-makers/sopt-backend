@@ -2085,6 +2085,56 @@ class SoptLetterServiceTest {
         }
     }
 
+    @Nested
+    @DisplayName("홈 뱃지")
+    class HomeBadge {
+
+        @Nested
+        @DisplayName("홈 뱃지는 모든 주제의 안 읽은 수를 더한다")
+        class Total {
+
+            @Test
+            @DisplayName("SUCCESS_모든 주제의 안 읽은 수를 더한다")
+            void sumsAllTopics() {
+                // given 3번에 5개, 1번에 2개가 안 읽음이다
+                when(soptLetterRepository.countUnreadLettersByTopic(any(), any()))
+                        .thenReturn(List.of(topicUnreadCount(3L, 5L), topicUnreadCount(1L, 2L)));
+
+                // when
+                long result = soptLetterService.getTotalUnreadCount(USER_ID);
+
+                // then 7
+                assertThat(result).isEqualTo(7L);
+            }
+
+            @Test
+            @DisplayName("SUCCESS_안 읽은 솝레터가 없으면 0이다")
+            void zeroWhenNothingUnread() {
+                // given 집계 결과가 비어 있다
+                when(soptLetterRepository.countUnreadLettersByTopic(any(), any())).thenReturn(List.of());
+
+                // when
+                long result = soptLetterService.getTotalUnreadCount(USER_ID);
+
+                // then 0
+                assertThat(result).isZero();
+            }
+
+            @Test
+            @DisplayName("SUCCESS_프로필이 없어도 프로필 ID 없이 센다")
+            void countsWithoutProfile() {
+                // given 온보딩 전이라 프로필이 없다
+                when(soptLetterProfileRepository.findByUserId(USER_ID)).thenReturn(Optional.empty());
+
+                // when
+                soptLetterService.getTotalUnreadCount(USER_ID);
+
+                // then 프로필 ID 없이 집계 쿼리를 부른다
+                verify(soptLetterRepository, times(1)).countUnreadLettersByTopic(USER_ID, null);
+            }
+        }
+    }
+
     private SoptLetterProfile requesterProfile() {
         return SoptLetterProfile.builder()
                 .id(10L)
