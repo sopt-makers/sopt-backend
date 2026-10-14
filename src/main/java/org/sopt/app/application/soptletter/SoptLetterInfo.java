@@ -2,6 +2,7 @@ package org.sopt.app.application.soptletter;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -115,10 +116,20 @@ public class SoptLetterInfo {
 
         private List<TopicSummary> topics;
 
-        public static TopicListResult of(List<SoptLetterTopic> topics, LocalDateTime now, List<Long> hotTopicIds) {
+        public static TopicListResult of(
+            List<SoptLetterTopic> topics,
+            LocalDateTime now,
+            List<Long> hotTopicIds,
+            Map<Long, Integer> unreadCountsByTopicId
+        ) {
             return TopicListResult.builder()
                 .topics(topics.stream()
-                    .map(topic -> TopicSummary.of(topic, now, hotTopicIds.contains(topic.getId())))
+                    .map(topic -> TopicSummary.of(
+                        topic,
+                        now,
+                        hotTopicIds.contains(topic.getId()),
+                        unreadCountsByTopicId.getOrDefault(topic.getId(), 0)
+                    ))
                     .toList())
                 .build();
         }
@@ -136,9 +147,10 @@ public class SoptLetterInfo {
         private boolean isDefault;
         private boolean isNew;
         private boolean isHot;
+        private int unreadCount;
         private LocalDateTime createdAt;
 
-        public static TopicSummary of(SoptLetterTopic topic, LocalDateTime now, boolean isHot) {
+        public static TopicSummary of(SoptLetterTopic topic, LocalDateTime now, boolean isHot, int unreadCount) {
             return TopicSummary.builder()
                 .topicId(topic.getId())
                 .title(topic.getTitle())
@@ -146,6 +158,7 @@ public class SoptLetterInfo {
                 .isDefault(topic.isDefault())
                 .isNew(topic.isNewAt(now))
                 .isHot(isHot)
+                .unreadCount(unreadCount)
                 .createdAt(topic.getCreatedAt())
                 .build();
         }

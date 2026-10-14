@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.sopt.app.application.soptletter.SoptLetterInfo;
 import org.sopt.app.presentation.soptletter.dto.SoptLetterResponse;
@@ -82,6 +83,35 @@ class SoptLetterResponseMapperTest {
             assertThat(response.isDefault()).isTrue();
             assertThat(response.isNew()).isFalse();
             assertThat(response.isHot()).isTrue();
+        }
+    }
+
+    @Nested
+    @DisplayName("안 읽은 수")
+    class UnreadCount {
+
+        @Nested
+        @DisplayName("주제 응답은 안 읽은 수를 그대로 옮긴다")
+        class UnreadCountMapping {
+
+            @Tag("wiring")
+            @Test
+            @DisplayName("SUCCESS_안 읽은 수를 그대로 옮긴다")
+            void mapsUnreadCount() {
+                // given 안 읽은 수를 0이 아닌 7로 둔다. 기본값 0을 내보내는 매핑이면 드러난다
+                SoptLetterInfo.TopicSummary summary = SoptLetterInfo.TopicSummary.builder()
+                    .topicId(3L)
+                    .title("38기 앱잼 회고")
+                    .unreadCount(7)
+                    .createdAt(LocalDateTime.of(2026, 10, 1, 12, 0))
+                    .build();
+
+                // when
+                SoptLetterResponse.TopicResponse response = mapper.of(summary);
+
+                // then 응답의 unreadCount가 7이다
+                assertThat(response.unreadCount()).isEqualTo(7);
+            }
         }
     }
 }

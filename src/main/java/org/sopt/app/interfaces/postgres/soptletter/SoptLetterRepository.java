@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface SoptLetterRepository extends JpaRepository<SoptLetter, Long> {
+public interface SoptLetterRepository extends JpaRepository<SoptLetter, Long>, SoptLetterRepositoryCustom {
 
     Optional<SoptLetter> findFirstByTopicIdOrderByIdDesc(Long topicId);
 

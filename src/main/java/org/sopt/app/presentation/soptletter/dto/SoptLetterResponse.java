@@ -59,6 +59,8 @@ public class SoptLetterResponse {
         boolean isNew,
         @Schema(description = "HOT 주제 여부", example = "false")
         boolean isHot,
+        @Schema(description = "안 읽은 솝레터 수", example = "3")
+        int unreadCount,
         @Schema(description = "주제 생성 시각")
         LocalDateTime createdAt
     ) {

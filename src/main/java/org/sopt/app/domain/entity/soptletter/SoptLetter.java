@@ -7,6 +7,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.Table;
 import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -21,6 +23,12 @@ import org.sopt.app.domain.enums.SoptLetterColor;
 import org.sopt.app.domain.enums.SoptLetterShapeType;
 
 @Entity
+@Table(
+    name = "sopt_letter",
+    indexes = {
+        @Index(name = "idx_sopt_letter_topic_id_id", columnList = "topic_id, id")
+    }
+)
 @Getter
 @Builder
 @AllArgsConstructor

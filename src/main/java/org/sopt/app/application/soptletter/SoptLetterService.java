@@ -28,6 +28,7 @@ import org.sopt.app.domain.entity.soptletter.SoptLetterTopic;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
+import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepositoryCustom.TopicUnreadCount;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterTopicRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -149,16 +150,39 @@ public class SoptLetterService {
         val messageSummaries = toTopicMessageSummaries(letters, requesterProfile, likedLetterIds, authorNicknamesByProfileId);
         val totalCount = Math.toIntExact(soptLetterRepository.countByTopicId(topic.getId()));
 
+        if (cursor == null && !letters.isEmpty()) {
+            eventPublisher.publishEvent(SoptLetterTopicReadEvent.of(userId, topic.getId(), letters.get(0).getId()));
+        }
+
         return TopicMessageListResult.of(topic, totalCount, nextCursor, hasNext, hasNormalTopic, messageSummaries);
     }
 
     @Transactional(readOnly = true)
-    public SoptLetterInfo.TopicListResult getTopics(String type) {
+    public SoptLetterInfo.TopicListResult getTopics(Long userId, String type) {
         val topics = getTopicsByType(type);
         val now = LocalDateTime.now(clock);
         val hotTopicIds = soptLetterRepository.findTopTopicIdsByLetterCountSince(
             now.minusDays(HOT_TOPIC_PERIOD_DAYS), PageRequest.of(0, HOT_TOPIC_COUNT));
-        return SoptLetterInfo.TopicListResult.of(topics, now, hotTopicIds);
+        val unreadCountsByTopicId = countUnreadLettersByTopic(userId).stream()
+            .collect(Collectors.toMap(
+                TopicUnreadCount::topicId,
+                unread -> Math.toIntExact(unread.unreadCount())
+            ));
+        return SoptLetterInfo.TopicListResult.of(topics, now, hotTopicIds, unreadCountsByTopicId);
+    }
+
+    @Transactional(readOnly = true)
+    public long getTotalUnreadCount(Long userId) {
+        return countUnreadLettersByTopic(userId).stream()
+            .mapToLong(TopicUnreadCount::unreadCount)
+            .sum();
+    }
+
+    private List<TopicUnreadCount> countUnreadLettersByTopic(Long userId) {
+        val profileId = soptLetterProfileRepository.findByUserId(userId)
+            .map(SoptLetterProfile::getId)
+            .orElse(null);
+        return soptLetterRepository.countUnreadLettersByTopic(userId, profileId);
     }
 
     @Transactional(readOnly = true)

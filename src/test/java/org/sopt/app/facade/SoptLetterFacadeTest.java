@@ -134,6 +134,7 @@ class SoptLetterFacadeTest {
     @DisplayName("SUCCESS_솝레터 주제 목록 조회 파사드가 서비스 메서드를 정상 호출하고 반환한다")
     void SUCCESS_getTopics() {
         // given
+        final Long userId = 1L;
         SoptLetterInfo.TopicSummary topic = SoptLetterInfo.TopicSummary.builder()
                 .topicId(3L)
                 .title("36기 회고")
@@ -143,17 +144,17 @@ class SoptLetterFacadeTest {
         SoptLetterInfo.TopicListResult expected = SoptLetterInfo.TopicListResult.builder()
                 .topics(List.of(topic))
                 .build();
-        when(soptLetterService.getTopics(null)).thenReturn(expected);
+        when(soptLetterService.getTopics(userId, null)).thenReturn(expected);
 
         // when
-        SoptLetterInfo.TopicListResult result = soptLetterFacade.getTopics(null);
+        SoptLetterInfo.TopicListResult result = soptLetterFacade.getTopics(userId, null);
 
         // then
         assertThat(result.getTopics()).hasSize(1);
         assertThat(result.getTopics().get(0).getTopicId()).isEqualTo(3L);
         assertThat(result.getTopics().get(0).getTitle()).isEqualTo("36기 회고");
         assertThat(result.getTopics().get(0).isDefault()).isTrue();
-        verify(soptLetterService, times(1)).getTopics(null);
+        verify(soptLetterService, times(1)).getTopics(userId, null);
     }
 
     @Test
