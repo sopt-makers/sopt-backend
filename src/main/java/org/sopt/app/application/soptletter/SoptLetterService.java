@@ -28,7 +28,7 @@ import org.sopt.app.domain.entity.soptletter.SoptLetterTopic;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
-import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository.TopicUnreadCount;
+import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepositoryCustom.TopicUnreadCount;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterTopicRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;

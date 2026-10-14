@@ -45,6 +45,7 @@ import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeRepository;
 import org.springframework.context.ApplicationEventPublisher;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
+import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepositoryCustom.TopicUnreadCount;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterTopicRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
@@ -2213,8 +2214,8 @@ class SoptLetterServiceTest {
                 .build();
     }
 
-    private SoptLetterRepository.TopicUnreadCount topicUnreadCount(Long topicId, Long unreadCount) {
-        return new SoptLetterRepository.TopicUnreadCount(topicId, unreadCount);
+    private TopicUnreadCount topicUnreadCount(Long topicId, Long unreadCount) {
+        return new TopicUnreadCount(topicId, unreadCount);
     }
 
     private SoptLetterTopic mockTopic(Long id, boolean isDefault, LocalDateTime createdAt) {
