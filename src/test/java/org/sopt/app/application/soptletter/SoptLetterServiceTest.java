@@ -30,8 +30,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.application.appservice.OperationConfigService;
 import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
 import org.sopt.app.common.config.OperationConfigCategory;
-import org.sopt.app.common.event.Event;
-import org.sopt.app.common.event.EventPublisher;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ConflictException;
 import org.sopt.app.common.exception.ForbiddenException;
@@ -44,6 +42,7 @@ import org.sopt.app.domain.entity.soptletter.SoptLetterTopic;
 import org.sopt.app.domain.enums.SoptLetterColor;
 import org.sopt.app.domain.enums.SoptLetterShapeType;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterTopicRepository;
@@ -81,7 +80,7 @@ class SoptLetterServiceTest {
     private Clock clock;
 
     @Mock
-    private EventPublisher eventPublisher;
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private SoptLetterService soptLetterService;
@@ -1180,7 +1179,7 @@ class SoptLetterServiceTest {
         final Long userId = 1L;
         final Long topicId = 3L;
         final Long messageId = 125L;
-        when(soptLetterRepository.existsByIdAndTopicId(messageId, topicId)).thenReturn(true);
+        stubLikeLetter(messageId, topicId, 2L);
         when(soptLetterLikeRepository.insertIgnore(userId, messageId)).thenReturn(1);
 
         // when
@@ -1189,6 +1188,7 @@ class SoptLetterServiceTest {
         // then
         verify(soptLetterLikeRepository, times(1)).insertIgnore(userId, messageId);
         verify(soptLetterRepository, times(1)).increaseLikeCount(messageId);
+        verify(eventPublisher).publishEvent(new SoptLetterLikeEvent(userId, 2L, topicId, messageId));
     }
 
     @Test
@@ -1198,7 +1198,7 @@ class SoptLetterServiceTest {
         final Long userId = 1L;
         final Long topicId = 3L;
         final Long messageId = 125L;
-        when(soptLetterRepository.existsByIdAndTopicId(messageId, topicId)).thenReturn(true);
+        stubLikeLetter(messageId, topicId, 2L);
         when(soptLetterLikeRepository.insertIgnore(userId, messageId)).thenReturn(0);
 
         // when
@@ -1207,6 +1207,7 @@ class SoptLetterServiceTest {
         // then
         verify(soptLetterLikeRepository, times(1)).insertIgnore(userId, messageId);
         verify(soptLetterRepository, never()).increaseLikeCount(messageId);
+        verify(eventPublisher, never()).publishEvent(any(SoptLetterLikeEvent.class));
     }
 
     @Test
@@ -1216,7 +1217,7 @@ class SoptLetterServiceTest {
         final Long userId = 1L;
         final Long topicId = 3L;
         final Long messageId = 999L;
-        when(soptLetterRepository.existsByIdAndTopicId(messageId, topicId)).thenReturn(false);
+        when(soptLetterRepository.findById(messageId)).thenReturn(Optional.empty());
 
         // when & then
         assertThatThrownBy(() -> soptLetterService.addLike(userId, topicId, messageId))
@@ -1226,6 +1227,51 @@ class SoptLetterServiceTest {
                     assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_NOT_FOUND);
                 });
         verify(soptLetterLikeRepository, never()).insertIgnore(userId, messageId);
+    }
+
+    @Test
+    @DisplayName("SUCCESS_좋아요 취소 후 다시 누르면 이벤트를 발행하고 알림 중복 판단은 리스너에 맡긴다")
+    void SUCCESS_addLike_previouslyNotified() {
+        // given
+        stubLikeLetter(125L, 3L, 2L);
+        when(soptLetterLikeRepository.insertIgnore(1L, 125L)).thenReturn(1);
+
+        // when
+        soptLetterService.addLike(1L, 3L, 125L);
+
+        // then
+        verify(soptLetterRepository).increaseLikeCount(125L);
+        verify(eventPublisher).publishEvent(new SoptLetterLikeEvent(1L, 2L, 3L, 125L));
+    }
+
+    @Test
+    @DisplayName("FAIL_본인이 작성한 메시지에는 좋아요를 추가할 수 없다")
+    void FAIL_addLike_mine() {
+        // given
+        stubLikeLetter(125L, 3L, 1L);
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.addLike(1L, 3L, 125L)).isInstanceOf(ForbiddenException.class);
+        verify(soptLetterLikeRepository, never()).insertIgnore(anyLong(), anyLong());
+        verify(eventPublisher, never()).publishEvent(any(SoptLetterLikeEvent.class));
+    }
+
+    @Test
+    @DisplayName("FAIL_요청한 주제와 메시지 주제가 다르면 좋아요를 추가하지 않는다")
+    void FAIL_addLike_topicNotMatched() {
+        // given
+        when(soptLetterRepository.findById(125L)).thenReturn(Optional.of(SoptLetter.builder().id(125L).topicId(4L).build()));
+
+        // when & then
+        assertThatThrownBy(() -> soptLetterService.addLike(1L, 3L, 125L)).isInstanceOf(NotFoundException.class);
+        verify(soptLetterLikeRepository, never()).insertIgnore(anyLong(), anyLong());
+    }
+
+    private void stubLikeLetter(Long messageId, Long topicId, Long authorUserId) {
+        SoptLetter letter = SoptLetter.builder().id(messageId).topicId(topicId).authorProfileId(10L).build();
+        SoptLetterProfile author = SoptLetterProfile.builder().id(10L).userId(authorUserId).build();
+        when(soptLetterRepository.findById(messageId)).thenReturn(Optional.of(letter));
+        when(soptLetterProfileRepository.findById(10L)).thenReturn(Optional.of(author));
     }
 
     @Test
@@ -1886,8 +1932,8 @@ class SoptLetterServiceTest {
                 soptLetterService.getTopicMessages(USER_ID, 3L, null, 20);
 
                 // then 12번까지 읽었다는 이벤트를 한 번 낸다
-                ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-                verify(eventPublisher, times(1)).raise(eventCaptor.capture());
+                ArgumentCaptor<Object> eventCaptor = ArgumentCaptor.forClass(Object.class);
+                verify(eventPublisher, times(1)).publishEvent(eventCaptor.capture());
                 assertThat(eventCaptor.getValue())
                         .isInstanceOf(SoptLetterTopicReadEvent.class)
                         .extracting("userId", "topicId", "lastReadLetterId")
@@ -1909,7 +1955,7 @@ class SoptLetterServiceTest {
                 soptLetterService.getTopicMessages(USER_ID, 3L, 10L, 20);
 
                 // then 이벤트를 내지 않는다
-                verify(eventPublisher, never()).raise(any());
+                verify(eventPublisher, never()).publishEvent(any(SoptLetterTopicReadEvent.class));
             }
 
             @Test
@@ -1926,7 +1972,7 @@ class SoptLetterServiceTest {
                 soptLetterService.getTopicMessages(USER_ID, 3L, null, 20);
 
                 // then 기록할 ID가 없어서 이벤트를 내지 않는다
-                verify(eventPublisher, never()).raise(any());
+                verify(eventPublisher, never()).publishEvent(any(SoptLetterTopicReadEvent.class));
             }
 
             @Test
@@ -1944,7 +1990,7 @@ class SoptLetterServiceTest {
                             NotFoundException exception = (NotFoundException) e;
                             assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND);
                         });
-                verify(eventPublisher, never()).raise(any());
+                verify(eventPublisher, never()).publishEvent(any(SoptLetterTopicReadEvent.class));
             }
         }
 
@@ -1968,8 +2014,8 @@ class SoptLetterServiceTest {
                 soptLetterService.getDefaultTopicMessages(USER_ID, null, 20);
 
                 // then 기본 주제를 21번까지 읽었다는 이벤트를 낸다
-                ArgumentCaptor<Event> eventCaptor = ArgumentCaptor.forClass(Event.class);
-                verify(eventPublisher, times(1)).raise(eventCaptor.capture());
+                ArgumentCaptor<Object> eventCaptor = ArgumentCaptor.forClass(Object.class);
+                verify(eventPublisher, times(1)).publishEvent(eventCaptor.capture());
                 assertThat(eventCaptor.getValue())
                         .isInstanceOf(SoptLetterTopicReadEvent.class)
                         .extracting("userId", "topicId", "lastReadLetterId")
@@ -1992,7 +2038,7 @@ class SoptLetterServiceTest {
                 soptLetterService.getDefaultTopicMessages(USER_ID, 20L, 20);
 
                 // then 이벤트를 내지 않는다
-                verify(eventPublisher, never()).raise(any());
+                verify(eventPublisher, never()).publishEvent(any(SoptLetterTopicReadEvent.class));
             }
         }
     }
