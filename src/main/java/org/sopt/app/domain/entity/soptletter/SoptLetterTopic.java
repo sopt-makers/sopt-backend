@@ -16,12 +16,16 @@ import org.sopt.app.domain.entity.BaseEntity;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class SoptLetterTopic extends BaseEntity {
 
+    private static final int NEW_TOPIC_DAYS = 7;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
     private String title;
+
+    private String subtitle;
 
     @Column(length = 50)
     private String ctaText;
@@ -40,5 +44,12 @@ public class SoptLetterTopic extends BaseEntity {
             return false;
         }
         return !now.isBefore(startedAt) && !now.isAfter(endedAt);
+    }
+
+    public boolean isNewAt(LocalDateTime now) {
+        if (getCreatedAt() == null) {
+            return false;
+        }
+        return now.isBefore(getCreatedAt().plusDays(NEW_TOPIC_DAYS));
     }
 }

@@ -115,10 +115,10 @@ public class SoptLetterInfo {
 
         private List<TopicSummary> topics;
 
-        public static TopicListResult from(List<SoptLetterTopic> topics) {
+        public static TopicListResult of(List<SoptLetterTopic> topics, LocalDateTime now, List<Long> hotTopicIds) {
             return TopicListResult.builder()
                 .topics(topics.stream()
-                    .map(TopicSummary::from)
+                    .map(topic -> TopicSummary.of(topic, now, hotTopicIds.contains(topic.getId())))
                     .toList())
                 .build();
         }
@@ -132,14 +132,20 @@ public class SoptLetterInfo {
 
         private Long topicId;
         private String title;
+        private String subtitle;
         private boolean isDefault;
+        private boolean isNew;
+        private boolean isHot;
         private LocalDateTime createdAt;
 
-        public static TopicSummary from(SoptLetterTopic topic) {
+        public static TopicSummary of(SoptLetterTopic topic, LocalDateTime now, boolean isHot) {
             return TopicSummary.builder()
                 .topicId(topic.getId())
                 .title(topic.getTitle())
+                .subtitle(topic.getSubtitle())
                 .isDefault(topic.isDefault())
+                .isNew(topic.isNewAt(now))
+                .isHot(isHot)
                 .createdAt(topic.getCreatedAt())
                 .build();
         }
