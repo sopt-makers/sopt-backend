@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import org.sopt.app.application.soptletter.SoptLetterInfo;
 import org.sopt.app.application.soptletter.SoptLetterInfo.Profile;
 import org.sopt.app.application.soptletter.SoptLetterService;
+import org.sopt.app.application.soptletter.SoptLetterTopicReadEvent;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 public class SoptLetterFacade {
 
     private final SoptLetterService soptLetterService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Profile getOrCreateOnboardingProfile(Long userId) {
         return soptLetterService.getOrCreateProfile(userId);
@@ -21,11 +24,15 @@ public class SoptLetterFacade {
     }
 
     public SoptLetterInfo.TopicMessageListResult getTopicMessages(Long userId, Long topicId, Long cursor, Integer size) {
-        return soptLetterService.getTopicMessages(userId, topicId, cursor, size);
+        SoptLetterInfo.TopicMessageListResult result = soptLetterService.getTopicMessages(userId, topicId, cursor, size);
+        publishTopicReadEvent(userId, cursor, result);
+        return result;
     }
 
     public SoptLetterInfo.TopicMessageListResult getDefaultTopicMessages(Long userId, Long cursor, Integer size) {
-        return soptLetterService.getDefaultTopicMessages(userId, cursor, size);
+        SoptLetterInfo.TopicMessageListResult result = soptLetterService.getDefaultTopicMessages(userId, cursor, size);
+        publishTopicReadEvent(userId, cursor, result);
+        return result;
     }
 
     public SoptLetterInfo.ReportFormResult getReportForm() {
@@ -66,5 +73,13 @@ public class SoptLetterFacade {
 
     public SoptLetterInfo.MessageResult getMessageDetail(Long userId, Long topicId, Long messageId) {
         return soptLetterService.getMessageDetail(userId, topicId, messageId);
+    }
+
+    private void publishTopicReadEvent(Long userId, Long cursor, SoptLetterInfo.TopicMessageListResult result) {
+        if (cursor != null || result.getMessages().isEmpty()) {
+            return;
+        }
+        Long latestLetterId = result.getMessages().get(0).getMessageId();
+        eventPublisher.publishEvent(SoptLetterTopicReadEvent.of(userId, result.getTopicId(), latestLetterId));
     }
 }
