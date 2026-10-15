@@ -150,10 +150,6 @@ public class SoptLetterService {
         val messageSummaries = toTopicMessageSummaries(letters, requesterProfile, likedLetterIds, authorNicknamesByProfileId);
         val totalCount = Math.toIntExact(soptLetterRepository.countByTopicId(topic.getId()));
 
-        if (cursor == null && !letters.isEmpty()) {
-            eventPublisher.publishEvent(SoptLetterTopicReadEvent.of(userId, topic.getId(), letters.get(0).getId()));
-        }
-
         return TopicMessageListResult.of(topic, totalCount, nextCursor, hasNext, hasNormalTopic, messageSummaries);
     }
 
