@@ -11,6 +11,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterTopicReadRepository;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.transaction.event.TransactionalEventListenerFactory;
 
 @ExtendWith(MockitoExtension.class)
 class SoptLetterTopicReadEventListenerTest {
@@ -37,6 +39,29 @@ class SoptLetterTopicReadEventListenerTest {
 
                 // when
                 soptLetterTopicReadEventListener.onTopicRead(event);
+
+                // then 읽음 기록 저장을 (1, 3, 12)로 한 번 부른다
+                verify(soptLetterTopicReadRepository, times(1)).upsertLastReadLetterId(1L, 3L, 12L);
+            }
+        }
+
+        @Nested
+        @DisplayName("트랜잭션 밖에서 낸 읽음 이벤트도 받아서 기록한다")
+        class OutsideTransaction {
+
+            @Test
+            @DisplayName("SUCCESS_트랜잭션 없이 발행한 읽음 이벤트로 읽음 기록 upsert를 부른다")
+            void upsertsEventPublishedOutsideTransaction() {
+                // given 파사드처럼 조회 트랜잭션이 끝난 뒤 읽음 이벤트를 낸다. 커밋을 기다리는 리스너로 되돌리면 트랜잭션이 없어 이벤트를 버리므로 실패한다
+                try (var context = new AnnotationConfigApplicationContext()) {
+                    context.registerBean(TransactionalEventListenerFactory.class);
+                    context.registerBean(SoptLetterTopicReadEventListener.class,
+                            () -> new SoptLetterTopicReadEventListener(soptLetterTopicReadRepository));
+                    context.refresh();
+
+                    // when
+                    context.publishEvent(SoptLetterTopicReadEvent.of(1L, 3L, 12L));
+                }
 
                 // then 읽음 기록 저장을 (1, 3, 12)로 한 번 부른다
                 verify(soptLetterTopicReadRepository, times(1)).upsertLastReadLetterId(1L, 3L, 12L);
