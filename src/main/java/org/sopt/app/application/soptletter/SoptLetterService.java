@@ -155,8 +155,10 @@ public class SoptLetterService {
 
     @Transactional(readOnly = true)
     public SoptLetterInfo.TopicListResult getTopics(Long userId, String type) {
-        val topics = getTopicsByType(type);
         val now = LocalDateTime.now(clock);
+        val topics = getTopicsByType(type).stream()
+            .filter(topic -> topic.isActiveAt(now))
+            .toList();
         val hotTopicIds = soptLetterRepository.findTopTopicIdsByLetterCountSince(
             now.minusDays(HOT_TOPIC_PERIOD_DAYS), PageRequest.of(0, HOT_TOPIC_COUNT));
         val unreadCountsByTopicId = countUnreadLettersByTopic(userId).stream()
@@ -215,9 +217,13 @@ public class SoptLetterService {
     public SoptLetterInfo.MessageResult createSoptLetter(Long userId, Long topicId, String content) {
         val topic = soptLetterTopicRepository.findById(topicId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.ENTITY_NOT_FOUND));
+        val now = LocalDateTime.now(clock);
+        if (!topic.isActiveAt(now)) {
+            throw new BadRequestException(ErrorCode.SOPT_LETTER_TOPIC_NOT_ACTIVE);
+        }
         val profile = getProfileByUserId(userId);
 
-        validateDailyMessageLimit(profile.getId(), LocalDateTime.now(clock));
+        validateDailyMessageLimit(profile.getId(), now);
 
         val latestLetterOpt = soptLetterRepository.findFirstByTopicIdOrderByIdDesc(topicId);
         val latestColor = latestLetterOpt.map(SoptLetter::getColor).orElse(null);
