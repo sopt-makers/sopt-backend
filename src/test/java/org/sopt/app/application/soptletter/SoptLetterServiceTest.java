@@ -337,9 +337,7 @@ class SoptLetterServiceTest {
                 LocalDateTime firstCreatedAt = LocalDateTime.of(2026, 4, 20, 0, 0);
                 LocalDateTime secondCreatedAt = LocalDateTime.of(2026, 4, 18, 0, 0);
                 SoptLetterTopic firstTopic = mock(SoptLetterTopic.class);
-                when(firstTopic.isActiveAt(any(LocalDateTime.class))).thenReturn(true);
                 SoptLetterTopic secondTopic = mock(SoptLetterTopic.class);
-                when(secondTopic.isActiveAt(any(LocalDateTime.class))).thenReturn(true);
                 when(firstTopic.getId()).thenReturn(2L);
                 when(firstTopic.getTitle()).thenReturn("36기 앱잼 회고");
                 when(firstTopic.isDefault()).thenReturn(false);
@@ -348,7 +346,7 @@ class SoptLetterServiceTest {
                 when(secondTopic.getTitle()).thenReturn("36기 회고");
                 when(secondTopic.isDefault()).thenReturn(true);
                 when(secondTopic.getCreatedAt()).thenReturn(secondCreatedAt);
-                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc())
+                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class)))
                         .thenReturn(List.of(secondTopic, firstTopic));
 
                 // when
@@ -362,9 +360,9 @@ class SoptLetterServiceTest {
                 assertThat(result.getTopics().get(0).getCreatedAt()).isEqualTo(secondCreatedAt);
                 assertThat(result.getTopics().get(1).getTopicId()).isEqualTo(2L);
                 assertThat(result.getTopics().get(1).isDefault()).isFalse();
-                verify(soptLetterTopicRepository, times(1)).findAllDefaultFirstOrderByCreatedAtDesc();
-                verify(soptLetterTopicRepository, never()).findAllDefaultTopicsOrderByCreatedAtDesc();
-                verify(soptLetterTopicRepository, never()).findAllNormalTopicsOrderByCreatedAtDesc();
+                verify(soptLetterTopicRepository, times(1)).findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class));
+                verify(soptLetterTopicRepository, never()).findAllDefaultTopicsOrderByCreatedAtDesc(any(LocalDateTime.class));
+                verify(soptLetterTopicRepository, never()).findAllNormalTopicsOrderByCreatedAtDesc(any(LocalDateTime.class));
             }
 
             @Test
@@ -375,7 +373,7 @@ class SoptLetterServiceTest {
                 SoptLetterTopic defaultTopic2 = mockTopic(2L, true, LocalDateTime.of(2026, 9, 1, 0, 0));
                 SoptLetterTopic normalTopic1 = mockTopic(1L, false, LocalDateTime.of(2026, 10, 5, 0, 0));
                 SoptLetterTopic normalTopic3 = mockTopic(3L, false, LocalDateTime.of(2026, 9, 10, 0, 0));
-                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc())
+                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class)))
                         .thenReturn(List.of(defaultTopic4, defaultTopic2, normalTopic1, normalTopic3));
 
                 // when
@@ -391,7 +389,7 @@ class SoptLetterServiceTest {
             @DisplayName("SUCCESS_주제가 하나도 없으면 빈 목록을 반환한다")
             void emptyWhenNoTopics() {
                 // given 저장소에 주제가 하나도 없다
-                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc()).thenReturn(List.of());
+                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class))).thenReturn(List.of());
 
                 // when
                 SoptLetterInfo.TopicListResult result = soptLetterService.getTopics(USER_ID, null);
@@ -412,7 +410,7 @@ class SoptLetterServiceTest {
                 SoptLetterTopic topicWithSubtitle = mockTopic(2L, false, LocalDateTime.of(2026, 10, 5, 0, 0));
                 SoptLetterTopic topicWithoutSubtitle = mockTopic(1L, false, LocalDateTime.of(2026, 9, 1, 0, 0));
                 when(topicWithSubtitle.getSubtitle()).thenReturn("앱잼 끝나고 하고 싶은 말");
-                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc())
+                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class)))
                         .thenReturn(List.of(topicWithSubtitle, topicWithoutSubtitle));
 
                 // when
@@ -435,7 +433,7 @@ class SoptLetterServiceTest {
                 SoptLetterTopic topic3 = mockTopic(3L, false, LocalDateTime.of(2026, 10, 5, 0, 0));
                 SoptLetterTopic topic2 = mockTopic(2L, false, LocalDateTime.of(2026, 9, 20, 0, 0));
                 SoptLetterTopic topic1 = mockTopic(1L, false, LocalDateTime.of(2026, 9, 1, 0, 0));
-                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc()).thenReturn(List.of(topic3, topic2, topic1));
+                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class))).thenReturn(List.of(topic3, topic2, topic1));
                 when(soptLetterRepository.findTopTopicIdsByLetterCountSince(any(LocalDateTime.class), any(Pageable.class)))
                         .thenReturn(List.of(1L, 2L));
 
@@ -455,7 +453,7 @@ class SoptLetterServiceTest {
                 SoptLetterTopic topic3 = mockTopic(3L, false, LocalDateTime.of(2026, 10, 5, 0, 0));
                 SoptLetterTopic topic2 = mockTopic(2L, false, LocalDateTime.of(2026, 9, 20, 0, 0));
                 SoptLetterTopic topic1 = mockTopic(1L, false, LocalDateTime.of(2026, 9, 1, 0, 0));
-                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc()).thenReturn(List.of(topic3, topic2, topic1));
+                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class))).thenReturn(List.of(topic3, topic2, topic1));
                 when(soptLetterRepository.findTopTopicIdsByLetterCountSince(any(LocalDateTime.class), any(Pageable.class)))
                         .thenReturn(List.of(2L));
 
@@ -474,7 +472,7 @@ class SoptLetterServiceTest {
                 // given 주제는 있지만 쿼리 결과가 비어 있다
                 SoptLetterTopic topic2 = mockTopic(2L, false, LocalDateTime.of(2026, 9, 20, 0, 0));
                 SoptLetterTopic topic1 = mockTopic(1L, false, LocalDateTime.of(2026, 9, 1, 0, 0));
-                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc()).thenReturn(List.of(topic2, topic1));
+                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class))).thenReturn(List.of(topic2, topic1));
                 when(soptLetterRepository.findTopTopicIdsByLetterCountSince(any(LocalDateTime.class), any(Pageable.class)))
                         .thenReturn(List.of());
 
@@ -493,7 +491,7 @@ class SoptLetterServiceTest {
                 // given 목록에는 일반 주제 둘만 있고 쿼리는 목록에 없는 기본 주제를 1위로 돌려준다. 목록 안에서 빈 자리를 채우는 구현이면 두 주제 모두 HOT을 받는다
                 SoptLetterTopic topic3 = mockTopic(3L, false, LocalDateTime.of(2026, 10, 5, 0, 0));
                 SoptLetterTopic topic2 = mockTopic(2L, false, LocalDateTime.of(2026, 9, 20, 0, 0));
-                when(soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc()).thenReturn(List.of(topic3, topic2));
+                when(soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc(any(LocalDateTime.class))).thenReturn(List.of(topic3, topic2));
                 when(soptLetterRepository.findTopTopicIdsByLetterCountSince(any(LocalDateTime.class), any(Pageable.class)))
                         .thenReturn(List.of(1L, 2L));
 
@@ -513,7 +511,7 @@ class SoptLetterServiceTest {
                 LocalDateTime now = LocalDateTime.of(2026, 10, 10, 12, 0);
                 SoptLetterTopic topic = mockTopic(1L, false, LocalDateTime.of(2026, 10, 1, 0, 0));
                 when(clock.instant()).thenReturn(now.atZone(ZoneId.systemDefault()).toInstant());
-                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc()).thenReturn(List.of(topic));
+                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class))).thenReturn(List.of(topic));
 
                 // when
                 soptLetterService.getTopics(USER_ID, null);
@@ -535,7 +533,7 @@ class SoptLetterServiceTest {
                 SoptLetterTopic topic = mockTopic(1L, false, LocalDateTime.of(2026, 10, 9, 0, 0));
                 when(topic.isNewAt(now)).thenReturn(true);
                 when(clock.instant()).thenReturn(now.atZone(ZoneId.systemDefault()).toInstant());
-                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc()).thenReturn(List.of(topic));
+                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class))).thenReturn(List.of(topic));
                 when(soptLetterRepository.findTopTopicIdsByLetterCountSince(any(LocalDateTime.class), any(Pageable.class)))
                         .thenReturn(List.of(1L));
 
@@ -559,14 +557,13 @@ class SoptLetterServiceTest {
                 LocalDateTime now = LocalDateTime.of(2026, 4, 20, 12, 0);
                 LocalDateTime createdAt = LocalDateTime.of(2026, 4, 18, 0, 0);
                 SoptLetterTopic defaultTopic = mock(SoptLetterTopic.class);
-                when(defaultTopic.isActiveAt(any(LocalDateTime.class))).thenReturn(true);
                 when(defaultTopic.getId()).thenReturn(1L);
                 when(defaultTopic.getTitle()).thenReturn("36기 솝레터");
                 when(defaultTopic.isDefault()).thenReturn(true);
                 when(defaultTopic.getCreatedAt()).thenReturn(createdAt);
                 when(defaultTopic.isNewAt(now)).thenReturn(true);
                 when(clock.instant()).thenReturn(now.atZone(ZoneId.systemDefault()).toInstant());
-                when(soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc()).thenReturn(List.of(defaultTopic));
+                when(soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc(any(LocalDateTime.class))).thenReturn(List.of(defaultTopic));
                 when(soptLetterRepository.findTopTopicIdsByLetterCountSince(any(LocalDateTime.class), any(Pageable.class)))
                         .thenReturn(List.of(1L));
 
@@ -581,9 +578,9 @@ class SoptLetterServiceTest {
                 assertThat(result.getTopics().get(0).getCreatedAt()).isEqualTo(createdAt);
                 assertThat(result.getTopics().get(0).isNew()).isTrue();
                 assertThat(result.getTopics().get(0).isHot()).isTrue();
-                verify(soptLetterTopicRepository, times(1)).findAllDefaultTopicsOrderByCreatedAtDesc();
-                verify(soptLetterTopicRepository, never()).findAllDefaultFirstOrderByCreatedAtDesc();
-                verify(soptLetterTopicRepository, never()).findAllNormalTopicsOrderByCreatedAtDesc();
+                verify(soptLetterTopicRepository, times(1)).findAllDefaultTopicsOrderByCreatedAtDesc(any(LocalDateTime.class));
+                verify(soptLetterTopicRepository, never()).findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class));
+                verify(soptLetterTopicRepository, never()).findAllNormalTopicsOrderByCreatedAtDesc(any(LocalDateTime.class));
             }
 
             @Test
@@ -592,12 +589,11 @@ class SoptLetterServiceTest {
                 // given type을 normal로 넘기고 일반 주제 하나에 HOT 조건만 채운다. 두 뱃지를 따로 계산하는지 보려고 NEW 조건은 비워 둔다
                 LocalDateTime createdAt = LocalDateTime.of(2026, 7, 19, 0, 0);
                 SoptLetterTopic normalTopic = mock(SoptLetterTopic.class);
-                when(normalTopic.isActiveAt(any(LocalDateTime.class))).thenReturn(true);
                 when(normalTopic.getId()).thenReturn(2L);
                 when(normalTopic.getTitle()).thenReturn("38기 앱잼 회고");
                 when(normalTopic.isDefault()).thenReturn(false);
                 when(normalTopic.getCreatedAt()).thenReturn(createdAt);
-                when(soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc()).thenReturn(List.of(normalTopic));
+                when(soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc(any(LocalDateTime.class))).thenReturn(List.of(normalTopic));
                 when(soptLetterRepository.findTopTopicIdsByLetterCountSince(any(LocalDateTime.class), any(Pageable.class)))
                         .thenReturn(List.of(2L));
 
@@ -612,9 +608,9 @@ class SoptLetterServiceTest {
                 assertThat(result.getTopics().get(0).getCreatedAt()).isEqualTo(createdAt);
                 assertThat(result.getTopics().get(0).isNew()).isFalse();
                 assertThat(result.getTopics().get(0).isHot()).isTrue();
-                verify(soptLetterTopicRepository, times(1)).findAllNormalTopicsOrderByCreatedAtDesc();
-                verify(soptLetterTopicRepository, never()).findAllDefaultTopicsOrderByCreatedAtDesc();
-                verify(soptLetterTopicRepository, never()).findAllDefaultFirstOrderByCreatedAtDesc();
+                verify(soptLetterTopicRepository, times(1)).findAllNormalTopicsOrderByCreatedAtDesc(any(LocalDateTime.class));
+                verify(soptLetterTopicRepository, never()).findAllDefaultTopicsOrderByCreatedAtDesc(any(LocalDateTime.class));
+                verify(soptLetterTopicRepository, never()).findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class));
             }
 
             @Test
@@ -629,9 +625,9 @@ class SoptLetterServiceTest {
                             BadRequestException exception = (BadRequestException) e;
                             assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.INVALID_PARAMETER);
                         });
-                verify(soptLetterTopicRepository, never()).findAllDefaultFirstOrderByCreatedAtDesc();
-                verify(soptLetterTopicRepository, never()).findAllDefaultTopicsOrderByCreatedAtDesc();
-                verify(soptLetterTopicRepository, never()).findAllNormalTopicsOrderByCreatedAtDesc();
+                verify(soptLetterTopicRepository, never()).findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class));
+                verify(soptLetterTopicRepository, never()).findAllDefaultTopicsOrderByCreatedAtDesc(any(LocalDateTime.class));
+                verify(soptLetterTopicRepository, never()).findAllNormalTopicsOrderByCreatedAtDesc(any(LocalDateTime.class));
                 verify(soptLetterRepository, never()).findTopTopicIdsByLetterCountSince(any(), any());
                 verify(soptLetterRepository, never()).countUnreadLettersByTopic(any(), any());
             }
@@ -1939,7 +1935,7 @@ class SoptLetterServiceTest {
                 SoptLetterTopic topic3 = mockTopic(3L, false, LocalDateTime.of(2026, 10, 5, 0, 0));
                 SoptLetterTopic topic2 = mockTopic(2L, false, LocalDateTime.of(2026, 9, 20, 0, 0));
                 SoptLetterTopic topic1 = mockTopic(1L, false, LocalDateTime.of(2026, 9, 1, 0, 0));
-                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc()).thenReturn(List.of(topic3, topic2, topic1));
+                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class))).thenReturn(List.of(topic3, topic2, topic1));
                 when(soptLetterRepository.countUnreadLettersByTopic(any(), any()))
                         .thenReturn(List.of(topicUnreadCount(3L, 5L), topicUnreadCount(1L, 2L)));
 
@@ -1962,7 +1958,7 @@ class SoptLetterServiceTest {
                         .nickname("반짝이는 고래")
                         .build();
                 when(soptLetterProfileRepository.findByUserId(USER_ID)).thenReturn(Optional.of(profile));
-                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc()).thenReturn(List.of());
+                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class))).thenReturn(List.of());
 
                 // when
                 soptLetterService.getTopics(USER_ID, null);
@@ -1977,7 +1973,7 @@ class SoptLetterServiceTest {
                 // given 온보딩 전이라 프로필이 없다. 홈 뱃지 대상이라 오류가 나면 안 된다
                 SoptLetterTopic topic = mockTopic(1L, false, LocalDateTime.of(2026, 9, 1, 0, 0));
                 when(soptLetterProfileRepository.findByUserId(USER_ID)).thenReturn(Optional.empty());
-                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc()).thenReturn(List.of(topic));
+                when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc(any(LocalDateTime.class))).thenReturn(List.of(topic));
                 when(soptLetterRepository.countUnreadLettersByTopic(USER_ID, null))
                         .thenReturn(List.of(topicUnreadCount(1L, 4L)));
 
@@ -1997,7 +1993,7 @@ class SoptLetterServiceTest {
                 // given 일반 주제 3, 2만 조회하고, 집계 결과에는 목록에 없는 1번이 섞여 있다
                 SoptLetterTopic topic3 = mockTopic(3L, false, LocalDateTime.of(2026, 10, 5, 0, 0));
                 SoptLetterTopic topic2 = mockTopic(2L, false, LocalDateTime.of(2026, 9, 20, 0, 0));
-                when(soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc()).thenReturn(List.of(topic3, topic2));
+                when(soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc(any(LocalDateTime.class))).thenReturn(List.of(topic3, topic2));
                 when(soptLetterRepository.countUnreadLettersByTopic(any(), any()))
                         .thenReturn(List.of(topicUnreadCount(1L, 9L), topicUnreadCount(2L, 4L)));
 
@@ -2069,25 +2065,30 @@ class SoptLetterServiceTest {
     @ParameterizedTest
     @NullSource
     @ValueSource(strings = {"default", "normal"})
-    @DisplayName("SUCCESS_주제 목록은 오픈 전과 마감 후 주제를 제외한다")
+    @DisplayName("SUCCESS_주제 목록 조회에 현재 시각을 전달한다")
     void SUCCESS_getTopics_activePeriod(String type) {
         LocalDateTime now = LocalDateTime.of(2026, 10, 29, 11, 0);
         when(clock.instant()).thenReturn(now.atZone(ZoneId.systemDefault()).toInstant());
         SoptLetterTopic active = periodTopic(now, now.plusDays(1));
-        SoptLetterTopic upcoming = periodTopic(now.plusSeconds(1), now.plusDays(1));
-        SoptLetterTopic closed = periodTopic(now.minusDays(1), now.minusSeconds(1));
-        List<SoptLetterTopic> topics = List.of(upcoming, active, closed);
+        List<SoptLetterTopic> topics = List.of(active);
         if (type == null) {
-            when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc()).thenReturn(topics);
+            when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc(now)).thenReturn(topics);
         } else if ("default".equals(type)) {
-            when(soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc()).thenReturn(topics);
+            when(soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc(now)).thenReturn(topics);
         } else {
-            when(soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc()).thenReturn(topics);
+            when(soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc(now)).thenReturn(topics);
         }
 
         SoptLetterInfo.TopicListResult result = soptLetterService.getTopics(USER_ID, type);
 
         assertThat(result.getTopics()).hasSize(1);
+        if (type == null) {
+            verify(soptLetterTopicRepository).findAllDefaultFirstOrderByCreatedAtDesc(now);
+        } else if ("default".equals(type)) {
+            verify(soptLetterTopicRepository).findAllDefaultTopicsOrderByCreatedAtDesc(now);
+        } else {
+            verify(soptLetterTopicRepository).findAllNormalTopicsOrderByCreatedAtDesc(now);
+        }
     }
 
     @ParameterizedTest
@@ -2119,7 +2120,6 @@ class SoptLetterServiceTest {
 
     private SoptLetterTopic mockTopic(Long id, boolean isDefault, LocalDateTime createdAt) {
         SoptLetterTopic topic = mock(SoptLetterTopic.class);
-        when(topic.isActiveAt(any(LocalDateTime.class))).thenReturn(true);
         when(topic.getId()).thenReturn(id);
         when(topic.isDefault()).thenReturn(isDefault);
         when(topic.getCreatedAt()).thenReturn(createdAt);

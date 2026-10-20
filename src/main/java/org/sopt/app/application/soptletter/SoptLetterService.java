@@ -156,9 +156,7 @@ public class SoptLetterService {
     @Transactional(readOnly = true)
     public SoptLetterInfo.TopicListResult getTopics(Long userId, String type) {
         val now = LocalDateTime.now(clock);
-        val topics = getTopicsByType(type).stream()
-            .filter(topic -> topic.isActiveAt(now))
-            .toList();
+        val topics = getTopicsByType(type, now);
         val hotTopicIds = soptLetterRepository.findTopTopicIdsByLetterCountSince(
             now.minusDays(HOT_TOPIC_PERIOD_DAYS), PageRequest.of(0, HOT_TOPIC_COUNT));
         val unreadCountsByTopicId = countUnreadLettersByTopic(userId).stream()
@@ -193,15 +191,15 @@ public class SoptLetterService {
         return CtaResult.from(activeCtas.get(0));
     }
 
-    private List<SoptLetterTopic> getTopicsByType(String type) {
+    private List<SoptLetterTopic> getTopicsByType(String type, LocalDateTime now) {
         if (type == null) {
-            return soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc();
+            return soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc(now);
         }
         if ("default".equalsIgnoreCase(type)) {
-            return soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc();
+            return soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc(now);
         }
         if ("normal".equalsIgnoreCase(type)) {
-            return soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc();
+            return soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc(now);
         }
         throw new BadRequestException(ErrorCode.INVALID_PARAMETER);
     }
