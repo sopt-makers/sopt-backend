@@ -22,6 +22,9 @@ import java.util.Set;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.NullSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
@@ -42,6 +45,8 @@ import org.sopt.app.domain.entity.soptletter.SoptLetterTopic;
 import org.sopt.app.domain.enums.SoptLetterColor;
 import org.sopt.app.domain.enums.SoptLetterShapeType;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeRepository;
+import org.springframework.beans.BeanUtils;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
@@ -332,7 +337,9 @@ class SoptLetterServiceTest {
                 LocalDateTime firstCreatedAt = LocalDateTime.of(2026, 4, 20, 0, 0);
                 LocalDateTime secondCreatedAt = LocalDateTime.of(2026, 4, 18, 0, 0);
                 SoptLetterTopic firstTopic = mock(SoptLetterTopic.class);
+                when(firstTopic.isActiveAt(any(LocalDateTime.class))).thenReturn(true);
                 SoptLetterTopic secondTopic = mock(SoptLetterTopic.class);
+                when(secondTopic.isActiveAt(any(LocalDateTime.class))).thenReturn(true);
                 when(firstTopic.getId()).thenReturn(2L);
                 when(firstTopic.getTitle()).thenReturn("36기 앱잼 회고");
                 when(firstTopic.isDefault()).thenReturn(false);
@@ -552,6 +559,7 @@ class SoptLetterServiceTest {
                 LocalDateTime now = LocalDateTime.of(2026, 4, 20, 12, 0);
                 LocalDateTime createdAt = LocalDateTime.of(2026, 4, 18, 0, 0);
                 SoptLetterTopic defaultTopic = mock(SoptLetterTopic.class);
+                when(defaultTopic.isActiveAt(any(LocalDateTime.class))).thenReturn(true);
                 when(defaultTopic.getId()).thenReturn(1L);
                 when(defaultTopic.getTitle()).thenReturn("36기 솝레터");
                 when(defaultTopic.isDefault()).thenReturn(true);
@@ -584,6 +592,7 @@ class SoptLetterServiceTest {
                 // given type을 normal로 넘기고 일반 주제 하나에 HOT 조건만 채운다. 두 뱃지를 따로 계산하는지 보려고 NEW 조건은 비워 둔다
                 LocalDateTime createdAt = LocalDateTime.of(2026, 7, 19, 0, 0);
                 SoptLetterTopic normalTopic = mock(SoptLetterTopic.class);
+                when(normalTopic.isActiveAt(any(LocalDateTime.class))).thenReturn(true);
                 when(normalTopic.getId()).thenReturn(2L);
                 when(normalTopic.getTitle()).thenReturn("38기 앱잼 회고");
                 when(normalTopic.isDefault()).thenReturn(false);
@@ -687,6 +696,7 @@ class SoptLetterServiceTest {
         final LocalDateTime now = LocalDateTime.now();
 
         SoptLetterTopic topic = mock(SoptLetterTopic.class);
+        when(topic.isActiveAt(any(LocalDateTime.class))).thenReturn(true);
         SoptLetterProfile profile = SoptLetterProfile.builder()
                 .id(10L)
                 .userId(userId)
@@ -749,6 +759,7 @@ class SoptLetterServiceTest {
         final String content = "테스트 편지 내용";
 
         SoptLetterTopic topic = mock(SoptLetterTopic.class);
+        when(topic.isActiveAt(any(LocalDateTime.class))).thenReturn(true);
         SoptLetterProfile profile = SoptLetterProfile.builder()
                 .id(10L)
                 .userId(userId)
@@ -779,6 +790,7 @@ class SoptLetterServiceTest {
         final LocalDateTime now = LocalDateTime.now();
 
         SoptLetterTopic topic = mock(SoptLetterTopic.class);
+        when(topic.isActiveAt(any(LocalDateTime.class))).thenReturn(true);
         SoptLetterProfile profile = SoptLetterProfile.builder()
                 .id(10L)
                 .userId(userId)
@@ -855,6 +867,7 @@ class SoptLetterServiceTest {
         final Long userId = 1L;
         final Long topicId = 3L;
         SoptLetterTopic topic = mock(SoptLetterTopic.class);
+        when(topic.isActiveAt(any(LocalDateTime.class))).thenReturn(true);
 
         when(soptLetterTopicRepository.findById(topicId)).thenReturn(Optional.of(topic));
         when(soptLetterProfileRepository.findByUserId(userId)).thenReturn(Optional.empty());
@@ -877,6 +890,7 @@ class SoptLetterServiceTest {
         final LocalDateTime now = LocalDateTime.now();
 
         SoptLetterTopic topic = mock(SoptLetterTopic.class);
+        when(topic.isActiveAt(any(LocalDateTime.class))).thenReturn(true);
         SoptLetterProfile profile = SoptLetterProfile.builder()
                 .id(10L)
                 .userId(userId)
@@ -2052,8 +2066,60 @@ class SoptLetterServiceTest {
         return new TopicUnreadCount(topicId, unreadCount);
     }
 
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"default", "normal"})
+    @DisplayName("SUCCESS_주제 목록은 오픈 전과 마감 후 주제를 제외한다")
+    void SUCCESS_getTopics_activePeriod(String type) {
+        LocalDateTime now = LocalDateTime.of(2026, 10, 29, 11, 0);
+        when(clock.instant()).thenReturn(now.atZone(ZoneId.systemDefault()).toInstant());
+        SoptLetterTopic active = periodTopic(now, now.plusDays(1));
+        SoptLetterTopic upcoming = periodTopic(now.plusSeconds(1), now.plusDays(1));
+        SoptLetterTopic closed = periodTopic(now.minusDays(1), now.minusSeconds(1));
+        List<SoptLetterTopic> topics = List.of(upcoming, active, closed);
+        if (type == null) {
+            when(soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc()).thenReturn(topics);
+        } else if ("default".equals(type)) {
+            when(soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc()).thenReturn(topics);
+        } else {
+            when(soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc()).thenReturn(topics);
+        }
+
+        SoptLetterInfo.TopicListResult result = soptLetterService.getTopics(USER_ID, type);
+
+        assertThat(result.getTopics()).hasSize(1);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    @DisplayName("FAIL_오픈 전 또는 마감 후 주제에는 작성할 수 없다")
+    void FAIL_createSoptLetter_inactiveTopic(boolean upcoming) {
+        LocalDateTime now = LocalDateTime.of(2026, 10, 29, 11, 0);
+        when(clock.instant()).thenReturn(now.atZone(ZoneId.systemDefault()).toInstant());
+        SoptLetterTopic topic = upcoming
+            ? periodTopic(now.plusSeconds(1), now.plusDays(1))
+            : periodTopic(now.minusDays(1), now.minusSeconds(1));
+        when(soptLetterTopicRepository.findById(1L)).thenReturn(Optional.of(topic));
+
+        assertThatThrownBy(() -> soptLetterService.createSoptLetter(USER_ID, 1L, "테스트"))
+            .isInstanceOf(BadRequestException.class)
+            .satisfies(exception -> assertThat(((BadRequestException) exception).getErrorCode())
+                .isEqualTo(ErrorCode.SOPT_LETTER_TOPIC_NOT_ACTIVE));
+        verify(soptLetterRepository, never()).save(any());
+        verify(soptLetterProfileRepository, never()).findByUserId(anyLong());
+    }
+
+    private SoptLetterTopic periodTopic(LocalDateTime startedAt, LocalDateTime endedAt) {
+        SoptLetterTopic topic = BeanUtils.instantiateClass(SoptLetterTopic.class);
+        ReflectionTestUtils.setField(topic, "id", 1L);
+        ReflectionTestUtils.setField(topic, "startedAt", startedAt);
+        ReflectionTestUtils.setField(topic, "endedAt", endedAt);
+        return topic;
+    }
+
     private SoptLetterTopic mockTopic(Long id, boolean isDefault, LocalDateTime createdAt) {
         SoptLetterTopic topic = mock(SoptLetterTopic.class);
+        when(topic.isActiveAt(any(LocalDateTime.class))).thenReturn(true);
         when(topic.getId()).thenReturn(id);
         when(topic.isDefault()).thenReturn(isDefault);
         when(topic.getCreatedAt()).thenReturn(createdAt);
