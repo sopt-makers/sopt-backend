@@ -6,9 +6,23 @@ import java.time.LocalDateTime;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.test.util.ReflectionTestUtils;
 
 class SoptLetterTopicTest {
+
+    @ParameterizedTest
+    @CsvSource({"-1, false", "0, true", "60, true", "61, false"})
+    @DisplayName("SUCCESS_시작과 마감 시각을 포함한 기간에만 활성 상태다")
+    void SUCCESS_isActiveAt_boundaries(long seconds, boolean expected) {
+        LocalDateTime startedAt = LocalDateTime.of(2026, 10, 29, 11, 0);
+        SoptLetterTopic topic = new SoptLetterTopic();
+        ReflectionTestUtils.setField(topic, "startedAt", startedAt);
+        ReflectionTestUtils.setField(topic, "endedAt", startedAt.plusSeconds(60));
+
+        assertThat(topic.isActiveAt(startedAt.plusSeconds(seconds))).isEqualTo(expected);
+    }
 
     @Test
     @DisplayName("SUCCESS_현재 시각이 주제 노출 기간 내에 있으면 활성 상태를 반환한다")
