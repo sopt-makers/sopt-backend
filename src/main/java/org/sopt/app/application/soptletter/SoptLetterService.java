@@ -26,6 +26,7 @@ import org.sopt.app.domain.entity.soptletter.SoptLetter;
 import org.sopt.app.domain.entity.soptletter.SoptLetterProfile;
 import org.sopt.app.domain.entity.soptletter.SoptLetterTopic;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeRepository;
+import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeNotificationRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepositoryCustom.TopicUnreadCount;
@@ -53,6 +54,7 @@ public class SoptLetterService {
     private final SoptLetterRepository soptLetterRepository;
     private final SoptLetterTopicRepository soptLetterTopicRepository;
     private final SoptLetterLikeRepository soptLetterLikeRepository;
+    private final SoptLetterLikeNotificationRepository soptLetterLikeNotificationRepository;
     private final SoptLetterGenerator soptLetterGenerator;
     private final OperationConfigService operationConfigService;
     private final Clock clock;
@@ -281,7 +283,9 @@ public class SoptLetterService {
         val insertedCount = soptLetterLikeRepository.insertIgnore(userId, soptLetterId);
         if (insertedCount > 0) {
             soptLetterRepository.increaseLikeCount(soptLetterId);
-            eventPublisher.publishEvent(new SoptLetterLikeEvent(userId, authorProfile.getUserId(), topicId, soptLetterId));
+            if (soptLetterLikeNotificationRepository.insertIgnore(userId, soptLetterId) > 0) {
+                eventPublisher.publishEvent(new SoptLetterLikeEvent(userId, authorProfile.getUserId(), topicId, soptLetterId));
+            }
         }
     }
 
