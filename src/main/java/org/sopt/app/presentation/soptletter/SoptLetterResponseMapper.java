@@ -28,6 +28,8 @@ public interface SoptLetterResponseMapper {
     SoptLetterResponse.TopicsResponse of(SoptLetterInfo.TopicListResult result);
 
     @Mapping(source = "default", target = "isDefault")
+    @Mapping(source = "new", target = "isNew")
+    @Mapping(source = "hot", target = "isHot")
     SoptLetterResponse.TopicResponse of(SoptLetterInfo.TopicSummary result);
 
     SoptLetterResponse.TopicDetailResponse of(SoptLetterInfo.TopicDetail result);

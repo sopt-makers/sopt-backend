@@ -9,13 +9,17 @@ import org.springframework.data.repository.query.Param;
 
 public interface SoptLetterTopicRepository extends JpaRepository<SoptLetterTopic, Long> {
 
-    List<SoptLetterTopic> findAllByOrderByCreatedAtDesc();
+    @Query("SELECT t FROM SoptLetterTopic t WHERE t.startedAt <= :now AND t.endedAt >= :now ORDER BY t.isDefault DESC, t.createdAt DESC NULLS LAST")
+    List<SoptLetterTopic> findAllDefaultFirstOrderByCreatedAtDesc(@Param("now") LocalDateTime now);
 
-    @Query("SELECT t FROM SoptLetterTopic t WHERE t.isDefault = true ORDER BY t.createdAt DESC")
+    @Query("SELECT t FROM SoptLetterTopic t WHERE t.isDefault = true ORDER BY t.createdAt DESC NULLS LAST")
     List<SoptLetterTopic> findAllDefaultTopicsOrderByCreatedAtDesc();
 
-    @Query("SELECT t FROM SoptLetterTopic t WHERE t.isDefault = false ORDER BY t.createdAt DESC")
-    List<SoptLetterTopic> findAllNormalTopicsOrderByCreatedAtDesc();
+    @Query("SELECT t FROM SoptLetterTopic t WHERE t.isDefault = true AND t.startedAt <= :now AND t.endedAt >= :now ORDER BY t.createdAt DESC NULLS LAST")
+    List<SoptLetterTopic> findAllDefaultTopicsOrderByCreatedAtDesc(@Param("now") LocalDateTime now);
+
+    @Query("SELECT t FROM SoptLetterTopic t WHERE t.isDefault = false AND t.startedAt <= :now AND t.endedAt >= :now ORDER BY t.createdAt DESC NULLS LAST")
+    List<SoptLetterTopic> findAllNormalTopicsOrderByCreatedAtDesc(@Param("now") LocalDateTime now);
 
     @Query("SELECT CASE WHEN COUNT(t) > 0 THEN true ELSE false END FROM SoptLetterTopic t WHERE t.isDefault = false")
     boolean existsNormalTopic();

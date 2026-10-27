@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface SoptLetterRepository extends JpaRepository<SoptLetter, Long> {
+public interface SoptLetterRepository extends JpaRepository<SoptLetter, Long>, SoptLetterRepositoryCustom {
 
     Optional<SoptLetter> findFirstByTopicIdOrderByIdDesc(Long topicId);
 
@@ -38,4 +38,14 @@ public interface SoptLetterRepository extends JpaRepository<SoptLetter, Long> {
         WHERE l.id = :soptLetterId
         """)
     int decreaseLikeCount(@Param("soptLetterId") Long soptLetterId);
+
+    @Query("""
+        SELECT l.topicId
+        FROM SoptLetter l
+        JOIN SoptLetterTopic t ON t.id = l.topicId
+        WHERE l.createdAt >= :since
+        GROUP BY l.topicId, t.createdAt
+        ORDER BY COUNT(l) DESC, t.createdAt DESC NULLS LAST, l.topicId DESC
+        """)
+    List<Long> findTopTopicIdsByLetterCountSince(@Param("since") LocalDateTime since, Pageable pageable);
 }

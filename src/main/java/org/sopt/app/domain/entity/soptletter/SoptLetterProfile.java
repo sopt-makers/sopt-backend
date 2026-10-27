@@ -1,5 +1,6 @@
 package org.sopt.app.domain.entity.soptletter;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -44,6 +45,10 @@ public class SoptLetterProfile extends BaseEntity {
     @Builder.Default
     private boolean isOnboarded = false;
 
+    @Column(nullable = false)
+    @Builder.Default
+    private boolean hasWritten = false;
+
     public static SoptLetterProfile of(Long userId, String nickname) {
         return SoptLetterProfile.builder()
                 .userId(userId)
@@ -54,6 +59,10 @@ public class SoptLetterProfile extends BaseEntity {
 
     public void completeOnboarding() {
         this.isOnboarded = true;
+    }
+
+    public void markWritten() {
+        this.hasWritten = true;
     }
 
 }

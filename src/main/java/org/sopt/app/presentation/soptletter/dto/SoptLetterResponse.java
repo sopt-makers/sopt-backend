@@ -51,8 +51,16 @@ public class SoptLetterResponse {
         Long topicId,
         @Schema(description = "주제 제목", example = "36기 회고")
         String title,
+        @Schema(description = "주제 서브타이틀", example = "앱잼 끝나고 하고 싶은 말", nullable = true)
+        String subtitle,
         @Schema(description = "기본 주제 여부", example = "false")
         boolean isDefault,
+        @Schema(description = "새 주제 여부", example = "true")
+        boolean isNew,
+        @Schema(description = "HOT 주제 여부", example = "false")
+        boolean isHot,
+        @Schema(description = "안 읽은 솝레터 수", example = "3")
+        int unreadCount,
         @Schema(description = "주제 생성 시각")
         LocalDateTime createdAt
     ) {

@@ -18,6 +18,7 @@ import org.sopt.app.application.soptletter.SoptLetterInfo.TopicMessageSummary;
 import org.sopt.app.common.config.OperationConfigCategory;
 import org.sopt.app.common.exception.BadRequestException;
 import org.sopt.app.common.exception.ConflictException;
+import org.sopt.app.common.exception.ForbiddenException;
 import org.sopt.app.common.exception.NotFoundException;
 import org.sopt.app.common.response.ErrorCode;
 import org.sopt.app.common.utils.AnonymousNameGenerator;
@@ -25,9 +26,12 @@ import org.sopt.app.domain.entity.soptletter.SoptLetter;
 import org.sopt.app.domain.entity.soptletter.SoptLetterProfile;
 import org.sopt.app.domain.entity.soptletter.SoptLetterTopic;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeRepository;
+import org.sopt.app.interfaces.postgres.soptletter.SoptLetterLikeNotificationRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterProfileRepository;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepository;
+import org.sopt.app.interfaces.postgres.soptletter.SoptLetterRepositoryCustom.TopicUnreadCount;
 import org.sopt.app.interfaces.postgres.soptletter.SoptLetterTopicRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -42,15 +46,19 @@ public class SoptLetterService {
     private static final int NICKNAME_CANDIDATE_SIZE = 3;
     private static final int DAILY_MESSAGE_LIMIT = 10;
     private static final String REPORT_FORM_URL_KEY = "linkUrl";
+    private static final int HOT_TOPIC_COUNT = 2;
+    private static final int HOT_TOPIC_PERIOD_DAYS = 7;
 
     private final SoptLetterProfileRepository soptLetterProfileRepository;
     private final AnonymousNameGenerator anonymousNameGenerator;
     private final SoptLetterRepository soptLetterRepository;
     private final SoptLetterTopicRepository soptLetterTopicRepository;
     private final SoptLetterLikeRepository soptLetterLikeRepository;
+    private final SoptLetterLikeNotificationRepository soptLetterLikeNotificationRepository;
     private final SoptLetterGenerator soptLetterGenerator;
     private final OperationConfigService operationConfigService;
     private final Clock clock;
+    private final ApplicationEventPublisher eventPublisher;
 
     public boolean isOnboarded(Long userId) {
         return soptLetterProfileRepository.existsByUserId(userId);
@@ -148,9 +156,31 @@ public class SoptLetterService {
     }
 
     @Transactional(readOnly = true)
-    public SoptLetterInfo.TopicListResult getTopics(String type) {
-        val topics = getTopicsByType(type);
-        return SoptLetterInfo.TopicListResult.from(topics);
+    public SoptLetterInfo.TopicListResult getTopics(Long userId, String type) {
+        val now = LocalDateTime.now(clock);
+        val topics = getTopicsByType(type, now);
+        val hotTopicIds = soptLetterRepository.findTopTopicIdsByLetterCountSince(
+            now.minusDays(HOT_TOPIC_PERIOD_DAYS), PageRequest.of(0, HOT_TOPIC_COUNT));
+        val unreadCountsByTopicId = countUnreadLettersByTopic(userId).stream()
+            .collect(Collectors.toMap(
+                TopicUnreadCount::topicId,
+                unread -> Math.toIntExact(unread.unreadCount())
+            ));
+        return SoptLetterInfo.TopicListResult.of(topics, now, hotTopicIds, unreadCountsByTopicId);
+    }
+
+    @Transactional(readOnly = true)
+    public long getTotalUnreadCount(Long userId) {
+        return countUnreadLettersByTopic(userId).stream()
+            .mapToLong(TopicUnreadCount::unreadCount)
+            .sum();
+    }
+
+    private List<TopicUnreadCount> countUnreadLettersByTopic(Long userId) {
+        val profileId = soptLetterProfileRepository.findByUserId(userId)
+            .map(SoptLetterProfile::getId)
+            .orElse(null);
+        return soptLetterRepository.countUnreadLettersByTopic(userId, profileId);
     }
 
     @Transactional(readOnly = true)
@@ -163,15 +193,15 @@ public class SoptLetterService {
         return CtaResult.from(activeCtas.get(0));
     }
 
-    private List<SoptLetterTopic> getTopicsByType(String type) {
+    private List<SoptLetterTopic> getTopicsByType(String type, LocalDateTime now) {
         if (type == null) {
-            return soptLetterTopicRepository.findAllByOrderByCreatedAtDesc();
+            return soptLetterTopicRepository.findAllDefaultFirstOrderByCreatedAtDesc(now);
         }
         if ("default".equalsIgnoreCase(type)) {
-            return soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc();
+            return soptLetterTopicRepository.findAllDefaultTopicsOrderByCreatedAtDesc(now);
         }
         if ("normal".equalsIgnoreCase(type)) {
-            return soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc();
+            return soptLetterTopicRepository.findAllNormalTopicsOrderByCreatedAtDesc(now);
         }
         throw new BadRequestException(ErrorCode.INVALID_PARAMETER);
     }
@@ -187,9 +217,13 @@ public class SoptLetterService {
     public SoptLetterInfo.MessageResult createSoptLetter(Long userId, Long topicId, String content) {
         val topic = soptLetterTopicRepository.findById(topicId)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.ENTITY_NOT_FOUND));
+        val now = LocalDateTime.now(clock);
+        if (!topic.isActiveAt(now)) {
+            throw new BadRequestException(ErrorCode.SOPT_LETTER_TOPIC_NOT_ACTIVE);
+        }
         val profile = getProfileByUserId(userId);
 
-        validateDailyMessageLimit(profile.getId(), LocalDateTime.now(clock));
+        validateDailyMessageLimit(profile.getId(), now);
 
         val latestLetterOpt = soptLetterRepository.findFirstByTopicIdOrderByIdDesc(topicId);
         val latestColor = latestLetterOpt.map(SoptLetter::getColor).orElse(null);
@@ -197,6 +231,9 @@ public class SoptLetterService {
         val newLetter = soptLetterGenerator.generate(profile.getId(), topicId, content, latestColor);
 
         val savedLetter = soptLetterRepository.save(newLetter);
+
+        profile.markWritten();
+
         return SoptLetterInfo.MessageResult.of(savedLetter, profile.getNickname(), false, true);
     }
 
@@ -234,11 +271,21 @@ public class SoptLetterService {
 
     @Transactional
     public void addLike(Long userId, Long topicId, Long soptLetterId) {
-        validateSoptLetterExistsForLike(topicId, soptLetterId);
+        val letter = getSoptLetter(soptLetterId);
+        letter.validateInTopic(topicId);
+        val authorProfile = soptLetterProfileRepository.findById(letter.getAuthorProfileId())
+            .orElseThrow(() -> new NotFoundException(ErrorCode.SOPT_LETTER_PROFILE_NOT_FOUND));
+
+        if (userId.equals(authorProfile.getUserId())) {
+            throw new ForbiddenException(ErrorCode.FORBIDDEN);
+        }
 
         val insertedCount = soptLetterLikeRepository.insertIgnore(userId, soptLetterId);
         if (insertedCount > 0) {
             soptLetterRepository.increaseLikeCount(soptLetterId);
+            if (soptLetterLikeNotificationRepository.insertIgnore(userId, soptLetterId) > 0) {
+                eventPublisher.publishEvent(new SoptLetterLikeEvent(userId, authorProfile.getUserId(), topicId, soptLetterId));
+            }
         }
     }
 
