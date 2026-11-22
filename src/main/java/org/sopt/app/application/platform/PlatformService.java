@@ -57,23 +57,30 @@ public class PlatformService {
     }
 
     public List<PlatformUserInfoResponse> getPlatformUserInfosResponse(List<Long> userIds) {
-        final Map<String, String> headers = createAuthorizationHeader();
-
         if (userIds == null || userIds.isEmpty()) {
             return Collections.emptyList();
         }
 
+        List<PlatformUserInfoResponse> data = findPlatformUserInfos(userIds);
+        if (data.isEmpty()) {
+            throw new BadRequestException(ErrorCode.PLATFORM_USER_NOT_EXISTS);
+        }
+        return data;
+    }
+
+    public List<PlatformUserInfoResponse> findPlatformUserInfos(List<Long> userIds) {
+        if (userIds == null || userIds.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        final Map<String, String> headers = createAuthorizationHeader();
         // 중복 제거
-        userIds = userIds.stream().distinct().toList();
-        final Map<String, String> params = createQueryParams(userIds);
+        final Map<String, String> params = createQueryParams(userIds.stream().distinct().toList());
 
         PlatformUserInfoWrapper platformUserInfoWrapper = platformClient.getPlatformUserInfo(headers, params);
 
         List<PlatformUserInfoResponse> data = platformUserInfoWrapper.data();
-        if (data == null || data.isEmpty()) {
-            throw new BadRequestException(ErrorCode.PLATFORM_USER_NOT_EXISTS);
-        }
-        return data;
+        return data == null ? Collections.emptyList() : data;
     }
 
     // 길이에 따라 GET/POST 자동 선택
