@@ -1,5 +1,6 @@
 package org.sopt.app.application.friend;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -163,7 +164,7 @@ public class FriendService {
     }
 
     @Transactional(readOnly = true)
-    public Long getPokeFriendIdRandomly(Long userId) {
+    public List<Long> getPokeFriendIdsInRandomOrder(Long userId) {
         val friendIdsPokeMe = friendRepository.findAllByFriendUserId(userId).stream()
                 .map(Friend::getUserId)
                 .toList();
@@ -174,7 +175,9 @@ public class FriendService {
             throw new NotFoundException(ErrorCode.FRIENDSHIP_NOT_FOUND);
         }
 
-        return friends.get(random.nextInt(friends.size())).getFriendUserId();
+        List<Long> friendIds = new ArrayList<>(friends.stream().map(Friend::getFriendUserId).toList());
+        Collections.shuffle(friendIds, random);
+        return friendIds;
     }
 
     @Transactional(readOnly = true)

@@ -123,43 +123,52 @@ public class PokeFacade {
 
     public List<SimplePokeProfile> getFriend(Long userId) {
         // 나와 친구인 사용자들 중 랜덤으로 1명 뽑기
-        val friendId = friendService.getPokeFriendIdRandomly(userId);
-        if (friendId == null || !userService.isUserExist(friendId)) {
-            return List.of();
+        for (Long friendId : friendService.getPokeFriendIdsInRandomOrder(userId)) {
+            if (!userService.isUserExist(friendId)) {
+                continue;
+            }
+
+            // 그 친구의 이름 가져오기
+            // val friendUserProfile = userService.getUserProfileOrElseThrow(friendId);
+
+            // 그 친구의 플그 프로필 가져오기(intro 안쓰이면 그냥 platform info로 대체 가능)
+            // val friendProfile = playgroundAuthService.getPlaygroundMemberProfiles(
+            //         user.getPlaygroundToken(), List.of(friendUserProfile.getPlaygroundId())).get(0);
+
+            PlatformUserInfoResponse platformUserInfoResponse;
+            try {
+                platformUserInfoResponse = platformService.getPlatformUserInfoResponse(friendId);
+            } catch (BadRequestException e) {
+                if (e.getErrorCode() != ErrorCode.PLATFORM_USER_NOT_EXISTS) throw e;
+                log.warn("플랫폼에 없는 유저를 건너뛰고 다음 친구를 확인합니다. userId={}", friendId);
+                continue;
+            }
+            val friendRelationInfo = friendService.getRelationInfo(userId, friendId);
+
+            PlatformUserInfoResponse.SoptActivities soptActivities = platformUserInfoResponse.soptActivities().stream().max(Comparator.comparingInt(
+                PlatformUserInfoResponse.SoptActivities::generation)).orElseThrow(
+                () -> new NotFoundException(ErrorCode.USER_NOT_FOUND)
+            );
+
+            return List.of(
+                    SimplePokeProfile.of(
+                            friendId,
+                            platformUserInfoResponse.profileImage(),
+                            platformUserInfoResponse.name(),
+                            "",
+                            Long.valueOf(platformUserInfoResponse.lastGeneration()),
+                            soptActivities.part(),
+                            friendRelationInfo.getPokeNum(),
+                            friendRelationInfo.getRelationName(),
+                            createMutualFriendNames(userId, friendId),
+                            false,
+                            getIsAlreadyPoke(userId, friendId, userId),
+                            getIsAnonymous(userId, friendId, userId),
+                            friendRelationInfo.getAnonymousName()
+                    )
+            );
         }
-
-        // 그 친구의 이름 가져오기
-        // val friendUserProfile = userService.getUserProfileOrElseThrow(friendId);
-
-        // 그 친구의 플그 프로필 가져오기(intro 안쓰이면 그냥 platform info로 대체 가능)
-        // val friendProfile = playgroundAuthService.getPlaygroundMemberProfiles(
-        //         user.getPlaygroundToken(), List.of(friendUserProfile.getPlaygroundId())).get(0);
-
-        PlatformUserInfoResponse platformUserInfoResponse = platformService.getPlatformUserInfoResponse(friendId);
-        val friendRelationInfo = friendService.getRelationInfo(userId, friendId);
-
-        PlatformUserInfoResponse.SoptActivities soptActivities = platformUserInfoResponse.soptActivities().stream().max(Comparator.comparingInt(
-            PlatformUserInfoResponse.SoptActivities::generation)).orElseThrow(
-            () -> new NotFoundException(ErrorCode.USER_NOT_FOUND)
-        );
-
-        return List.of(
-                SimplePokeProfile.of(
-                        friendId,
-                        platformUserInfoResponse.profileImage(),
-                        platformUserInfoResponse.name(),
-                        "",
-                        Long.valueOf(platformUserInfoResponse.lastGeneration()),
-                        soptActivities.part(),
-                        friendRelationInfo.getPokeNum(),
-                        friendRelationInfo.getRelationName(),
-                        createMutualFriendNames(userId, friendId),
-                        false,
-                        getIsAlreadyPoke(userId, friendId, userId),
-                        getIsAnonymous(userId, friendId, userId),
-                        friendRelationInfo.getAnonymousName()
-                )
-        );
+        return List.of();
     }
 
     private boolean getIsAlreadyPoke(Long pokerId, Long pokedId, Long userId) {
