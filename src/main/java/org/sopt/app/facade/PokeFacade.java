@@ -6,6 +6,7 @@ import static org.sopt.app.application.poke.PokeInfo.NEW_FRIEND_ONE_MUTUAL;
 
 import java.util.*;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.sopt.app.application.friend.FriendRecommender;
 import org.sopt.app.application.platform.PlatformService;
@@ -27,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PokeFacade {
@@ -56,7 +58,7 @@ public class PokeFacade {
 
     public SimplePokeProfile getRandomUnRepliedPokeMeHistory(Long userId) {
         return pokeHistoryService.getRandomUnRepliedPokeMeHistory(userId)
-            .map(pokeHistory -> getPokeHistoryProfile(
+            .map(pokeHistory -> getPokeHistoryProfileOrNull(
                 userId,
                 pokeHistory.getPokerId(),
                 pokeHistory.getId()
@@ -78,7 +80,8 @@ public class PokeFacade {
         val size = pokedHistories.getSize();
         val totalPageSize = size / pageable.getPageSize();
         List<SimplePokeProfile> pokeToMeHistories = pokedHistories.stream()
-                .map(pokeHistory -> getPokeHistoryProfile(userId, pokeHistory.getPokerId(), pokeHistory.getId()))
+                .map(pokeHistory -> getPokeHistoryProfileOrNull(userId, pokeHistory.getPokerId(), pokeHistory.getId()))
+                .filter(Objects::nonNull)
                 .distinct()
                 .toList();
         return PokeToMeHistoryList.builder()
@@ -177,7 +180,7 @@ public class PokeFacade {
         List<Long> mutualIds = friendService.getMutualFriendIds(userId, friendId);
         List<String> mutualFriendNames = mutualIds.isEmpty()
             ? List.of()
-            : platformService.getPlatformUserInfosResponse(mutualIds).stream()
+            : platformService.findPlatformUserInfos(mutualIds).stream()
             .map(PlatformUserInfoResponse::name)
             .toList();
 
@@ -201,7 +204,7 @@ public class PokeFacade {
                     .getAllOfPokeBetween(friend.getUserId(), friend.getFriendUserId());
                 return allOfPokeFromTo.stream()
                     .findFirst()
-                    .map(poke -> getPokeHistoryProfile(userId, friend.getFriendUserId(), poke.getId()))
+                    .map(poke -> getPokeHistoryProfileOrNull(userId, friend.getFriendUserId(), poke.getId()))
                     .orElse(null);
             })
             .filter(Objects::nonNull)
@@ -225,7 +228,7 @@ public class PokeFacade {
                             friend.getFriendUserId());
                     return allOfPokeFromTo.stream()
                         .findFirst()
-                        .map(poke -> getPokeHistoryProfile(userId, friend.getFriendUserId(), poke.getId()))
+                        .map(poke -> getPokeHistoryProfileOrNull(userId, friend.getFriendUserId(), poke.getId()))
                         .orElse(null);
                 })
             .filter(Objects::nonNull)
@@ -254,6 +257,16 @@ public class PokeFacade {
         );
     }
 
+    private SimplePokeProfile getPokeHistoryProfileOrNull(Long userId, Long friendId, Long pokeId) {
+        try {
+            return getPokeHistoryProfile(userId, friendId, pokeId);
+        } catch (BadRequestException e) {
+            if (e.getErrorCode() != ErrorCode.PLATFORM_USER_NOT_EXISTS) throw e;
+            log.warn("플랫폼에 없는 유저를 콕찌르기 목록에서 제외합니다. userId={}", friendId);
+            return null;
+        }
+    }
+
     private PokeInfo.PokedUserInfo getFriendUserInfo(Long userId, Long friendUserId) {
         PlatformUserInfoResponse platformUserInfoResponse = platformService.getPlatformUserInfoResponse(friendUserId);
         PlatformUserInfoResponse.SoptActivities soptActivities = platformUserInfoResponse.soptActivities().stream().max(Comparator.comparingInt(
@@ -264,7 +277,7 @@ public class PokeFacade {
         List<Long> mutualFriendIds = friendService.getMutualFriendIds(userId, friendUserId);
         List<String> mutualFriendNames = mutualFriendIds.isEmpty()
             ? Collections.emptyList()
-            : platformService.getPlatformUserInfosResponse(mutualFriendIds).stream()
+            : platformService.findPlatformUserInfos(mutualFriendIds).stream()
                 .map(PlatformUserInfoResponse::name).toList();
 
         val relationInfo = friendService.getRelationInfo(userId, friendUserId);
